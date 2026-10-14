@@ -1,4 +1,8 @@
-# Sidehop 🐰📦
+# Sidehop
+
+<p align="center">
+  <img src="assets/logo.png" width="160" alt="Sidehop Logo">
+</p>
 
 **A 2D Platformer Creator & Playful Personalization Studio**  
 *Created by John O'Brien*
