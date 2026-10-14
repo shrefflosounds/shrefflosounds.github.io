@@ -9,26 +9,25 @@ export class Camera {
     this.targetX = 0;
     this.targetY = 0;
     this.zoom = 1.0;
-    this.minX = 0;
-    this.minY = -1000;
-    this.maxX = 4000;
-    this.maxY = 1200;
+    this.minX = -300;
+    this.minY = -1200;
+    this.maxX = 5000;
+    this.maxY = 1600;
   }
 
   resize(width, height) {
     this.viewportWidth = width;
     this.viewportHeight = height;
+    this.clamp();
   }
 
   // Smoothly track target in Play Mode
   follow(target, dt) {
     if (!target) return;
-    // Keep target roughly in the horizontal center-left and vertical lower-middle
     const desiredX = target.x + target.width / 2 - this.viewportWidth * 0.45;
     const desiredY = target.y + target.height / 2 - this.viewportHeight * 0.6;
 
-    // Smooth lerp follow
-    const lerpSpeed = 6.0;
+    const lerpSpeed = 7.0;
     this.x += (desiredX - this.x) * Math.min(1.0, lerpSpeed * dt);
     this.y += (desiredY - this.y) * Math.min(1.0, lerpSpeed * dt);
 
@@ -39,6 +38,13 @@ export class Camera {
   pan(dx, dy) {
     this.x += dx;
     this.y += dy;
+    this.clamp();
+  }
+
+  // Center smoothly or instantly on an entity
+  recenter(worldX, worldY) {
+    this.x = worldX - this.viewportWidth * 0.45;
+    this.y = worldY - this.viewportHeight * 0.6;
     this.clamp();
   }
 

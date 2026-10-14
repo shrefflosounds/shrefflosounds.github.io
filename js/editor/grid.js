@@ -1,4 +1,4 @@
-// Sidehop Snap-to-Grid Level Editor & Interaction System
+// Sidehop Snap-to-Grid Level Editor & Enhanced Interaction System
 
 import { CrateBlock, Springboard, HazardSpikes, EnemyWalker, MovingPlatform, Collectible, GoalFlag } from '../engine/entities.js';
 import { sounds } from '../audio/sound.js';
@@ -8,28 +8,74 @@ export class GridEditor {
     this.canvas = canvas;
     this.camera = camera;
     this.tileSize = tileSize;
-    this.currentTool = 'place'; // 'place', 'select', 'erase', 'pan'
-    this.selectedPaletteItem = 'crate'; // 'crate', 'springboard', 'hazard', 'enemy', 'moving_platform', 'collectible', 'goal'
+    this.currentTool = 'place'; // 'place', 'select', 'pan', 'erase'
+    this.previousTool = 'place';
+    this.selectedPaletteItem = 'crate';
     this.hoverGrid = { x: 0, y: 0 };
     this.isMouseDown = false;
     this.isPanning = false;
     this.panStart = { x: 0, y: 0 };
+    this.isSpacePan = false;
     this.selectedEntity = null;
+
+    // Drag-to-move entity in Select mode
+    this.isDraggingEntity = false;
+    this.dragOffset = { x: 0, y: 0 };
 
     // Callbacks for UI
     this.onSelectEntity = null; // (entity, screenPos) => {}
     this.onDeselect = null;
+    this.onEntityMoved = null;
+
+    this.bindCanvasEvents();
   }
 
   setPaletteItem(item) {
     this.selectedPaletteItem = item;
     this.currentTool = 'place';
+    this.updateCursor();
     sounds.playClick();
   }
 
   setTool(tool) {
     this.currentTool = tool;
+    this.updateCursor();
     sounds.playClick();
+  }
+
+  updateCursor() {
+    if (this.isPanning || (this.isMouseDown && this.currentTool === 'pan')) {
+      this.canvas.style.cursor = 'grabbing';
+    } else if (this.currentTool === 'pan' || this.isSpacePan) {
+      this.canvas.style.cursor = 'grab';
+    } else if (this.currentTool === 'erase') {
+      this.canvas.style.cursor = 'crosshair';
+    } else if (this.currentTool === 'select') {
+      this.canvas.style.cursor = 'default';
+    } else {
+      this.canvas.style.cursor = 'crosshair';
+    }
+  }
+
+  bindCanvasEvents() {
+    // Two-finger trackpad scroll or mouse wheel pans the map smoothly
+    this.canvas.addEventListener('wheel', (e) => {
+      e.preventDefault();
+      // Handle both wheel and trackpad panning
+      const dx = e.deltaX;
+      const dy = e.deltaY;
+      this.camera.pan(dx, dy);
+      if (this.selectedEntity && this.onSelectEntity) {
+        this.notifyEntitySelected(this.selectedEntity);
+      }
+    }, { passive: false });
+  }
+
+  notifyEntitySelected(entity) {
+    const screenCenter = this.camera.worldToScreen(entity.x + entity.width / 2, entity.y);
+    if (this.onSelectEntity) {
+      this.onSelectEntity(entity, screenCenter);
+    }
   }
 
   handleMouseDown(e, entities, player) {
@@ -37,10 +83,11 @@ export class GridEditor {
     const mouseX = e.clientX - rect.left;
     const mouseY = e.clientY - rect.top;
 
-    // Right-click or middle-click or Alt-click pans
-    if (e.button === 1 || e.button === 2 || e.altKey) {
+    // Pan with Right-click, Middle-click, Alt-click, Pan Tool, or Spacebar held
+    if (e.button === 1 || e.button === 2 || e.altKey || this.currentTool === 'pan' || this.isSpacePan) {
       this.isPanning = true;
       this.panStart = { x: mouseX, y: mouseY };
+      this.updateCursor();
       return;
     }
 
@@ -54,8 +101,33 @@ export class GridEditor {
     } else if (this.currentTool === 'place') {
       this.placeAt(gridX, gridY, entities, player);
     } else if (this.currentTool === 'select') {
-      this.selectAt(worldPos.x, worldPos.y, entities, player, mouseX, mouseY);
+      // Check if clicking currently selected entity to drag it
+      if (this.selectedEntity && this.isPointInside(worldPos.x, worldPos.y, this.selectedEntity)) {
+        this.isDraggingEntity = true;
+        this.dragOffset = {
+          x: worldPos.x - this.selectedEntity.x,
+          y: worldPos.y - this.selectedEntity.y
+        };
+      } else {
+        this.selectAt(worldPos.x, worldPos.y, entities, player, mouseX, mouseY);
+        if (this.selectedEntity) {
+          this.isDraggingEntity = true;
+          this.dragOffset = {
+            x: worldPos.x - this.selectedEntity.x,
+            y: worldPos.y - this.selectedEntity.y
+          };
+        }
+      }
     }
+  }
+
+  isPointInside(x, y, entity) {
+    return (
+      x >= entity.x &&
+      x <= entity.x + entity.width &&
+      y >= entity.y &&
+      y <= entity.y + entity.height
+    );
   }
 
   handleMouseMove(e, entities, player) {
@@ -68,12 +140,34 @@ export class GridEditor {
       const dy = this.panStart.y - mouseY;
       this.camera.pan(dx, dy);
       this.panStart = { x: mouseX, y: mouseY };
+      if (this.selectedEntity) {
+        this.notifyEntitySelected(this.selectedEntity);
+      }
       return;
     }
 
     const worldPos = this.camera.screenToWorld(mouseX, mouseY);
     this.hoverGrid.x = Math.floor(worldPos.x / this.tileSize) * this.tileSize;
     this.hoverGrid.y = Math.floor(worldPos.y / this.tileSize) * this.tileSize;
+
+    // Drag-moving selected entity
+    if (this.isMouseDown && this.isDraggingEntity && this.selectedEntity) {
+      const newX = Math.round((worldPos.x - this.dragOffset.x) / this.tileSize) * this.tileSize;
+      const newY = Math.round((worldPos.y - this.dragOffset.y) / this.tileSize) * this.tileSize;
+
+      if (this.selectedEntity.type === 'player') {
+        player.setSpawn(newX, newY);
+      } else {
+        this.selectedEntity.x = newX;
+        this.selectedEntity.y = newY;
+        if (this.selectedEntity.startX !== undefined) {
+          this.selectedEntity.startX = newX;
+          this.selectedEntity.startY = newY;
+        }
+      }
+      this.notifyEntitySelected(this.selectedEntity);
+      return;
+    }
 
     if (this.isMouseDown) {
       if (this.currentTool === 'place' && this.selectedPaletteItem === 'crate') {
@@ -88,6 +182,11 @@ export class GridEditor {
   handleMouseUp() {
     this.isMouseDown = false;
     this.isPanning = false;
+    if (this.isDraggingEntity) {
+      this.isDraggingEntity = false;
+      if (this.onEntityMoved) this.onEntityMoved();
+    }
+    this.updateCursor();
   }
 
   placeAt(x, y, entities, player) {
@@ -127,6 +226,7 @@ export class GridEditor {
     if (newEnt) {
       entities.push(newEnt);
       sounds.playLand();
+      if (this.onEntityMoved) this.onEntityMoved();
     }
   }
 
@@ -144,18 +244,19 @@ export class GridEditor {
     if (idx !== -1) {
       entities.splice(idx, 1);
       sounds.playPaintSquish();
-      if (this.onDeselect) this.onDeselect();
+      if (this.selectedEntity === entities[idx]) {
+        this.selectedEntity = null;
+        if (this.onDeselect) this.onDeselect();
+      }
+      if (this.onEntityMoved) this.onEntityMoved();
     }
   }
 
   selectAt(worldX, worldY, entities, player, screenX, screenY) {
     // Check player first
-    if (
-      worldX >= player.x && worldX <= player.x + player.width &&
-      worldY >= player.y && worldY <= player.y + player.height
-    ) {
+    if (this.isPointInside(worldX, worldY, player)) {
       this.selectedEntity = player;
-      if (this.onSelectEntity) this.onSelectEntity(player, { x: screenX, y: screenY });
+      this.notifyEntitySelected(player);
       sounds.playClick();
       return;
     }
@@ -163,18 +264,15 @@ export class GridEditor {
     // Check other entities in reverse order (topmost first)
     for (let i = entities.length - 1; i >= 0; i--) {
       const ent = entities[i];
-      if (
-        worldX >= ent.x && worldX <= ent.x + ent.width &&
-        worldY >= ent.y && worldY <= ent.y + ent.height
-      ) {
+      if (this.isPointInside(worldX, worldY, ent)) {
         this.selectedEntity = ent;
-        if (this.onSelectEntity) this.onSelectEntity(ent, { x: screenX, y: screenY });
+        this.notifyEntitySelected(ent);
         sounds.playClick();
         return;
       }
     }
 
-    // Clicked empty space
+    // Clicked empty space: deselect
     this.selectedEntity = null;
     if (this.onDeselect) this.onDeselect();
   }
@@ -228,14 +326,24 @@ export class GridEditor {
       ctx.restore();
     }
 
-    // 3. Selection Box on Selected Entity
+    // 3. Selection Box on Selected Entity with Animated Pulse
     if (this.selectedEntity) {
       const entScreen = this.camera.worldToScreen(this.selectedEntity.x, this.selectedEntity.y);
       ctx.save();
       ctx.translate(entScreen.x, entScreen.y);
-      ctx.strokeStyle = '#FFE600'; // Canary Pop Yellow outline
+      ctx.strokeStyle = '#00E5FF'; // Cyber cyan
       ctx.lineWidth = 3;
+      ctx.setLineDash([6, 4]);
       ctx.strokeRect(-4, -4, this.selectedEntity.width + 8, this.selectedEntity.height + 8);
+
+      // Corner handles
+      ctx.fillStyle = '#FFE600';
+      ctx.setLineDash([]);
+      const s = 6;
+      ctx.fillRect(-6, -6, s, s);
+      ctx.fillRect(this.selectedEntity.width, -6, s, s);
+      ctx.fillRect(-6, this.selectedEntity.height, s, s);
+      ctx.fillRect(this.selectedEntity.width, this.selectedEntity.height, s, s);
       ctx.restore();
     }
 

@@ -63,9 +63,13 @@
           <span class="palette-icon">🖌️</span>
           <span>Place</span>
         </button>
-        <button class="palette-item" data-tool="select" title="Select & Inspect">
+        <button class="palette-item" data-tool="select" title="Select, Move & Inspect">
           <span class="palette-icon">👆</span>
           <span>Select</span>
+        </button>
+        <button class="palette-item" data-tool="pan" title="Pan Map (or Hold Spacebar & Drag)">
+          <span class="palette-icon">✋</span>
+          <span>Pan</span>
         </button>
         <button class="palette-item" data-tool="erase" title="Erase Components">
           <span class="palette-icon">🧹</span>
@@ -109,11 +113,12 @@
         </button>
       </div>
 
-      <div style="font-size: 11px; color: #666; margin-top: auto; line-height: 1.4;">
-        <strong>Controls:</strong><br>
-        A/D or Arrows: Run<br>
-        W / Space: Jump<br>
-        Right-Click / Alt: Pan
+      <div class="drawer-tips">
+        <strong>Quick Controls:</strong><br>
+        • <strong>Move Map:</strong> 2-Finger scroll, ✋ Pan tool, or Space+Drag<br>
+        • <strong>Move Object:</strong> Drag in 👆 Select mode<br>
+        • <strong>Delete:</strong> Backspace key<br>
+        • <strong>Play / Edit:</strong> Spacebar or ▶
       </div>
     </aside>
 
@@ -121,17 +126,34 @@
     <section class="canvas-wrapper">
       <canvas id="game-canvas" width="960" height="540"></canvas>
 
-      <!-- Floating Action Card for Selected Entity -->
+      <!-- Floating Action Card for Selected Entity (Guaranteed In-Frame) -->
       <div id="entity-action-card" class="entity-action-card">
-        <button id="action-paint-btn" class="neo-btn neo-btn-pink" style="padding: 6px 12px; font-size: 13px;">
-          <span>🎨 Paint Art</span>
-        </button>
-        <button id="action-tune-btn" class="neo-btn neo-btn-accent" style="padding: 6px 12px; font-size: 13px;">
-          <span>⚙️ Tune Physics</span>
-        </button>
-        <button id="action-delete-btn" class="neo-btn" style="padding: 6px 12px; font-size: 13px; color: var(--hazard-red);">
-          <span>🗑️ Delete</span>
-        </button>
+        <div class="action-card-header">
+          <span id="action-entity-badge" class="action-entity-badge">📦 COMPONENT</span>
+          <button id="action-close-btn" class="action-card-close" title="Deselect">&times;</button>
+        </div>
+        <div class="action-card-buttons">
+          <button id="action-paint-btn" class="neo-btn neo-btn-pink" style="padding: 6px 12px; font-size: 13px;">
+            <span>🎨 Paint Art</span>
+          </button>
+          <button id="action-tune-btn" class="neo-btn neo-btn-accent" style="padding: 6px 12px; font-size: 13px;">
+            <span>⚙️ Tune Physics</span>
+          </button>
+          <button id="action-delete-btn" class="neo-btn" style="padding: 6px 12px; font-size: 13px; color: var(--hazard-red);">
+            <span>🗑️ Delete</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Floating On-Screen Navigation Controls (Edit Mode) -->
+      <div id="canvas-nav-controls" class="canvas-nav-controls">
+        <button id="nav-pan-up" class="nav-mini-btn" title="Pan Up">▲</button>
+        <div class="nav-horizontal-row">
+          <button id="nav-pan-left" class="nav-mini-btn" title="Pan Left">◀</button>
+          <button id="nav-recenter" class="nav-mini-btn nav-recenter-btn" title="Recenter on Player">🎯</button>
+          <button id="nav-pan-right" class="nav-mini-btn" title="Pan Right">▶</button>
+        </div>
+        <button id="nav-pan-down" class="nav-mini-btn" title="Pan Down">▼</button>
       </div>
 
       <!-- Victory Celebration Overlay -->
@@ -191,7 +213,7 @@
           </div>
 
           <div style="margin-top: 6px;">
-            <label class="neo-btn" style="width: 100%; justify-content: center; font-size: 13px;">
+            <label class="neo-btn" style="width: 100%; justify-content: center; font-size: 13px; cursor: pointer;">
               📁 Upload Image / GIF
               <input type="file" id="paint-image-upload" accept="image/*" style="display: none;">
             </label>
