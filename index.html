@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sidehop — 2D Platformer Creator & Personalization Studio</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐰</text></svg>">
+</head>
+<body>
+
+  <!-- TOP NEO-BRUTALIST HEADER -->
+  <header class="neo-header">
+    <div class="logo-group">
+      <h1 class="logo-title">Sidehop</h1>
+      <span class="logo-badge">ALPHA</span>
+    </div>
+
+    <div class="header-controls">
+      <!-- Main Mode Switch Button -->
+      <button id="mode-toggle-btn" class="neo-btn neo-btn-primary" title="Press Space to toggle mode">
+        <span id="mode-icon">▶</span>
+        <span id="mode-text">PLAY TEST</span>
+      </button>
+
+      <!-- Video Recording Button -->
+      <button id="rec-btn" class="neo-btn neo-btn-rec" title="Record gameplay clip">
+        <span id="rec-icon">●</span>
+        <span id="rec-text">REC</span>
+        <span id="rec-timer" style="font-size: 12px; margin-left: 4px;">00:00</span>
+      </button>
+
+      <!-- Sound & Music Toggles -->
+      <button id="sound-toggle-btn" class="neo-btn" title="Toggle Sound FX">
+        <span id="sound-icon">🔊</span>
+      </button>
+      <button id="bgm-toggle-btn" class="neo-btn" title="Toggle Background Chiptune">
+        <span id="bgm-icon">🎵 MUSIC</span>
+      </button>
+
+      <!-- Level Management -->
+      <button id="load-preset-btn" class="neo-btn neo-btn-accent">
+        <span>📦 Crate Challenge</span>
+      </button>
+      <button id="export-level-btn" class="neo-btn" title="Save level as JSON file">
+        <span>💾 Export</span>
+      </button>
+      <button id="import-level-btn" class="neo-btn" title="Load level from JSON file">
+        <span>📂 Import</span>
+      </button>
+      <input type="file" id="import-file-input" accept=".json" style="display: none;">
+    </div>
+  </header>
+
+  <!-- MAIN WORKBENCH -->
+  <main class="workbench-container">
+
+    <!-- LEFT TOOL DRAWER (PALETTE) -->
+    <aside id="tool-drawer" class="tool-drawer">
+      <div class="drawer-title">Tools</div>
+      <div class="palette-grid">
+        <button class="palette-item active" data-tool="place" title="Place Components">
+          <span class="palette-icon">🖌️</span>
+          <span>Place</span>
+        </button>
+        <button class="palette-item" data-tool="select" title="Select & Inspect">
+          <span class="palette-icon">👆</span>
+          <span>Select</span>
+        </button>
+        <button class="palette-item" data-tool="erase" title="Erase Components">
+          <span class="palette-icon">🧹</span>
+          <span>Erase</span>
+        </button>
+      </div>
+
+      <div class="drawer-title" style="margin-top: 8px;">Components</div>
+      <div class="palette-grid">
+        <button class="palette-item active" data-palette="crate" title="Solid Crate / Ground Block">
+          <span class="palette-icon">📦</span>
+          <span>Crate</span>
+        </button>
+        <button class="palette-item" data-palette="springboard" title="Spring Bouncer">
+          <span class="palette-icon">🌀</span>
+          <span>Spring</span>
+        </button>
+        <button class="palette-item" data-palette="hazard" title="Spike Hazard">
+          <span class="palette-icon">⚠️</span>
+          <span>Spikes</span>
+        </button>
+        <button class="palette-item" data-palette="enemy" title="Patrolling Enemy">
+          <span class="palette-icon">👾</span>
+          <span>Enemy</span>
+        </button>
+        <button class="palette-item" data-palette="moving_platform" title="Moving Platform">
+          <span class="palette-icon">🛹</span>
+          <span>Platform</span>
+        </button>
+        <button class="palette-item" data-palette="collectible" title="Star Token">
+          <span class="palette-icon">⭐</span>
+          <span>Star</span>
+        </button>
+        <button class="palette-item" data-palette="goal" title="Finish Line Flag">
+          <span class="palette-icon">🏁</span>
+          <span>Goal</span>
+        </button>
+        <button class="palette-item" data-palette="player" title="Player Start Point">
+          <span class="palette-icon">🐰</span>
+          <span>Spawn</span>
+        </button>
+      </div>
+
+      <div style="font-size: 11px; color: #666; margin-top: auto; line-height: 1.4;">
+        <strong>Controls:</strong><br>
+        A/D or Arrows: Run<br>
+        W / Space: Jump<br>
+        Right-Click / Alt: Pan
+      </div>
+    </aside>
+
+    <!-- CENTER CANVAS STAGE -->
+    <section class="canvas-wrapper">
+      <canvas id="game-canvas" width="960" height="540"></canvas>
+
+      <!-- Floating Action Card for Selected Entity -->
+      <div id="entity-action-card" class="entity-action-card">
+        <button id="action-paint-btn" class="neo-btn neo-btn-pink" style="padding: 6px 12px; font-size: 13px;">
+          <span>🎨 Paint Art</span>
+        </button>
+        <button id="action-tune-btn" class="neo-btn neo-btn-accent" style="padding: 6px 12px; font-size: 13px;">
+          <span>⚙️ Tune Physics</span>
+        </button>
+        <button id="action-delete-btn" class="neo-btn" style="padding: 6px 12px; font-size: 13px; color: var(--hazard-red);">
+          <span>🗑️ Delete</span>
+        </button>
+      </div>
+
+      <!-- Victory Celebration Overlay -->
+      <div id="victory-overlay" class="victory-overlay">
+        <h2 class="victory-title">LEVEL COMPLETE! 🎉</h2>
+        <p id="victory-stats" style="font-size: 20px; font-weight: 700;">Score: 100 PTS</p>
+        <div style="display: flex; gap: 12px; margin-top: 10px;">
+          <button id="victory-clip-btn" class="neo-btn neo-btn-rec">
+            <span>📹 Save Replay Clip</span>
+          </button>
+          <button id="victory-restart-btn" class="neo-btn neo-btn-primary">
+            <span>🔄 Play Again</span>
+          </button>
+          <button id="victory-edit-btn" class="neo-btn neo-btn-accent">
+            <span>✏️ Back to Editor</span>
+          </button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ART STUDIO MODAL (KID PIX STYLE) -->
+  <div id="art-studio-modal" class="neo-modal-overlay">
+    <div class="neo-modal-box">
+      <div class="modal-header">
+        <h3 class="modal-title">🎨 Kid Pix Art Studio</h3>
+        <button id="close-art-studio" class="modal-close-btn">&times;</button>
+      </div>
+
+      <div class="art-studio-body">
+        <div class="art-canvas-container">
+          <canvas id="paint-canvas" width="220" height="220"></canvas>
+        </div>
+
+        <div class="art-tools-panel">
+          <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+            <button class="neo-btn paint-tool-btn active" data-tool="brush">🖌️ Brush</button>
+            <button class="neo-btn paint-tool-btn" data-tool="marker">🖍️ Marker</button>
+            <button class="neo-btn paint-tool-btn" data-tool="eraser">🧹 Eraser</button>
+            <button class="neo-btn paint-tool-btn" data-tool="stamp">⭐ Stamp</button>
+          </div>
+
+          <div class="color-swatches">
+            <div class="color-swatch active" data-color="#00E5FF" style="background-color: #00E5FF;"></div>
+            <div class="color-swatch" data-color="#FFE600" style="background-color: #FFE600;"></div>
+            <div class="color-swatch" data-color="#FF3388" style="background-color: #FF3388;"></div>
+            <div class="color-swatch" data-color="#00E676" style="background-color: #00E676;"></div>
+            <div class="color-swatch" data-color="#B388FF" style="background-color: #B388FF;"></div>
+            <div class="color-swatch" data-color="#FF3B30" style="background-color: #FF3B30;"></div>
+            <div class="color-swatch" data-color="#121212" style="background-color: #121212;"></div>
+            <div class="color-swatch" data-color="#FFFFFF" style="background-color: #FFFFFF;"></div>
+          </div>
+
+          <div style="margin-top: 6px;">
+            <label style="font-size: 13px; font-weight: 700;">Brush Size</label>
+            <input type="range" id="paint-brush-size" min="3" max="24" value="8" class="neo-slider" style="width: 100%;">
+          </div>
+
+          <div style="margin-top: 6px;">
+            <label class="neo-btn" style="width: 100%; justify-content: center; font-size: 13px;">
+              📁 Upload Image / GIF
+              <input type="file" id="paint-image-upload" accept="image/*" style="display: none;">
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 10px;">
+        <button id="paint-reset-btn" class="neo-btn">Reset Default</button>
+        <button id="paint-apply-btn" class="neo-btn neo-btn-primary">Apply to Entity</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- COMPONENT INSPECTOR MODAL -->
+  <div id="inspector-modal" class="neo-modal-overlay">
+    <div class="neo-modal-box" style="max-width: 440px;">
+      <div class="modal-header">
+        <h3 id="inspector-title" class="modal-title">Tuning</h3>
+        <button id="inspector-close" class="modal-close-btn">&times;</button>
+      </div>
+      <div id="inspector-fields"></div>
+      <div style="display: flex; justify-content: flex-end; margin-top: 10px;">
+        <button id="inspector-done-btn" class="neo-btn neo-btn-primary">Done</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- VIDEO RECORDING PREVIEW MODAL -->
+  <div id="video-preview-modal" class="neo-modal-overlay">
+    <div class="neo-modal-box" style="max-width: 640px;">
+      <div class="modal-header">
+        <h3 class="modal-title">📹 Gameplay Recording Ready!</h3>
+        <button id="close-video-preview" class="modal-close-btn">&times;</button>
+      </div>
+      <div style="border: 3px solid #121212; border-radius: 12px; overflow: hidden; background: #000;">
+        <video id="preview-video-player" controls autoplay loop style="width: 100%; display: block;"></video>
+      </div>
+      <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 10px;">
+        <button id="download-video-btn" class="neo-btn neo-btn-primary">
+          💾 Download Video (.webm)
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN SCRIPT -->
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>
