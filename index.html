@@ -39,6 +39,19 @@
         <span id="bgm-icon">🎵 MUSIC</span>
       </button>
 
+      <!-- Quick Undo / Redo -->
+      <button id="undo-btn" class="neo-btn" title="Undo (⌘Z / Ctrl+Z)" disabled>
+        <span>↩ Undo</span>
+      </button>
+      <button id="redo-btn" class="neo-btn" title="Redo (⌘⇧Z / Ctrl+Y)" disabled>
+        <span>↪ Redo</span>
+      </button>
+
+      <!-- Asset Library & Sticker Book -->
+      <button id="asset-library-btn" class="neo-btn neo-btn-cyan" title="Saved Art & Sticker Library">
+        <span>🎨 Asset Library</span>
+      </button>
+
       <!-- Background Customizer -->
       <button id="bg-modal-btn" class="neo-btn" title="Change Level Background">
         <span>🌄 Background</span>
@@ -119,8 +132,20 @@
         </button>
       </div>
 
+      <!-- Component Type Variants (Mario Maker Style) -->
+      <div id="palette-variants-container" class="palette-variants-container">
+        <div class="variant-label">Type / Variant:</div>
+        <div id="palette-variants-list" class="palette-variants-list">
+          <button class="variant-pill active" data-variant="solid">🧱 Solid Block</button>
+          <button class="variant-pill" data-variant="mystery">❓ Mystery [?]</button>
+          <button class="variant-pill" data-variant="cloud">☁️ Cloud (One-Way)</button>
+          <button class="variant-pill" data-variant="ice">🧊 Ice (Slippery)</button>
+        </div>
+      </div>
+
       <div class="drawer-tips">
         <strong>Quick Controls:</strong><br>
+        • <strong>Undo / Redo:</strong> ⌘Z / ⌘⇧Z (Ctrl+Z / Ctrl+Y)<br>
         • <strong>Move Map:</strong> 2-Finger scroll, ✋ Pan tool, or Space+Drag<br>
         • <strong>Move Object:</strong> Drag in 👆 Select mode<br>
         • <strong>Delete:</strong> Backspace key<br>
@@ -138,9 +163,13 @@
           <span id="action-entity-badge" class="action-entity-badge">📦 COMPONENT</span>
           <button id="action-close-btn" class="action-card-close" title="Deselect">&times;</button>
         </div>
+        <div id="action-variant-picker" class="action-variant-picker"></div>
         <div class="action-card-buttons">
           <button id="action-paint-btn" class="neo-btn neo-btn-pink" style="padding: 6px 12px; font-size: 13px;">
             <span>🎨 Paint Art</span>
+          </button>
+          <button id="action-sticker-btn" class="neo-btn neo-btn-cyan" style="padding: 6px 12px; font-size: 13px;">
+            <span>⭐ Stickers</span>
           </button>
           <button id="action-tune-btn" class="neo-btn neo-btn-accent" style="padding: 6px 12px; font-size: 13px;">
             <span>⚙️ Tune Physics</span>
@@ -227,9 +256,12 @@
         </div>
       </div>
 
-      <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 10px;">
-        <button id="paint-reset-btn" class="neo-btn">Reset Default</button>
-        <button id="paint-apply-btn" class="neo-btn neo-btn-primary">Apply to Entity</button>
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px; flex-wrap: wrap; gap: 8px;">
+        <button id="paint-save-library-btn" class="neo-btn neo-btn-cyan" title="Save this drawing to your Asset Library for reuse on any component">⭐ Save to Library</button>
+        <div style="display: flex; gap: 8px;">
+          <button id="paint-reset-btn" class="neo-btn">Reset Default</button>
+          <button id="paint-apply-btn" class="neo-btn neo-btn-primary">Apply to Entity</button>
+        </div>
       </div>
     </div>
   </div>
@@ -316,6 +348,34 @@
       <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 10px;">
         <button id="bg-reset-default" class="neo-btn">Reset Default</button>
         <button id="bg-done-btn" class="neo-btn neo-btn-primary">Apply & Done</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ASSET LIBRARY & STICKER BOOK MODAL -->
+  <div id="asset-library-modal" class="neo-modal-overlay">
+    <div class="neo-modal-box" style="max-width: 640px; max-height: 85vh; display: flex; flex-direction: column;">
+      <div class="modal-header">
+        <h3 class="modal-title">🎨 Asset Library & Stickers</h3>
+        <button id="close-asset-library" class="modal-close-btn">&times;</button>
+      </div>
+
+      <div style="display: flex; gap: 8px; margin-bottom: 12px; align-items: center; justify-content: space-between; flex-wrap: wrap;">
+        <div style="font-size: 13px; font-weight: 700; color: #555;">
+          Click any sticker to apply to selected component:
+        </div>
+        <label class="neo-btn neo-btn-accent" style="padding: 6px 12px; font-size: 13px; cursor: pointer;">
+          📁 Import Image/GIF
+          <input type="file" id="library-file-input" accept="image/*" style="display: none;">
+        </label>
+      </div>
+
+      <div id="asset-library-grid" class="asset-library-grid" style="overflow-y: auto; max-height: 380px; padding: 4px;">
+        <!-- Populated dynamically by AssetLibrary.getAssets() -->
+      </div>
+
+      <div style="display: flex; justify-content: flex-end; margin-top: 14px;">
+        <button id="asset-library-done-btn" class="neo-btn neo-btn-primary">Done</button>
       </div>
     </div>
   </div>

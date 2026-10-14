@@ -104,9 +104,10 @@ export class Player extends Entity {
     if (keys['ArrowLeft'] || keys['KeyA']) moveDir -= 1;
     if (keys['ArrowRight'] || keys['KeyD']) moveDir += 1;
 
-    // Smooth horizontal acceleration & deceleration
+    // Smooth horizontal acceleration & deceleration with surface friction support
     const targetVx = moveDir * this.speed;
-    const accel = this.grounded ? 16.0 : 9.0;
+    const surfFriction = (this.standingOnSolid && typeof this.standingOnSolid.friction === 'number') ? this.standingOnSolid.friction : 1.0;
+    const accel = this.grounded ? (16.0 * surfFriction) : 9.0;
     this.vx += (targetVx - this.vx) * Math.min(1.0, accel * dt);
 
     if (moveDir !== 0) {
@@ -210,49 +211,165 @@ export class Player extends Entity {
   }
 }
 
-// 2. SOLID BLOCK (Ground / Platform Tile)
+// 2. SOLID BLOCK (Ground, Mystery [?], Cloud, and Ice Variants)
 export class SolidBlock extends Entity {
-  constructor(x, y, width = 40, height = 40) {
+  constructor(x, y, width = 40, height = 40, variant = 'solid') {
     super(null, 'crate', x, y, width, height); // type remains 'crate' internally for physics/solids compatibility
+    this.variant = variant || 'solid'; // 'solid', 'mystery', 'cloud', 'ice'
     this.bounciness = 0.0;
-    this.friction = 1.0;
+    this.friction = this.variant === 'ice' ? 0.12 : 1.0;
+    this.isOneWay = this.variant === 'cloud';
+
+    // Mystery Block [?] Bump State
+    this.bumpOffsetY = 0;
+    this.bumpTimer = 0;
+    this.isUsed = false;
+  }
+
+  setVariant(variant) {
+    this.variant = variant;
+    this.friction = variant === 'ice' ? 0.12 : 1.0;
+    this.isOneWay = variant === 'cloud';
+  }
+
+  bump() {
+    if (this.isUsed) return;
+    this.isUsed = true;
+    this.bumpTimer = 0.24;
+    sounds.playCollect();
+    if (typeof window !== 'undefined' && window.sidehop) {
+      window.sidehop.score += 100;
+    }
+  }
+
+  update(dt) {
+    if (this.bumpTimer > 0) {
+      this.bumpTimer -= dt;
+      if (this.bumpTimer <= 0) {
+        this.bumpOffsetY = 0;
+      } else {
+        this.bumpOffsetY = Math.sin((this.bumpTimer / 0.24) * Math.PI) * -12;
+      }
+    }
   }
 
   draw(ctx) {
     ctx.save();
-    ctx.translate(this.x, this.y);
+    ctx.translate(this.x, this.y + (this.bumpOffsetY || 0));
 
     this.renderCustomOrFallback(ctx, () => {
-      // Clean Neo-Brutalist Platformer Ground Block
-      // Earthy terracotta / golden clay base
-      ctx.fillStyle = '#FFB300'; // Amber platformer block
-      ctx.strokeStyle = '#121212';
-      ctx.lineWidth = 3;
+      if (this.variant === 'mystery') {
+        // Mystery Question Block [?]
+        if (!this.isUsed) {
+          ctx.fillStyle = '#FFE600'; // Canary Pop Yellow
+          ctx.strokeStyle = '#121212';
+          ctx.lineWidth = 3;
+          ctx.fillRect(0, 0, this.width, this.height);
+          ctx.strokeRect(0, 0, this.width, this.height);
 
-      ctx.fillRect(0, 0, this.width, this.height);
-      ctx.strokeRect(0, 0, this.width, this.height);
+          // Corner metal bolts
+          ctx.fillStyle = '#121212';
+          const r = 3;
+          ctx.fillRect(4, 4, r, r);
+          ctx.fillRect(this.width - 7, 4, r, r);
+          ctx.fillRect(4, this.height - 7, r, r);
+          ctx.fillRect(this.width - 7, this.height - 7, r, r);
 
-      // Top Grass / Trim cap
-      ctx.fillStyle = '#00E676'; // Lush Mint Green cap
-      ctx.fillRect(0, 0, this.width, 10);
-      ctx.strokeRect(0, 0, this.width, 10);
+          // Big bold question mark [?]
+          ctx.font = '900 24px "Fredoka", sans-serif';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillStyle = '#121212';
+          ctx.fillText('?', this.width / 2, this.height / 2 + 1);
+        } else {
+          // Deactivated Empty Block
+          ctx.fillStyle = '#BCAAA4'; // Muted clay
+          ctx.strokeStyle = '#121212';
+          ctx.lineWidth = 3;
+          ctx.fillRect(0, 0, this.width, this.height);
+          ctx.strokeRect(0, 0, this.width, this.height);
 
-      // Subtle brick / tile texture seams
-      ctx.strokeStyle = 'rgba(18, 18, 18, 0.35)';
-      ctx.lineWidth = 2;
-      ctx.beginPath();
-      // Horizontal seam
-      ctx.moveTo(0, this.height / 2 + 5);
-      ctx.lineTo(this.width, this.height / 2 + 5);
-      // Vertical seam top half
-      ctx.moveTo(this.width / 2, 10);
-      ctx.lineTo(this.width / 2, this.height / 2 + 5);
-      // Vertical seam bottom half
-      ctx.moveTo(this.width / 4, this.height / 2 + 5);
-      ctx.lineTo(this.width / 4, this.height);
-      ctx.moveTo((this.width * 3) / 4, this.height / 2 + 5);
-      ctx.lineTo((this.width * 3) / 4, this.height);
-      ctx.stroke();
+          ctx.fillStyle = '#8D6E63';
+          ctx.beginPath();
+          ctx.arc(this.width / 2, this.height / 2, 6, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      } else if (this.variant === 'cloud') {
+        // Semi-solid Cloud Platform (Jump through from underneath)
+        ctx.fillStyle = '#FFFFFF';
+        ctx.strokeStyle = '#121212';
+        ctx.lineWidth = 3;
+
+        ctx.beginPath();
+        ctx.arc(this.width * 0.25, 16, 11, Math.PI, Math.PI * 2);
+        ctx.arc(this.width * 0.5, 12, 13, Math.PI, Math.PI * 2);
+        ctx.arc(this.width * 0.75, 16, 11, Math.PI, Math.PI * 2);
+        ctx.lineTo(this.width, this.height - 6);
+        ctx.quadraticCurveTo(this.width / 2, this.height - 2, 0, this.height - 6);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+
+        // Mint green trim underside
+        ctx.strokeStyle = '#00E676';
+        ctx.lineWidth = 2.5;
+        ctx.beginPath();
+        ctx.moveTo(6, this.height - 6);
+        ctx.lineTo(this.width - 6, this.height - 6);
+        ctx.stroke();
+      } else if (this.variant === 'ice') {
+        // Ice Block (Slippery Glacial Cyan)
+        ctx.fillStyle = '#B2EBF2';
+        ctx.strokeStyle = '#121212';
+        ctx.lineWidth = 3;
+        ctx.fillRect(0, 0, this.width, this.height);
+        ctx.strokeRect(0, 0, this.width, this.height);
+
+        // Specular glint
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.75)';
+        ctx.beginPath();
+        ctx.moveTo(4, 4);
+        ctx.lineTo(this.width - 4, 4);
+        ctx.lineTo(this.width - 12, 12);
+        ctx.lineTo(4, 12);
+        ctx.closePath();
+        ctx.fill();
+
+        // Diagonal ice crack
+        ctx.strokeStyle = 'rgba(0, 184, 212, 0.7)';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(8, this.height - 8);
+        ctx.lineTo(this.width / 2, this.height / 2);
+        ctx.lineTo(this.width - 8, this.height - 14);
+        ctx.stroke();
+      } else {
+        // Clean Neo-Brutalist Platformer Ground Block
+        ctx.fillStyle = '#FFB300'; // Amber platformer block
+        ctx.strokeStyle = '#121212';
+        ctx.lineWidth = 3;
+        ctx.fillRect(0, 0, this.width, this.height);
+        ctx.strokeRect(0, 0, this.width, this.height);
+
+        // Top Grass / Trim cap
+        ctx.fillStyle = '#00E676'; // Lush Mint Green cap
+        ctx.fillRect(0, 0, this.width, 10);
+        ctx.strokeRect(0, 0, this.width, 10);
+
+        // Subtle brick seams
+        ctx.strokeStyle = 'rgba(18, 18, 18, 0.35)';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(0, this.height / 2 + 5);
+        ctx.lineTo(this.width, this.height / 2 + 5);
+        ctx.moveTo(this.width / 2, 10);
+        ctx.lineTo(this.width / 2, this.height / 2 + 5);
+        ctx.moveTo(this.width / 4, this.height / 2 + 5);
+        ctx.lineTo(this.width / 4, this.height);
+        ctx.moveTo((this.width * 3) / 4, this.height / 2 + 5);
+        ctx.lineTo((this.width * 3) / 4, this.height);
+        ctx.stroke();
+      }
     });
 
     ctx.restore();
@@ -262,12 +379,18 @@ export class SolidBlock extends Entity {
 // Backward-compatible alias
 export const CrateBlock = SolidBlock;
 
-// 3. BOUNCER / SPRINGBOARD
+// 3. BOUNCER / SPRINGBOARD (Spring & Mega Trampoline Variants)
 export class Springboard extends Entity {
-  constructor(x, y, width = 40, height = 40) {
+  constructor(x, y, width = 40, height = 40, variant = 'spring') {
     super(null, 'springboard', x, y, width, height);
-    this.launchForce = 980;
+    this.variant = variant || 'spring'; // 'spring', 'mega'
+    this.launchForce = this.variant === 'mega' ? 1350 : 980;
     this.compressTimer = 0;
+  }
+
+  setVariant(variant) {
+    this.variant = variant;
+    this.launchForce = variant === 'mega' ? 1350 : 980;
   }
 
   trigger() {
@@ -287,7 +410,7 @@ export class Springboard extends Entity {
 
     this.renderCustomOrFallback(ctx, () => {
       const isCompressed = this.compressTimer > 0.1;
-      const springHeight = isCompressed ? this.height * 0.45 : this.height * 0.85;
+      const springHeight = isCompressed ? this.height * 0.42 : this.height * 0.85;
       const offsetY = this.height - springHeight;
 
       // Base plate
@@ -295,8 +418,8 @@ export class Springboard extends Entity {
       ctx.fillRect(2, this.height - 8, this.width - 4, 8);
 
       // Coil
-      ctx.strokeStyle = '#FF3388';
-      ctx.lineWidth = 4;
+      ctx.strokeStyle = this.variant === 'mega' ? '#00E5FF' : '#FF3388';
+      ctx.lineWidth = this.variant === 'mega' ? 5 : 4;
       ctx.beginPath();
       ctx.moveTo(8, this.height - 8);
       ctx.lineTo(this.width - 8, this.height - springHeight / 2);
@@ -304,13 +427,21 @@ export class Springboard extends Entity {
       ctx.stroke();
 
       // Bouncy Top Cap
-      ctx.fillStyle = '#00E676'; // Mint green
+      ctx.fillStyle = this.variant === 'mega' ? '#FFE600' : '#00E676';
       ctx.strokeStyle = '#121212';
       ctx.lineWidth = 3;
       ctx.beginPath();
       ctx.roundRect(2, offsetY, this.width - 4, 10, 4);
       ctx.fill();
       ctx.stroke();
+
+      if (this.variant === 'mega') {
+        // Star badge on mega trampoline cap
+        ctx.fillStyle = '#121212';
+        ctx.beginPath();
+        ctx.arc(this.width / 2, offsetY + 5, 2.5, 0, Math.PI * 2);
+        ctx.fill();
+      }
     });
 
     ctx.restore();
@@ -350,18 +481,32 @@ export class HazardSpikes extends Entity {
   }
 }
 
-// 5. ENEMY WALKER
+// 5. ENEMY WALKER (Walker, Winged Hopper, and Armored Spiky Variants)
 export class EnemyWalker extends Entity {
-  constructor(x, y, width = 40, height = 40) {
+  constructor(x, y, width = 40, height = 40, variant = 'walker') {
     super(null, 'enemy', x, y, width, height);
+    this.variant = variant || 'walker'; // 'walker', 'winged', 'spiky'
     this.startX = x;
     this.patrolRange = 120;
-    this.speed = 80;
+    this.speed = 75;
     this.dir = 1;
-    this.stompable = true;
+    this.stompable = this.variant !== 'spiky';
     this.isSquashed = false;
     this.squashTimer = 0;
     this.walkCycle = 0;
+    this.hopTimer = 0;
+    this.hopOffset = 0;
+  }
+
+  setVariant(variant) {
+    this.variant = variant;
+    this.stompable = variant !== 'spiky';
+  }
+
+  stomp() {
+    this.isSquashed = true;
+    this.squashTimer = 0.35;
+    sounds.playStomp();
   }
 
   update(dt, solids) {
@@ -376,6 +521,14 @@ export class EnemyWalker extends Entity {
     this.x += this.dir * this.speed * dt;
     this.walkCycle += dt * 8;
 
+    // Winged hopper jump motion
+    if (this.variant === 'winged') {
+      this.hopTimer += dt * 3.5;
+      this.hopOffset = Math.abs(Math.sin(this.hopTimer)) * -18;
+    } else {
+      this.hopOffset = 0;
+    }
+
     // Check patrol limits
     if (this.x > this.startX + this.patrolRange) {
       this.dir = -1;
@@ -385,7 +538,7 @@ export class EnemyWalker extends Entity {
 
     // Check collision with solid tiles to reverse direction
     for (const solid of solids) {
-      if (!solid.active || solid === this) continue;
+      if (!solid.active || solid === this || solid.isOneWay || solid.variant === 'cloud') continue;
       if (
         this.x < solid.x + solid.width &&
         this.x + this.width > solid.x &&
@@ -399,16 +552,10 @@ export class EnemyWalker extends Entity {
     }
   }
 
-  stomp() {
-    this.isSquashed = true;
-    this.squashTimer = 0.35;
-    sounds.playStomp();
-  }
-
   draw(ctx) {
     if (!this.active) return;
     ctx.save();
-    ctx.translate(this.x + this.width / 2, this.y + this.height);
+    ctx.translate(this.x + this.width / 2, this.y + this.height + (this.hopOffset || 0));
     
     if (this.isSquashed) {
       ctx.scale(1.4, 0.2);
@@ -418,37 +565,121 @@ export class EnemyWalker extends Entity {
     ctx.translate(-this.width / 2, -this.height);
 
     this.renderCustomOrFallback(ctx, () => {
-      // Quirky potato monster
-      ctx.fillStyle = '#B388FF'; // Lavender purple
-      ctx.strokeStyle = '#121212';
-      ctx.lineWidth = 3;
+      if (this.variant === 'winged') {
+        // Winged Hopper (Golden Yellow with animated white wings)
+        const wingFlap = Math.sin(this.walkCycle * 2.5) * 8;
+        ctx.fillStyle = '#FFFFFF';
+        ctx.strokeStyle = '#121212';
+        ctx.lineWidth = 2.5;
 
-      ctx.beginPath();
-      ctx.roundRect(4, 6, this.width - 8, this.height - 10, 10);
-      ctx.fill();
-      ctx.stroke();
+        // Left & right wings
+        ctx.beginPath();
+        ctx.ellipse(2, 14 + wingFlap, 9, 6, -0.4, 0, Math.PI * 2);
+        ctx.ellipse(this.width - 2, 14 + wingFlap, 9, 6, 0.4, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
 
-      // Grumpy Eyes
-      ctx.fillStyle = '#FFFFFF';
-      ctx.beginPath();
-      ctx.arc(14, 18, 5, 0, Math.PI * 2);
-      ctx.arc(26, 18, 5, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.stroke();
+        // Round golden body
+        ctx.fillStyle = '#FFD54F';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.roundRect(4, 6, this.width - 8, this.height - 10, 10);
+        ctx.fill();
+        ctx.stroke();
 
-      ctx.fillStyle = '#121212';
-      ctx.beginPath();
-      ctx.arc(16, 18, 2.5, 0, Math.PI * 2);
-      ctx.arc(28, 18, 2.5, 0, Math.PI * 2);
-      ctx.fill();
+        // Big anime eyes
+        ctx.fillStyle = '#FFFFFF';
+        ctx.beginPath();
+        ctx.arc(14, 18, 5, 0, Math.PI * 2);
+        ctx.arc(26, 18, 5, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
 
-      // Zigzag Grumpy Mouth
-      ctx.beginPath();
-      ctx.moveTo(14, 27);
-      ctx.lineTo(18, 24);
-      ctx.lineTo(22, 27);
-      ctx.lineTo(26, 24);
-      ctx.stroke();
+        ctx.fillStyle = '#121212';
+        ctx.beginPath();
+        ctx.arc(15, 18, 2.5, 0, Math.PI * 2);
+        ctx.arc(27, 18, 2.5, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Little orange beak
+        ctx.fillStyle = '#FF5722';
+        ctx.beginPath();
+        ctx.moveTo(17, 24);
+        ctx.lineTo(23, 24);
+        ctx.lineTo(20, 28);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+      } else if (this.variant === 'spiky') {
+        // Armored Spiky Urchin (Cannot be stomped!)
+        // Steel Spikes on top
+        ctx.fillStyle = '#ECEFF1';
+        ctx.strokeStyle = '#121212';
+        ctx.lineWidth = 2.5;
+        ctx.beginPath();
+        ctx.moveTo(6, 12);
+        ctx.lineTo(12, 1);
+        ctx.lineTo(18, 12);
+        ctx.lineTo(24, 0);
+        ctx.lineTo(30, 12);
+        ctx.lineTo(36, 1);
+        ctx.lineTo(this.width - 6, 12);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+
+        // Crimson Armored Body
+        ctx.fillStyle = '#FF3B30';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.roundRect(4, 10, this.width - 8, this.height - 14, 8);
+        ctx.fill();
+        ctx.stroke();
+
+        // Glowing yellow slit eyes
+        ctx.fillStyle = '#FFE600';
+        ctx.beginPath();
+        ctx.arc(14, 21, 4, 0, Math.PI * 2);
+        ctx.arc(26, 21, 4, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.fillStyle = '#121212';
+        ctx.fillRect(13, 19, 2.5, 4);
+        ctx.fillRect(25, 19, 2.5, 4);
+      } else {
+        // Standard Lavender Walker (Grumpy Potato)
+        ctx.fillStyle = '#B388FF'; // Lavender purple
+        ctx.strokeStyle = '#121212';
+        ctx.lineWidth = 3;
+
+        ctx.beginPath();
+        ctx.roundRect(4, 6, this.width - 8, this.height - 10, 10);
+        ctx.fill();
+        ctx.stroke();
+
+        // Grumpy Eyes
+        ctx.fillStyle = '#FFFFFF';
+        ctx.beginPath();
+        ctx.arc(14, 18, 5, 0, Math.PI * 2);
+        ctx.arc(26, 18, 5, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.fillStyle = '#121212';
+        ctx.beginPath();
+        ctx.arc(16, 18, 2.5, 0, Math.PI * 2);
+        ctx.arc(28, 18, 2.5, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Zigzag Grumpy Mouth
+        ctx.beginPath();
+        ctx.moveTo(14, 27);
+        ctx.lineTo(18, 24);
+        ctx.lineTo(22, 27);
+        ctx.lineTo(26, 24);
+        ctx.stroke();
+      }
     });
 
     ctx.restore();
@@ -513,12 +744,19 @@ export class MovingPlatform extends Entity {
   }
 }
 
-// 7. COLLECTIBLE TOKEN / COIN
+// 7. COLLECTIBLE TOKEN / COIN (Coin & Star Variants)
 export class Collectible extends Entity {
-  constructor(x, y, width = 32, height = 32) {
+  constructor(x, y, width = 32, height = 32, variant = 'coin') {
     super(null, 'collectible', x, y, width, height);
+    this.variant = variant || 'coin'; // 'coin', 'star'
     this.bobTimer = Math.random() * Math.PI;
     this.collected = false;
+    this.points = this.variant === 'star' ? 500 : 100;
+  }
+
+  setVariant(variant) {
+    this.variant = variant;
+    this.points = variant === 'star' ? 500 : 100;
   }
 
   update(dt) {
@@ -538,21 +776,57 @@ export class Collectible extends Entity {
     ctx.translate(this.x, this.y + bobOffset);
 
     this.renderCustomOrFallback(ctx, () => {
-      // Golden Coin / Star
-      ctx.fillStyle = '#FFE600';
-      ctx.strokeStyle = '#121212';
-      ctx.lineWidth = 3;
+      if (this.variant === 'star') {
+        // Glowing Star Gem (+500 pts)
+        ctx.fillStyle = '#FFE600';
+        ctx.strokeStyle = '#121212';
+        ctx.lineWidth = 2.5;
 
-      ctx.beginPath();
-      ctx.arc(this.width / 2, this.height / 2, this.width / 2 - 2, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.stroke();
+        // Radiant 5-point star
+        ctx.beginPath();
+        for (let i = 0; i < 5; i++) {
+          ctx.lineTo(
+            this.width / 2 + Math.cos((18 + i * 72) * Math.PI / 180) * (this.width / 2 - 2),
+            this.height / 2 - Math.sin((18 + i * 72) * Math.PI / 180) * (this.height / 2 - 2)
+          );
+          ctx.lineTo(
+            this.width / 2 + Math.cos((54 + i * 72) * Math.PI / 180) * (this.width / 4),
+            this.height / 2 - Math.sin((54 + i * 72) * Math.PI / 180) * (this.height / 4)
+          );
+        }
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
 
-      // Inner star / shine
-      ctx.fillStyle = '#FFFFFF';
-      ctx.beginPath();
-      ctx.arc(this.width / 2 - 3, this.height / 2 - 3, 3, 0, Math.PI * 2);
-      ctx.fill();
+        // Cute smiling eyes
+        ctx.fillStyle = '#121212';
+        ctx.beginPath();
+        ctx.arc(this.width / 2 - 3.5, this.height / 2 - 1, 1.8, 0, Math.PI * 2);
+        ctx.arc(this.width / 2 + 3.5, this.height / 2 - 1, 1.8, 0, Math.PI * 2);
+        ctx.fill();
+      } else {
+        // Golden Coin (+100 pts)
+        const spin = Math.abs(Math.sin(this.bobTimer));
+        ctx.translate(this.width / 2, this.height / 2);
+        ctx.scale(Math.max(0.25, spin), 1);
+        ctx.translate(-this.width / 2, -this.height / 2);
+
+        ctx.fillStyle = '#FFE600';
+        ctx.strokeStyle = '#121212';
+        ctx.lineWidth = 3;
+
+        ctx.beginPath();
+        ctx.arc(this.width / 2, this.height / 2, this.width / 2 - 2, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+
+        // Inner coin rim
+        ctx.strokeStyle = '#D87A24';
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.arc(this.width / 2, this.height / 2, this.width / 3.2, 0, Math.PI * 2);
+        ctx.stroke();
+      }
     });
 
     ctx.restore();

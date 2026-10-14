@@ -55,6 +55,9 @@ export class PhysicsEngine {
   resolveHorizontalCollisions(entity, solids) {
     for (const solid of solids) {
       if (!solid.active) continue;
+      // Skip one-way cloud platforms horizontally
+      if (solid.isOneWay || solid.variant === 'cloud') continue;
+
       // Ignore horizontal collision if vertical overlap is merely boundary-level (e.g. resting on floor)
       const verticalOverlap = Math.min(entity.y + entity.height, solid.y + solid.height) - Math.max(entity.y, solid.y);
       if (verticalOverlap <= 3) continue;
@@ -74,10 +77,26 @@ export class PhysicsEngine {
   resolveVerticalCollisions(entity, solids) {
     for (const solid of solids) {
       if (!solid.active) continue;
+
+      // Handle One-Way Cloud Platforms (jump through from below, solid on top)
+      if (solid.isOneWay || solid.variant === 'cloud') {
+        if (entity.vy > 0 && this.checkOverlap(entity, solid)) {
+          // Only land if entity was previously at or above top edge
+          if (entity.y + entity.height - (entity.vy * 0.035) <= solid.y + 10) {
+            entity.y = solid.y - entity.height;
+            entity.vy = 0;
+            entity.grounded = true;
+            entity.standingOnSolid = solid;
+          }
+        }
+        continue;
+      }
+
       if (this.checkOverlap(entity, solid)) {
         if (entity.vy > 0) {
           // Landing on top of solid
           entity.y = solid.y - entity.height;
+          entity.standingOnSolid = solid;
           // Apply surface bounciness if configured
           if (solid.bounciness && solid.bounciness > 0.05) {
             entity.vy = -entity.vy * solid.bounciness;
@@ -93,6 +112,11 @@ export class PhysicsEngine {
           // Bonking head on bottom of solid
           entity.y = solid.y + solid.height;
           entity.vy = 0;
+
+          // Trigger Mystery Block [?] bump when bonked from below
+          if (solid.variant === 'mystery' && !solid.isUsed && solid.bump) {
+            solid.bump();
+          }
         }
       }
     }
@@ -107,6 +131,7 @@ export class PhysicsEngine {
           entity.y = solid.y - entity.height;
           entity.vy = 0;
           entity.grounded = true;
+          entity.standingOnSolid = solid;
           break;
         }
       }

@@ -1,4 +1,4 @@
-// Sidehop Master Application Coordinator — Enhanced Custom Backgrounds & Refined Controls
+// Sidehop Master Application Coordinator — Enhanced Custom Backgrounds, Asset Library & Undo/Redo
 
 import { Player } from './engine/entities.js';
 import { PhysicsEngine } from './engine/physics.js';
@@ -8,6 +8,8 @@ import { ArtStudio } from './editor/paint.js';
 import { Inspector } from './editor/inspector.js';
 import { VideoRecorder } from './recorder/recorder.js';
 import { LevelStorage } from './storage/storage.js';
+import { AssetLibrary } from './storage/asset_library.js';
+import { HistoryManager } from './editor/history.js';
 import { sounds } from './audio/sound.js';
 
 class SidehopApp {
@@ -39,6 +41,7 @@ class SidehopApp {
     );
     this.inspector = new Inspector(document.getElementById('inspector-modal'));
     this.recorder = new VideoRecorder(this.canvas);
+    this.history = new HistoryManager(50);
 
     // Track Spacebar tap vs hold
     this.spacePressTime = 0;
@@ -49,11 +52,65 @@ class SidehopApp {
 
     this.lastTime = performance.now();
 
+    // Wire History State Change to Header Undo/Redo Buttons
+    this.history.onStateChange = (canUndo, canRedo) => {
+      const uBtn = document.getElementById('undo-btn');
+      const rBtn = document.getElementById('redo-btn');
+      if (uBtn) uBtn.disabled = !canUndo;
+      if (rBtn) rBtn.disabled = !canRedo;
+    };
+
+    // Auto-record snapshot on editor modifications
+    this.editor.onHistorySnapshotNeeded = () => {
+      this.history.pushState(this.player, this.entities, this.background);
+    };
+
     this.initLevel();
     this.bindUI();
     this.bindEvents();
 
+    // Initial snapshot for Undo stack
+    this.history.pushState(this.player, this.entities, this.background);
+
+    // Initial variant pills for default block component
+    this.updatePaletteVariants('block');
+
     requestAnimationFrame((t) => this.gameLoop(t));
+  }
+
+  // --- Quick Undo & Redo ---
+  undo() {
+    if (this.mode !== 'edit') return;
+    const restored = this.history.undo(this.player, this.entities, (bg) => {
+      if (bg) this.applyBackground(bg);
+    });
+    if (restored) {
+      if (this.editor.selectedEntity) {
+        this.editor.selectedEntity = null;
+        const card = document.getElementById('entity-action-card');
+        if (card) card.classList.remove('active');
+      }
+      LevelStorage.autoSave(this.player, this.entities, this.background);
+      sounds.playClick();
+      this.showToast('↩ Undo');
+    }
+  }
+
+  redo() {
+    if (this.mode !== 'edit') return;
+    const restored = this.history.redo(this.player, this.entities, (bg) => {
+      if (bg) this.applyBackground(bg);
+    });
+    if (restored) {
+      if (this.editor.selectedEntity) {
+        this.editor.selectedEntity = null;
+        const card = document.getElementById('entity-action-card');
+        if (card) card.classList.remove('active');
+      }
+      LevelStorage.autoSave(this.player, this.entities, this.background);
+      sounds.playClick();
+      this.showToast('↪ Redo');
+    }
   }
 
   initLevel() {
@@ -223,7 +280,7 @@ class SidehopApp {
     this.ctx.restore();
   }
 
-  // --- Frame-Safe Clamped Action Card Positioning ---
+  // --- Frame-Safe Clamped Action Card Positioning & Variant Selection ---
   updateActionCard(ent) {
     const actionCard = document.getElementById('entity-action-card');
     if (!actionCard) return;
@@ -243,17 +300,51 @@ class SidehopApp {
         hazard: '⚠️ SPIKE HAZARD',
         enemy: '👾 ENEMY WALKER',
         moving_platform: '🛹 MOVING PLATFORM',
-        collectible: '⭐ STAR TOKEN',
+        collectible: '⭐ STAR / COIN',
         goal: '🏁 GOAL FINISH'
       };
       badge.textContent = typeIcons[ent.type] || `📦 ${ent.type.toUpperCase()}`;
+    }
+
+    // Render Mario Maker-style component variant pills in action card
+    const variantPicker = document.getElementById('action-variant-picker');
+    if (variantPicker) {
+      variantPicker.innerHTML = '';
+      const variantDefs = {
+        block: [{ id: 'solid', label: '🧱 Solid' }, { id: 'mystery', label: '❓ Mystery' }, { id: 'cloud', label: '☁️ Cloud' }, { id: 'ice', label: '🧊 Ice' }],
+        crate: [{ id: 'solid', label: '🧱 Solid' }, { id: 'mystery', label: '❓ Mystery' }, { id: 'cloud', label: '☁️ Cloud' }, { id: 'ice', label: '🧊 Ice' }],
+        enemy: [{ id: 'walker', label: '🥔 Walker' }, { id: 'winged', label: '🪽 Winged' }, { id: 'spiky', label: '🦔 Spiky' }],
+        collectible: [{ id: 'coin', label: '🪙 Coin' }, { id: 'star', label: '⭐ Star' }],
+        springboard: [{ id: 'spring', label: '🌀 Standard' }, { id: 'mega', label: '🚀 Mega' }]
+      };
+
+      const options = variantDefs[ent.type];
+      if (options) {
+        options.forEach(opt => {
+          const pill = document.createElement('button');
+          pill.className = `action-variant-pill ${(ent.variant || 'solid') === opt.id ? 'active' : ''}`;
+          pill.textContent = opt.label;
+          pill.addEventListener('click', () => {
+            this.history.pushState(this.player, this.entities, this.background);
+            if (ent.setVariant) ent.setVariant(opt.id);
+            else ent.variant = opt.id;
+            LevelStorage.autoSave(this.player, this.entities, this.background);
+            sounds.playClick();
+            this.updateActionCard(ent);
+          });
+          variantPicker.appendChild(pill);
+        });
+        variantPicker.style.display = 'flex';
+      } else {
+        variantPicker.style.display = 'none';
+      }
     }
 
     actionCard.classList.add('active');
 
     // Measure card dimensions
     const cardW = actionCard.offsetWidth || 300;
-    const cardH = actionCard.offsetHeight || 75;
+    const cardH = actionCard.offsetHeight || 80;
     const canvasW = this.canvas.width;
     const canvasH = this.canvas.height;
 
@@ -278,6 +369,139 @@ class SidehopApp {
 
     actionCard.style.left = `${left}px`;
     actionCard.style.top = `${top}px`;
+  }
+
+  // Toast Notification Popup
+  showToast(message) {
+    const existing = document.querySelector('.sidehop-toast');
+    if (existing) existing.remove();
+    const toast = document.createElement('div');
+    toast.className = 'sidehop-toast';
+    toast.textContent = message;
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 2200);
+  }
+
+  // Render Saved Custom Drawings & Stickers in Asset Library Modal
+  renderAssetLibrary() {
+    const grid = document.getElementById('asset-library-grid');
+    if (!grid) return;
+    grid.innerHTML = '';
+
+    const assets = AssetLibrary.getAssets();
+    assets.forEach(asset => {
+      const card = document.createElement('div');
+      card.className = 'asset-card';
+
+      const thumbWrap = document.createElement('div');
+      thumbWrap.className = 'asset-thumb-wrap';
+      const img = document.createElement('img');
+      img.className = 'asset-thumb-img';
+      img.src = asset.dataUrl;
+      img.alt = asset.name;
+      thumbWrap.appendChild(img);
+
+      const nameEl = document.createElement('div');
+      nameEl.className = 'asset-name';
+      nameEl.textContent = asset.name;
+
+      const actions = document.createElement('div');
+      actions.className = 'asset-card-actions';
+
+      const useBtn = document.createElement('button');
+      useBtn.className = 'asset-use-btn';
+      useBtn.textContent = 'Apply';
+      useBtn.title = 'Apply this sticker to currently selected component';
+      useBtn.addEventListener('click', () => {
+        const target = this.editor.selectedEntity || this.player;
+        if (target) {
+          this.history.pushState(this.player, this.entities, this.background);
+          target.setCustomVisual(asset.dataUrl);
+          LevelStorage.autoSave(this.player, this.entities, this.background);
+          sounds.playLand();
+          this.showToast(`Applied ${asset.name}!`);
+          document.getElementById('asset-library-modal').classList.remove('active');
+        }
+      });
+
+      actions.appendChild(useBtn);
+
+      if (!asset.isDefault) {
+        const delBtn = document.createElement('button');
+        delBtn.className = 'asset-delete-btn';
+        delBtn.textContent = '✕';
+        delBtn.title = 'Delete saved asset';
+        delBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          AssetLibrary.deleteAsset(asset.id);
+          this.renderAssetLibrary();
+          sounds.playPaintSquish();
+        });
+        actions.appendChild(delBtn);
+      }
+
+      card.appendChild(thumbWrap);
+      card.appendChild(nameEl);
+      card.appendChild(actions);
+      grid.appendChild(card);
+    });
+  }
+
+  // Update Dynamic Mario Maker-style Component Variants in Tool Drawer
+  updatePaletteVariants(item) {
+    const container = document.getElementById('palette-variants-container');
+    const list = document.getElementById('palette-variants-list');
+    if (!container || !list) return;
+
+    const variantDefs = {
+      block: [
+        { id: 'solid', label: '🧱 Solid Ground' },
+        { id: 'mystery', label: '❓ Mystery [?]' },
+        { id: 'cloud', label: '☁️ Cloud Platform' },
+        { id: 'ice', label: '🧊 Ice Block' }
+      ],
+      crate: [
+        { id: 'solid', label: '🧱 Solid Ground' },
+        { id: 'mystery', label: '❓ Mystery [?]' },
+        { id: 'cloud', label: '☁️ Cloud Platform' },
+        { id: 'ice', label: '🧊 Ice Block' }
+      ],
+      enemy: [
+        { id: 'walker', label: '🥔 Potato Walker' },
+        { id: 'winged', label: '🪽 Winged Hopper' },
+        { id: 'spiky', label: '🦔 Armored Spiky' }
+      ],
+      collectible: [
+        { id: 'coin', label: '🪙 Gold Coin' },
+        { id: 'star', label: '⭐ Star Gem' }
+      ],
+      springboard: [
+        { id: 'spring', label: '🌀 Standard Spring' },
+        { id: 'mega', label: '🚀 Mega Trampoline' }
+      ]
+    };
+
+    const variants = variantDefs[item];
+    if (!variants) {
+      container.style.display = 'none';
+      return;
+    }
+
+    container.style.display = 'block';
+    list.innerHTML = '';
+
+    variants.forEach(v => {
+      const btn = document.createElement('button');
+      btn.className = `variant-pill ${this.editor.selectedPaletteVariant === v.id ? 'active' : ''}`;
+      btn.setAttribute('data-variant', v.id);
+      btn.textContent = v.label;
+      btn.addEventListener('click', () => {
+        list.querySelectorAll('.variant-pill').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        this.editor.setPaletteVariant(v.id);
+      });
+      list.appendChild(btn);
+    });
   }
 
   bindUI() {
@@ -420,13 +644,62 @@ class SidehopApp {
       btn.addEventListener('click', () => {
         paletteButtons.forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
-        this.editor.setPaletteItem(btn.getAttribute('data-palette'));
+        const item = btn.getAttribute('data-palette');
+        this.editor.setPaletteItem(item);
+        this.updatePaletteVariants(item);
 
         // Switch to place tool automatically when selecting a component
         toolButtons.forEach(b => b.classList.remove('active'));
         const placeBtn = document.querySelector('[data-tool="place"]');
         if (placeBtn) placeBtn.classList.add('active');
       });
+    });
+
+    // Undo / Redo Header Buttons
+    document.getElementById('undo-btn')?.addEventListener('click', () => this.undo());
+    document.getElementById('redo-btn')?.addEventListener('click', () => this.redo());
+
+    // Asset Library & Sticker Book
+    const assetLibraryModal = document.getElementById('asset-library-modal');
+    document.getElementById('asset-library-btn')?.addEventListener('click', () => {
+      this.renderAssetLibrary();
+      assetLibraryModal.classList.add('active');
+      sounds.playClick();
+    });
+
+    document.getElementById('close-asset-library')?.addEventListener('click', () => {
+      assetLibraryModal.classList.remove('active');
+      sounds.playClick();
+    });
+
+    document.getElementById('asset-library-done-btn')?.addEventListener('click', () => {
+      assetLibraryModal.classList.remove('active');
+      sounds.playClick();
+    });
+
+    const libraryFileInput = document.getElementById('library-file-input');
+    libraryFileInput?.addEventListener('change', (e) => {
+      if (e.target.files && e.target.files[0]) {
+        const file = e.target.files[0];
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+          const name = file.name.replace(/\.[^/.]+$/, '').slice(0, 16);
+          AssetLibrary.saveAsset(name || 'Custom Sticker', ev.target.result);
+          this.renderAssetLibrary();
+          sounds.playCollect();
+          this.showToast(`Saved "${name}" to Library!`);
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+
+    // Art Studio "Save to Library" button
+    document.getElementById('paint-save-library-btn')?.addEventListener('click', () => {
+      const saved = this.artStudio.saveToLibrary();
+      if (saved) {
+        sounds.playCollect();
+        this.showToast('⭐ Saved to Asset Library!');
+      }
     });
 
     // 7. Entity Floating Action Card
@@ -455,6 +728,13 @@ class SidehopApp {
       });
     }
 
+    // Action Card Stickers button
+    document.getElementById('action-sticker-btn')?.addEventListener('click', () => {
+      this.renderAssetLibrary();
+      assetLibraryModal.classList.add('active');
+      sounds.playClick();
+    });
+
     document.getElementById('action-paint-btn').addEventListener('click', () => {
       if (this.editor.selectedEntity) {
         this.artStudio.openForEntity(this.editor.selectedEntity, () => {
@@ -473,6 +753,7 @@ class SidehopApp {
       if (this.editor.selectedEntity && this.editor.selectedEntity !== this.player) {
         const idx = this.entities.indexOf(this.editor.selectedEntity);
         if (idx !== -1) {
+          this.history.pushState(this.player, this.entities, this.background);
           this.entities.splice(idx, 1);
           this.editor.selectedEntity = null;
           actionCard.classList.remove('active');
@@ -639,6 +920,17 @@ class SidehopApp {
         }
       }
 
+      // Undo / Redo Shortcuts: Cmd+Z, Ctrl+Z, Cmd+Shift+Z, Ctrl+Y
+      if ((e.metaKey || e.ctrlKey) && (e.code === 'KeyZ' || e.code === 'KeyY')) {
+        e.preventDefault();
+        if (e.code === 'KeyY' || (e.code === 'KeyZ' && e.shiftKey)) {
+          this.redo();
+        } else {
+          this.undo();
+        }
+        return;
+      }
+
       // 'R' toggles recording
       if (e.code === 'KeyR') {
         this.recorder.toggleRecording();
@@ -654,6 +946,7 @@ class SidehopApp {
         if (this.editor.selectedEntity && this.editor.selectedEntity !== this.player) {
           const idx = this.entities.indexOf(this.editor.selectedEntity);
           if (idx !== -1) {
+            this.history.pushState(this.player, this.entities, this.background);
             this.entities.splice(idx, 1);
             this.editor.selectedEntity = null;
             document.getElementById('entity-action-card').classList.remove('active');
@@ -724,6 +1017,9 @@ class SidehopApp {
 
       // Collect solid collision objects (Blocks and Moving Platforms)
       const solids = this.entities.filter(ent => ent.type === 'crate' || ent.type === 'block' || ent.type === 'moving_platform');
+      for (const s of solids) {
+        if (s.update && (s.type === 'crate' || s.type === 'block')) s.update(dt);
+      }
       this.physics.updateEntity(this.player, solids, dt);
 
       // 2. Check Entity Interactions
@@ -747,14 +1043,21 @@ class SidehopApp {
           }
         }
 
-        // Enemies
+        // Enemies (Walker, Winged Hopper, Armored Spiky)
         else if (ent.type === 'enemy') {
           ent.update(dt, solids);
+          // If dying or inactive, skip player collision check so rebounding doesn't trigger damage
+          if (!ent.active || ent.isSquashed) continue;
+
           if (this.physics.checkOverlap(this.player, ent)) {
-            if (ent.stompable && this.player.vy > 0 && this.player.y + this.player.height - 12 < ent.y + ent.height / 2) {
+            const isFalling = this.player.vy > 0;
+            const isAbove = (this.player.y + this.player.height - 10 <= ent.y + ent.height * 0.7);
+
+            if (ent.stompable && isFalling && isAbove) {
               ent.stomp();
-              this.player.vy = -450;
-              this.score += 50;
+              this.player.vy = -500;
+              this.player.y = ent.y - this.player.height - 2;
+              this.score += (ent.variant === 'winged' ? 150 : 100);
             } else {
               sounds.playHurt();
               this.player.respawn();
@@ -777,12 +1080,12 @@ class SidehopApp {
           }
         }
 
-        // Collectibles
+        // Collectibles (Coin & Star Gem)
         else if (ent.type === 'collectible') {
           ent.update(dt);
           if (this.physics.checkOverlap(this.player, ent)) {
             ent.collect();
-            this.score += 100;
+            this.score += (ent.variant === 'star' ? 500 : 100);
           }
         }
 
@@ -830,7 +1133,7 @@ class SidehopApp {
       }
 
       for (const ent of this.entities) {
-        if (ent.update && (ent.type === 'springboard' || ent.type === 'collectible' || ent.type === 'goal')) {
+        if (ent.update && (ent.type === 'springboard' || ent.type === 'collectible' || ent.type === 'goal' || ent.type === 'crate' || ent.type === 'block')) {
           ent.update(dt);
         }
       }

@@ -22,6 +22,7 @@ export class LevelStorage {
       },
       entities: entities.map(ent => ({
         type: ent.type,
+        variant: ent.variant,
         x: ent.x,
         y: ent.y,
         width: ent.width,
@@ -64,19 +65,19 @@ export class LevelStorage {
         switch (d.type) {
           case 'crate':
           case 'block':
-            ent = new SolidBlock(d.x, d.y, d.width, d.height);
+            ent = new SolidBlock(d.x, d.y, d.width, d.height, d.variant || 'solid');
             if (d.bounciness !== undefined) ent.bounciness = d.bounciness;
             if (d.friction !== undefined) ent.friction = d.friction;
             break;
           case 'springboard':
-            ent = new Springboard(d.x, d.y, d.width, d.height);
+            ent = new Springboard(d.x, d.y, d.width, d.height, d.variant || 'spring');
             if (d.launchForce !== undefined) ent.launchForce = d.launchForce;
             break;
           case 'hazard':
             ent = new HazardSpikes(d.x, d.y, d.width, d.height);
             break;
           case 'enemy':
-            ent = new EnemyWalker(d.x, d.y, d.width, d.height);
+            ent = new EnemyWalker(d.x, d.y, d.width, d.height, d.variant || 'walker');
             if (d.speed !== undefined) ent.speed = d.speed;
             if (d.patrolRange !== undefined) ent.patrolRange = d.patrolRange;
             if (d.stompable !== undefined) ent.stompable = d.stompable;
@@ -88,7 +89,7 @@ export class LevelStorage {
             if (d.axis !== undefined) ent.axis = d.axis;
             break;
           case 'collectible':
-            ent = new Collectible(d.x, d.y, d.width, d.height);
+            ent = new Collectible(d.x, d.y, d.width, d.height, d.variant || 'coin');
             break;
           case 'goal':
             ent = new GoalFlag(d.x, d.y, d.width, d.height);

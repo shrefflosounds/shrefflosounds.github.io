@@ -11,6 +11,7 @@ export class GridEditor {
     this.currentTool = 'select'; // Default is now SELECT per user request
     this.previousTool = 'select';
     this.selectedPaletteItem = 'block';
+    this.selectedPaletteVariant = 'solid'; // Variant support (e.g. mystery, cloud, ice)
     this.hoverGrid = { x: 0, y: 0 };
     this.isMouseDown = false;
     this.isPanning = false;
@@ -21,17 +22,35 @@ export class GridEditor {
     // Drag-to-move entity in Select mode
     this.isDraggingEntity = false;
     this.dragOffset = { x: 0, y: 0 };
+    this.didDragMove = false;
 
-    // Callbacks for UI
+    // Callbacks for UI & History
     this.onSelectEntity = null; // (entity, screenPos) => {}
     this.onDeselect = null;
     this.onEntityMoved = null;
+    this.onHistorySnapshotNeeded = null;
 
     this.bindCanvasEvents();
   }
 
-  setPaletteItem(item) {
+  setPaletteItem(item, variant = null) {
     this.selectedPaletteItem = item;
+    if (variant) {
+      this.selectedPaletteVariant = variant;
+    } else {
+      // Default variant for this item
+      if (item === 'block' || item === 'crate') this.selectedPaletteVariant = 'solid';
+      else if (item === 'enemy') this.selectedPaletteVariant = 'walker';
+      else if (item === 'collectible') this.selectedPaletteVariant = 'coin';
+      else if (item === 'springboard') this.selectedPaletteVariant = 'spring';
+    }
+    this.currentTool = 'place';
+    this.updateCursor();
+    sounds.playClick();
+  }
+
+  setPaletteVariant(variant) {
+    this.selectedPaletteVariant = variant;
     this.currentTool = 'place';
     this.updateCursor();
     sounds.playClick();
@@ -152,6 +171,7 @@ export class GridEditor {
 
     // Drag-moving selected entity
     if (this.isMouseDown && this.isDraggingEntity && this.selectedEntity) {
+      this.didDragMove = true;
       const newX = Math.round((worldPos.x - this.dragOffset.x) / this.tileSize) * this.tileSize;
       const newY = Math.round((worldPos.y - this.dragOffset.y) / this.tileSize) * this.tileSize;
 
@@ -170,7 +190,7 @@ export class GridEditor {
     }
 
     if (this.isMouseDown) {
-      if (this.currentTool === 'place' && this.selectedPaletteItem === 'crate') {
+      if (this.currentTool === 'place' && (this.selectedPaletteItem === 'crate' || this.selectedPaletteItem === 'block')) {
         // Continuous brush painting for solid blocks
         this.placeAt(this.hoverGrid.x, this.hoverGrid.y, entities, player);
       } else if (this.currentTool === 'erase') {
@@ -184,6 +204,10 @@ export class GridEditor {
     this.isPanning = false;
     if (this.isDraggingEntity) {
       this.isDraggingEntity = false;
+      if (this.didDragMove) {
+        this.didDragMove = false;
+        if (this.onHistorySnapshotNeeded) this.onHistorySnapshotNeeded();
+      }
       if (this.onEntityMoved) this.onEntityMoved();
     }
     this.updateCursor();
@@ -199,25 +223,26 @@ export class GridEditor {
       case 'player':
         player.setSpawn(x, y);
         sounds.playClick();
+        if (this.onHistorySnapshotNeeded) this.onHistorySnapshotNeeded();
         return;
       case 'block':
       case 'crate':
-        newEnt = new CrateBlock(x, y, this.tileSize, this.tileSize);
+        newEnt = new CrateBlock(x, y, this.tileSize, this.tileSize, this.selectedPaletteVariant || 'solid');
         break;
       case 'springboard':
-        newEnt = new Springboard(x, y, this.tileSize, this.tileSize);
+        newEnt = new Springboard(x, y, this.tileSize, this.tileSize, this.selectedPaletteVariant || 'spring');
         break;
       case 'hazard':
         newEnt = new HazardSpikes(x, y, this.tileSize, this.tileSize);
         break;
       case 'enemy':
-        newEnt = new EnemyWalker(x, y, this.tileSize, this.tileSize);
+        newEnt = new EnemyWalker(x, y, this.tileSize, this.tileSize, this.selectedPaletteVariant || 'walker');
         break;
       case 'moving_platform':
         newEnt = new MovingPlatform(x, y, this.tileSize * 2, 24);
         break;
       case 'collectible':
-        newEnt = new Collectible(x + 4, y + 4, 32, 32);
+        newEnt = new Collectible(x + 4, y + 4, 32, 32, this.selectedPaletteVariant || 'coin');
         break;
       case 'goal':
         newEnt = new GoalFlag(x, y - 40, 48, 80);
@@ -228,6 +253,7 @@ export class GridEditor {
       entities.push(newEnt);
       sounds.playLand();
       if (this.onEntityMoved) this.onEntityMoved();
+      if (this.onHistorySnapshotNeeded) this.onHistorySnapshotNeeded();
     }
   }
 
@@ -250,6 +276,7 @@ export class GridEditor {
         if (this.onDeselect) this.onDeselect();
       }
       if (this.onEntityMoved) this.onEntityMoved();
+      if (this.onHistorySnapshotNeeded) this.onHistorySnapshotNeeded();
     }
   }
 
