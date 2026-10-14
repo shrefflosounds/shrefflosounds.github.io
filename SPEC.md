@@ -61,7 +61,7 @@
 - **Grid Snapping:** Responsive 32x32px or 48x48px grid alignment for clean platforming architecture.
 - **Starter Entity Library (8 Core Components):**
   1. **Player Hero:** Start spawn location with customizable sprite.
-  2. **Solid Blocks & Crates:** Ground, brick, and stackable milk crate blocks.
+  2. **Solid Blocks & Platforms:** Ground, brick, and solid terrain blocks.
   3. **Bouncers / Trampolines:** High-launch springboards.
   4. **Hazards:** Spikes and pit traps triggering instant comical defeat & respawn.
   5. **Enemies / Walkers:** Patrolling ground creatures.
@@ -74,6 +74,9 @@
   - Freehand drawing canvas with adjustable brush sizes, eraser, color palette, and quirky stamp brushes.
   - Image file uploader (PNG, JPG, WebP) with transparent background helper.
   - Animated GIF uploader with native frame cycling.
+- **Atmospheric Background Customizer:**
+  - Dynamic preset themes (Sky Blue, Sunset Gold, Midnight Galaxy, Synthwave Grid, Pastel Meadow, Lofi Notebook).
+  - Custom image / animated GIF background upload with parallax support.
 - **Procedural Squash & Stretch Animation:**
   - Any hand-drawn doodle or photo cutout dynamically squashes on ground landing, stretches on jump takeoff, leans into running acceleration, and gently breathes while idling.
 
@@ -99,7 +102,7 @@
 - **Dual-Tier Level Persistence:**
   - Auto-saves levels and custom artwork directly in browser `localStorage`.
   - One-click **"Export Level (.sidehop / .json)"** and **"Import Level"** for sharing levels with friends.
-  - Built-in pre-made starter levels ("Crate Hop 101" and "Bouncy Castle") ready to play immediately.
+  - Built-in pre-made starter levels ("World 1-1: Sidehop Meadow" and "Bouncy Castle") ready to play immediately.
 
 ---
 

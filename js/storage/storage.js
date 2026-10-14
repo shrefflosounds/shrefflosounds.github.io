@@ -1,15 +1,16 @@
 // Sidehop Level Persistence & Preset Levels Engine
 
-import { CrateBlock, Springboard, HazardSpikes, EnemyWalker, MovingPlatform, Collectible, GoalFlag } from '../engine/entities.js';
+import { SolidBlock, Springboard, HazardSpikes, EnemyWalker, MovingPlatform, Collectible, GoalFlag } from '../engine/entities.js';
 
-const STORAGE_KEY = 'sidehop_saved_level_v1';
+const STORAGE_KEY = 'sidehop_saved_level_v2';
 
 export class LevelStorage {
   // Serialize active level to JSON-compatible object
-  static serialize(player, entities) {
+  static serialize(player, entities, background = { theme: 'sky', customImage: null }) {
     return {
-      version: 1,
+      version: 2,
       name: 'My Sidehop Level',
+      background: background,
       player: {
         spawnX: player.spawnX,
         spawnY: player.spawnY,
@@ -40,7 +41,7 @@ export class LevelStorage {
 
   // Restore entities from data object
   static deserialize(data, player, entities) {
-    if (!data) return false;
+    if (!data) return null;
 
     // Restore player
     if (data.player) {
@@ -62,7 +63,8 @@ export class LevelStorage {
         let ent = null;
         switch (d.type) {
           case 'crate':
-            ent = new CrateBlock(d.x, d.y, d.width, d.height);
+          case 'block':
+            ent = new SolidBlock(d.x, d.y, d.width, d.height);
             if (d.bounciness !== undefined) ent.bounciness = d.bounciness;
             if (d.friction !== undefined) ent.friction = d.friction;
             break;
@@ -100,13 +102,13 @@ export class LevelStorage {
       });
     }
 
-    return true;
+    return data.background || { theme: 'sky', customImage: null };
   }
 
   // LocalStorage Auto-save
-  static autoSave(player, entities) {
+  static autoSave(player, entities, background) {
     try {
-      const data = this.serialize(player, entities);
+      const data = this.serialize(player, entities, background);
       localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
     } catch (e) {
       console.warn('LocalStorage save failed:', e);
@@ -124,12 +126,12 @@ export class LevelStorage {
     } catch (e) {
       console.warn('LocalStorage load failed:', e);
     }
-    return false;
+    return null;
   }
 
   // Download JSON file
-  static exportLevel(player, entities) {
-    const data = this.serialize(player, entities);
+  static exportLevel(player, entities, background) {
+    const data = this.serialize(player, entities, background);
     const jsonStr = JSON.stringify(data, null, 2);
     const blob = new Blob([jsonStr], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
@@ -147,8 +149,8 @@ export class LevelStorage {
     reader.onload = (e) => {
       try {
         const data = JSON.parse(e.target.result);
-        const success = this.deserialize(data, player, entities);
-        if (callback) callback(success);
+        const bg = this.deserialize(data, player, entities);
+        if (callback) callback(bg);
       } catch (err) {
         alert('Invalid Sidehop level file.');
       }
@@ -156,68 +158,61 @@ export class LevelStorage {
     reader.readAsText(file);
   }
 
-  // Default Preset 1: The Iconic Milk Crate Hop Challenge!
-  static getPresetCrateChallenge() {
+  // Default Preset 1: World 1-1 "Sidehop Meadow"
+  static getStarterWorld() {
     const entities = [];
     const T = 40;
 
-    // Flat starting ground
-    for (let x = 0; x < 280; x += T) {
-      entities.push(new CrateBlock(x, 480, T, T));
+    // 1. Starting Ground Runway
+    for (let x = 0; x < 360; x += T) {
+      entities.push(new SolidBlock(x, 480, T, T));
     }
 
-    // Milk Crate Pyramid Challenge! (Rising stairs of crates)
-    // Step 1
-    entities.push(new CrateBlock(320, 480, T, T));
-    entities.push(new CrateBlock(320, 440, T, T));
-    // Step 2
-    entities.push(new CrateBlock(360, 480, T, T));
-    entities.push(new CrateBlock(360, 440, T, T));
-    entities.push(new CrateBlock(360, 400, T, T));
-    // Step 3 (Apex)
-    entities.push(new CrateBlock(400, 480, T, T));
-    entities.push(new CrateBlock(400, 440, T, T));
-    entities.push(new CrateBlock(400, 400, T, T));
-    entities.push(new CrateBlock(400, 360, T, T));
-    entities.push(new Collectible(404, 320, 32, 32)); // Star at the top of the pyramid!
-    // Step 4 (Down)
-    entities.push(new CrateBlock(440, 480, T, T));
-    entities.push(new CrateBlock(440, 440, T, T));
-    entities.push(new CrateBlock(440, 400, T, T));
-    // Step 5
-    entities.push(new CrateBlock(480, 480, T, T));
-    entities.push(new CrateBlock(480, 440, T, T));
+    // 2. Gentle Ascending Platformer Steps
+    entities.push(new SolidBlock(240, 440, T, T));
+    entities.push(new SolidBlock(280, 440, T, T));
+    entities.push(new SolidBlock(280, 400, T, T));
+    entities.push(new Collectible(284, 350, 32, 32));
 
-    // Hazard Pit with Spikes
-    for (let x = 520; x < 680; x += T) {
+    // 3. Floating Mystery Island with Coin
+    for (let x = 360; x < 480; x += T) {
+      entities.push(new SolidBlock(x, 320, T, T));
+    }
+    entities.push(new Collectible(420, 270, 32, 32));
+
+    // 4. Springboard Leap over Spike Gap
+    for (let x = 400; x < 600; x += T) {
       entities.push(new HazardSpikes(x, 500, T, T));
     }
+    // High bounce launch pad
+    entities.push(new Springboard(360, 480, T, T));
 
-    // Spring launch pad over pit
-    entities.push(new Springboard(480, 400, T, T));
-
-    // Landing ledge
-    for (let x = 700; x < 1000; x += T) {
-      entities.push(new CrateBlock(x, 440, T, T));
+    // 5. Landing Terrace with Patrolling Enemy
+    for (let x = 640; x < 960; x += T) {
+      entities.push(new SolidBlock(x, 440, T, T));
     }
+    entities.push(new EnemyWalker(740, 400, T, T));
+    entities.push(new Collectible(800, 380, 32, 32));
+    entities.push(new Collectible(860, 380, 32, 32));
 
-    // Patrolling grumpy potato enemy on ledge
-    entities.push(new EnemyWalker(780, 400, T, T));
-    entities.push(new Collectible(840, 380, 32, 32));
+    // 6. Smooth Moving Platform across the Chasm
+    entities.push(new MovingPlatform(1020, 380, 80, 24));
 
-    // Moving Platform across sky
-    entities.push(new MovingPlatform(1040, 380, 80, 24));
-
-    // Goal Platform
-    for (let x = 1240; x < 1440; x += T) {
-      entities.push(new CrateBlock(x, 400, T, T));
+    // 7. Victory Platform with Goal Flag
+    for (let x = 1200; x < 1440; x += T) {
+      entities.push(new SolidBlock(x, 440, T, T));
     }
-    // Goal Flag
-    entities.push(new GoalFlag(1360, 320, 48, 80));
+    entities.push(new GoalFlag(1340, 360, 48, 80));
 
     return {
+      background: { theme: 'sky', customImage: null },
       playerSpawn: { x: 80, y: 400 },
       entities
     };
+  }
+
+  // Alias for backward compatibility
+  static getPresetCrateChallenge() {
+    return this.getStarterWorld();
   }
 }

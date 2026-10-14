@@ -8,9 +8,9 @@ export class GridEditor {
     this.canvas = canvas;
     this.camera = camera;
     this.tileSize = tileSize;
-    this.currentTool = 'place'; // 'place', 'select', 'pan', 'erase'
-    this.previousTool = 'place';
-    this.selectedPaletteItem = 'crate';
+    this.currentTool = 'select'; // Default is now SELECT per user request
+    this.previousTool = 'select';
+    this.selectedPaletteItem = 'block';
     this.hoverGrid = { x: 0, y: 0 };
     this.isMouseDown = false;
     this.isPanning = false;
@@ -200,6 +200,7 @@ export class GridEditor {
         player.setSpawn(x, y);
         sounds.playClick();
         return;
+      case 'block':
       case 'crate':
         newEnt = new CrateBlock(x, y, this.tileSize, this.tileSize);
         break;

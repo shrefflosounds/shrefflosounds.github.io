@@ -22,10 +22,11 @@ Build levels with snap-to-grid placement, customize every visual element using a
 - **Instant In-Place Playtesting (Mario Maker style):** Toggle between Edit and Play modes with one click or by tapping `Spacebar`.
 - **Procedural Squash & Stretch Animation:** Any doodle, cut-out photo, or imported sprite automatically squashes on landing, stretches on jumping, and leans into runs.
 - **Kid Pix Art Studio:** In-app painting studio featuring brushes, markers, quirky stamps (stars, hearts, smiles), eraser, and direct Image/GIF imports.
-- **Component Inspector:** Live parameter sliders for player speed, jump height, gravity/weight, double-jump toggling, crate bounciness, springboard launch forces, and enemy patrol range.
+- **Component Inspector:** Live parameter sliders for player speed, jump height, gravity/weight, double-jump toggling, block bounciness, springboard launch forces, and enemy patrol range.
+- **Atmospheric Background Customizer:** Dynamic preset themes (Sky Blue, Sunset Gold, Midnight Galaxy, Synthwave Grid, Pastel Meadow, Lofi Notebook) plus custom image or animated GIF upload.
 - **8 Core Starter Components:**
   1. Player Hero
-  2. Milk Crates & Solid Blocks
+  2. Ground & Solid Blocks
   3. Springboard Bouncers
   4. Spike Hazards
   5. Patrolling Grumpy Potato Enemies (stompable!)
@@ -35,7 +36,7 @@ Build levels with snap-to-grid placement, customize every visual element using a
 - **Dual-Mode Video Recording:** Manual `● REC` button to capture canvas gameplay via `MediaRecorder` API with one-click `.webm` download, plus instant replay highlights.
 - **Procedural Web Audio Engine:** Built-in retro chiptune BGM loop, goofy boings, squishy drawing sounds, coin chimes, and victory fanfares (zero external audio files needed).
 - **Universal Level Sharing:** Auto-saves to browser storage (`localStorage`) and allows one-click JSON Level Export and Import.
-- **Bundled Showcase Level:** "The Milk Crate Hop" tribute challenge included out of the box.
+- **Bundled Showcase Level:** "World 1-1: Sidehop Meadow" starter adventure included out of the box.
 
 ---
 

@@ -1,4 +1,4 @@
-// Sidehop Master Application Coordinator — Enhanced Frame-Safe Interaction & Pan Controls
+// Sidehop Master Application Coordinator — Enhanced Custom Backgrounds & Refined Controls
 
 import { Player } from './engine/entities.js';
 import { PhysicsEngine } from './engine/physics.js';
@@ -23,6 +23,13 @@ class SidehopApp {
     this.keys = {};
     this.score = 0;
     this.isLevelWon = false;
+
+    // Background State
+    this.background = {
+      theme: 'sky', // 'sky', 'sunset', 'night', 'paper', 'mint', 'cyber', 'custom'
+      customImage: null,
+      customImageElement: null
+    };
 
     // Subsystems
     this.editor = new GridEditor(this.canvas, this.camera, 40);
@@ -50,20 +57,170 @@ class SidehopApp {
   }
 
   initLevel() {
-    const loaded = LevelStorage.autoLoad(this.player, this.entities);
-    if (!loaded || this.entities.length === 0) {
-      this.loadCratePreset();
+    const loadedBg = LevelStorage.autoLoad(this.player, this.entities);
+    if (!loadedBg || this.entities.length === 0) {
+      this.loadStarterWorld();
+    } else {
+      this.applyBackground(loadedBg);
     }
   }
 
-  loadCratePreset() {
-    const preset = LevelStorage.getPresetCrateChallenge();
+  loadStarterWorld() {
+    const preset = LevelStorage.getStarterWorld();
     this.player.setSpawn(preset.playerSpawn.x, preset.playerSpawn.y);
     this.entities = preset.entities;
+    this.applyBackground(preset.background);
     this.camera.recenter(this.player.spawnX, this.player.spawnY);
     if (this.editor.selectedEntity) {
       this.updateActionCard(this.editor.selectedEntity);
     }
+    LevelStorage.autoSave(this.player, this.entities, this.background);
+  }
+
+  // --- Background Application & Rendering ---
+  applyBackground(bg) {
+    if (!bg) return;
+    this.background.theme = bg.theme || 'sky';
+    this.background.customImage = bg.customImage || null;
+    if (this.background.customImage) {
+      const img = new Image();
+      img.src = this.background.customImage;
+      img.onload = () => {
+        this.background.customImageElement = img;
+      };
+    } else {
+      this.background.customImageElement = null;
+    }
+
+    const themeCards = document.querySelectorAll('.bg-theme-card');
+    themeCards.forEach(c => {
+      c.classList.toggle('active', c.getAttribute('data-bg-theme') === this.background.theme);
+    });
+
+    const customStatus = document.getElementById('bg-custom-status');
+    if (customStatus) {
+      customStatus.style.display = this.background.customImage ? 'block' : 'none';
+    }
+  }
+
+  renderBackground() {
+    const w = this.canvas.width;
+    const h = this.canvas.height;
+
+    if (this.background.theme === 'custom' && this.background.customImageElement) {
+      this.ctx.drawImage(this.background.customImageElement, 0, 0, w, h);
+      return;
+    }
+
+    switch (this.background.theme) {
+      case 'sky': {
+        const grad = this.ctx.createLinearGradient(0, 0, 0, h);
+        grad.addColorStop(0, '#70C5FF');
+        grad.addColorStop(1, '#E0F4FF');
+        this.ctx.fillStyle = grad;
+        this.ctx.fillRect(0, 0, w, h);
+        this.drawParallaxClouds(w, h);
+        break;
+      }
+      case 'sunset': {
+        const grad = this.ctx.createLinearGradient(0, 0, 0, h);
+        grad.addColorStop(0, '#FF5252');
+        grad.addColorStop(0.55, '#FF7A59');
+        grad.addColorStop(1, '#FFD166');
+        this.ctx.fillStyle = grad;
+        this.ctx.fillRect(0, 0, w, h);
+
+        // Distant warm sun
+        this.ctx.save();
+        this.ctx.fillStyle = 'rgba(255, 255, 255, 0.45)';
+        this.ctx.beginPath();
+        const sunX = (w * 0.75 - this.camera.x * 0.06) % (w + 200);
+        this.ctx.arc(sunX < -100 ? sunX + w + 200 : sunX, h * 0.45, 60, 0, Math.PI * 2);
+        this.ctx.fill();
+        this.ctx.restore();
+        break;
+      }
+      case 'night': {
+        const grad = this.ctx.createLinearGradient(0, 0, 0, h);
+        grad.addColorStop(0, '#0F172A');
+        grad.addColorStop(1, '#1E1B4B');
+        this.ctx.fillStyle = grad;
+        this.ctx.fillRect(0, 0, w, h);
+        this.drawStars(w, h);
+        break;
+      }
+      case 'paper': {
+        this.ctx.fillStyle = '#FAF8F5';
+        this.ctx.fillRect(0, 0, w, h);
+        break;
+      }
+      case 'mint': {
+        const grad = this.ctx.createLinearGradient(0, 0, 0, h);
+        grad.addColorStop(0, '#6EE7B7');
+        grad.addColorStop(1, '#D1FAE5');
+        this.ctx.fillStyle = grad;
+        this.ctx.fillRect(0, 0, w, h);
+        break;
+      }
+      case 'cyber': {
+        const grad = this.ctx.createLinearGradient(0, 0, 0, h);
+        grad.addColorStop(0, '#1E0836');
+        grad.addColorStop(1, '#4A154B');
+        this.ctx.fillStyle = grad;
+        this.ctx.fillRect(0, 0, w, h);
+        break;
+      }
+      default: {
+        this.ctx.fillStyle = '#FAF8F5';
+        this.ctx.fillRect(0, 0, w, h);
+      }
+    }
+  }
+
+  drawParallaxClouds(w, h) {
+    this.ctx.save();
+    this.ctx.fillStyle = 'rgba(255, 255, 255, 0.75)';
+
+    const cloudDefs = [
+      { baseCol: 100, y: 80, scale: 1.0, speed: 0.12 },
+      { baseCol: 420, y: 130, scale: 0.8, speed: 0.18 },
+      { baseCol: 760, y: 70, scale: 1.2, speed: 0.10 },
+      { baseCol: 1100, y: 150, scale: 0.9, speed: 0.15 }
+    ];
+
+    cloudDefs.forEach(c => {
+      const loopWidth = 1400;
+      let x = (c.baseCol - this.camera.x * c.speed) % loopWidth;
+      if (x < -200) x += loopWidth;
+
+      this.ctx.save();
+      this.ctx.translate(x, c.y);
+      this.ctx.scale(c.scale, c.scale);
+      this.ctx.beginPath();
+      this.ctx.arc(40, 30, 24, 0, Math.PI * 2);
+      this.ctx.arc(65, 20, 30, 0, Math.PI * 2);
+      this.ctx.arc(95, 25, 26, 0, Math.PI * 2);
+      this.ctx.arc(120, 35, 20, 0, Math.PI * 2);
+      this.ctx.fill();
+      this.ctx.restore();
+    });
+
+    this.ctx.restore();
+  }
+
+  drawStars(w, h) {
+    this.ctx.save();
+    this.ctx.fillStyle = '#FFFFFF';
+    const numStars = 40;
+    for (let i = 0; i < numStars; i++) {
+      const seedX = (i * 137.5) % w;
+      const seedY = (i * 89.3) % (h * 0.7);
+      const twinkle = Math.sin(performance.now() * 0.003 + i) > 0.3 ? 2.5 : 1.5;
+      this.ctx.beginPath();
+      this.ctx.arc(seedX, seedY, twinkle, 0, Math.PI * 2);
+      this.ctx.fill();
+    }
+    this.ctx.restore();
   }
 
   // --- Frame-Safe Clamped Action Card Positioning ---
@@ -80,7 +237,8 @@ class SidehopApp {
     if (badge) {
       const typeIcons = {
         player: '🐰 PLAYER SPAWN',
-        crate: '📦 CRATE BLOCK',
+        crate: '🧱 SOLID BLOCK',
+        block: '🧱 SOLID BLOCK',
         springboard: '🌀 SPRING BOUNCER',
         hazard: '⚠️ SPIKE HAZARD',
         enemy: '👾 ENEMY WALKER',
@@ -110,7 +268,7 @@ class SidehopApp {
     // Vertical placement: default above entity
     let top = entCenter.y - cardH - 12;
 
-    // If near top of canvas (or off-screen top), flip cleanly below the entity
+    // If near top of canvas, flip cleanly below the entity
     if (top < 14) {
       top = entBottom.y + 12;
     }
@@ -155,14 +313,81 @@ class SidehopApp {
       sounds.playClick();
     });
 
-    // 4. Presets and Level Management
+    // 4. Background Customizer Modal Controls
+    const bgModal = document.getElementById('background-modal');
+    document.getElementById('bg-modal-btn').addEventListener('click', () => {
+      bgModal.classList.add('active');
+      sounds.playClick();
+    });
+    document.getElementById('close-bg-modal').addEventListener('click', () => {
+      bgModal.classList.remove('active');
+      sounds.playClick();
+    });
+    document.getElementById('bg-done-btn').addEventListener('click', () => {
+      bgModal.classList.remove('active');
+      LevelStorage.autoSave(this.player, this.entities, this.background);
+      sounds.playClick();
+    });
+
+    const bgThemeCards = document.querySelectorAll('.bg-theme-card');
+    bgThemeCards.forEach(card => {
+      card.addEventListener('click', () => {
+        bgThemeCards.forEach(c => c.classList.remove('active'));
+        card.classList.add('active');
+        this.background.theme = card.getAttribute('data-bg-theme');
+        this.background.customImage = null;
+        this.background.customImageElement = null;
+        const customStatus = document.getElementById('bg-custom-status');
+        if (customStatus) customStatus.style.display = 'none';
+        sounds.playClick();
+        LevelStorage.autoSave(this.player, this.entities, this.background);
+      });
+    });
+
+    const bgUploadInput = document.getElementById('bg-image-upload');
+    bgUploadInput.addEventListener('change', (e) => {
+      if (e.target.files && e.target.files[0]) {
+        const file = e.target.files[0];
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+          this.background.theme = 'custom';
+          this.background.customImage = ev.target.result;
+          const img = new Image();
+          img.src = ev.target.result;
+          img.onload = () => {
+            this.background.customImageElement = img;
+          };
+          bgThemeCards.forEach(c => c.classList.remove('active'));
+          const customStatus = document.getElementById('bg-custom-status');
+          if (customStatus) customStatus.style.display = 'block';
+          sounds.playPaintSquish();
+          LevelStorage.autoSave(this.player, this.entities, this.background);
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+
+    document.getElementById('bg-reset-default').addEventListener('click', () => {
+      this.background.theme = 'sky';
+      this.background.customImage = null;
+      this.background.customImageElement = null;
+      bgThemeCards.forEach(c => {
+        c.classList.toggle('active', c.getAttribute('data-bg-theme') === 'sky');
+      });
+      const customStatus = document.getElementById('bg-custom-status');
+      if (customStatus) customStatus.style.display = 'none';
+      sounds.playClick();
+      LevelStorage.autoSave(this.player, this.entities, this.background);
+    });
+
+    // 5. Presets and Level Management
     document.getElementById('load-preset-btn').addEventListener('click', () => {
-      this.loadCratePreset();
+      this.loadStarterWorld();
       sounds.playLand();
     });
 
     document.getElementById('export-level-btn').addEventListener('click', () => {
-      LevelStorage.exportLevel(this.player, this.entities);
+      LevelStorage.exportLevel(this.player, this.entities, this.background);
       sounds.playCollect();
     });
 
@@ -173,13 +398,14 @@ class SidehopApp {
 
     importInput.addEventListener('change', (e) => {
       if (e.target.files && e.target.files[0]) {
-        LevelStorage.importLevel(e.target.files[0], this.player, this.entities, (ok) => {
-          if (ok) sounds.playCollect();
+        LevelStorage.importLevel(e.target.files[0], this.player, this.entities, (bg) => {
+          if (bg) this.applyBackground(bg);
+          sounds.playCollect();
         });
       }
     });
 
-    // 5. Tool Drawer Palette Clicks
+    // 6. Tool Drawer Palette Clicks
     const toolButtons = document.querySelectorAll('[data-tool]');
     toolButtons.forEach(btn => {
       btn.addEventListener('click', () => {
@@ -196,14 +422,14 @@ class SidehopApp {
         btn.classList.add('active');
         this.editor.setPaletteItem(btn.getAttribute('data-palette'));
 
-        // Switch to place tool automatically
+        // Switch to place tool automatically when selecting a component
         toolButtons.forEach(b => b.classList.remove('active'));
         const placeBtn = document.querySelector('[data-tool="place"]');
         if (placeBtn) placeBtn.classList.add('active');
       });
     });
 
-    // 6. Entity Floating Action Card
+    // 7. Entity Floating Action Card
     const actionCard = document.getElementById('entity-action-card');
     this.editor.onSelectEntity = (ent) => {
       this.updateActionCard(ent);
@@ -214,7 +440,7 @@ class SidehopApp {
     };
 
     this.editor.onEntityMoved = () => {
-      LevelStorage.autoSave(this.player, this.entities);
+      LevelStorage.autoSave(this.player, this.entities, this.background);
       if (this.editor.selectedEntity) {
         this.updateActionCard(this.editor.selectedEntity);
       }
@@ -232,7 +458,7 @@ class SidehopApp {
     document.getElementById('action-paint-btn').addEventListener('click', () => {
       if (this.editor.selectedEntity) {
         this.artStudio.openForEntity(this.editor.selectedEntity, () => {
-          LevelStorage.autoSave(this.player, this.entities);
+          LevelStorage.autoSave(this.player, this.entities, this.background);
         });
       }
     });
@@ -251,12 +477,12 @@ class SidehopApp {
           this.editor.selectedEntity = null;
           actionCard.classList.remove('active');
           sounds.playPaintSquish();
-          LevelStorage.autoSave(this.player, this.entities);
+          LevelStorage.autoSave(this.player, this.entities, this.background);
         }
       }
     });
 
-    // 7. On-Screen Navigation Controls (Edit Mode)
+    // 8. On-Screen Navigation Controls (Edit Mode)
     const panStep = 120;
     document.getElementById('nav-pan-up').addEventListener('click', () => {
       this.camera.pan(0, -panStep);
@@ -284,15 +510,15 @@ class SidehopApp {
       sounds.playBounce();
     });
 
-    // 8. Art Studio Modal Controls
+    // 9. Art Studio Modal Controls
     document.getElementById('close-art-studio').addEventListener('click', () => this.artStudio.close());
     document.getElementById('paint-apply-btn').addEventListener('click', () => {
       this.artStudio.apply();
-      LevelStorage.autoSave(this.player, this.entities);
+      LevelStorage.autoSave(this.player, this.entities, this.background);
     });
     document.getElementById('paint-reset-btn').addEventListener('click', () => {
       this.artStudio.resetDefault();
-      LevelStorage.autoSave(this.player, this.entities);
+      LevelStorage.autoSave(this.player, this.entities, this.background);
     });
 
     const paintToolBtns = document.querySelectorAll('.paint-tool-btn');
@@ -326,13 +552,13 @@ class SidehopApp {
       }
     });
 
-    // 9. Inspector Modal Controls
+    // 10. Inspector Modal Controls
     document.getElementById('inspector-done-btn').addEventListener('click', () => {
       this.inspector.close();
-      LevelStorage.autoSave(this.player, this.entities);
+      LevelStorage.autoSave(this.player, this.entities, this.background);
     });
 
-    // 10. Victory Overlay Controls
+    // 11. Victory Overlay Controls
     document.getElementById('victory-restart-btn').addEventListener('click', () => {
       document.getElementById('victory-overlay').classList.remove('active');
       this.isLevelWon = false;
@@ -381,7 +607,7 @@ class SidehopApp {
       this.score = 0;
       this.isLevelWon = false;
       document.getElementById('victory-overlay').classList.remove('active');
-      LevelStorage.autoSave(this.player, this.entities);
+      LevelStorage.autoSave(this.player, this.entities, this.background);
     } else {
       modeBtn.classList.add('neo-btn-primary');
       modeBtn.classList.remove('neo-btn-pink');
@@ -396,7 +622,6 @@ class SidehopApp {
   bindEvents() {
     // Keyboard Inputs
     window.addEventListener('keydown', (e) => {
-      // Don't capture when typing in text inputs or sliders
       if (e.target.matches('input, textarea')) return;
 
       this.keys[e.code] = true;
@@ -411,8 +636,6 @@ class SidehopApp {
             this.spacePressTime = performance.now();
             this.didPanDuringSpace = false;
           }
-        } else {
-          // In play mode, space is jump (handled in player)
         }
       }
 
@@ -435,7 +658,7 @@ class SidehopApp {
             this.editor.selectedEntity = null;
             document.getElementById('entity-action-card').classList.remove('active');
             sounds.playPaintSquish();
-            LevelStorage.autoSave(this.player, this.entities);
+            LevelStorage.autoSave(this.player, this.entities, this.background);
           }
         }
       }
@@ -446,9 +669,9 @@ class SidehopApp {
         document.getElementById('entity-action-card').classList.remove('active');
       }
 
-      // Number keys switch tools in edit mode: 1=Place, 2=Select, 3=Pan, 4=Erase
+      // Number keys switch tools in edit mode: 1=Select, 2=Place, 3=Pan, 4=Erase
       if (this.mode === 'edit') {
-        const toolMap = { Digit1: 'place', Digit2: 'select', Digit3: 'pan', Digit4: 'erase' };
+        const toolMap = { Digit1: 'select', Digit2: 'place', Digit3: 'pan', Digit4: 'erase' };
         if (toolMap[e.code]) {
           const tool = toolMap[e.code];
           const btn = document.querySelector(`[data-tool="${tool}"]`);
@@ -463,7 +686,6 @@ class SidehopApp {
       if (e.code === 'Space' && this.mode === 'edit') {
         this.editor.isSpacePan = false;
         this.editor.updateCursor();
-        // If Space was tapped quickly without dragging, toggle mode
         if (!this.didPanDuringSpace && (performance.now() - this.spacePressTime < 350)) {
           this.toggleMode();
         }
@@ -500,8 +722,8 @@ class SidehopApp {
       // 1. Update Player Input & Movement
       this.player.handleInput(this.keys, dt);
 
-      // Collect solid collision objects (Crates and Moving Platforms)
-      const solids = this.entities.filter(ent => ent.type === 'crate' || ent.type === 'moving_platform');
+      // Collect solid collision objects (Blocks and Moving Platforms)
+      const solids = this.entities.filter(ent => ent.type === 'crate' || ent.type === 'block' || ent.type === 'moving_platform');
       this.physics.updateEntity(this.player, solids, dt);
 
       // 2. Check Entity Interactions
@@ -529,10 +751,9 @@ class SidehopApp {
         else if (ent.type === 'enemy') {
           ent.update(dt, solids);
           if (this.physics.checkOverlap(this.player, ent)) {
-            // Check if jumping from above to stomp
             if (ent.stompable && this.player.vy > 0 && this.player.y + this.player.height - 12 < ent.y + ent.height / 2) {
               ent.stomp();
-              this.player.vy = -450; // little bounce hop
+              this.player.vy = -450;
               this.score += 50;
             } else {
               sounds.playHurt();
@@ -544,7 +765,6 @@ class SidehopApp {
         // Moving Platforms
         else if (ent.type === 'moving_platform') {
           ent.update(dt);
-          // If standing on moving platform, carry player along
           if (
             this.player.grounded &&
             this.player.y + this.player.height >= ent.y - 2 &&
@@ -609,7 +829,6 @@ class SidehopApp {
         this.updateActionCard(this.editor.selectedEntity);
       }
 
-      // Animate springs, collectibles, and goal flags subtly in edit mode
       for (const ent of this.entities) {
         if (ent.update && (ent.type === 'springboard' || ent.type === 'collectible' || ent.type === 'goal')) {
           ent.update(dt);
@@ -639,7 +858,6 @@ class SidehopApp {
     document.getElementById('victory-stats').textContent = `Total Score: ${this.score} PTS`;
     document.getElementById('victory-overlay').classList.add('active');
 
-    // Spawn 90 colorful confetti pieces
     this.confetti = [];
     const colors = ['#00E5FF', '#FFE600', '#FF3388', '#00E676', '#B388FF'];
     for (let i = 0; i < 90; i++) {
@@ -660,30 +878,27 @@ class SidehopApp {
   render() {
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
-    // Warm Drafting Paper / Canvas Background
-    this.ctx.fillStyle = '#FAF8F5';
-    this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+    // 1. Draw Active Background Atmosphere / Custom Art
+    this.renderBackground();
 
+    // 2. Draw World Entities
     this.ctx.save();
-    // Offset world by camera coordinates
     this.ctx.translate(-this.camera.x, -this.camera.y);
 
-    // Draw Entities
     for (const ent of this.entities) {
       ent.draw(this.ctx);
     }
 
-    // Draw Player
     this.player.draw(this.ctx);
 
     this.ctx.restore();
 
-    // In Edit Mode, draw grid lines and hover ghost
+    // 3. In Edit Mode, draw grid lines and hover ghost
     if (this.mode === 'edit') {
       this.editor.draw(this.ctx);
     }
 
-    // Draw HUD in Play Mode (Score & Status)
+    // 4. Draw HUD in Play Mode (Score & Status)
     if (this.mode === 'play') {
       this.ctx.save();
       this.ctx.font = '700 20px "Fredoka", sans-serif';
@@ -692,7 +907,7 @@ class SidehopApp {
       this.ctx.restore();
     }
 
-    // Draw Confetti
+    // 5. Draw Confetti
     if (this.confetti.length > 0) {
       this.ctx.save();
       for (const p of this.confetti) {

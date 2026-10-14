@@ -201,13 +201,12 @@ export class Player extends Entity {
   }
 }
 
-// 2. SOLID BLOCK / CRATE
-export class CrateBlock extends Entity {
+// 2. SOLID BLOCK (Ground / Platform Tile)
+export class SolidBlock extends Entity {
   constructor(x, y, width = 40, height = 40) {
-    super(null, 'crate', x, y, width, height);
+    super(null, 'crate', x, y, width, height); // type remains 'crate' internally for physics/solids compatibility
     this.bounciness = 0.0;
     this.friction = 1.0;
-    this.isCrateChallenge = true; // Milk crate style
   }
 
   draw(ctx) {
@@ -215,38 +214,44 @@ export class CrateBlock extends Entity {
     ctx.translate(this.x, this.y);
 
     this.renderCustomOrFallback(ctx, () => {
-      // Neo-brutalist Milk Crate / Solid Block
-      ctx.fillStyle = '#FFE600'; // Canary Pop Yellow
+      // Clean Neo-Brutalist Platformer Ground Block
+      // Earthy terracotta / golden clay base
+      ctx.fillStyle = '#FFB300'; // Amber platformer block
       ctx.strokeStyle = '#121212';
       ctx.lineWidth = 3;
 
       ctx.fillRect(0, 0, this.width, this.height);
       ctx.strokeRect(0, 0, this.width, this.height);
 
-      // Crate lattice pattern
-      ctx.fillStyle = '#121212';
-      ctx.beginPath();
-      ctx.roundRect(6, 6, this.width - 12, this.height - 12, 4);
-      ctx.strokeStyle = '#121212';
-      ctx.stroke();
+      // Top Grass / Trim cap
+      ctx.fillStyle = '#00E676'; // Lush Mint Green cap
+      ctx.fillRect(0, 0, this.width, 10);
+      ctx.strokeRect(0, 0, this.width, 10);
 
-      // Inner crate slots
-      const slotW = (this.width - 16) / 2;
-      const slotH = (this.height - 16) / 2;
-      ctx.fillStyle = '#FAF8F5';
-      ctx.fillRect(7, 7, slotW, slotH);
-      ctx.strokeRect(7, 7, slotW, slotH);
-      ctx.fillRect(9 + slotW, 7, slotW, slotH);
-      ctx.strokeRect(9 + slotW, 7, slotW, slotH);
-      ctx.fillRect(7, 9 + slotH, slotW, slotH);
-      ctx.strokeRect(7, 9 + slotH, slotW, slotH);
-      ctx.fillRect(9 + slotW, 9 + slotH, slotW, slotH);
-      ctx.strokeRect(9 + slotW, 9 + slotH, slotW, slotH);
+      // Subtle brick / tile texture seams
+      ctx.strokeStyle = 'rgba(18, 18, 18, 0.35)';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      // Horizontal seam
+      ctx.moveTo(0, this.height / 2 + 5);
+      ctx.lineTo(this.width, this.height / 2 + 5);
+      // Vertical seam top half
+      ctx.moveTo(this.width / 2, 10);
+      ctx.lineTo(this.width / 2, this.height / 2 + 5);
+      // Vertical seam bottom half
+      ctx.moveTo(this.width / 4, this.height / 2 + 5);
+      ctx.lineTo(this.width / 4, this.height);
+      ctx.moveTo((this.width * 3) / 4, this.height / 2 + 5);
+      ctx.lineTo((this.width * 3) / 4, this.height);
+      ctx.stroke();
     });
 
     ctx.restore();
   }
 }
+
+// Backward-compatible alias
+export const CrateBlock = SolidBlock;
 
 // 3. BOUNCER / SPRINGBOARD
 export class Springboard extends Entity {
