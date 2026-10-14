@@ -76,6 +76,11 @@ export class Player extends Entity {
     this.y = y;
     this.vx = 0;
     this.vy = 0;
+    this.grounded = false;
+    this.deformation = { scaleX: 1, scaleY: 1, rotation: 0 };
+    this.squashFactor = 0;
+    this.squashTime = 0;
+    this.idleTimer = 0;
   }
 
   respawn() {
@@ -86,6 +91,10 @@ export class Player extends Entity {
     this.grounded = false;
     this.isDead = false;
     this.hasDoubleJump = this.doubleJumpAllowed;
+    this.deformation = { scaleX: 1, scaleY: 1, rotation: 0 };
+    this.squashFactor = 0;
+    this.squashTime = 0;
+    this.idleTimer = 0;
   }
 
   handleInput(keys, dt) {
