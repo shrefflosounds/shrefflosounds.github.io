@@ -158,11 +158,13 @@
 
       <div class="drawer-tips">
         <strong>Quick Controls:</strong><br>
-        • <strong>Undo / Redo:</strong> ⌘Z / ⌘⇧Z (Ctrl+Z / Ctrl+Y)<br>
-        • <strong>Copy / Paste / Cut:</strong> ⌘C / ⌘V / ⌘X<br>
-        • <strong>Duplicate:</strong> ⌘D<br>
-        • <strong>Move Map:</strong> 2-Finger scroll, ✋ Pan, or Space+Drag<br>
-        • <strong>Move Object:</strong> Drag in 👆 Select mode<br>
+        • <strong>Arrow Keys:</strong> Move placement spot<br>
+        • <strong>Enter:</strong> Place component at spot<br>
+        • <strong>Shift + Arrows:</strong> Quick-build path<br>
+        • <strong>Left-Click on Empty:</strong> Drag / pan stage<br>
+        • <strong>Right-Click:</strong> Context Menu (Copy/Paste)<br>
+        • <strong>Copy / Paste:</strong> ⌘C / ⌘V (Duplicate: ⌘D)<br>
+        • <strong>Undo / Redo:</strong> ⌘Z / ⌘⇧Z<br>
         • <strong>Delete:</strong> Backspace / Delete key<br>
         • <strong>Play / Edit:</strong> Spacebar or ▶
       </div>
@@ -380,6 +382,56 @@
     </div>
     <div id="flyout-options-list" class="flyout-options-list">
       <!-- Options injected dynamically -->
+    </div>
+  </div>
+
+  <!-- NEO-BRUTALIST RIGHT-CLICK CONTEXT MENU -->
+  <div id="editor-context-menu" class="editor-context-menu" style="display: none;">
+    <div class="context-menu-header">
+      <span id="context-menu-title" class="context-menu-title">OPTIONS</span>
+      <span id="context-menu-coords" class="context-menu-coords"></span>
+    </div>
+    <div class="context-menu-items">
+      <button id="ctx-copy-btn" class="context-menu-item">
+        <span class="ctx-item-icon">📋</span>
+        <span class="ctx-item-label">Copy</span>
+        <span class="ctx-item-shortcut">⌘C</span>
+      </button>
+      <button id="ctx-paste-btn" class="context-menu-item">
+        <span class="ctx-item-icon">📥</span>
+        <span class="ctx-item-label">Paste Here</span>
+        <span class="ctx-item-shortcut">⌘V</span>
+      </button>
+      <button id="ctx-duplicate-btn" class="context-menu-item">
+        <span class="ctx-item-icon">📑</span>
+        <span class="ctx-item-label">Duplicate</span>
+        <span class="ctx-item-shortcut">⌘D</span>
+      </button>
+      <button id="ctx-cut-btn" class="context-menu-item">
+        <span class="ctx-item-icon">✂️</span>
+        <span class="ctx-item-label">Cut</span>
+        <span class="ctx-item-shortcut">⌘X</span>
+      </button>
+      <div class="context-menu-divider"></div>
+      <button id="ctx-place-btn" class="context-menu-item">
+        <span id="ctx-place-icon" class="ctx-item-icon">🧱</span>
+        <span id="ctx-place-label" class="ctx-item-label">Place Block</span>
+        <span class="ctx-item-shortcut">Enter</span>
+      </button>
+      <button id="ctx-paint-btn" class="context-menu-item">
+        <span class="ctx-item-icon">🎨</span>
+        <span class="ctx-item-label">Paint Art</span>
+      </button>
+      <button id="ctx-tune-btn" class="context-menu-item">
+        <span class="ctx-item-icon">⚙️</span>
+        <span class="ctx-item-label">Tune Physics</span>
+      </button>
+      <div class="context-menu-divider"></div>
+      <button id="ctx-delete-btn" class="context-menu-item ctx-danger">
+        <span class="ctx-item-icon">🗑️</span>
+        <span class="ctx-item-label">Delete</span>
+        <span class="ctx-item-shortcut">Del</span>
+      </button>
     </div>
   </div>
 

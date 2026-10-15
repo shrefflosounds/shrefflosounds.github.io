@@ -13,6 +13,7 @@ export class GridEditor {
     this.selectedPaletteItem = 'block';
     this.selectedPaletteVariant = 'solid'; // Variant support (e.g. mystery, cloud, ice)
     this.hoverGrid = { x: 0, y: 0 };
+    this.cursorGrid = { x: 120, y: 360 }; // Keyboard building placement spot
     this.isMouseOverCanvas = false;
     this.isMouseDown = false;
     this.isPanning = false;
@@ -111,11 +112,16 @@ export class GridEditor {
     const mouseX = e.clientX - rect.left;
     const mouseY = e.clientY - rect.top;
 
-    // Pan with Right-click, Middle-click, Alt-click, Pan Tool, or Spacebar held
-    if (e.button === 1 || e.button === 2 || e.altKey || this.currentTool === 'pan' || this.isSpacePan) {
+    // Pan with Middle-click, Alt-click, Pan Tool, or Spacebar held
+    if (e.button === 1 || e.altKey || this.currentTool === 'pan' || this.isSpacePan) {
       this.isPanning = true;
       this.panStart = { x: mouseX, y: mouseY };
       this.updateCursor();
+      return;
+    }
+
+    // Right-click: reserved for Context Menu (handled via contextmenu event)
+    if (e.button === 2) {
       return;
     }
 
@@ -124,27 +130,37 @@ export class GridEditor {
     const gridX = Math.floor(worldPos.x / this.tileSize) * this.tileSize;
     const gridY = Math.floor(worldPos.y / this.tileSize) * this.tileSize;
 
+    // Align keyboard placement spot to clicked cell
+    this.cursorGrid.x = gridX;
+    this.cursorGrid.y = gridY;
+
     if (this.currentTool === 'erase') {
       this.eraseAt(gridX, gridY, entities);
     } else if (this.currentTool === 'place') {
       this.placeAt(gridX, gridY, entities, player);
     } else if (this.currentTool === 'select') {
-      // Check if clicking currently selected entity to drag it
-      if (this.selectedEntity && this.isPointInside(worldPos.x, worldPos.y, this.selectedEntity)) {
+      // Check if clicking on an entity
+      const clickedEntity = this.findEntityAt(worldPos.x, worldPos.y, entities, player);
+      if (clickedEntity) {
+        this.selectedEntity = clickedEntity;
         this.isDraggingEntity = true;
+        this.didDragMove = false;
         this.dragOffset = {
-          x: worldPos.x - this.selectedEntity.x,
-          y: worldPos.y - this.selectedEntity.y
+          x: worldPos.x - clickedEntity.x,
+          y: worldPos.y - clickedEntity.y
         };
+        this.notifyEntitySelected(clickedEntity);
+        sounds.playClick();
       } else {
-        this.selectAt(worldPos.x, worldPos.y, entities, player, mouseX, mouseY);
+        // Left-click on empty space ("grabbing on nothing"): drag/pan the stage!
+        this.isPanning = true;
+        this.panStart = { x: mouseX, y: mouseY };
+        this.didDragMove = false;
         if (this.selectedEntity) {
-          this.isDraggingEntity = true;
-          this.dragOffset = {
-            x: worldPos.x - this.selectedEntity.x,
-            y: worldPos.y - this.selectedEntity.y
-          };
+          this.selectedEntity = null;
+          if (this.onDeselect) this.onDeselect();
         }
+        this.updateCursor();
       }
     }
   }
@@ -156,6 +172,19 @@ export class GridEditor {
       y >= entity.y &&
       y <= entity.y + entity.height
     );
+  }
+
+  findEntityAt(x, y, entities, player) {
+    if (player && this.isPointInside(x, y, player)) {
+      return player;
+    }
+    for (let i = entities.length - 1; i >= 0; i--) {
+      const ent = entities[i];
+      if (this.isPointInside(x, y, ent)) {
+        return ent;
+      }
+    }
+    return null;
   }
 
   handleMouseMove(e, entities, player) {
@@ -177,6 +206,12 @@ export class GridEditor {
     const worldPos = this.camera.screenToWorld(mouseX, mouseY);
     this.hoverGrid.x = Math.floor(worldPos.x / this.tileSize) * this.tileSize;
     this.hoverGrid.y = Math.floor(worldPos.y / this.tileSize) * this.tileSize;
+
+    // Sync keyboard building placement spot if mouse moves without panning or dragging
+    if (!this.isPanning && !this.isDraggingEntity && !this.isMouseDown) {
+      this.cursorGrid.x = this.hoverGrid.x;
+      this.cursorGrid.y = this.hoverGrid.y;
+    }
 
     // Drag-moving selected entity
     if (this.isMouseDown && this.isDraggingEntity && this.selectedEntity) {
@@ -289,32 +324,19 @@ export class GridEditor {
     }
   }
 
-  selectAt(worldX, worldY, entities, player, screenX, screenY) {
-    // Check player first
-    if (this.isPointInside(worldX, worldY, player)) {
-      this.selectedEntity = player;
-      this.notifyEntitySelected(player);
+  selectAt(worldX, worldY, entities, player) {
+    const clicked = this.findEntityAt(worldX, worldY, entities, player);
+    if (clicked) {
+      this.selectedEntity = clicked;
+      this.notifyEntitySelected(clicked);
       sounds.playClick();
-      return;
+    } else {
+      this.selectedEntity = null;
+      if (this.onDeselect) this.onDeselect();
     }
-
-    // Check other entities in reverse order (topmost first)
-    for (let i = entities.length - 1; i >= 0; i--) {
-      const ent = entities[i];
-      if (this.isPointInside(worldX, worldY, ent)) {
-        this.selectedEntity = ent;
-        this.notifyEntitySelected(ent);
-        sounds.playClick();
-        return;
-      }
-    }
-
-    // Clicked empty space: deselect
-    this.selectedEntity = null;
-    if (this.onDeselect) this.onDeselect();
   }
 
-  // Draw Grid Lines and Hover Ghost in Edit Mode
+  // Draw Grid Lines, Hover Ghost, and Keyboard Placement Cursor in Edit Mode
   draw(ctx) {
     // 1. Grid Lines
     ctx.save();
@@ -381,6 +403,45 @@ export class GridEditor {
       ctx.fillRect(this.selectedEntity.width, -6, s, s);
       ctx.fillRect(-6, this.selectedEntity.height, s, s);
       ctx.fillRect(this.selectedEntity.width, this.selectedEntity.height, s, s);
+      ctx.restore();
+    }
+
+    // 4. Keyboard Building Placement Spot Cursor (at this.cursorGrid)
+    const cursorScreen = this.camera.worldToScreen(this.cursorGrid.x, this.cursorGrid.y);
+    if (
+      cursorScreen.x + this.tileSize >= -20 &&
+      cursorScreen.x <= this.camera.viewportWidth + 20 &&
+      cursorScreen.y + this.tileSize >= -20 &&
+      cursorScreen.y <= this.camera.viewportHeight + 20
+    ) {
+      ctx.save();
+      ctx.translate(cursorScreen.x, cursorScreen.y);
+      const pulse = 0.5 + 0.5 * Math.sin(Date.now() / 180);
+
+      // Neo-brutalist corner brackets [ ]
+      ctx.strokeStyle = '#FFE600';
+      ctx.lineWidth = 3;
+      ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
+      ctx.shadowBlur = 3;
+      const arm = 9;
+      const w = this.tileSize;
+      const h = this.tileSize;
+
+      ctx.beginPath();
+      // Top-left
+      ctx.moveTo(0, arm); ctx.lineTo(0, 0); ctx.lineTo(arm, 0);
+      // Top-right
+      ctx.moveTo(w - arm, 0); ctx.lineTo(w, 0); ctx.lineTo(w, arm);
+      // Bottom-left
+      ctx.moveTo(0, h - arm); ctx.lineTo(0, h); ctx.lineTo(arm, h);
+      // Bottom-right
+      ctx.moveTo(w - arm, h); ctx.lineTo(w, h); ctx.lineTo(w, h - arm);
+      ctx.stroke();
+
+      // Subtle center dot indicator
+      ctx.fillStyle = `rgba(255, 230, 0, ${0.35 + 0.35 * pulse})`;
+      ctx.fillRect(w / 2 - 2, h / 2 - 2, 4, 4);
+
       ctx.restore();
     }
 

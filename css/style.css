@@ -900,3 +900,114 @@ body {
   0% { transform: translateY(20px) scale(0.85); opacity: 0; }
   100% { transform: translateY(0) scale(1); opacity: 1; }
 }
+
+/* NEO-BRUTALIST RIGHT-CLICK CONTEXT MENU */
+.editor-context-menu {
+  position: fixed;
+  z-index: 1050;
+  background-color: #FFFFFF;
+  border: 3px solid var(--ink-black);
+  border-radius: 12px;
+  box-shadow: 4px 4px 0 var(--ink-black);
+  min-width: 210px;
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  animation: flyoutPop 0.12s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.context-menu-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 8px 6px 8px;
+  border-bottom: 2px dashed #E0E0E0;
+  margin-bottom: 3px;
+}
+
+.context-menu-title {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: #666;
+}
+
+.context-menu-coords {
+  font-size: 10px;
+  font-weight: 700;
+  color: #888;
+}
+
+.context-menu-items {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.context-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  border: 2px solid transparent;
+  border-radius: 8px;
+  background: transparent;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ink-black);
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.08s ease;
+  width: 100%;
+}
+
+.context-menu-item:hover:not(:disabled) {
+  background-color: var(--canary-yellow);
+  border-color: var(--ink-black);
+  box-shadow: 2px 2px 0 var(--ink-black);
+  transform: translate(-1px, -1px);
+}
+
+.context-menu-item:active:not(:disabled) {
+  transform: translate(1px, 1px);
+  box-shadow: none;
+}
+
+.context-menu-item:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.context-menu-item.ctx-danger:hover:not(:disabled) {
+  background-color: #FFE5E5;
+  color: var(--hazard-red);
+}
+
+.ctx-item-icon {
+  font-size: 16px;
+  width: 20px;
+  text-align: center;
+}
+
+.ctx-item-label {
+  flex: 1;
+}
+
+.ctx-item-shortcut {
+  font-size: 10px;
+  font-weight: 800;
+  color: #666;
+  background: #F0F0F0;
+  border: 1.5px solid #CCC;
+  border-radius: 4px;
+  padding: 1px 5px;
+}
+
+.context-menu-divider {
+  height: 1px;
+  background: #E0E0E0;
+  margin: 3px 0;
+}

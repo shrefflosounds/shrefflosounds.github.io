@@ -54,6 +54,9 @@ class SidehopApp {
     // Clipboard System for Copy/Paste/Cut/Duplicate
     this.clipboardEntity = null;
 
+    // Context Menu State
+    this.contextMenuGrid = null;
+
     // Stretched Frame Play Mode State
     this.isFrameStretched = false;
 
@@ -176,30 +179,36 @@ class SidehopApp {
     }
   }
 
-  paste() {
+  paste(customX = null, customY = null) {
     if (this.mode !== 'edit') return;
     if (!this.clipboardEntity) {
       this.showToast('Clipboard empty (Use ⌘C to copy)');
       return;
     }
 
-    let pasteX;
-    let pasteY;
+    let pasteX = customX;
+    let pasteY = customY;
 
-    if (this.editor.isMouseOverCanvas && this.editor.hoverGrid) {
-      pasteX = this.editor.hoverGrid.x;
-      pasteY = this.editor.hoverGrid.y;
-    } else {
-      const base = this.editor.selectedEntity || this.clipboardEntity;
-      pasteX = base.x + this.editor.tileSize;
-      pasteY = base.y;
-
-      const isOccupied = this.entities.some(e => Math.abs(e.x - pasteX) < 10 && Math.abs(e.y - pasteY) < 10);
-      if (isOccupied) {
+    if (pasteX === null || pasteY === null) {
+      if (this.editor.isMouseOverCanvas && this.editor.hoverGrid) {
+        pasteX = this.editor.hoverGrid.x;
+        pasteY = this.editor.hoverGrid.y;
+      } else {
+        const base = this.editor.selectedEntity || this.clipboardEntity;
         pasteX = base.x + this.editor.tileSize;
-        pasteY = base.y + this.editor.tileSize;
+        pasteY = base.y;
+
+        const isOccupied = this.entities.some(e => Math.abs(e.x - pasteX) < 10 && Math.abs(e.y - pasteY) < 10);
+        if (isOccupied) {
+          pasteX = base.x + this.editor.tileSize;
+          pasteY = base.y + this.editor.tileSize;
+        }
       }
     }
+
+    // Align placement spot to pasted entity
+    this.editor.cursorGrid.x = pasteX;
+    this.editor.cursorGrid.y = pasteY;
 
     if (this.clipboardEntity.type === 'player') {
       this.history.pushState(this.player, this.entities, this.background);
@@ -255,6 +264,8 @@ class SidehopApp {
     this.history.pushState(this.player, this.entities, this.background);
     this.entities.push(newEnt);
     this.editor.selectedEntity = newEnt;
+    this.editor.cursorGrid.x = newX;
+    this.editor.cursorGrid.y = newY;
     this.updateActionCard(newEnt);
 
     sounds.playLand();
@@ -262,6 +273,113 @@ class SidehopApp {
 
     const name = newEnt.variant ? `${newEnt.variant} ${newEnt.type}` : newEnt.type;
     this.showToast(`📑 Duplicated ${name}`);
+  }
+
+  // --- Neo-brutalist Context Menu ---
+  openContextMenu(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    if (this.mode !== 'edit') return;
+
+    const rect = this.canvas.getBoundingClientRect();
+    const mouseX = e.clientX - rect.left;
+    const mouseY = e.clientY - rect.top;
+
+    const worldPos = this.camera.screenToWorld(mouseX, mouseY);
+    const gridX = Math.floor(worldPos.x / this.editor.tileSize) * this.editor.tileSize;
+    const gridY = Math.floor(worldPos.y / this.editor.tileSize) * this.editor.tileSize;
+
+    this.contextMenuGrid = { x: gridX, y: gridY };
+    this.editor.cursorGrid.x = gridX;
+    this.editor.cursorGrid.y = gridY;
+
+    const menuEl = document.getElementById('editor-context-menu');
+    const titleEl = document.getElementById('context-menu-title');
+    const coordsEl = document.getElementById('context-menu-coords');
+    if (!menuEl) return;
+
+    // Detect if right-clicked directly on an entity
+    const clickedEnt = this.editor.findEntityAt(worldPos.x, worldPos.y, this.entities, this.player);
+    if (clickedEnt) {
+      this.editor.selectedEntity = clickedEnt;
+      this.updateActionCard(clickedEnt);
+      const name = clickedEnt.type === 'player'
+        ? 'PLAYER SPAWN'
+        : (clickedEnt.variant ? `${clickedEnt.variant.toUpperCase()} ${clickedEnt.type.toUpperCase()}` : clickedEnt.type.toUpperCase());
+      if (titleEl) titleEl.textContent = name;
+    } else {
+      if (titleEl) titleEl.textContent = 'STAGE OPTIONS';
+      if (this.editor.selectedEntity) {
+        this.editor.selectedEntity = null;
+        document.getElementById('entity-action-card')?.classList.remove('active');
+      }
+    }
+
+    if (coordsEl) {
+      coordsEl.textContent = `[${gridX}, ${gridY}]`;
+    }
+
+    // Enable/disable actions
+    const hasSelection = Boolean(this.editor.selectedEntity);
+    const isPlayer = hasSelection && (this.editor.selectedEntity === this.player || this.editor.selectedEntity.type === 'player');
+    const hasClipboard = Boolean(this.clipboardEntity);
+
+    const copyBtn = document.getElementById('ctx-copy-btn');
+    const pasteBtn = document.getElementById('ctx-paste-btn');
+    const duplicateBtn = document.getElementById('ctx-duplicate-btn');
+    const cutBtn = document.getElementById('ctx-cut-btn');
+    const paintBtn = document.getElementById('ctx-paint-btn');
+    const tuneBtn = document.getElementById('ctx-tune-btn');
+    const deleteBtn = document.getElementById('ctx-delete-btn');
+    const placeBtn = document.getElementById('ctx-place-btn');
+    const placeIcon = document.getElementById('ctx-place-icon');
+    const placeLabel = document.getElementById('ctx-place-label');
+
+    if (copyBtn) copyBtn.disabled = !hasSelection;
+    if (pasteBtn) pasteBtn.disabled = !hasClipboard;
+    if (duplicateBtn) duplicateBtn.disabled = !hasSelection || isPlayer;
+    if (cutBtn) cutBtn.disabled = !hasSelection || isPlayer;
+    if (paintBtn) paintBtn.disabled = !hasSelection;
+    if (tuneBtn) tuneBtn.disabled = !hasSelection;
+    if (deleteBtn) deleteBtn.disabled = !hasSelection || isPlayer;
+
+    if (placeBtn && placeLabel) {
+      const pItem = this.editor.selectedPaletteItem || 'block';
+      const pVariant = this.editor.selectedPaletteVariant || '';
+      const pName = pVariant && pVariant !== 'solid' && pVariant !== 'walker' && pVariant !== 'spring' && pVariant !== 'star'
+        ? `${pVariant.charAt(0).toUpperCase() + pVariant.slice(1)} ${pItem.charAt(0).toUpperCase() + pItem.slice(1)}`
+        : (pItem.charAt(0).toUpperCase() + pItem.slice(1));
+      placeLabel.textContent = `Place ${pName}`;
+
+      const iconEl = document.getElementById(`palette-icon-${pItem}`);
+      if (placeIcon && iconEl) {
+        placeIcon.textContent = iconEl.textContent;
+      }
+    }
+
+    // Position menu near cursor clamped within screen
+    const menuW = 215;
+    const menuH = 320;
+    let posX = e.clientX + 4;
+    let posY = e.clientY + 4;
+
+    if (posX + menuW > window.innerWidth) {
+      posX = e.clientX - menuW - 4;
+    }
+    if (posY + menuH > window.innerHeight) {
+      posY = Math.max(10, window.innerHeight - menuH - 12);
+    }
+
+    menuEl.style.left = `${Math.max(10, posX)}px`;
+    menuEl.style.top = `${Math.max(10, posY)}px`;
+    menuEl.style.display = 'flex';
+    sounds.playClick();
+  }
+
+  closeContextMenu() {
+    const menuEl = document.getElementById('editor-context-menu');
+    if (menuEl) menuEl.style.display = 'none';
+    this.contextMenuGrid = null;
   }
 
   // --- Stretched Frame Mode (Fit Screen Minus Header) ---
@@ -985,6 +1103,92 @@ class SidehopApp {
       }
     });
 
+    // Context Menu Action Listeners
+    document.getElementById('ctx-copy-btn')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      this.closeContextMenu();
+      this.copy();
+    });
+
+    document.getElementById('ctx-paste-btn')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const pos = this.contextMenuGrid;
+      this.closeContextMenu();
+      if (pos) {
+        this.paste(pos.x, pos.y);
+      } else {
+        this.paste();
+      }
+    });
+
+    document.getElementById('ctx-duplicate-btn')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      this.closeContextMenu();
+      this.duplicate();
+    });
+
+    document.getElementById('ctx-cut-btn')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      this.closeContextMenu();
+      this.cut();
+    });
+
+    document.getElementById('ctx-place-btn')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const pos = this.contextMenuGrid;
+      this.closeContextMenu();
+      if (pos) {
+        this.editor.placeAt(pos.x, pos.y, this.entities, this.player);
+      }
+    });
+
+    document.getElementById('ctx-paint-btn')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      this.closeContextMenu();
+      if (this.editor.selectedEntity) {
+        this.artStudio.openForEntity(this.editor.selectedEntity, () => {
+          LevelStorage.autoSave(this.player, this.entities, this.background);
+        });
+      }
+    });
+
+    document.getElementById('ctx-tune-btn')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      this.closeContextMenu();
+      if (this.editor.selectedEntity) {
+        this.inspector.open(this.editor.selectedEntity);
+      }
+    });
+
+    document.getElementById('ctx-delete-btn')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      this.closeContextMenu();
+      if (this.editor.selectedEntity && this.editor.selectedEntity !== this.player) {
+        const idx = this.entities.indexOf(this.editor.selectedEntity);
+        if (idx !== -1) {
+          this.history.pushState(this.player, this.entities, this.background);
+          this.entities.splice(idx, 1);
+          this.editor.selectedEntity = null;
+          document.getElementById('entity-action-card')?.classList.remove('active');
+          sounds.playPaintSquish();
+          LevelStorage.autoSave(this.player, this.entities, this.background);
+        }
+      }
+    });
+
+    // Dismiss context menu when clicking outside
+    window.addEventListener('click', (e) => {
+      const menuEl = document.getElementById('editor-context-menu');
+      if (menuEl && menuEl.style.display !== 'none') {
+        if (!menuEl.contains(e.target)) {
+          this.closeContextMenu();
+        }
+      }
+    });
+
+    // Dismiss context menu on scroll
+    window.addEventListener('scroll', () => this.closeContextMenu(), { passive: true });
+
     // 8. On-Screen Navigation Controls (Edit Mode)
     const panStep = 120;
     document.getElementById('nav-pan-up').addEventListener('click', () => {
@@ -1214,7 +1418,58 @@ class SidehopApp {
         this.toggleMode();
       }
 
-      // Delete or Backspace deletes selected entity in edit mode
+      // Edit Mode: Arrow keys control discrete placement spot tile-by-tile for quick building!
+      if (this.mode === 'edit' && ['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(e.code)) {
+        e.preventDefault();
+        const step = this.editor.tileSize; // 40px
+        if (e.code === 'ArrowLeft') this.editor.cursorGrid.x -= step;
+        else if (e.code === 'ArrowRight') this.editor.cursorGrid.x += step;
+        else if (e.code === 'ArrowUp') this.editor.cursorGrid.y -= step;
+        else if (e.code === 'ArrowDown') this.editor.cursorGrid.y += step;
+
+        sounds.playClick();
+
+        // Shift + Arrow: Quick-build path of components while walking
+        if (e.shiftKey) {
+          if (this.editor.currentTool === 'erase') {
+            this.editor.eraseAt(this.editor.cursorGrid.x, this.editor.cursorGrid.y, this.entities);
+          } else {
+            this.editor.placeAt(this.editor.cursorGrid.x, this.editor.cursorGrid.y, this.entities, this.player);
+          }
+        }
+
+        // Auto-scroll camera smoothly when cursor nears the viewport bounds
+        const curScreen = this.camera.worldToScreen(this.editor.cursorGrid.x, this.editor.cursorGrid.y);
+        const margin = 80;
+        if (curScreen.x < margin) {
+          this.camera.pan(curScreen.x - margin, 0);
+        } else if (curScreen.x + this.editor.tileSize > this.canvas.width - margin) {
+          this.camera.pan((curScreen.x + this.editor.tileSize) - (this.canvas.width - margin), 0);
+        }
+        if (curScreen.y < margin) {
+          this.camera.pan(0, curScreen.y - margin);
+        } else if (curScreen.y + this.editor.tileSize > this.canvas.height - margin) {
+          this.camera.pan(0, (curScreen.y + this.editor.tileSize) - (this.canvas.height - margin));
+        }
+
+        if (this.editor.selectedEntity) {
+          this.updateActionCard(this.editor.selectedEntity);
+        }
+        return;
+      }
+
+      // Enter / NumpadEnter: Place component at keyboard placement spot in edit mode
+      if ((e.code === 'Enter' || e.code === 'NumpadEnter') && this.mode === 'edit') {
+        e.preventDefault();
+        if (this.editor.currentTool === 'erase') {
+          this.editor.eraseAt(this.editor.cursorGrid.x, this.editor.cursorGrid.y, this.entities);
+        } else {
+          this.editor.placeAt(this.editor.cursorGrid.x, this.editor.cursorGrid.y, this.entities, this.player);
+        }
+        return;
+      }
+
+      // Delete or Backspace deletes selected entity or erases entity at placement spot in edit mode
       if ((e.code === 'Delete' || e.code === 'Backspace') && this.mode === 'edit') {
         if (this.editor.selectedEntity && this.editor.selectedEntity !== this.player) {
           const idx = this.entities.indexOf(this.editor.selectedEntity);
@@ -1222,17 +1477,24 @@ class SidehopApp {
             this.history.pushState(this.player, this.entities, this.background);
             this.entities.splice(idx, 1);
             this.editor.selectedEntity = null;
-            document.getElementById('entity-action-card').classList.remove('active');
+            document.getElementById('entity-action-card')?.classList.remove('active');
             sounds.playPaintSquish();
             LevelStorage.autoSave(this.player, this.entities, this.background);
           }
+        } else {
+          // Erase entity at current placement spot
+          this.editor.eraseAt(this.editor.cursorGrid.x, this.editor.cursorGrid.y, this.entities);
         }
       }
 
-      // Escape deselects
-      if (e.code === 'Escape' && this.mode === 'edit') {
-        this.editor.selectedEntity = null;
-        document.getElementById('entity-action-card').classList.remove('active');
+      // Escape dismisses context menu, flyouts, and deselects entity
+      if (e.code === 'Escape' || e.key === 'Escape') {
+        this.closeContextMenu();
+        this.closeComponentFlyout();
+        if (this.mode === 'edit') {
+          this.editor.selectedEntity = null;
+          document.getElementById('entity-action-card')?.classList.remove('active');
+        }
       }
 
       // Number keys switch tools in edit mode: 1=Select, 2=Place, 3=Pan, 4=Erase
@@ -1261,6 +1523,7 @@ class SidehopApp {
     // Mouse Canvas Inputs for Edit Mode
     this.canvas.addEventListener('mousedown', (e) => {
       if (this.mode === 'edit') {
+        this.closeContextMenu();
         this.editor.handleMouseDown(e, this.entities, this.player);
       }
     });
@@ -1280,7 +1543,14 @@ class SidehopApp {
       }
     });
 
-    this.canvas.addEventListener('contextmenu', (e) => e.preventDefault());
+    // Right-click opens neo-brutalist context menu in Edit Mode
+    this.canvas.addEventListener('contextmenu', (e) => {
+      if (this.mode === 'edit') {
+        this.openContextMenu(e);
+      } else {
+        e.preventDefault();
+      }
+    });
     window.addEventListener('resize', () => {
       if (this.isFrameStretched && this.mode === 'play') {
         this.updateStretchedDimensions();
@@ -1407,22 +1677,22 @@ class SidehopApp {
       this.camera.follow(this.player, dt);
 
     } else if (this.mode === 'edit') {
-      // In Edit Mode, allow keyboard WASD / Arrow panning
+      // In Edit Mode, allow keyboard WASD smooth camera panning
       const panSpeed = 450 * dt;
       let panned = false;
-      if (this.keys['ArrowLeft'] || this.keys['KeyA']) {
+      if (this.keys['KeyA']) {
         this.camera.pan(-panSpeed, 0);
         panned = true;
       }
-      if (this.keys['ArrowRight'] || this.keys['KeyD']) {
+      if (this.keys['KeyD']) {
         this.camera.pan(panSpeed, 0);
         panned = true;
       }
-      if (this.keys['ArrowUp'] || this.keys['KeyW']) {
+      if (this.keys['KeyW']) {
         this.camera.pan(0, -panSpeed);
         panned = true;
       }
-      if (this.keys['ArrowDown'] || this.keys['KeyS']) {
+      if (this.keys['KeyS']) {
         this.camera.pan(0, panSpeed);
         panned = true;
       }
