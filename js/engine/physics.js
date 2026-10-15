@@ -55,8 +55,8 @@ export class PhysicsEngine {
   resolveHorizontalCollisions(entity, solids) {
     for (const solid of solids) {
       if (!solid.active) continue;
-      // Skip one-way cloud platforms horizontally
-      if (solid.isOneWay || solid.variant === 'cloud') continue;
+      // Skip one-way platforms and angled sloped surfaces horizontally
+      if (solid.isOneWay || solid.variant === 'cloud' || solid.variant === 'semisolid' || solid.variant === 'slope_up' || solid.variant === 'slope_down') continue;
 
       // Ignore horizontal collision if vertical overlap is merely boundary-level (e.g. resting on floor)
       const verticalOverlap = Math.min(entity.y + entity.height, solid.y + solid.height) - Math.max(entity.y, solid.y);
@@ -78,11 +78,33 @@ export class PhysicsEngine {
     for (const solid of solids) {
       if (!solid.active) continue;
 
-      // Handle One-Way Cloud Platforms (jump through from below, solid on top)
-      if (solid.isOneWay || solid.variant === 'cloud') {
+      // 1. Handle Walkable Slopes / Slants (slope_up and slope_down)
+      if (solid.variant === 'slope_up' || solid.variant === 'slope_down') {
+        if (entity.x + entity.width > solid.x && entity.x < solid.x + solid.width) {
+          const px = Math.max(solid.x, Math.min(solid.x + solid.width, entity.x + entity.width / 2));
+          const relX = (px - solid.x) / solid.width;
+
+          const surfaceY = solid.variant === 'slope_up'
+            ? solid.y + (1 - relX) * solid.height
+            : solid.y + relX * solid.height;
+
+          const footY = entity.y + entity.height;
+          // Check if player feet are near or descending onto slope surface
+          if (footY >= surfaceY - 8 && footY <= solid.y + solid.height + 6 && entity.vy >= -40) {
+            entity.y = surfaceY - entity.height;
+            entity.vy = 0;
+            entity.grounded = true;
+            entity.standingOnSolid = solid;
+          }
+        }
+        continue;
+      }
+
+      // 2. Handle One-Way Platforms (Cloud Platforms & Semi-Solid Boardwalks)
+      if (solid.isOneWay || solid.variant === 'cloud' || solid.variant === 'semisolid') {
         if (entity.vy > 0 && this.checkOverlap(entity, solid)) {
           // Only land if entity was previously at or above top edge
-          if (entity.y + entity.height - (entity.vy * 0.035) <= solid.y + 10) {
+          if (entity.y + entity.height - (entity.vy * 0.035) <= solid.y + 12) {
             entity.y = solid.y - entity.height;
             entity.vy = 0;
             entity.grounded = true;
@@ -97,8 +119,23 @@ export class PhysicsEngine {
           // Landing on top of solid
           entity.y = solid.y - entity.height;
           entity.standingOnSolid = solid;
+
+          // Note Block super bounce (♪)
+          if (solid.variant === 'note') {
+            entity.vy = -860;
+            entity.grounded = false;
+            if (solid.bump) solid.bump();
+          }
+          // Donut Lift trigger
+          else if (solid.variant === 'donut') {
+            if (solid.shakeTimer === 0 && !solid.isDropping) {
+              solid.shakeTimer = 0.01;
+            }
+            entity.vy = 0;
+            entity.grounded = true;
+          }
           // Apply surface bounciness if configured
-          if (solid.bounciness && solid.bounciness > 0.05) {
+          else if (solid.bounciness && solid.bounciness > 0.05) {
             entity.vy = -entity.vy * solid.bounciness;
             if (Math.abs(entity.vy) < 80) {
               entity.vy = 0;
@@ -114,7 +151,7 @@ export class PhysicsEngine {
           entity.vy = 0;
 
           // Trigger Mystery Block [?] bump when bonked from below
-          if (solid.variant === 'mystery' && !solid.isUsed && solid.bump) {
+          if (solid.bump && !solid.isUsed) {
             solid.bump();
           }
         }
@@ -125,6 +162,7 @@ export class PhysicsEngine {
     if (!entity.grounded && entity.vy >= 0) {
       for (const solid of solids) {
         if (!solid.active) continue;
+        if (solid.variant === 'slope_up' || solid.variant === 'slope_down') continue;
         const onTop = Math.abs((entity.y + entity.height) - solid.y) <= 1.5;
         const horizAligned = (entity.x + entity.width > solid.x + 2) && (entity.x < solid.x + solid.width - 2);
         if (onTop && horizAligned) {
@@ -132,6 +170,9 @@ export class PhysicsEngine {
           entity.vy = 0;
           entity.grounded = true;
           entity.standingOnSolid = solid;
+          if (solid.variant === 'donut' && solid.shakeTimer === 0 && !solid.isDropping) {
+            solid.shakeTimer = 0.01;
+          }
           break;
         }
       }

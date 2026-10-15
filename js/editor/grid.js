@@ -19,7 +19,14 @@ export class GridEditor {
     this.isPanning = false;
     this.panStart = { x: 0, y: 0 };
     this.isSpacePan = false;
-    this.selectedEntity = null;
+
+    // Multi-Selection & Marquee Box Selection State
+    this.selectedEntities = [];
+    this.isBoxSelecting = false;
+    this.boxStart = { x: 0, y: 0 };
+    this.boxCurrent = { x: 0, y: 0 };
+    this.dragStartWorld = { x: 0, y: 0 };
+    this.groupDragOffsets = [];
 
     // Drag-to-move entity in Select mode
     this.isDraggingEntity = false;
@@ -33,6 +40,20 @@ export class GridEditor {
     this.onHistorySnapshotNeeded = null;
 
     this.bindCanvasEvents();
+  }
+
+  get selectedEntity() {
+    return this.selectedEntities.length > 0 ? this.selectedEntities[this.selectedEntities.length - 1] : null;
+  }
+
+  set selectedEntity(ent) {
+    if (!ent) {
+      this.selectedEntities = [];
+    } else {
+      if (!this.selectedEntities.includes(ent)) {
+        this.selectedEntities = [ent];
+      }
+    }
   }
 
   setPaletteItem(item, variant = null) {
@@ -69,6 +90,8 @@ export class GridEditor {
       this.canvas.style.cursor = 'grabbing';
     } else if (this.currentTool === 'pan' || this.isSpacePan) {
       this.canvas.style.cursor = 'grab';
+    } else if (this.currentTool === 'boxselect' || this.isBoxSelecting) {
+      this.canvas.style.cursor = 'crosshair';
     } else if (this.currentTool === 'erase') {
       this.canvas.style.cursor = 'crosshair';
     } else if (this.currentTool === 'select') {
@@ -101,9 +124,23 @@ export class GridEditor {
   }
 
   notifyEntitySelected(entity) {
-    const screenCenter = this.camera.worldToScreen(entity.x + entity.width / 2, entity.y);
+    if (!entity && this.selectedEntities.length === 0) return;
+    const target = entity || this.selectedEntity;
+    if (!target) return;
+
+    // If multiple entities are selected, calculate screen center of entire group
+    let screenCenter;
+    if (this.selectedEntities.length > 1) {
+      const minX = Math.min(...this.selectedEntities.map(e => e.x));
+      const maxX = Math.max(...this.selectedEntities.map(e => e.x + e.width));
+      const minY = Math.min(...this.selectedEntities.map(e => e.y));
+      screenCenter = this.camera.worldToScreen((minX + maxX) / 2, minY);
+    } else {
+      screenCenter = this.camera.worldToScreen(target.x + target.width / 2, target.y);
+    }
+
     if (this.onSelectEntity) {
-      this.onSelectEntity(entity, screenCenter);
+      this.onSelectEntity(target, screenCenter);
     }
   }
 
@@ -138,26 +175,67 @@ export class GridEditor {
       this.eraseAt(gridX, gridY, entities);
     } else if (this.currentTool === 'place') {
       this.placeAt(gridX, gridY, entities, player);
+    } else if (this.currentTool === 'boxselect' || (this.currentTool === 'select' && (e.shiftKey || e.ctrlKey || e.metaKey) && !this.findEntityAt(worldPos.x, worldPos.y, entities, player))) {
+      // Box / Marquee Drag-Selection mode
+      this.isBoxSelecting = true;
+      this.boxStart = { x: worldPos.x, y: worldPos.y };
+      this.boxCurrent = { x: worldPos.x, y: worldPos.y };
+      if (!e.shiftKey && !e.ctrlKey && !e.metaKey) {
+        this.selectedEntities = [];
+      }
+      this.updateCursor();
     } else if (this.currentTool === 'select') {
-      // Check if clicking on an entity
       const clickedEntity = this.findEntityAt(worldPos.x, worldPos.y, entities, player);
       if (clickedEntity) {
-        this.selectedEntity = clickedEntity;
-        this.isDraggingEntity = true;
-        this.didDragMove = false;
-        this.dragOffset = {
-          x: worldPos.x - clickedEntity.x,
-          y: worldPos.y - clickedEntity.y
-        };
-        this.notifyEntitySelected(clickedEntity);
-        sounds.playClick();
+        // Shift/Ctrl Click: Toggle inclusion in multi-selection
+        if (e.shiftKey || e.ctrlKey || e.metaKey) {
+          const idx = this.selectedEntities.indexOf(clickedEntity);
+          if (idx !== -1) {
+            this.selectedEntities.splice(idx, 1);
+          } else {
+            this.selectedEntities.push(clickedEntity);
+          }
+          if (this.selectedEntities.length > 0) {
+            this.notifyEntitySelected(this.selectedEntity);
+          } else {
+            if (this.onDeselect) this.onDeselect();
+          }
+          sounds.playClick();
+          return;
+        }
+
+        // If clicking an already selected entity in a multi-selection, drag the whole group together!
+        if (this.selectedEntities.includes(clickedEntity)) {
+          this.isDraggingEntity = true;
+          this.didDragMove = false;
+          this.dragStartWorld = { x: worldPos.x, y: worldPos.y };
+          this.groupDragOffsets = this.selectedEntities.map(ent => ({
+            entity: ent,
+            origX: ent.x,
+            origY: ent.y
+          }));
+          this.notifyEntitySelected(clickedEntity);
+        } else {
+          // Single select this clicked entity
+          this.selectedEntities = [clickedEntity];
+          this.isDraggingEntity = true;
+          this.didDragMove = false;
+          this.dragStartWorld = { x: worldPos.x, y: worldPos.y };
+          this.groupDragOffsets = [{
+            entity: clickedEntity,
+            origX: clickedEntity.x,
+            origY: clickedEntity.y
+          }];
+          this.notifyEntitySelected(clickedEntity);
+          sounds.playClick();
+        }
       } else {
-        // Left-click on empty space ("grabbing on nothing"): drag/pan the stage!
+        // Left-click on empty space: drag/pan the stage!
         this.isPanning = true;
         this.panStart = { x: mouseX, y: mouseY };
         this.didDragMove = false;
-        if (this.selectedEntity) {
-          this.selectedEntity = null;
+        if (this.selectedEntities.length > 0) {
+          this.selectedEntities = [];
           if (this.onDeselect) this.onDeselect();
         }
         this.updateCursor();
@@ -208,25 +286,59 @@ export class GridEditor {
     this.hoverGrid.y = Math.floor(worldPos.y / this.tileSize) * this.tileSize;
 
     // Sync keyboard building placement spot if mouse moves without panning or dragging
-    if (!this.isPanning && !this.isDraggingEntity && !this.isMouseDown) {
+    if (!this.isPanning && !this.isDraggingEntity && !this.isMouseDown && !this.isBoxSelecting) {
       this.cursorGrid.x = this.hoverGrid.x;
       this.cursorGrid.y = this.hoverGrid.y;
     }
 
-    // Drag-moving selected entity
-    if (this.isMouseDown && this.isDraggingEntity && this.selectedEntity) {
-      this.didDragMove = true;
-      const newX = Math.round((worldPos.x - this.dragOffset.x) / this.tileSize) * this.tileSize;
-      const newY = Math.round((worldPos.y - this.dragOffset.y) / this.tileSize) * this.tileSize;
+    // Updating Marquee Selection Box
+    if (this.isBoxSelecting) {
+      this.boxCurrent = { x: worldPos.x, y: worldPos.y };
+      const minX = Math.min(this.boxStart.x, this.boxCurrent.x);
+      const maxX = Math.max(this.boxStart.x, this.boxCurrent.x);
+      const minY = Math.min(this.boxStart.y, this.boxCurrent.y);
+      const maxY = Math.max(this.boxStart.y, this.boxCurrent.y);
 
-      if (this.selectedEntity.type === 'player') {
-        player.setSpawn(newX, newY);
+      const inBox = entities.filter(ent => {
+        return (
+          ent.x < maxX &&
+          ent.x + ent.width > minX &&
+          ent.y < maxY &&
+          ent.y + ent.height > minY
+        );
+      });
+      if (player && player.x < maxX && player.x + player.width > minX && player.y < maxY && player.y + player.height > minY) {
+        inBox.push(player);
+      }
+      this.selectedEntities = inBox;
+      if (this.selectedEntities.length > 0) {
+        this.notifyEntitySelected(this.selectedEntity);
       } else {
-        this.selectedEntity.x = newX;
-        this.selectedEntity.y = newY;
-        if (this.selectedEntity.startX !== undefined) {
-          this.selectedEntity.startX = newX;
-          this.selectedEntity.startY = newY;
+        if (this.onDeselect) this.onDeselect();
+      }
+      return;
+    }
+
+    // Drag-moving selected entity / multi-selection group
+    if (this.isMouseDown && this.isDraggingEntity && this.selectedEntities.length > 0) {
+      this.didDragMove = true;
+      const deltaX = Math.round((worldPos.x - this.dragStartWorld.x) / this.tileSize) * this.tileSize;
+      const deltaY = Math.round((worldPos.y - this.dragStartWorld.y) / this.tileSize) * this.tileSize;
+
+      for (const item of this.groupDragOffsets) {
+        const ent = item.entity;
+        const targetX = item.origX + deltaX;
+        const targetY = item.origY + deltaY;
+
+        if (ent.type === 'player') {
+          player.setSpawn(targetX, targetY);
+        } else {
+          ent.x = targetX;
+          ent.y = targetY;
+          if (ent.startX !== undefined) {
+            ent.startX = targetX;
+            ent.startY = targetY;
+          }
         }
       }
       this.notifyEntitySelected(this.selectedEntity);
@@ -246,6 +358,15 @@ export class GridEditor {
   handleMouseUp() {
     this.isMouseDown = false;
     this.isPanning = false;
+
+    if (this.isBoxSelecting) {
+      this.isBoxSelecting = false;
+      if (this.selectedEntities.length > 0) {
+        sounds.playCollect();
+        this.notifyEntitySelected(this.selectedEntity);
+      }
+    }
+
     if (this.isDraggingEntity) {
       this.isDraggingEntity = false;
       if (this.didDragMove) {
@@ -270,9 +391,15 @@ export class GridEditor {
         if (this.onHistorySnapshotNeeded) this.onHistorySnapshotNeeded();
         return;
       case 'block':
-      case 'crate':
-        newEnt = new CrateBlock(x, y, this.tileSize, this.tileSize, this.selectedPaletteVariant || 'solid');
+      case 'crate': {
+        let w = this.tileSize;
+        let h = this.tileSize;
+        if (this.selectedPaletteVariant === 'mega') { w = 80; h = 80; }
+        else if (this.selectedPaletteVariant === 'slab') { w = 40; h = 20; }
+        else if (this.selectedPaletteVariant === 'pipe') { w = 40; h = 80; }
+        newEnt = new CrateBlock(x, y, w, h, this.selectedPaletteVariant || 'solid');
         break;
+      }
       case 'springboard':
         newEnt = new Springboard(x, y, this.tileSize, this.tileSize, this.selectedPaletteVariant || 'spring');
         break;
@@ -364,14 +491,21 @@ export class GridEditor {
     // 2. Hover Ghost Preview
     if (this.currentTool === 'place') {
       const ghostScreen = this.camera.worldToScreen(this.hoverGrid.x, this.hoverGrid.y);
+      let gw = this.tileSize;
+      let gh = this.tileSize;
+      if (this.selectedPaletteItem === 'block' || this.selectedPaletteItem === 'crate') {
+        if (this.selectedPaletteVariant === 'mega') { gw = 80; gh = 80; }
+        else if (this.selectedPaletteVariant === 'slab') { gw = 40; gh = 20; }
+        else if (this.selectedPaletteVariant === 'pipe') { gw = 40; gh = 80; }
+      }
       ctx.save();
       ctx.translate(ghostScreen.x, ghostScreen.y);
       ctx.fillStyle = 'rgba(0, 229, 255, 0.25)';
       ctx.strokeStyle = '#00E5FF';
       ctx.lineWidth = 2;
       ctx.setLineDash([4, 4]);
-      ctx.fillRect(0, 0, this.tileSize, this.tileSize);
-      ctx.strokeRect(0, 0, this.tileSize, this.tileSize);
+      ctx.fillRect(0, 0, gw, gh);
+      ctx.strokeRect(0, 0, gw, gh);
       ctx.restore();
     } else if (this.currentTool === 'erase') {
       const ghostScreen = this.camera.worldToScreen(this.hoverGrid.x, this.hoverGrid.y);
@@ -385,24 +519,92 @@ export class GridEditor {
       ctx.restore();
     }
 
-    // 3. Selection Box on Selected Entity with Animated Pulse
-    if (this.selectedEntity) {
-      const entScreen = this.camera.worldToScreen(this.selectedEntity.x, this.selectedEntity.y);
-      ctx.save();
-      ctx.translate(entScreen.x, entScreen.y);
-      ctx.strokeStyle = '#00E5FF'; // Cyber cyan
-      ctx.lineWidth = 3;
-      ctx.setLineDash([6, 4]);
-      ctx.strokeRect(-4, -4, this.selectedEntity.width + 8, this.selectedEntity.height + 8);
+    // 3. Selection Boxes on Selected Entities with Multi-Selection & Group Frame
+    if (this.selectedEntities.length > 0) {
+      // Individual component outlines
+      for (const ent of this.selectedEntities) {
+        const entScreen = this.camera.worldToScreen(ent.x, ent.y);
+        ctx.save();
+        ctx.translate(entScreen.x, entScreen.y);
+        ctx.strokeStyle = '#00E5FF'; // Cyber cyan
+        ctx.lineWidth = 2.5;
+        ctx.setLineDash([5, 3]);
+        ctx.strokeRect(-3, -3, ent.width + 6, ent.height + 6);
 
-      // Corner handles
-      ctx.fillStyle = '#FFE600';
-      ctx.setLineDash([]);
-      const s = 6;
-      ctx.fillRect(-6, -6, s, s);
-      ctx.fillRect(this.selectedEntity.width, -6, s, s);
-      ctx.fillRect(-6, this.selectedEntity.height, s, s);
-      ctx.fillRect(this.selectedEntity.width, this.selectedEntity.height, s, s);
+        // Corner handles
+        ctx.fillStyle = '#FFE600';
+        ctx.setLineDash([]);
+        const s = 5;
+        ctx.fillRect(-5, -5, s, s);
+        ctx.fillRect(ent.width, -5, s, s);
+        ctx.fillRect(-5, ent.height, s, s);
+        ctx.fillRect(ent.width, ent.height, s, s);
+        ctx.restore();
+      }
+
+      // Group bounding box if multiple items selected
+      if (this.selectedEntities.length > 1) {
+        const minX = Math.min(...this.selectedEntities.map(e => e.x));
+        const maxX = Math.max(...this.selectedEntities.map(e => e.x + e.width));
+        const minY = Math.min(...this.selectedEntities.map(e => e.y));
+        const maxY = Math.max(...this.selectedEntities.map(e => e.y + e.height));
+        const groupScreen = this.camera.worldToScreen(minX, minY);
+        const gw = maxX - minX;
+        const gh = maxY - minY;
+
+        ctx.save();
+        ctx.translate(groupScreen.x, groupScreen.y);
+        ctx.strokeStyle = '#FFE600'; // Canary yellow group border
+        ctx.lineWidth = 3;
+        ctx.setLineDash([8, 4]);
+        ctx.strokeRect(-6, -6, gw + 12, gh + 12);
+
+        // Group badge pill at top-left
+        ctx.setLineDash([]);
+        ctx.fillStyle = '#FFE600';
+        ctx.fillRect(-6, -24, 115, 18);
+        ctx.strokeStyle = '#121212';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(-6, -24, 115, 18);
+        ctx.font = '800 11px "Fredoka", sans-serif';
+        ctx.fillStyle = '#121212';
+        ctx.fillText(`📦 ${this.selectedEntities.length} SELECTED`, 0, -10);
+
+        ctx.restore();
+      }
+    }
+
+    // 4. Marquee Drag-Selection Box
+    if (this.isBoxSelecting) {
+      const minX = Math.min(this.boxStart.x, this.boxCurrent.x);
+      const maxX = Math.max(this.boxStart.x, this.boxCurrent.x);
+      const minY = Math.min(this.boxStart.y, this.boxCurrent.y);
+      const maxY = Math.max(this.boxStart.y, this.boxCurrent.y);
+      const boxScreen = this.camera.worldToScreen(minX, minY);
+      const bw = maxX - minX;
+      const bh = maxY - minY;
+
+      ctx.save();
+      ctx.translate(boxScreen.x, boxScreen.y);
+      ctx.fillStyle = 'rgba(0, 229, 255, 0.22)';
+      ctx.fillRect(0, 0, bw, bh);
+      ctx.strokeStyle = '#00E5FF';
+      ctx.lineWidth = 2.5;
+      ctx.setLineDash([6, 4]);
+      ctx.strokeRect(0, 0, bw, bh);
+
+      // Pill badge with count
+      if (this.selectedEntities.length > 0) {
+        ctx.setLineDash([]);
+        ctx.fillStyle = '#FFE600';
+        ctx.fillRect(4, 4, 85, 18);
+        ctx.strokeStyle = '#121212';
+        ctx.lineWidth = 1.5;
+        ctx.strokeRect(4, 4, 85, 18);
+        ctx.font = '800 10px "Fredoka", sans-serif';
+        ctx.fillStyle = '#121212';
+        ctx.fillText(`⬚ ${this.selectedEntities.length} ITEMS`, 10, 16);
+      }
       ctx.restore();
     }
 

@@ -53,6 +53,7 @@ class SidehopApp {
 
     // Clipboard System for Copy/Paste/Cut/Duplicate
     this.clipboardEntity = null;
+    this.clipboardGroup = [];
 
     // Context Menu State
     this.contextMenuGrid = null;
@@ -130,6 +131,19 @@ class SidehopApp {
   // --- Copy, Cut, Paste & Duplicate System ---
   copy() {
     if (this.mode !== 'edit') return;
+    if (this.editor.selectedEntities.length > 1) {
+      this.clipboardGroup = this.editor.selectedEntities.map(e => LevelStorage.serializeEntity(e));
+      this.clipboardEntity = this.clipboardGroup[0];
+      sounds.playClick();
+      this.showToast(`📋 Copied ${this.clipboardGroup.length} components`);
+      try {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(JSON.stringify({ sidehopGroup: this.clipboardGroup }));
+        }
+      } catch (_) {}
+      return;
+    }
+
     const target = this.editor.selectedEntity;
     if (!target) {
       this.showToast('Select a component to copy');
@@ -137,6 +151,7 @@ class SidehopApp {
     }
 
     this.clipboardEntity = LevelStorage.serializeEntity(target);
+    this.clipboardGroup = [this.clipboardEntity];
     sounds.playClick();
 
     const name = target.type === 'player'
@@ -153,6 +168,27 @@ class SidehopApp {
 
   cut() {
     if (this.mode !== 'edit') return;
+    if (this.editor.selectedEntities.length > 1) {
+      this.copy();
+      this.history.pushState(this.player, this.entities, this.background);
+      let cutCount = 0;
+      for (const target of [...this.editor.selectedEntities]) {
+        if (target === this.player || target.type === 'player') continue;
+        const idx = this.entities.indexOf(target);
+        if (idx !== -1) {
+          this.entities.splice(idx, 1);
+          cutCount++;
+        }
+      }
+      this.editor.selectedEntities = [];
+      const card = document.getElementById('entity-action-card');
+      if (card) card.classList.remove('active');
+      sounds.playPaintSquish();
+      LevelStorage.autoSave(this.player, this.entities, this.background);
+      this.showToast(`✂️ Cut ${cutCount} components`);
+      return;
+    }
+
     const target = this.editor.selectedEntity;
     if (!target) {
       this.showToast('Select a component to cut');
@@ -181,7 +217,7 @@ class SidehopApp {
 
   paste(customX = null, customY = null) {
     if (this.mode !== 'edit') return;
-    if (!this.clipboardEntity) {
+    if (!this.clipboardEntity && (!this.clipboardGroup || this.clipboardGroup.length === 0)) {
       this.showToast('Clipboard empty (Use ⌘C to copy)');
       return;
     }
@@ -194,21 +230,45 @@ class SidehopApp {
         pasteX = this.editor.hoverGrid.x;
         pasteY = this.editor.hoverGrid.y;
       } else {
-        const base = this.editor.selectedEntity || this.clipboardEntity;
-        pasteX = base.x + this.editor.tileSize;
-        pasteY = base.y;
-
-        const isOccupied = this.entities.some(e => Math.abs(e.x - pasteX) < 10 && Math.abs(e.y - pasteY) < 10);
-        if (isOccupied) {
-          pasteX = base.x + this.editor.tileSize;
-          pasteY = base.y + this.editor.tileSize;
-        }
+        pasteX = this.editor.cursorGrid.x;
+        pasteY = this.editor.cursorGrid.y;
       }
     }
 
     // Align placement spot to pasted entity
     this.editor.cursorGrid.x = pasteX;
     this.editor.cursorGrid.y = pasteY;
+
+    // Multi-entity group paste!
+    if (this.clipboardGroup && this.clipboardGroup.length > 1) {
+      this.history.pushState(this.player, this.entities, this.background);
+      const minX = Math.min(...this.clipboardGroup.map(e => e.x));
+      const minY = Math.min(...this.clipboardGroup.map(e => e.y));
+      const newGroup = [];
+
+      for (const item of this.clipboardGroup) {
+        const targetX = pasteX + (item.x - minX);
+        const targetY = pasteY + (item.y - minY);
+
+        if (item.type === 'player') {
+          this.player.setSpawn(targetX, targetY);
+          newGroup.push(this.player);
+        } else {
+          const newEnt = LevelStorage.cloneEntity(item, targetX, targetY);
+          if (newEnt) {
+            this.entities.push(newEnt);
+            newGroup.push(newEnt);
+          }
+        }
+      }
+
+      this.editor.selectedEntities = newGroup;
+      this.updateActionCard(this.editor.selectedEntity);
+      sounds.playLand();
+      LevelStorage.autoSave(this.player, this.entities, this.background);
+      this.showToast(`📋 Pasted ${newGroup.length} components`);
+      return;
+    }
 
     if (this.clipboardEntity.type === 'player') {
       this.history.pushState(this.player, this.entities, this.background);
@@ -238,6 +298,27 @@ class SidehopApp {
 
   duplicate() {
     if (this.mode !== 'edit') return;
+    if (this.editor.selectedEntities.length > 1) {
+      this.history.pushState(this.player, this.entities, this.background);
+      const newGroup = [];
+      for (const target of this.editor.selectedEntities) {
+        if (target === this.player || target.type === 'player') continue;
+        const newEnt = LevelStorage.cloneEntity(target, target.x + this.editor.tileSize, target.y);
+        if (newEnt) {
+          this.entities.push(newEnt);
+          newGroup.push(newEnt);
+        }
+      }
+      if (newGroup.length > 0) {
+        this.editor.selectedEntities = newGroup;
+        this.updateActionCard(this.editor.selectedEntity);
+        sounds.playLand();
+        LevelStorage.autoSave(this.player, this.entities, this.background);
+        this.showToast(`📑 Duplicated ${newGroup.length} components`);
+      }
+      return;
+    }
+
     const target = this.editor.selectedEntity;
     if (!target) {
       this.showToast('Select a component to duplicate');
@@ -301,17 +382,25 @@ class SidehopApp {
     // Detect if right-clicked directly on an entity
     const clickedEnt = this.editor.findEntityAt(worldPos.x, worldPos.y, this.entities, this.player);
     if (clickedEnt) {
-      this.editor.selectedEntity = clickedEnt;
-      this.updateActionCard(clickedEnt);
-      const name = clickedEnt.type === 'player'
-        ? 'PLAYER SPAWN'
-        : (clickedEnt.variant ? `${clickedEnt.variant.toUpperCase()} ${clickedEnt.type.toUpperCase()}` : clickedEnt.type.toUpperCase());
-      if (titleEl) titleEl.textContent = name;
+      if (this.editor.selectedEntities && this.editor.selectedEntities.length > 1 && this.editor.selectedEntities.includes(clickedEnt)) {
+        if (titleEl) titleEl.textContent = `SELECTION (${this.editor.selectedEntities.length} ITEMS)`;
+      } else {
+        this.editor.selectedEntity = clickedEnt;
+        this.updateActionCard(clickedEnt);
+        const name = clickedEnt.type === 'player'
+          ? 'PLAYER SPAWN'
+          : (clickedEnt.variant ? `${clickedEnt.variant.toUpperCase()} ${clickedEnt.type.toUpperCase()}` : clickedEnt.type.toUpperCase());
+        if (titleEl) titleEl.textContent = name;
+      }
     } else {
-      if (titleEl) titleEl.textContent = 'STAGE OPTIONS';
-      if (this.editor.selectedEntity) {
-        this.editor.selectedEntity = null;
-        document.getElementById('entity-action-card')?.classList.remove('active');
+      if (this.editor.selectedEntities && this.editor.selectedEntities.length > 1) {
+        if (titleEl) titleEl.textContent = `SELECTION (${this.editor.selectedEntities.length} ITEMS)`;
+      } else {
+        if (titleEl) titleEl.textContent = 'STAGE OPTIONS';
+        if (this.editor.selectedEntity) {
+          this.editor.selectedEntity = null;
+          document.getElementById('entity-action-card')?.classList.remove('active');
+        }
       }
     }
 
@@ -320,9 +409,10 @@ class SidehopApp {
     }
 
     // Enable/disable actions
-    const hasSelection = Boolean(this.editor.selectedEntity);
-    const isPlayer = hasSelection && (this.editor.selectedEntity === this.player || this.editor.selectedEntity.type === 'player');
-    const hasClipboard = Boolean(this.clipboardEntity);
+    const isMulti = this.editor.selectedEntities && this.editor.selectedEntities.length > 1;
+    const hasSelection = Boolean(this.editor.selectedEntity) || isMulti;
+    const isPlayer = !isMulti && (this.editor.selectedEntity === this.player || this.editor.selectedEntity?.type === 'player');
+    const hasClipboard = Boolean(this.clipboardEntity) || (this.clipboardGroup && this.clipboardGroup.length > 0);
 
     const copyBtn = document.getElementById('ctx-copy-btn');
     const pasteBtn = document.getElementById('ctx-paste-btn');
@@ -335,13 +425,34 @@ class SidehopApp {
     const placeIcon = document.getElementById('ctx-place-icon');
     const placeLabel = document.getElementById('ctx-place-label');
 
-    if (copyBtn) copyBtn.disabled = !hasSelection;
-    if (pasteBtn) pasteBtn.disabled = !hasClipboard;
-    if (duplicateBtn) duplicateBtn.disabled = !hasSelection || isPlayer;
-    if (cutBtn) cutBtn.disabled = !hasSelection || isPlayer;
-    if (paintBtn) paintBtn.disabled = !hasSelection;
-    if (tuneBtn) tuneBtn.disabled = !hasSelection;
-    if (deleteBtn) deleteBtn.disabled = !hasSelection || isPlayer;
+    if (copyBtn) {
+      copyBtn.disabled = !hasSelection;
+      const lbl = copyBtn.querySelector('.ctx-item-label');
+      if (lbl) lbl.textContent = isMulti ? `Copy All (${this.editor.selectedEntities.length})` : 'Copy';
+    }
+    if (pasteBtn) {
+      pasteBtn.disabled = !hasClipboard;
+      const lbl = pasteBtn.querySelector('.ctx-item-label');
+      const count = this.clipboardGroup && this.clipboardGroup.length > 1 ? ` (${this.clipboardGroup.length})` : '';
+      if (lbl) lbl.textContent = `Paste Here${count}`;
+    }
+    if (duplicateBtn) {
+      duplicateBtn.disabled = !hasSelection || isPlayer;
+      const lbl = duplicateBtn.querySelector('.ctx-item-label');
+      if (lbl) lbl.textContent = isMulti ? `Duplicate All (${this.editor.selectedEntities.length})` : 'Duplicate';
+    }
+    if (cutBtn) {
+      cutBtn.disabled = !hasSelection || isPlayer;
+      const lbl = cutBtn.querySelector('.ctx-item-label');
+      if (lbl) lbl.textContent = isMulti ? `Cut All (${this.editor.selectedEntities.length})` : 'Cut';
+    }
+    if (paintBtn) paintBtn.disabled = !hasSelection || isMulti;
+    if (tuneBtn) tuneBtn.disabled = !hasSelection || isMulti;
+    if (deleteBtn) {
+      deleteBtn.disabled = !hasSelection || isPlayer;
+      const lbl = deleteBtn.querySelector('.ctx-item-label');
+      if (lbl) lbl.textContent = isMulti ? `Delete All (${this.editor.selectedEntities.length})` : 'Delete';
+    }
 
     if (placeBtn && placeLabel) {
       const pItem = this.editor.selectedPaletteItem || 'block';
@@ -609,7 +720,50 @@ class SidehopApp {
     const actionCard = document.getElementById('entity-action-card');
     if (!actionCard) return;
 
-    if (!ent || this.mode !== 'edit') {
+    if (this.mode !== 'edit') {
+      actionCard.classList.remove('active');
+      return;
+    }
+
+    // Check if multi-selection group is active
+    if (this.editor.selectedEntities && this.editor.selectedEntities.length > 1) {
+      const count = this.editor.selectedEntities.length;
+      const badge = document.getElementById('action-entity-badge');
+      if (badge) badge.textContent = `📦 GROUP (${count} SELECTED)`;
+
+      const dupBtn = document.getElementById('action-duplicate-btn');
+      if (dupBtn) dupBtn.style.display = 'inline-flex';
+      const delBtn = document.getElementById('action-delete-btn');
+      if (delBtn) delBtn.style.display = 'inline-flex';
+
+      const variantPicker = document.getElementById('action-variant-picker');
+      if (variantPicker) variantPicker.style.display = 'none';
+
+      actionCard.classList.add('active');
+
+      const cardW = actionCard.offsetWidth || 300;
+      const cardH = actionCard.offsetHeight || 80;
+      const canvasW = this.canvas.width;
+      const canvasH = this.canvas.height;
+
+      const minX = Math.min(...this.editor.selectedEntities.map(e => e.x));
+      const maxX = Math.max(...this.editor.selectedEntities.map(e => e.x + (e.width || 40)));
+      const minY = Math.min(...this.editor.selectedEntities.map(e => e.y));
+
+      const groupCenter = this.camera.worldToScreen((minX + maxX) / 2, minY);
+      let left = groupCenter.x - cardW / 2;
+      left = Math.max(14, Math.min(canvasW - cardW - 14, left));
+
+      let top = groupCenter.y - cardH - 12;
+      if (top < 14) top = groupCenter.y + 24;
+      top = Math.max(14, Math.min(canvasH - cardH - 14, top));
+
+      actionCard.style.left = `${left}px`;
+      actionCard.style.top = `${top}px`;
+      return;
+    }
+
+    if (!ent) {
       actionCard.classList.remove('active');
       return;
     }
@@ -640,11 +794,27 @@ class SidehopApp {
     const variantPicker = document.getElementById('action-variant-picker');
     if (variantPicker) {
       variantPicker.innerHTML = '';
+      const blockVariants = [
+        { id: 'solid', label: '🧱 Solid' },
+        { id: 'slope_up', label: '◢ Slope Up' },
+        { id: 'slope_down', label: '◣ Slope Down' },
+        { id: 'semisolid', label: '🪵 Semi-Solid' },
+        { id: 'slab', label: '🪨 Slab' },
+        { id: 'mega', label: '🏰 Mega 2x2' },
+        { id: 'pipe', label: '🧪 Pipe' },
+        { id: 'donut', label: '🍩 Donut' },
+        { id: 'note', label: '🎵 Note' },
+        { id: 'mystery', label: '❓ Mystery' },
+        { id: 'cloud', label: '☁️ Cloud' },
+        { id: 'ice', label: '🧊 Ice' },
+        { id: 'stone', label: '🏛️ Stone' }
+      ];
+
       const variantDefs = {
-        block: [{ id: 'solid', label: '🧱 Solid' }, { id: 'mystery', label: '❓ Mystery' }, { id: 'cloud', label: '☁️ Cloud' }, { id: 'ice', label: '🧊 Ice' }],
-        crate: [{ id: 'solid', label: '🧱 Solid' }, { id: 'mystery', label: '❓ Mystery' }, { id: 'cloud', label: '☁️ Cloud' }, { id: 'ice', label: '🧊 Ice' }],
+        block: blockVariants,
+        crate: blockVariants,
         enemy: [{ id: 'walker', label: '🥔 Walker' }, { id: 'winged', label: '🪽 Winged' }, { id: 'spiky', label: '🦔 Spiky' }],
-        collectible: [{ id: 'coin', label: '🪙 Coin' }, { id: 'star', label: '⭐ Star' }, { id: 'heart', label: '❤️ Heart' }],
+        collectible: [{ id: 'star', label: '⭐ Star' }, { id: 'coin', label: '🪙 Coin' }, { id: 'heart', label: '❤️ Heart' }],
         springboard: [{ id: 'spring', label: '🌀 Standard' }, { id: 'mega', label: '🚀 Mega' }]
       };
 
@@ -679,8 +849,8 @@ class SidehopApp {
     const canvasH = this.canvas.height;
 
     // Calculate world entity center and bounds transformed to screen space
-    const entCenter = this.camera.worldToScreen(ent.x + ent.width / 2, ent.y);
-    const entBottom = this.camera.worldToScreen(ent.x + ent.width / 2, ent.y + ent.height);
+    const entCenter = this.camera.worldToScreen(ent.x + (ent.width || 40) / 2, ent.y);
+    const entBottom = this.camera.worldToScreen(ent.x + (ent.width || 40) / 2, ent.y + (ent.height || 40));
 
     // Horizontal centering with strict frame padding (14px from left and right borders)
     let left = entCenter.x - cardW / 2;
@@ -716,12 +886,21 @@ class SidehopApp {
   getVariantDefs() {
     return {
       block: {
-        title: 'BLOCK TYPES',
+        title: 'BLOCK & SLOPE TYPES',
         variants: [
-          { id: 'solid', icon: '🧱', name: 'Solid Ground', desc: 'Standard solid block platform', shortName: 'Block' },
+          { id: 'solid', icon: '🧱', name: 'Solid Ground', desc: 'Standard solid block platform', shortName: 'Solid' },
+          { id: 'slope_up', icon: '◢', name: 'Slope Up (45°)', desc: 'Walkable incline hill slant', shortName: 'Slope Up' },
+          { id: 'slope_down', icon: '◣', name: 'Slope Down (45°)', desc: 'Walkable decline hill slant', shortName: 'Slope Down' },
+          { id: 'semisolid', icon: '🪵', name: 'Semi-Solid Platform', desc: 'Jump through from below, stand on top', shortName: 'Semi-Solid' },
+          { id: 'slab', icon: '🪨', name: 'Half Slab (40x20)', desc: 'Half-height stepping stone block', shortName: 'Half Slab' },
+          { id: 'mega', icon: '🏰', name: 'Mega Block (80x80)', desc: 'Giant 2x2 fortress block', shortName: 'Mega Block' },
+          { id: 'pipe', icon: '🧪', name: 'Warp Pipe (40x80)', desc: 'Tall iconic 2-tile pipe column', shortName: 'Pipe' },
+          { id: 'donut', icon: '🍩', name: 'Donut Lift', desc: 'Drops and falls when stood upon', shortName: 'Donut Lift' },
+          { id: 'note', icon: '🎵', name: 'Note Block ♪', desc: 'Super bouncy musical trampoline block', shortName: 'Note Block' },
           { id: 'mystery', icon: '❓', name: 'Mystery Block', desc: 'Breakable surprise block [?]', shortName: 'Mystery' },
+          { id: 'ice', icon: '🧊', name: 'Ice Block', desc: 'Low-friction slippery surface', shortName: 'Ice' },
           { id: 'cloud', icon: '☁️', name: 'Cloud Platform', desc: 'Soft floating cloud block', shortName: 'Cloud' },
-          { id: 'ice', icon: '🧊', name: 'Ice Block', desc: 'Low-friction slippery surface', shortName: 'Ice' }
+          { id: 'stone', icon: '🏛️', name: 'Castle Stone', desc: 'Chiseled fortress stone masonry', shortName: 'Stone' }
         ]
       },
       springboard: {
@@ -1090,6 +1269,24 @@ class SidehopApp {
     });
 
     document.getElementById('action-delete-btn').addEventListener('click', () => {
+      if (this.editor.selectedEntities && this.editor.selectedEntities.length > 1) {
+        this.history.pushState(this.player, this.entities, this.background);
+        let delCount = 0;
+        for (const target of [...this.editor.selectedEntities]) {
+          if (target === this.player || target.type === 'player') continue;
+          const idx = this.entities.indexOf(target);
+          if (idx !== -1) {
+            this.entities.splice(idx, 1);
+            delCount++;
+          }
+        }
+        this.editor.selectedEntities = [];
+        actionCard.classList.remove('active');
+        sounds.playPaintSquish();
+        LevelStorage.autoSave(this.player, this.entities, this.background);
+        this.showToast(`🗑️ Deleted ${delCount} components`);
+        return;
+      }
       if (this.editor.selectedEntity && this.editor.selectedEntity !== this.player) {
         const idx = this.entities.indexOf(this.editor.selectedEntity);
         if (idx !== -1) {
@@ -1163,6 +1360,24 @@ class SidehopApp {
     document.getElementById('ctx-delete-btn')?.addEventListener('click', (e) => {
       e.stopPropagation();
       this.closeContextMenu();
+      if (this.editor.selectedEntities && this.editor.selectedEntities.length > 1) {
+        this.history.pushState(this.player, this.entities, this.background);
+        let delCount = 0;
+        for (const target of [...this.editor.selectedEntities]) {
+          if (target === this.player || target.type === 'player') continue;
+          const idx = this.entities.indexOf(target);
+          if (idx !== -1) {
+            this.entities.splice(idx, 1);
+            delCount++;
+          }
+        }
+        this.editor.selectedEntities = [];
+        document.getElementById('entity-action-card')?.classList.remove('active');
+        sounds.playPaintSquish();
+        LevelStorage.autoSave(this.player, this.entities, this.background);
+        this.showToast(`🗑️ Deleted ${delCount} components`);
+        return;
+      }
       if (this.editor.selectedEntity && this.editor.selectedEntity !== this.player) {
         const idx = this.entities.indexOf(this.editor.selectedEntity);
         if (idx !== -1) {
@@ -1469,9 +1684,25 @@ class SidehopApp {
         return;
       }
 
-      // Delete or Backspace deletes selected entity or erases entity at placement spot in edit mode
+      // Delete or Backspace deletes selected entity or group, or erases entity at placement spot in edit mode
       if ((e.code === 'Delete' || e.code === 'Backspace') && this.mode === 'edit') {
-        if (this.editor.selectedEntity && this.editor.selectedEntity !== this.player) {
+        if (this.editor.selectedEntities && this.editor.selectedEntities.length > 1) {
+          this.history.pushState(this.player, this.entities, this.background);
+          let delCount = 0;
+          for (const target of [...this.editor.selectedEntities]) {
+            if (target === this.player || target.type === 'player') continue;
+            const idx = this.entities.indexOf(target);
+            if (idx !== -1) {
+              this.entities.splice(idx, 1);
+              delCount++;
+            }
+          }
+          this.editor.selectedEntities = [];
+          document.getElementById('entity-action-card')?.classList.remove('active');
+          sounds.playPaintSquish();
+          LevelStorage.autoSave(this.player, this.entities, this.background);
+          this.showToast(`🗑️ Deleted ${delCount} components`);
+        } else if (this.editor.selectedEntity && this.editor.selectedEntity !== this.player) {
           const idx = this.entities.indexOf(this.editor.selectedEntity);
           if (idx !== -1) {
             this.history.pushState(this.player, this.entities, this.background);
@@ -1497,9 +1728,9 @@ class SidehopApp {
         }
       }
 
-      // Number keys switch tools in edit mode: 1=Select, 2=Place, 3=Pan, 4=Erase
+      // Number keys switch tools in edit mode: 1=Select, 2=Place, 3=Pan, 4=Erase, 5=Box Select
       if (this.mode === 'edit') {
-        const toolMap = { Digit1: 'select', Digit2: 'place', Digit3: 'pan', Digit4: 'erase' };
+        const toolMap = { Digit1: 'select', Digit2: 'place', Digit3: 'pan', Digit4: 'erase', Digit5: 'boxselect' };
         if (toolMap[e.code]) {
           const tool = toolMap[e.code];
           const btn = document.querySelector(`[data-tool="${tool}"]`);

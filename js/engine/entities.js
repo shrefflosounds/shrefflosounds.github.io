@@ -255,34 +255,64 @@ export class Player extends Entity {
   }
 }
 
-// 2. SOLID BLOCK (Ground, Mystery [?], Cloud, and Ice Variants)
+// 2. SOLID BLOCK (Mario Maker 2 Styles, Shapes, Sizes & Slants)
 export class SolidBlock extends Entity {
   constructor(x, y, width = 40, height = 40, variant = 'solid') {
-    super(null, 'crate', x, y, width, height); // type remains 'crate' internally for physics/solids compatibility
-    this.variant = variant || 'solid'; // 'solid', 'mystery', 'cloud', 'ice'
-    this.bounciness = 0.0;
-    this.friction = this.variant === 'ice' ? 0.12 : 1.0;
-    this.isOneWay = this.variant === 'cloud';
+    let w = width;
+    let h = height;
+    if (variant === 'mega' && width === 40 && height === 40) { w = 80; h = 80; }
+    else if (variant === 'slab' && width === 40 && height === 40) { w = 40; h = 20; }
+    else if (variant === 'pipe' && width === 40 && height === 40) { w = 40; h = 80; }
 
-    // Mystery Block [?] Bump State
+    super(null, 'crate', x, y, w, h); // type remains 'crate' internally for physics/solids compatibility
+    this.variant = variant || 'solid';
+    this.bounciness = this.variant === 'note' ? 0.95 : 0.0;
+    this.friction = this.variant === 'ice' ? 0.12 : 1.0;
+    this.isOneWay = (this.variant === 'cloud' || this.variant === 'semisolid');
+
+    // Mystery Block [?] & Note Block Bump State
     this.bumpOffsetY = 0;
     this.bumpTimer = 0;
     this.isUsed = false;
+
+    // Donut Lift State
+    this.startX = x;
+    this.startY = y;
+    this.shakeTimer = 0;
+    this.shakeOffsetX = 0;
+    this.isDropping = false;
+    this.dropSpeed = 0;
+    this.respawnTimer = 0;
   }
 
   setVariant(variant) {
     this.variant = variant;
     this.friction = variant === 'ice' ? 0.12 : 1.0;
-    this.isOneWay = variant === 'cloud';
+    this.isOneWay = (variant === 'cloud' || variant === 'semisolid');
+    this.bounciness = variant === 'note' ? 0.95 : 0.0;
+
+    if (variant === 'mega') { this.width = 80; this.height = 80; }
+    else if (variant === 'slab') { this.width = 40; this.height = 20; }
+    else if (variant === 'pipe') { this.width = 40; this.height = 80; }
+    else if (this.width !== 40 || this.height !== 40) {
+      if (['solid', 'slope_up', 'slope_down', 'semisolid', 'donut', 'note', 'mystery', 'ice', 'cloud', 'stone'].includes(variant)) {
+        this.width = 40;
+        this.height = 40;
+      }
+    }
   }
 
   bump() {
-    if (this.isUsed) return;
-    this.isUsed = true;
-    this.bumpTimer = 0.24;
-    sounds.playCollect();
-    if (typeof window !== 'undefined' && window.sidehop) {
-      window.sidehop.score += 100;
+    if (this.variant === 'mystery' && this.isUsed) return;
+    this.bumpTimer = 0.22;
+    if (this.variant === 'mystery') {
+      this.isUsed = true;
+      sounds.playCollect();
+      if (typeof window !== 'undefined' && window.sidehop) {
+        window.sidehop.score += 100;
+      }
+    } else if (this.variant === 'note') {
+      sounds.playBounce();
     }
   }
 
@@ -292,26 +322,292 @@ export class SolidBlock extends Entity {
       if (this.bumpTimer <= 0) {
         this.bumpOffsetY = 0;
       } else {
-        this.bumpOffsetY = Math.sin((this.bumpTimer / 0.24) * Math.PI) * -12;
+        this.bumpOffsetY = Math.sin((this.bumpTimer / 0.22) * Math.PI) * -12;
+      }
+    }
+
+    // Donut Lift Physics
+    if (this.variant === 'donut') {
+      if (this.isDropping) {
+        this.dropSpeed += 1150 * dt;
+        this.y += this.dropSpeed * dt;
+        if (this.y > this.startY + 500) {
+          this.respawnTimer += dt;
+          if (this.respawnTimer > 2.5) {
+            this.x = this.startX;
+            this.y = this.startY;
+            this.isDropping = false;
+            this.dropSpeed = 0;
+            this.shakeTimer = 0;
+            this.shakeOffsetX = 0;
+            this.respawnTimer = 0;
+          }
+        }
+      } else if (this.shakeTimer > 0) {
+        this.shakeTimer += dt;
+        this.shakeOffsetX = Math.sin(this.shakeTimer * 50) * 3;
+        if (this.shakeTimer > 0.55) {
+          this.isDropping = true;
+          this.dropSpeed = 90;
+        }
       }
     }
   }
 
   draw(ctx) {
     ctx.save();
-    ctx.translate(this.x, this.y + (this.bumpOffsetY || 0));
+    ctx.translate(this.x + (this.shakeOffsetX || 0), this.y + (this.bumpOffsetY || 0));
 
     this.renderCustomOrFallback(ctx, () => {
-      if (this.variant === 'mystery') {
-        // Mystery Question Block [?]
+      // 1. SLANT UP (45° Incline /)
+      if (this.variant === 'slope_up') {
+        ctx.fillStyle = '#FFB300';
+        ctx.strokeStyle = '#121212';
+        ctx.lineWidth = 3;
+
+        ctx.beginPath();
+        ctx.moveTo(0, this.height);
+        ctx.lineTo(this.width, this.height);
+        ctx.lineTo(this.width, 0);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+
+        // Lush grass trim along the hypotenuse
+        ctx.strokeStyle = '#00E676';
+        ctx.lineWidth = 5;
+        ctx.beginPath();
+        ctx.moveTo(0, this.height);
+        ctx.lineTo(this.width, 0);
+        ctx.stroke();
+
+        // Slope angle indicator hatch
+        ctx.strokeStyle = 'rgba(18, 18, 18, 0.25)';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(this.width * 0.45, this.height);
+        ctx.lineTo(this.width, this.height * 0.45);
+        ctx.stroke();
+      }
+
+      // 2. SLANT DOWN (45° Decline \)
+      else if (this.variant === 'slope_down') {
+        ctx.fillStyle = '#FFB300';
+        ctx.strokeStyle = '#121212';
+        ctx.lineWidth = 3;
+
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.lineTo(0, this.height);
+        ctx.lineTo(this.width, this.height);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+
+        // Lush grass trim along hypotenuse
+        ctx.strokeStyle = '#00E676';
+        ctx.lineWidth = 5;
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.lineTo(this.width, this.height);
+        ctx.stroke();
+
+        // Slope angle indicator hatch
+        ctx.strokeStyle = 'rgba(18, 18, 18, 0.25)';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(0, this.height * 0.45);
+        ctx.lineTo(this.width * 0.55, this.height);
+        ctx.stroke();
+      }
+
+      // 3. SEMI-SOLID PLATFORM (Mario Maker Wood Boardwalk)
+      else if (this.variant === 'semisolid') {
+        // Wooden top deck
+        ctx.fillStyle = '#D7CCC8';
+        ctx.strokeStyle = '#121212';
+        ctx.lineWidth = 3;
+        ctx.fillRect(0, 0, this.width, 12);
+        ctx.strokeRect(0, 0, this.width, 12);
+
+        // Support vertical pilings
+        ctx.fillStyle = '#A1887F';
+        ctx.fillRect(5, 12, 8, this.height - 12);
+        ctx.strokeRect(5, 12, 8, this.height - 12);
+        ctx.fillRect(this.width - 13, 12, 8, this.height - 12);
+        ctx.strokeRect(this.width - 13, 12, 8, this.height - 12);
+
+        // Cross timber
+        ctx.fillStyle = '#8D6E63';
+        ctx.fillRect(5, this.height - 10, this.width - 10, 6);
+        ctx.strokeRect(5, this.height - 10, this.width - 10, 6);
+
+        // Mushroom rivet
+        ctx.fillStyle = '#FF5252';
+        ctx.beginPath();
+        ctx.arc(this.width / 2, 6, 3.5, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      // 4. HALF SLAB (40×20 Stepping Stone)
+      else if (this.variant === 'slab') {
+        ctx.fillStyle = '#FFB300';
+        ctx.strokeStyle = '#121212';
+        ctx.lineWidth = 3;
+        ctx.fillRect(0, 0, this.width, this.height);
+        ctx.strokeRect(0, 0, this.width, this.height);
+
+        // Mint grass cap
+        ctx.fillStyle = '#00E676';
+        ctx.fillRect(0, 0, this.width, 6);
+        ctx.strokeRect(0, 0, this.width, 6);
+
+        // Center brick seam
+        ctx.strokeStyle = 'rgba(18, 18, 18, 0.3)';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(this.width / 2, 6);
+        ctx.lineTo(this.width / 2, this.height);
+        ctx.stroke();
+      }
+
+      // 5. MEGA BLOCK (80×80 2×2 Giant Terrain Block)
+      else if (this.variant === 'mega') {
+        ctx.fillStyle = '#8D6E63';
+        ctx.strokeStyle = '#121212';
+        ctx.lineWidth = 4;
+        ctx.fillRect(0, 0, this.width, this.height);
+        ctx.strokeRect(0, 0, this.width, this.height);
+
+        // Top lush grass cap
+        ctx.fillStyle = '#00E676';
+        ctx.fillRect(0, 0, this.width, 14);
+        ctx.strokeRect(0, 0, this.width, 14);
+
+        // 4 interior masonry quadrants
+        ctx.strokeStyle = 'rgba(18, 18, 18, 0.45)';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.moveTo(0, this.height / 2); ctx.lineTo(this.width, this.height / 2);
+        ctx.moveTo(this.width / 2, 14); ctx.lineTo(this.width / 2, this.height);
+        ctx.stroke();
+
+        // Center golden medallion
+        ctx.fillStyle = '#FFE600';
+        ctx.beginPath();
+        ctx.arc(this.width / 2, this.height / 2, 10, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+      }
+
+      // 6. WARP PIPE (40×80 Green Pipe)
+      else if (this.variant === 'pipe') {
+        // Pipe Lip / Collar at top (48px wide, 22px tall)
+        ctx.fillStyle = '#00E676';
+        ctx.strokeStyle = '#121212';
+        ctx.lineWidth = 3;
+        ctx.fillRect(-4, 0, this.width + 8, 22);
+        ctx.strokeRect(-4, 0, this.width + 8, 22);
+
+        // Pipe stem (40px wide, 58px tall)
+        ctx.fillStyle = '#00C853';
+        ctx.fillRect(0, 22, this.width, this.height - 22);
+        ctx.strokeRect(0, 22, this.width, this.height - 22);
+
+        // Glossy cylindrical highlights
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.45)';
+        ctx.fillRect(4, 3, 7, 16);
+        ctx.fillRect(6, 24, 7, this.height - 27);
+      }
+
+      // 7. DONUT LIFT (Falling Donut Platform)
+      else if (this.variant === 'donut') {
+        // Strawberry donut ring
+        ctx.fillStyle = '#FF4081';
+        ctx.strokeStyle = '#121212';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.arc(this.width / 2, this.height / 2, 18, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+
+        // Center donut hole
+        ctx.fillStyle = '#FFF8E1';
+        ctx.beginPath();
+        ctx.arc(this.width / 2, this.height / 2, 7, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+
+        // Colorful sprinkles
+        ctx.fillStyle = '#FFE600';
+        ctx.fillRect(this.width / 2 - 11, this.height / 2 - 10, 4, 2);
+        ctx.fillStyle = '#00E5FF';
+        ctx.fillRect(this.width / 2 + 7, this.height / 2 - 8, 2, 4);
+        ctx.fillStyle = '#00E676';
+        ctx.fillRect(this.width / 2 - 9, this.height / 2 + 8, 4, 2);
+      }
+
+      // 8. NOTE BLOCK (Musical Super Bouncer ♪)
+      else if (this.variant === 'note') {
+        ctx.fillStyle = '#FFFFFF';
+        ctx.strokeStyle = '#121212';
+        ctx.lineWidth = 3;
+        ctx.fillRect(0, 0, this.width, this.height);
+        ctx.strokeRect(0, 0, this.width, this.height);
+
+        // Pop pink corner brackets
+        ctx.fillStyle = '#FF2A85';
+        ctx.fillRect(3, 3, 6, 6);
+        ctx.fillRect(this.width - 9, 3, 6, 6);
+        ctx.fillRect(3, this.height - 9, 6, 6);
+        ctx.fillRect(this.width - 9, this.height - 9, 6, 6);
+
+        // Musical Eighth Note ♪
+        ctx.font = '900 24px "Fredoka", sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillStyle = '#121212';
+        ctx.fillText('♪', this.width / 2, this.height / 2 + 1);
+      }
+
+      // 9. CASTLE STONE BLOCK
+      else if (this.variant === 'stone') {
+        ctx.fillStyle = '#9E9E9E';
+        ctx.strokeStyle = '#121212';
+        ctx.lineWidth = 3;
+        ctx.fillRect(0, 0, this.width, this.height);
+        ctx.strokeRect(0, 0, this.width, this.height);
+
+        // Chiseled bevel highlights and shadows
+        ctx.strokeStyle = '#EEEEEE';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(3, 3); ctx.lineTo(this.width - 3, 3);
+        ctx.moveTo(3, 3); ctx.lineTo(3, this.height - 3);
+        ctx.stroke();
+
+        ctx.strokeStyle = '#616161';
+        ctx.beginPath();
+        ctx.moveTo(this.width - 3, 3); ctx.lineTo(this.width - 3, this.height - 3);
+        ctx.moveTo(3, this.height - 3); ctx.lineTo(this.width - 3, this.height - 3);
+        ctx.stroke();
+
+        // Central cross carving
+        ctx.strokeStyle = 'rgba(18, 18, 18, 0.35)';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(12, 12, this.width - 24, this.height - 24);
+      }
+
+      // 10. MYSTERY QUESTION BLOCK [?]
+      else if (this.variant === 'mystery') {
         if (!this.isUsed) {
-          ctx.fillStyle = '#FFE600'; // Canary Pop Yellow
+          ctx.fillStyle = '#FFE600';
           ctx.strokeStyle = '#121212';
           ctx.lineWidth = 3;
           ctx.fillRect(0, 0, this.width, this.height);
           ctx.strokeRect(0, 0, this.width, this.height);
 
-          // Corner metal bolts
+          // Corner bolts
           ctx.fillStyle = '#121212';
           const r = 3;
           ctx.fillRect(4, 4, r, r);
@@ -319,7 +615,7 @@ export class SolidBlock extends Entity {
           ctx.fillRect(4, this.height - 7, r, r);
           ctx.fillRect(this.width - 7, this.height - 7, r, r);
 
-          // Big bold question mark [?]
+          // Question mark
           ctx.font = '900 24px "Fredoka", sans-serif';
           ctx.textAlign = 'center';
           ctx.textBaseline = 'middle';
@@ -327,7 +623,7 @@ export class SolidBlock extends Entity {
           ctx.fillText('?', this.width / 2, this.height / 2 + 1);
         } else {
           // Deactivated Empty Block
-          ctx.fillStyle = '#BCAAA4'; // Muted clay
+          ctx.fillStyle = '#BCAAA4';
           ctx.strokeStyle = '#121212';
           ctx.lineWidth = 3;
           ctx.fillRect(0, 0, this.width, this.height);
@@ -338,8 +634,10 @@ export class SolidBlock extends Entity {
           ctx.arc(this.width / 2, this.height / 2, 6, 0, Math.PI * 2);
           ctx.fill();
         }
-      } else if (this.variant === 'cloud') {
-        // Semi-solid Cloud Platform (Jump through from underneath)
+      }
+
+      // 11. CLOUD PLATFORM
+      else if (this.variant === 'cloud') {
         ctx.fillStyle = '#FFFFFF';
         ctx.strokeStyle = '#121212';
         ctx.lineWidth = 3;
@@ -354,22 +652,22 @@ export class SolidBlock extends Entity {
         ctx.fill();
         ctx.stroke();
 
-        // Mint green trim underside
         ctx.strokeStyle = '#00E676';
         ctx.lineWidth = 2.5;
         ctx.beginPath();
         ctx.moveTo(6, this.height - 6);
         ctx.lineTo(this.width - 6, this.height - 6);
         ctx.stroke();
-      } else if (this.variant === 'ice') {
-        // Ice Block (Slippery Glacial Cyan)
+      }
+
+      // 12. ICE BLOCK
+      else if (this.variant === 'ice') {
         ctx.fillStyle = '#B2EBF2';
         ctx.strokeStyle = '#121212';
         ctx.lineWidth = 3;
         ctx.fillRect(0, 0, this.width, this.height);
         ctx.strokeRect(0, 0, this.width, this.height);
 
-        // Specular glint
         ctx.fillStyle = 'rgba(255, 255, 255, 0.75)';
         ctx.beginPath();
         ctx.moveTo(4, 4);
@@ -379,7 +677,6 @@ export class SolidBlock extends Entity {
         ctx.closePath();
         ctx.fill();
 
-        // Diagonal ice crack
         ctx.strokeStyle = 'rgba(0, 184, 212, 0.7)';
         ctx.lineWidth = 2;
         ctx.beginPath();
@@ -387,20 +684,22 @@ export class SolidBlock extends Entity {
         ctx.lineTo(this.width / 2, this.height / 2);
         ctx.lineTo(this.width - 8, this.height - 14);
         ctx.stroke();
-      } else {
-        // Clean Neo-Brutalist Platformer Ground Block
-        ctx.fillStyle = '#FFB300'; // Amber platformer block
+      }
+
+      // 13. STANDARD SOLID GROUND BLOCK
+      else {
+        ctx.fillStyle = '#FFB300';
         ctx.strokeStyle = '#121212';
         ctx.lineWidth = 3;
         ctx.fillRect(0, 0, this.width, this.height);
         ctx.strokeRect(0, 0, this.width, this.height);
 
-        // Top Grass / Trim cap
-        ctx.fillStyle = '#00E676'; // Lush Mint Green cap
+        // Mint grass cap
+        ctx.fillStyle = '#00E676';
         ctx.fillRect(0, 0, this.width, 10);
         ctx.strokeRect(0, 0, this.width, 10);
 
-        // Subtle brick seams
+        // Brick seams
         ctx.strokeStyle = 'rgba(18, 18, 18, 0.35)';
         ctx.lineWidth = 2;
         ctx.beginPath();

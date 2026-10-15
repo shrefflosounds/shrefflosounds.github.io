@@ -747,8 +747,8 @@ body {
   border: 3px solid var(--ink-black);
   border-radius: 12px;
   box-shadow: 4px 4px 0 var(--ink-black);
-  min-width: 190px;
-  max-width: 230px;
+  min-width: 210px;
+  max-width: 260px;
   padding: 8px;
   display: flex;
   flex-direction: column;
@@ -797,6 +797,9 @@ body {
   display: flex;
   flex-direction: column;
   gap: 5px;
+  max-height: 420px;
+  overflow-y: auto;
+  padding-right: 4px;
 }
 
 .flyout-option-btn {
