@@ -14,7 +14,6 @@
     <div class="logo-group">
       <img src="assets/logo.png" alt="Sidehop Logo" class="header-logo-img">
       <h1 class="logo-title">Sidehop</h1>
-      <span class="logo-badge">ALPHA</span>
     </div>
 
     <div class="header-controls">
@@ -22,6 +21,12 @@
       <button id="mode-toggle-btn" class="neo-btn neo-btn-primary" title="Press Space to toggle mode">
         <span id="mode-icon">▶</span>
         <span id="mode-text">PLAY TEST</span>
+      </button>
+
+      <!-- Stretch Frame Button (Visible in Play Mode) -->
+      <button id="stretch-frame-btn" class="neo-btn neo-btn-accent" title="Stretch frame to fit screen minus header" style="display: none;">
+        <span id="stretch-frame-icon">⤢</span>
+        <span id="stretch-frame-text">STRETCH FRAME</span>
       </button>
 
       <!-- Video Recording Button -->
@@ -166,6 +171,11 @@
     <!-- CENTER CANVAS STAGE -->
     <section class="canvas-wrapper">
       <canvas id="game-canvas" width="960" height="540"></canvas>
+
+      <!-- Floating Stretch Frame Button (Visible in Play Mode) -->
+      <button id="stage-stretch-btn" class="stage-stretch-btn" title="Stretch frame to fit screen minus header" style="display: none;">
+        <span>⤢</span>
+      </button>
 
       <!-- Floating Action Card for Selected Entity (Guaranteed In-Frame) -->
       <div id="entity-action-card" class="entity-action-card">

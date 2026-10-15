@@ -54,6 +54,9 @@ class SidehopApp {
     // Clipboard System for Copy/Paste/Cut/Duplicate
     this.clipboardEntity = null;
 
+    // Stretched Frame Play Mode State
+    this.isFrameStretched = false;
+
     // Track Spacebar tap vs hold
     this.spacePressTime = 0;
     this.didPanDuringSpace = false;
@@ -259,6 +262,61 @@ class SidehopApp {
 
     const name = newEnt.variant ? `${newEnt.variant} ${newEnt.type}` : newEnt.type;
     this.showToast(`📑 Duplicated ${name}`);
+  }
+
+  // --- Stretched Frame Mode (Fit Screen Minus Header) ---
+  toggleFrameStretch() {
+    this.setFrameStretched(!this.isFrameStretched);
+  }
+
+  setFrameStretched(stretched) {
+    this.isFrameStretched = stretched;
+    const workbench = document.querySelector('.workbench-container');
+    const stretchIcon = document.getElementById('stretch-frame-icon');
+    const stretchText = document.getElementById('stretch-frame-text');
+    const stageStretchBtn = document.getElementById('stage-stretch-btn');
+
+    if (this.isFrameStretched) {
+      if (workbench) workbench.classList.add('frame-stretched');
+      this.updateStretchedDimensions();
+
+      if (stretchIcon) stretchIcon.textContent = '⤡';
+      if (stretchText) stretchText.textContent = 'STANDARD FRAME';
+      if (stageStretchBtn) {
+        stageStretchBtn.querySelector('span').textContent = '⤡';
+        stageStretchBtn.title = 'Return to standard frame';
+      }
+      sounds.playClick();
+      this.showToast('⤢ Frame Stretched to Screen');
+    } else {
+      if (workbench) workbench.classList.remove('frame-stretched');
+      this.canvas.width = 960;
+      this.canvas.height = 540;
+      this.camera.resize(960, 540);
+
+      if (stretchIcon) stretchIcon.textContent = '⤢';
+      if (stretchText) stretchText.textContent = 'STRETCH FRAME';
+      if (stageStretchBtn) {
+        stageStretchBtn.querySelector('span').textContent = '⤢';
+        stageStretchBtn.title = 'Stretch frame to fit screen minus header';
+      }
+      sounds.playClick();
+      this.showToast('⤡ Standard Frame Restored');
+    }
+  }
+
+  updateStretchedDimensions() {
+    if (!this.isFrameStretched) return;
+    const header = document.querySelector('.neo-header');
+    const headerH = header ? header.offsetHeight : 68;
+    const w = window.innerWidth;
+    const h = window.innerHeight - headerH;
+
+    if (w > 0 && h > 0) {
+      this.canvas.width = w;
+      this.canvas.height = h;
+      this.camera.resize(w, h);
+    }
   }
 
   initLevel() {
@@ -680,6 +738,14 @@ class SidehopApp {
       this.toggleMode();
     });
 
+    // Stretch Frame Buttons (Header and Floating Stage Button)
+    document.getElementById('stretch-frame-btn')?.addEventListener('click', () => {
+      this.toggleFrameStretch();
+    });
+    document.getElementById('stage-stretch-btn')?.addEventListener('click', () => {
+      this.toggleFrameStretch();
+    });
+
     // 2. REC Button
     const recBtn = document.getElementById('rec-btn');
     recBtn.addEventListener('click', () => {
@@ -1051,6 +1117,12 @@ class SidehopApp {
       this.player.invulnerableTimer = 0;
       document.getElementById('victory-overlay').classList.remove('active');
       LevelStorage.autoSave(this.player, this.entities, this.background);
+
+      // Show Stretch Frame buttons in Play Mode
+      const stretchHeaderBtn = document.getElementById('stretch-frame-btn');
+      if (stretchHeaderBtn) stretchHeaderBtn.style.display = 'inline-flex';
+      const stageStretchBtn = document.getElementById('stage-stretch-btn');
+      if (stageStretchBtn) stageStretchBtn.style.display = 'flex';
     } else {
       modeBtn.classList.add('neo-btn-primary');
       modeBtn.classList.remove('neo-btn-pink');
@@ -1061,6 +1133,15 @@ class SidehopApp {
       this.player.respawn();
       this.player.hearts = this.player.maxHearts || 4;
       this.player.invulnerableTimer = 0;
+
+      // Hide Stretch Frame buttons and restore standard frame in Edit Mode
+      const stretchHeaderBtn = document.getElementById('stretch-frame-btn');
+      if (stretchHeaderBtn) stretchHeaderBtn.style.display = 'none';
+      const stageStretchBtn = document.getElementById('stage-stretch-btn');
+      if (stageStretchBtn) stageStretchBtn.style.display = 'none';
+      if (this.isFrameStretched) {
+        this.setFrameStretched(false);
+      }
     }
   }
 
@@ -1200,6 +1281,11 @@ class SidehopApp {
     });
 
     this.canvas.addEventListener('contextmenu', (e) => e.preventDefault());
+    window.addEventListener('resize', () => {
+      if (this.isFrameStretched && this.mode === 'play') {
+        this.updateStretchedDimensions();
+      }
+    });
   }
 
   update(dt) {
