@@ -146,8 +146,10 @@ export class GridEditor {
 
   handleMouseDown(e, entities, player) {
     const rect = this.canvas.getBoundingClientRect();
-    const mouseX = e.clientX - rect.left;
-    const mouseY = e.clientY - rect.top;
+    const scaleX = rect.width > 0 ? this.canvas.width / rect.width : 1;
+    const scaleY = rect.height > 0 ? this.canvas.height / rect.height : 1;
+    const mouseX = (e.clientX - rect.left) * scaleX;
+    const mouseY = (e.clientY - rect.top) * scaleY;
 
     // Pan with Middle-click, Alt-click, Pan Tool, or Spacebar held
     if (e.button === 1 || e.altKey || this.currentTool === 'pan' || this.isSpacePan) {
@@ -267,8 +269,10 @@ export class GridEditor {
 
   handleMouseMove(e, entities, player) {
     const rect = this.canvas.getBoundingClientRect();
-    const mouseX = e.clientX - rect.left;
-    const mouseY = e.clientY - rect.top;
+    const scaleX = rect.width > 0 ? this.canvas.width / rect.width : 1;
+    const scaleY = rect.height > 0 ? this.canvas.height / rect.height : 1;
+    const mouseX = (e.clientX - rect.left) * scaleX;
+    const mouseY = (e.clientY - rect.top) * scaleY;
 
     if (this.isPanning) {
       const dx = this.panStart.x - mouseX;

@@ -363,8 +363,10 @@ class SidehopApp {
     if (this.mode !== 'edit') return;
 
     const rect = this.canvas.getBoundingClientRect();
-    const mouseX = e.clientX - rect.left;
-    const mouseY = e.clientY - rect.top;
+    const scaleX = rect.width > 0 ? this.canvas.width / rect.width : 1;
+    const scaleY = rect.height > 0 ? this.canvas.height / rect.height : 1;
+    const mouseX = (e.clientX - rect.left) * scaleX;
+    const mouseY = (e.clientY - rect.top) * scaleY;
 
     const worldPos = this.camera.screenToWorld(mouseX, mouseY);
     const gridX = Math.floor(worldPos.x / this.editor.tileSize) * this.editor.tileSize;
@@ -537,7 +539,7 @@ class SidehopApp {
   updateStretchedDimensions() {
     if (!this.isFrameStretched) return;
     const header = document.querySelector('.neo-header');
-    const headerH = header ? header.offsetHeight : 68;
+    const headerH = header ? header.offsetHeight : 56;
     const w = window.innerWidth;
     const h = window.innerHeight - headerH;
 
@@ -743,20 +745,26 @@ class SidehopApp {
 
       const cardW = actionCard.offsetWidth || 300;
       const cardH = actionCard.offsetHeight || 80;
-      const canvasW = this.canvas.width;
-      const canvasH = this.canvas.height;
+      const rect = this.canvas.getBoundingClientRect();
+      const scaleCssX = rect.width > 0 ? rect.width / this.canvas.width : 1;
+      const scaleCssY = rect.height > 0 ? rect.height / this.canvas.height : 1;
+      const canvasCssW = rect.width > 0 ? rect.width : this.canvas.width;
+      const canvasCssH = rect.height > 0 ? rect.height : this.canvas.height;
 
       const minX = Math.min(...this.editor.selectedEntities.map(e => e.x));
       const maxX = Math.max(...this.editor.selectedEntities.map(e => e.x + (e.width || 40)));
       const minY = Math.min(...this.editor.selectedEntities.map(e => e.y));
 
       const groupCenter = this.camera.worldToScreen((minX + maxX) / 2, minY);
-      let left = groupCenter.x - cardW / 2;
-      left = Math.max(14, Math.min(canvasW - cardW - 14, left));
+      const cssGroupX = groupCenter.x * scaleCssX;
+      const cssGroupY = groupCenter.y * scaleCssY;
 
-      let top = groupCenter.y - cardH - 12;
-      if (top < 14) top = groupCenter.y + 24;
-      top = Math.max(14, Math.min(canvasH - cardH - 14, top));
+      let left = cssGroupX - cardW / 2;
+      left = Math.max(10, Math.min(canvasCssW - cardW - 10, left));
+
+      let top = cssGroupY - cardH - 12;
+      if (top < 10) top = cssGroupY + 24;
+      top = Math.max(10, Math.min(canvasCssH - cardH - 10, top));
 
       actionCard.style.left = `${left}px`;
       actionCard.style.top = `${top}px`;
@@ -845,27 +853,34 @@ class SidehopApp {
     // Measure card dimensions
     const cardW = actionCard.offsetWidth || 300;
     const cardH = actionCard.offsetHeight || 80;
-    const canvasW = this.canvas.width;
-    const canvasH = this.canvas.height;
+    const rect = this.canvas.getBoundingClientRect();
+    const scaleCssX = rect.width > 0 ? rect.width / this.canvas.width : 1;
+    const scaleCssY = rect.height > 0 ? rect.height / this.canvas.height : 1;
+    const canvasCssW = rect.width > 0 ? rect.width : this.canvas.width;
+    const canvasCssH = rect.height > 0 ? rect.height : this.canvas.height;
 
     // Calculate world entity center and bounds transformed to screen space
     const entCenter = this.camera.worldToScreen(ent.x + (ent.width || 40) / 2, ent.y);
     const entBottom = this.camera.worldToScreen(ent.x + (ent.width || 40) / 2, ent.y + (ent.height || 40));
 
-    // Horizontal centering with strict frame padding (14px from left and right borders)
-    let left = entCenter.x - cardW / 2;
-    left = Math.max(14, Math.min(canvasW - cardW - 14, left));
+    const cssEntX = entCenter.x * scaleCssX;
+    const cssEntTopY = entCenter.y * scaleCssY;
+    const cssEntBottomY = entBottom.y * scaleCssY;
+
+    // Horizontal centering with strict frame padding (10px from left and right borders)
+    let left = cssEntX - cardW / 2;
+    left = Math.max(10, Math.min(canvasCssW - cardW - 10, left));
 
     // Vertical placement: default above entity
-    let top = entCenter.y - cardH - 12;
+    let top = cssEntTopY - cardH - 12;
 
     // If near top of canvas, flip cleanly below the entity
-    if (top < 14) {
-      top = entBottom.y + 12;
+    if (top < 10) {
+      top = cssEntBottomY + 12;
     }
 
-    // Strict vertical clamping inside canvas frame (14px from top and bottom)
-    top = Math.max(14, Math.min(canvasH - cardH - 14, top));
+    // Strict vertical clamping inside canvas frame (10px from top and bottom)
+    top = Math.max(10, Math.min(canvasCssH - cardH - 10, top));
 
     actionCard.style.left = `${left}px`;
     actionCard.style.top = `${top}px`;
