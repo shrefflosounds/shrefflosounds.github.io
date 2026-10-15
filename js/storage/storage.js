@@ -21,24 +21,83 @@ export class LevelStorage {
         doubleJumpAllowed: player.doubleJumpAllowed,
         customVisual: player.customVisual
       },
-      entities: entities.map(ent => ({
-        type: ent.type,
-        variant: ent.variant,
-        x: ent.x,
-        y: ent.y,
-        width: ent.width,
-        height: ent.height,
-        customVisual: ent.customVisual,
-        bounciness: ent.bounciness,
-        friction: ent.friction,
-        launchForce: ent.launchForce,
-        speed: ent.speed,
-        patrolRange: ent.patrolRange,
-        stompable: ent.stompable,
-        distance: ent.distance,
-        axis: ent.axis
-      }))
+      entities: entities.map(ent => LevelStorage.serializeEntity(ent))
     };
+  }
+
+  // Serialize single entity to JSON-friendly descriptor
+  static serializeEntity(ent) {
+    if (!ent) return null;
+    return {
+      type: ent.type,
+      variant: ent.variant,
+      x: ent.x,
+      y: ent.y,
+      width: ent.width,
+      height: ent.height,
+      customVisual: ent.customVisual || null,
+      bounciness: ent.bounciness,
+      friction: ent.friction,
+      launchForce: ent.launchForce,
+      speed: ent.speed,
+      patrolRange: ent.patrolRange,
+      stompable: ent.stompable,
+      distance: ent.distance,
+      axis: ent.axis
+    };
+  }
+
+  // Create single entity instance from descriptor
+  static createEntityFromData(d) {
+    if (!d || !d.type) return null;
+    let ent = null;
+    switch (d.type) {
+      case 'crate':
+      case 'block':
+        ent = new SolidBlock(d.x, d.y, d.width, d.height, d.variant || 'solid');
+        if (d.bounciness !== undefined) ent.bounciness = d.bounciness;
+        if (d.friction !== undefined) ent.friction = d.friction;
+        break;
+      case 'springboard':
+        ent = new Springboard(d.x, d.y, d.width, d.height, d.variant || 'spring');
+        if (d.launchForce !== undefined) ent.launchForce = d.launchForce;
+        break;
+      case 'hazard':
+        ent = new HazardSpikes(d.x, d.y, d.width, d.height);
+        break;
+      case 'enemy':
+        ent = new EnemyWalker(d.x, d.y, d.width, d.height, d.variant || 'walker');
+        if (d.speed !== undefined) ent.speed = d.speed;
+        if (d.patrolRange !== undefined) ent.patrolRange = d.patrolRange;
+        if (d.stompable !== undefined) ent.stompable = d.stompable;
+        break;
+      case 'moving_platform':
+        ent = new MovingPlatform(d.x, d.y, d.width, d.height);
+        if (d.speed !== undefined) ent.speed = d.speed;
+        if (d.distance !== undefined) ent.distance = d.distance;
+        if (d.axis !== undefined) ent.axis = d.axis;
+        break;
+      case 'collectible':
+        ent = new Collectible(d.x, d.y, d.width, d.height, d.variant || 'coin');
+        break;
+      case 'goal':
+        ent = new GoalFlag(d.x, d.y, d.width, d.height);
+        break;
+    }
+
+    if (ent && d.customVisual) {
+      ent.setCustomVisual(d.customVisual);
+    }
+    return ent;
+  }
+
+  // Clone an entity with an optional new coordinate
+  static cloneEntity(ent, targetX, targetY) {
+    if (!ent) return null;
+    const data = this.serializeEntity(ent);
+    if (targetX !== undefined) data.x = targetX;
+    if (targetY !== undefined) data.y = targetY;
+    return this.createEntityFromData(data);
   }
 
   // Restore entities from data object
@@ -66,45 +125,8 @@ export class LevelStorage {
     entities.length = 0;
     if (Array.isArray(data.entities)) {
       data.entities.forEach(d => {
-        let ent = null;
-        switch (d.type) {
-          case 'crate':
-          case 'block':
-            ent = new SolidBlock(d.x, d.y, d.width, d.height, d.variant || 'solid');
-            if (d.bounciness !== undefined) ent.bounciness = d.bounciness;
-            if (d.friction !== undefined) ent.friction = d.friction;
-            break;
-          case 'springboard':
-            ent = new Springboard(d.x, d.y, d.width, d.height, d.variant || 'spring');
-            if (d.launchForce !== undefined) ent.launchForce = d.launchForce;
-            break;
-          case 'hazard':
-            ent = new HazardSpikes(d.x, d.y, d.width, d.height);
-            break;
-          case 'enemy':
-            ent = new EnemyWalker(d.x, d.y, d.width, d.height, d.variant || 'walker');
-            if (d.speed !== undefined) ent.speed = d.speed;
-            if (d.patrolRange !== undefined) ent.patrolRange = d.patrolRange;
-            if (d.stompable !== undefined) ent.stompable = d.stompable;
-            break;
-          case 'moving_platform':
-            ent = new MovingPlatform(d.x, d.y, d.width, d.height);
-            if (d.speed !== undefined) ent.speed = d.speed;
-            if (d.distance !== undefined) ent.distance = d.distance;
-            if (d.axis !== undefined) ent.axis = d.axis;
-            break;
-          case 'collectible':
-            ent = new Collectible(d.x, d.y, d.width, d.height, d.variant || 'coin');
-            break;
-          case 'goal':
-            ent = new GoalFlag(d.x, d.y, d.width, d.height);
-            break;
-        }
-
-        if (ent) {
-          if (d.customVisual) ent.setCustomVisual(d.customVisual);
-          entities.push(ent);
-        }
+        const ent = LevelStorage.createEntityFromData(d);
+        if (ent) entities.push(ent);
       });
     }
 

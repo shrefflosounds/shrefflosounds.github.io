@@ -13,6 +13,7 @@ export class GridEditor {
     this.selectedPaletteItem = 'block';
     this.selectedPaletteVariant = 'solid'; // Variant support (e.g. mystery, cloud, ice)
     this.hoverGrid = { x: 0, y: 0 };
+    this.isMouseOverCanvas = false;
     this.isMouseDown = false;
     this.isPanning = false;
     this.panStart = { x: 0, y: 0 };
@@ -88,6 +89,14 @@ export class GridEditor {
         this.notifyEntitySelected(this.selectedEntity);
       }
     }, { passive: false });
+
+    this.canvas.addEventListener('mouseenter', () => {
+      this.isMouseOverCanvas = true;
+    });
+
+    this.canvas.addEventListener('mouseleave', () => {
+      this.isMouseOverCanvas = false;
+    });
   }
 
   notifyEntitySelected(entity) {

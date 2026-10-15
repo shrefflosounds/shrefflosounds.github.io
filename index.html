@@ -154,9 +154,11 @@
       <div class="drawer-tips">
         <strong>Quick Controls:</strong><br>
         • <strong>Undo / Redo:</strong> ⌘Z / ⌘⇧Z (Ctrl+Z / Ctrl+Y)<br>
-        • <strong>Move Map:</strong> 2-Finger scroll, ✋ Pan tool, or Space+Drag<br>
+        • <strong>Copy / Paste / Cut:</strong> ⌘C / ⌘V / ⌘X<br>
+        • <strong>Duplicate:</strong> ⌘D<br>
+        • <strong>Move Map:</strong> 2-Finger scroll, ✋ Pan, or Space+Drag<br>
         • <strong>Move Object:</strong> Drag in 👆 Select mode<br>
-        • <strong>Delete:</strong> Backspace key<br>
+        • <strong>Delete:</strong> Backspace / Delete key<br>
         • <strong>Play / Edit:</strong> Spacebar or ▶
       </div>
     </aside>
@@ -173,6 +175,12 @@
         </div>
         <div id="action-variant-picker" class="action-variant-picker"></div>
         <div class="action-card-buttons">
+          <button id="action-duplicate-btn" class="neo-btn neo-btn-cyan" style="padding: 6px 12px; font-size: 13px;" title="Duplicate component (⌘D)">
+            <span>📑 Duplicate</span>
+          </button>
+          <button id="action-copy-btn" class="neo-btn" style="padding: 6px 12px; font-size: 13px;" title="Copy to clipboard (⌘C)">
+            <span>📋 Copy</span>
+          </button>
           <button id="action-paint-btn" class="neo-btn neo-btn-pink" style="padding: 6px 12px; font-size: 13px;">
             <span>🎨 Paint Art</span>
           </button>

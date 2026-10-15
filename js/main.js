@@ -51,6 +51,9 @@ class SidehopApp {
       collectible: 'star'
     };
 
+    // Clipboard System for Copy/Paste/Cut/Duplicate
+    this.clipboardEntity = null;
+
     // Track Spacebar tap vs hold
     this.spacePressTime = 0;
     this.didPanDuringSpace = false;
@@ -116,6 +119,146 @@ class SidehopApp {
       sounds.playClick();
       this.showToast('↪ Redo');
     }
+  }
+
+  // --- Copy, Cut, Paste & Duplicate System ---
+  copy() {
+    if (this.mode !== 'edit') return;
+    const target = this.editor.selectedEntity;
+    if (!target) {
+      this.showToast('Select a component to copy');
+      return;
+    }
+
+    this.clipboardEntity = LevelStorage.serializeEntity(target);
+    sounds.playClick();
+
+    const name = target.type === 'player'
+      ? 'Spawn Point'
+      : (target.variant ? `${target.variant} ${target.type}` : target.type);
+    this.showToast(`📋 Copied ${name}`);
+
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(JSON.stringify({ sidehopEntity: this.clipboardEntity }));
+      }
+    } catch (_) {}
+  }
+
+  cut() {
+    if (this.mode !== 'edit') return;
+    const target = this.editor.selectedEntity;
+    if (!target) {
+      this.showToast('Select a component to cut');
+      return;
+    }
+
+    if (target === this.player || target.type === 'player') {
+      this.showToast('⚠️ Player spawn cannot be cut');
+      return;
+    }
+
+    this.copy();
+
+    const idx = this.entities.indexOf(target);
+    if (idx !== -1) {
+      this.history.pushState(this.player, this.entities, this.background);
+      this.entities.splice(idx, 1);
+      this.editor.selectedEntity = null;
+      const card = document.getElementById('entity-action-card');
+      if (card) card.classList.remove('active');
+      sounds.playPaintSquish();
+      LevelStorage.autoSave(this.player, this.entities, this.background);
+      this.showToast(`✂️ Cut ${target.type}`);
+    }
+  }
+
+  paste() {
+    if (this.mode !== 'edit') return;
+    if (!this.clipboardEntity) {
+      this.showToast('Clipboard empty (Use ⌘C to copy)');
+      return;
+    }
+
+    let pasteX;
+    let pasteY;
+
+    if (this.editor.isMouseOverCanvas && this.editor.hoverGrid) {
+      pasteX = this.editor.hoverGrid.x;
+      pasteY = this.editor.hoverGrid.y;
+    } else {
+      const base = this.editor.selectedEntity || this.clipboardEntity;
+      pasteX = base.x + this.editor.tileSize;
+      pasteY = base.y;
+
+      const isOccupied = this.entities.some(e => Math.abs(e.x - pasteX) < 10 && Math.abs(e.y - pasteY) < 10);
+      if (isOccupied) {
+        pasteX = base.x + this.editor.tileSize;
+        pasteY = base.y + this.editor.tileSize;
+      }
+    }
+
+    if (this.clipboardEntity.type === 'player') {
+      this.history.pushState(this.player, this.entities, this.background);
+      this.player.setSpawn(pasteX, pasteY);
+      this.editor.selectedEntity = this.player;
+      this.updateActionCard(this.player);
+      sounds.playLand();
+      LevelStorage.autoSave(this.player, this.entities, this.background);
+      this.showToast('📋 Pasted Player Spawn');
+      return;
+    }
+
+    const newEnt = LevelStorage.cloneEntity(this.clipboardEntity, pasteX, pasteY);
+    if (!newEnt) return;
+
+    this.history.pushState(this.player, this.entities, this.background);
+    this.entities.push(newEnt);
+    this.editor.selectedEntity = newEnt;
+    this.updateActionCard(newEnt);
+
+    sounds.playLand();
+    LevelStorage.autoSave(this.player, this.entities, this.background);
+
+    const name = newEnt.variant ? `${newEnt.variant} ${newEnt.type}` : newEnt.type;
+    this.showToast(`📋 Pasted ${name}`);
+  }
+
+  duplicate() {
+    if (this.mode !== 'edit') return;
+    const target = this.editor.selectedEntity;
+    if (!target) {
+      this.showToast('Select a component to duplicate');
+      return;
+    }
+
+    if (target === this.player || target.type === 'player') {
+      this.showToast('⚠️ Only one player spawn can exist');
+      return;
+    }
+
+    let newX = target.x + this.editor.tileSize;
+    let newY = target.y;
+
+    const isOccupied = this.entities.some(e => Math.abs(e.x - newX) < 10 && Math.abs(e.y - newY) < 10);
+    if (isOccupied) {
+      newX = target.x + this.editor.tileSize;
+      newY = target.y + this.editor.tileSize;
+    }
+
+    const newEnt = LevelStorage.cloneEntity(target, newX, newY);
+    if (!newEnt) return;
+
+    this.history.pushState(this.player, this.entities, this.background);
+    this.entities.push(newEnt);
+    this.editor.selectedEntity = newEnt;
+    this.updateActionCard(newEnt);
+
+    sounds.playLand();
+    LevelStorage.autoSave(this.player, this.entities, this.background);
+
+    const name = newEnt.variant ? `${newEnt.variant} ${newEnt.type}` : newEnt.type;
+    this.showToast(`📑 Duplicated ${name}`);
   }
 
   initLevel() {
@@ -310,6 +453,12 @@ class SidehopApp {
       };
       badge.textContent = typeIcons[ent.type] || `📦 ${ent.type.toUpperCase()}`;
     }
+
+    const isPlayer = (ent.type === 'player');
+    const dupBtn = document.getElementById('action-duplicate-btn');
+    if (dupBtn) dupBtn.style.display = isPlayer ? 'none' : 'inline-flex';
+    const delBtn = document.getElementById('action-delete-btn');
+    if (delBtn) delBtn.style.display = isPlayer ? 'none' : 'inline-flex';
 
     // Render Mario Maker-style component variant pills in action card
     const variantPicker = document.getElementById('action-variant-picker');
@@ -734,6 +883,14 @@ class SidehopApp {
       });
     }
 
+    document.getElementById('action-duplicate-btn')?.addEventListener('click', () => {
+      this.duplicate();
+    });
+
+    document.getElementById('action-copy-btn')?.addEventListener('click', () => {
+      this.copy();
+    });
+
     document.getElementById('action-paint-btn').addEventListener('click', () => {
       if (this.editor.selectedEntity) {
         this.artStudio.openForEntity(this.editor.selectedEntity, () => {
@@ -935,6 +1092,34 @@ class SidehopApp {
         } else {
           this.undo();
         }
+        return;
+      }
+
+      // Copy Shortcut: Cmd+C / Ctrl+C
+      if ((e.metaKey || e.ctrlKey) && e.code === 'KeyC') {
+        e.preventDefault();
+        this.copy();
+        return;
+      }
+
+      // Cut Shortcut: Cmd+X / Ctrl+X
+      if ((e.metaKey || e.ctrlKey) && e.code === 'KeyX') {
+        e.preventDefault();
+        this.cut();
+        return;
+      }
+
+      // Paste Shortcut: Cmd+V / Ctrl+V
+      if ((e.metaKey || e.ctrlKey) && e.code === 'KeyV') {
+        e.preventDefault();
+        this.paste();
+        return;
+      }
+
+      // Duplicate Shortcut: Cmd+D / Ctrl+D
+      if ((e.metaKey || e.ctrlKey) && e.code === 'KeyD') {
+        e.preventDefault();
+        this.duplicate();
         return;
       }
 
