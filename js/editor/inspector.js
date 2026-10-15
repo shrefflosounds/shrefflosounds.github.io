@@ -38,6 +38,10 @@ export class Inspector {
       this.addSlider('Run Speed', ent.speed, 150, 600, 10, (val) => ent.speed = val);
       this.addSlider('Jump Force', ent.jumpForce, 300, 950, 10, (val) => ent.jumpForce = val);
       this.addSlider('Weight / Gravity', ent.gravityScale, 0.4, 2.5, 0.1, (val) => ent.gravityScale = val);
+      this.addSlider('Max Hearts', ent.maxHearts || 4, 1, 8, 1, (val) => {
+        ent.maxHearts = val;
+        ent.hearts = val;
+      });
       this.addToggle('Double Jump Allowed', ent.doubleJumpAllowed, (val) => {
         ent.doubleJumpAllowed = val;
         ent.hasDoubleJump = val;

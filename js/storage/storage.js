@@ -17,6 +17,7 @@ export class LevelStorage {
         speed: player.speed,
         jumpForce: player.jumpForce,
         gravityScale: player.gravityScale,
+        maxHearts: player.maxHearts || 4,
         doubleJumpAllowed: player.doubleJumpAllowed,
         customVisual: player.customVisual
       },
@@ -50,6 +51,10 @@ export class LevelStorage {
       if (data.player.speed) player.speed = data.player.speed;
       if (data.player.jumpForce) player.jumpForce = data.player.jumpForce;
       if (data.player.gravityScale !== undefined) player.gravityScale = data.player.gravityScale;
+      if (data.player.maxHearts !== undefined) {
+        player.maxHearts = data.player.maxHearts;
+        player.hearts = player.maxHearts;
+      }
       if (data.player.doubleJumpAllowed !== undefined) {
         player.doubleJumpAllowed = data.player.doubleJumpAllowed;
         player.hasDoubleJump = data.player.doubleJumpAllowed;

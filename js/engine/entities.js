@@ -54,6 +54,11 @@ export class Player extends Entity {
     this.doubleJumpAllowed = true;
     this.hasDoubleJump = true;
 
+    // Health System (4 Hearts before death)
+    this.maxHearts = 4;
+    this.hearts = 4;
+    this.invulnerableTimer = 0; // Invincibility frames after taking damage
+
     // Movement Tuning
     this.coyoteTimer = 0;
     this.jumpBufferTimer = 0;
@@ -77,6 +82,8 @@ export class Player extends Entity {
     this.vx = 0;
     this.vy = 0;
     this.grounded = false;
+    this.hearts = this.maxHearts;
+    this.invulnerableTimer = 0;
     this.deformation = { scaleX: 1, scaleY: 1, rotation: 0 };
     this.squashFactor = 0;
     this.squashTime = 0;
@@ -91,13 +98,41 @@ export class Player extends Entity {
     this.grounded = false;
     this.isDead = false;
     this.hasDoubleJump = this.doubleJumpAllowed;
+    this.hearts = this.maxHearts;
+    this.invulnerableTimer = 0;
     this.deformation = { scaleX: 1, scaleY: 1, rotation: 0 };
     this.squashFactor = 0;
     this.squashTime = 0;
     this.idleTimer = 0;
   }
 
+  takeDamage(amount = 1, knockbackDir = 0) {
+    if (this.isDead || this.invulnerableTimer > 0) return false;
+    this.hearts = Math.max(0, this.hearts - amount);
+    this.invulnerableTimer = 1.35; // 1.35s of invincibility
+
+    // Apply arcade knockback bounce
+    this.vy = -340;
+    this.vx = (knockbackDir !== 0 ? knockbackDir : -this.facing) * 260;
+    this.grounded = false;
+
+    // Visual impact squash
+    this.deformation.scaleX = 0.8;
+    this.deformation.scaleY = 1.25;
+
+    if (this.hearts <= 0) {
+      this.isDead = true;
+    }
+    return true;
+  }
+
   handleInput(keys, dt) {
+    // Decrement invulnerability timer
+    if (this.invulnerableTimer > 0) {
+      this.invulnerableTimer -= dt;
+      if (this.invulnerableTimer < 0) this.invulnerableTimer = 0;
+    }
+
     if (this.isDead) return;
 
     let moveDir = 0;
@@ -157,6 +192,15 @@ export class Player extends Entity {
 
   draw(ctx) {
     ctx.save();
+
+    // Flicker visibility during invulnerability frames
+    if (this.invulnerableTimer > 0) {
+      const isFlicker = Math.floor(this.invulnerableTimer * 18) % 2 === 0;
+      if (isFlicker) {
+        ctx.globalAlpha = 0.35;
+      }
+    }
+
     // Center transformation on character's bottom-center for squash-and-stretch
     const centerX = this.x + this.width / 2;
     const bottomY = this.y + this.height;
@@ -748,15 +792,15 @@ export class MovingPlatform extends Entity {
 export class Collectible extends Entity {
   constructor(x, y, width = 32, height = 32, variant = 'coin') {
     super(null, 'collectible', x, y, width, height);
-    this.variant = variant || 'coin'; // 'coin', 'star'
+    this.variant = variant || 'coin'; // 'coin', 'star', 'heart'
     this.bobTimer = Math.random() * Math.PI;
     this.collected = false;
-    this.points = this.variant === 'star' ? 500 : 100;
+    this.points = this.variant === 'star' ? 500 : (this.variant === 'heart' ? 200 : 100);
   }
 
   setVariant(variant) {
     this.variant = variant;
-    this.points = variant === 'star' ? 500 : 100;
+    this.points = variant === 'star' ? 500 : (variant === 'heart' ? 200 : 100);
   }
 
   update(dt) {
@@ -776,7 +820,32 @@ export class Collectible extends Entity {
     ctx.translate(this.x, this.y + bobOffset);
 
     this.renderCustomOrFallback(ctx, () => {
-      if (this.variant === 'star') {
+      if (this.variant === 'heart') {
+        // Heart Health Pickup (+1 Heart, +200 pts)
+        const pulse = 1 + Math.sin(this.bobTimer * 1.5) * 0.08;
+        ctx.translate(this.width / 2, this.height / 2);
+        ctx.scale(pulse, pulse);
+
+        ctx.beginPath();
+        ctx.moveTo(0, -3);
+        ctx.bezierCurveTo(-4, -11, -12, -6, -12, 1);
+        ctx.bezierCurveTo(-12, 7, -5, 10, 0, 14);
+        ctx.bezierCurveTo(5, 10, 12, 7, 12, 1);
+        ctx.bezierCurveTo(12, -6, 4, -11, 0, -3);
+        ctx.closePath();
+
+        ctx.fillStyle = '#FF2D55';
+        ctx.fill();
+        ctx.strokeStyle = '#121212';
+        ctx.lineWidth = 2.5;
+        ctx.stroke();
+
+        // Cute white shine
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+        ctx.beginPath();
+        ctx.arc(-4, -3, 2.5, 0, Math.PI * 2);
+        ctx.fill();
+      } else if (this.variant === 'star') {
         // Glowing Star Gem (+500 pts)
         ctx.fillStyle = '#FFE600';
         ctx.strokeStyle = '#121212';

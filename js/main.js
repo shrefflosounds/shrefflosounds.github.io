@@ -314,7 +314,7 @@ class SidehopApp {
         block: [{ id: 'solid', label: '🧱 Solid' }, { id: 'mystery', label: '❓ Mystery' }, { id: 'cloud', label: '☁️ Cloud' }, { id: 'ice', label: '🧊 Ice' }],
         crate: [{ id: 'solid', label: '🧱 Solid' }, { id: 'mystery', label: '❓ Mystery' }, { id: 'cloud', label: '☁️ Cloud' }, { id: 'ice', label: '🧊 Ice' }],
         enemy: [{ id: 'walker', label: '🥔 Walker' }, { id: 'winged', label: '🪽 Winged' }, { id: 'spiky', label: '🦔 Spiky' }],
-        collectible: [{ id: 'coin', label: '🪙 Coin' }, { id: 'star', label: '⭐ Star' }],
+        collectible: [{ id: 'coin', label: '🪙 Coin' }, { id: 'star', label: '⭐ Star' }, { id: 'heart', label: '❤️ Heart' }],
         springboard: [{ id: 'spring', label: '🌀 Standard' }, { id: 'mega', label: '🚀 Mega' }]
       };
 
@@ -473,7 +473,8 @@ class SidehopApp {
       ],
       collectible: [
         { id: 'coin', label: '🪙 Gold Coin' },
-        { id: 'star', label: '⭐ Star Gem' }
+        { id: 'star', label: '⭐ Star Gem' },
+        { id: 'heart', label: '❤️ Health Heart' }
       ],
       springboard: [
         { id: 'spring', label: '🌀 Standard Spring' },
@@ -844,12 +845,16 @@ class SidehopApp {
       document.getElementById('victory-overlay').classList.remove('active');
       this.isLevelWon = false;
       this.player.respawn();
+      this.player.hearts = this.player.maxHearts || 4;
+      this.player.invulnerableTimer = 0;
       sounds.playClick();
     });
 
     document.getElementById('victory-edit-btn').addEventListener('click', () => {
       document.getElementById('victory-overlay').classList.remove('active');
       this.isLevelWon = false;
+      this.player.hearts = this.player.maxHearts || 4;
+      this.player.invulnerableTimer = 0;
       this.setMode('edit');
     });
 
@@ -887,6 +892,8 @@ class SidehopApp {
 
       this.score = 0;
       this.isLevelWon = false;
+      this.player.hearts = this.player.maxHearts || 4;
+      this.player.invulnerableTimer = 0;
       document.getElementById('victory-overlay').classList.remove('active');
       LevelStorage.autoSave(this.player, this.entities, this.background);
     } else {
@@ -897,6 +904,8 @@ class SidehopApp {
       toolDrawer.classList.remove('minimized');
       if (navControls) navControls.classList.remove('hidden');
       this.player.respawn();
+      this.player.hearts = this.player.maxHearts || 4;
+      this.player.invulnerableTimer = 0;
     }
   }
 
@@ -1038,8 +1047,14 @@ class SidehopApp {
         // Hazards (Spikes / Pits)
         else if (ent.type === 'hazard') {
           if (this.physics.checkOverlap(this.player, ent)) {
-            sounds.playHurt();
-            this.player.respawn();
+            const knockDir = (this.player.x + this.player.width / 2 < ent.x + ent.width / 2) ? -1 : 1;
+            if (this.player.takeDamage(1, knockDir)) {
+              sounds.playHurt();
+              this.spawnHurtParticles(this.player.x + this.player.width / 2, this.player.y + this.player.height / 2);
+              if (this.player.hearts <= 0) {
+                this.player.respawn();
+              }
+            }
           }
         }
 
@@ -1059,8 +1074,15 @@ class SidehopApp {
               this.player.y = ent.y - this.player.height - 2;
               this.score += (ent.variant === 'winged' ? 150 : 100);
             } else {
-              sounds.playHurt();
-              this.player.respawn();
+              // Hurt player on collision (depletes 1 heart with i-frames & knockback)
+              const knockDir = (this.player.x + this.player.width / 2 < ent.x + ent.width / 2) ? -1 : 1;
+              if (this.player.takeDamage(1, knockDir)) {
+                sounds.playHurt();
+                this.spawnHurtParticles(this.player.x + this.player.width / 2, this.player.y + this.player.height / 2);
+                if (this.player.hearts <= 0) {
+                  this.player.respawn();
+                }
+              }
             }
           }
         }
@@ -1080,12 +1102,20 @@ class SidehopApp {
           }
         }
 
-        // Collectibles (Coin & Star Gem)
+        // Collectibles (Coin, Star Gem, Heart)
         else if (ent.type === 'collectible') {
           ent.update(dt);
           if (this.physics.checkOverlap(this.player, ent)) {
             ent.collect();
-            this.score += (ent.variant === 'star' ? 500 : 100);
+            if (ent.variant === 'heart') {
+              this.player.hearts = Math.min(this.player.maxHearts, this.player.hearts + 1);
+              this.score += 200;
+              this.showToast('❤️ +1 Heart!');
+            } else if (ent.variant === 'star') {
+              this.score += 500;
+            } else {
+              this.score += 100;
+            }
           }
         }
 
@@ -1178,6 +1208,22 @@ class SidehopApp {
     }
   }
 
+  spawnHurtParticles(x, y) {
+    for (let i = 0; i < 12; i++) {
+      this.confetti.push({
+        x: x,
+        y: y,
+        vx: (Math.random() - 0.5) * 12,
+        vy: -Math.random() * 8 - 3,
+        size: Math.random() * 6 + 4,
+        color: '#FF2D55',
+        rotation: Math.random() * Math.PI,
+        vRot: (Math.random() - 0.5) * 0.3,
+        life: 0.9
+      });
+    }
+  }
+
   render() {
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
@@ -1201,13 +1247,9 @@ class SidehopApp {
       this.editor.draw(this.ctx);
     }
 
-    // 4. Draw HUD in Play Mode (Score & Status)
+    // 4. Draw HUD in Play Mode (Score & 4 Hearts)
     if (this.mode === 'play') {
-      this.ctx.save();
-      this.ctx.font = '700 20px "Fredoka", sans-serif';
-      this.ctx.fillStyle = '#121212';
-      this.ctx.fillText(`SCORE: ${this.score}`, 24, 38);
-      this.ctx.restore();
+      this.drawPlayHUD();
     }
 
     // 5. Draw Confetti
@@ -1223,6 +1265,115 @@ class SidehopApp {
       }
       this.ctx.restore();
     }
+  }
+
+  // --- Neo-Brutalist Play HUD (Score & 4 Hearts) ---
+  drawPlayHUD() {
+    this.ctx.save();
+
+    // Top Neo-Brutalist HUD Card (Score & 4 Hearts)
+    const hudW = 270;
+    const hudH = 50;
+    const hudX = 20;
+    const hudY = 20;
+
+    // Hard drop-shadow
+    this.ctx.fillStyle = '#121212';
+    this.ctx.beginPath();
+    this.ctx.roundRect(hudX + 4, hudY + 4, hudW, hudH, 12);
+    this.ctx.fill();
+
+    // White foreground pill with thick black border
+    this.ctx.fillStyle = '#FFFFFF';
+    this.ctx.strokeStyle = '#121212';
+    this.ctx.lineWidth = 3;
+    this.ctx.beginPath();
+    this.ctx.roundRect(hudX, hudY, hudW, hudH, 12);
+    this.ctx.fill();
+    this.ctx.stroke();
+
+    // Score on the left
+    this.ctx.font = '700 11px "Fredoka", sans-serif';
+    this.ctx.fillStyle = '#777777';
+    this.ctx.fillText('SCORE', hudX + 16, hudY + 19);
+
+    this.ctx.font = '900 18px "Fredoka", sans-serif';
+    this.ctx.fillStyle = '#121212';
+    this.ctx.fillText(`${this.score}`, hudX + 16, hudY + 39);
+
+    // Subtle vertical separator
+    this.ctx.strokeStyle = '#E0E0E0';
+    this.ctx.lineWidth = 2;
+    this.ctx.beginPath();
+    this.ctx.moveTo(hudX + 88, hudY + 10);
+    this.ctx.lineTo(hudX + 88, hudY + 40);
+    this.ctx.stroke();
+
+    // 4 Hearts on the right
+    const heartStartX = hudX + 112;
+    const heartY = hudY + 25;
+    const heartSpacing = 36;
+    const maxH = this.player.maxHearts || 4;
+    const currentH = this.player.hearts;
+
+    for (let i = 0; i < maxH; i++) {
+      const isFilled = i < currentH;
+      const isLow = (currentH === 1);
+      this.drawHeartIcon(heartStartX + i * heartSpacing, heartY, isFilled, isLow);
+    }
+
+    this.ctx.restore();
+  }
+
+  drawHeartIcon(cx, cy, isFilled, isLowHealth = false) {
+    this.ctx.save();
+    this.ctx.translate(cx, cy);
+
+    if (isFilled && isLowHealth) {
+      // Rapid pulse animation on critical 1-heart health
+      const pulse = 1 + Math.sin(performance.now() * 0.012) * 0.14;
+      this.ctx.scale(pulse, pulse);
+    }
+
+    this.ctx.beginPath();
+    this.ctx.moveTo(0, -3);
+    this.ctx.bezierCurveTo(-4, -11, -12, -6, -12, 1);
+    this.ctx.bezierCurveTo(-12, 7, -5, 10, 0, 14);
+    this.ctx.bezierCurveTo(5, 10, 12, 7, 12, 1);
+    this.ctx.bezierCurveTo(12, -6, 4, -11, 0, -3);
+    this.ctx.closePath();
+
+    if (isFilled) {
+      this.ctx.fillStyle = '#FF2D55'; // Candy Crimson Red
+      this.ctx.fill();
+      this.ctx.strokeStyle = '#121212';
+      this.ctx.lineWidth = 2.5;
+      this.ctx.stroke();
+
+      // Specular highlight gleam
+      this.ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
+      this.ctx.beginPath();
+      this.ctx.arc(-4, -3, 2.2, 0, Math.PI * 2);
+      this.ctx.fill();
+    } else {
+      // Empty / depleted heart
+      this.ctx.fillStyle = 'rgba(230, 230, 230, 0.7)';
+      this.ctx.fill();
+      this.ctx.strokeStyle = '#A0A0A0';
+      this.ctx.lineWidth = 2;
+      this.ctx.stroke();
+
+      // Broken / crossed heart crack
+      this.ctx.strokeStyle = '#A0A0A0';
+      this.ctx.lineWidth = 1.8;
+      this.ctx.beginPath();
+      this.ctx.moveTo(-3, -2);
+      this.ctx.lineTo(1, 3);
+      this.ctx.lineTo(-2, 7);
+      this.ctx.stroke();
+    }
+
+    this.ctx.restore();
   }
 
   gameLoop(currentTime) {
