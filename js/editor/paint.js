@@ -1,7 +1,4 @@
-// Sidehop Kid-Pix-Style Art Studio & Custom Visuals Importer
-
 import { sounds } from '../audio/sound.js';
-import { AssetLibrary } from '../storage/asset_library.js';
 
 export class ArtStudio {
   constructor(modalElement, canvasElement) {
@@ -213,17 +210,6 @@ export class ArtStudio {
       this.onApplyCallback(this.targetEntity);
     }
     this.close();
-  }
-
-  saveToLibrary(customName) {
-    const dataUrl = this.canvas.toDataURL('image/png');
-    const defaultName = (this.targetEntity && this.targetEntity.type)
-      ? `${this.targetEntity.type.toUpperCase()} Custom`
-      : 'My Drawing';
-    const name = customName || defaultName;
-    const asset = AssetLibrary.saveAsset(name, dataUrl);
-    sounds.playCollect();
-    return asset;
   }
 
   resetDefault() {

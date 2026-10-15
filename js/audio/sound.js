@@ -5,8 +5,6 @@ class SoundEngine {
   constructor() {
     this.ctx = null;
     this.muted = false;
-    this.bgmPlaying = false;
-    this.bgmTimer = null;
     this.masterGain = null;
   }
 
@@ -230,57 +228,6 @@ class SoundEngine {
     gain.connect(this.masterGain);
     osc.start(now);
     osc.stop(now + 0.04);
-  }
-
-  // Upbeat Retro Background Music Loop
-  toggleBgm() {
-    this.ensureContext();
-    this.bgmPlaying = !this.bgmPlaying;
-    if (this.bgmPlaying) {
-      this.startBgmLoop();
-    } else {
-      this.stopBgmLoop();
-    }
-    return this.bgmPlaying;
-  }
-
-  startBgmLoop() {
-    if (this.bgmTimer) return;
-    const melody = [
-      261.63, 329.63, 392.00, 523.25, // C4, E4, G4, C5
-      440.00, 392.00, 329.63, 293.66, // A4, G4, E4, D4
-      261.63, 293.66, 329.63, 392.00, // C4, D4, E4, G4
-      329.63, 293.66, 261.63, 196.00  // E4, D4, C4, G3
-    ];
-    let step = 0;
-    const tempo = 175; // ms per beat
-
-    const tick = () => {
-      if (!this.bgmPlaying) return;
-      if (!this.muted && this.ctx) {
-        const now = this.ctx.currentTime;
-        const osc = this.ctx.createOscillator();
-        const gain = this.ctx.createGain();
-        osc.type = 'triangle';
-        osc.frequency.setValueAtTime(melody[step % melody.length], now);
-        gain.gain.setValueAtTime(0.06, now);
-        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
-        osc.connect(gain);
-        gain.connect(this.masterGain);
-        osc.start(now);
-        osc.stop(now + 0.16);
-      }
-      step++;
-      this.bgmTimer = setTimeout(tick, tempo);
-    };
-    tick();
-  }
-
-  stopBgmLoop() {
-    if (this.bgmTimer) {
-      clearTimeout(this.bgmTimer);
-      this.bgmTimer = null;
-    }
   }
 }
 

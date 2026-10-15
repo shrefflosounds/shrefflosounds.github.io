@@ -8,7 +8,6 @@ import { ArtStudio } from './editor/paint.js';
 import { Inspector } from './editor/inspector.js';
 import { VideoRecorder } from './recorder/recorder.js';
 import { LevelStorage } from './storage/storage.js';
-import { AssetLibrary } from './storage/asset_library.js';
 import { HistoryManager } from './editor/history.js';
 import { sounds } from './audio/sound.js';
 
@@ -43,6 +42,15 @@ class SidehopApp {
     this.recorder = new VideoRecorder(this.canvas);
     this.history = new HistoryManager(50);
 
+    // Component Flyout State & Stored Type Selections
+    this.activeFlyoutItem = null;
+    this.activeComponentVariants = {
+      block: 'solid',
+      springboard: 'spring',
+      enemy: 'walker',
+      collectible: 'star'
+    };
+
     // Track Spacebar tap vs hold
     this.spacePressTime = 0;
     this.didPanDuringSpace = false;
@@ -71,9 +79,6 @@ class SidehopApp {
 
     // Initial snapshot for Undo stack
     this.history.pushState(this.player, this.entities, this.background);
-
-    // Initial variant pills for default block component
-    this.updatePaletteVariants('block');
 
     requestAnimationFrame((t) => this.gameLoop(t));
   }
@@ -382,127 +387,141 @@ class SidehopApp {
     setTimeout(() => toast.remove(), 2200);
   }
 
-  // Render Saved Custom Drawings & Stickers in Asset Library Modal
-  renderAssetLibrary() {
-    const grid = document.getElementById('asset-library-grid');
-    if (!grid) return;
-    grid.innerHTML = '';
-
-    const assets = AssetLibrary.getAssets();
-    assets.forEach(asset => {
-      const card = document.createElement('div');
-      card.className = 'asset-card';
-
-      const thumbWrap = document.createElement('div');
-      thumbWrap.className = 'asset-thumb-wrap';
-      const img = document.createElement('img');
-      img.className = 'asset-thumb-img';
-      img.src = asset.dataUrl;
-      img.alt = asset.name;
-      thumbWrap.appendChild(img);
-
-      const nameEl = document.createElement('div');
-      nameEl.className = 'asset-name';
-      nameEl.textContent = asset.name;
-
-      const actions = document.createElement('div');
-      actions.className = 'asset-card-actions';
-
-      const useBtn = document.createElement('button');
-      useBtn.className = 'asset-use-btn';
-      useBtn.textContent = 'Apply';
-      useBtn.title = 'Apply this sticker to currently selected component';
-      useBtn.addEventListener('click', () => {
-        const target = this.editor.selectedEntity || this.player;
-        if (target) {
-          this.history.pushState(this.player, this.entities, this.background);
-          target.setCustomVisual(asset.dataUrl);
-          LevelStorage.autoSave(this.player, this.entities, this.background);
-          sounds.playLand();
-          this.showToast(`Applied ${asset.name}!`);
-          document.getElementById('asset-library-modal').classList.remove('active');
-        }
-      });
-
-      actions.appendChild(useBtn);
-
-      if (!asset.isDefault) {
-        const delBtn = document.createElement('button');
-        delBtn.className = 'asset-delete-btn';
-        delBtn.textContent = '✕';
-        delBtn.title = 'Delete saved asset';
-        delBtn.addEventListener('click', (e) => {
-          e.stopPropagation();
-          AssetLibrary.deleteAsset(asset.id);
-          this.renderAssetLibrary();
-          sounds.playPaintSquish();
-        });
-        actions.appendChild(delBtn);
+  // Definitions of Mario Maker-style component types / variants
+  getVariantDefs() {
+    return {
+      block: {
+        title: 'BLOCK TYPES',
+        variants: [
+          { id: 'solid', icon: '🧱', name: 'Solid Ground', desc: 'Standard solid block platform', shortName: 'Block' },
+          { id: 'mystery', icon: '❓', name: 'Mystery Block', desc: 'Breakable surprise block [?]', shortName: 'Mystery' },
+          { id: 'cloud', icon: '☁️', name: 'Cloud Platform', desc: 'Soft floating cloud block', shortName: 'Cloud' },
+          { id: 'ice', icon: '🧊', name: 'Ice Block', desc: 'Low-friction slippery surface', shortName: 'Ice' }
+        ]
+      },
+      springboard: {
+        title: 'SPRING TYPES',
+        variants: [
+          { id: 'spring', icon: '🌀', name: 'Standard Spring', desc: 'Bounces player high upward', shortName: 'Spring' },
+          { id: 'mega', icon: '🚀', name: 'Mega Trampoline', desc: 'Super high vertical booster', shortName: 'Mega Spring' }
+        ]
+      },
+      enemy: {
+        title: 'ENEMY TYPES',
+        variants: [
+          { id: 'walker', icon: '🥔', name: 'Potato Walker', desc: 'Patrols back and forth on ground', shortName: 'Enemy' },
+          { id: 'winged', icon: '🪽', name: 'Winged Hopper', desc: 'Hops & flutters airborne', shortName: 'Winged' },
+          { id: 'spiky', icon: '🦔', name: 'Armored Spiky', desc: 'Hazardous spines - cannot stomp!', shortName: 'Spiky' }
+        ]
+      },
+      collectible: {
+        title: 'COLLECTIBLE TYPES',
+        variants: [
+          { id: 'star', icon: '⭐', name: 'Star Gem', desc: 'Bright glowing star token (+100 pts)', shortName: 'Star' },
+          { id: 'coin', icon: '🪙', name: 'Gold Coin', desc: 'Shiny spinning coin token (+50 pts)', shortName: 'Coin' },
+          { id: 'heart', icon: '❤️', name: 'Health Heart', desc: 'Restores +1 heart of player health', shortName: 'Heart' }
+        ]
       }
-
-      card.appendChild(thumbWrap);
-      card.appendChild(nameEl);
-      card.appendChild(actions);
-      grid.appendChild(card);
-    });
+    };
   }
 
-  // Update Dynamic Mario Maker-style Component Variants in Tool Drawer
-  updatePaletteVariants(item) {
-    const container = document.getElementById('palette-variants-container');
-    const list = document.getElementById('palette-variants-list');
-    if (!container || !list) return;
+  // Open the corner triangle flyout popup menu for a component
+  openComponentFlyout(item, anchorEl) {
+    const flyout = document.getElementById('component-flyout-menu');
+    const titleEl = document.getElementById('flyout-title');
+    const optionsList = document.getElementById('flyout-options-list');
+    if (!flyout || !titleEl || !optionsList) return;
 
-    const variantDefs = {
-      block: [
-        { id: 'solid', label: '🧱 Solid Ground' },
-        { id: 'mystery', label: '❓ Mystery [?]' },
-        { id: 'cloud', label: '☁️ Cloud Platform' },
-        { id: 'ice', label: '🧊 Ice Block' }
-      ],
-      crate: [
-        { id: 'solid', label: '🧱 Solid Ground' },
-        { id: 'mystery', label: '❓ Mystery [?]' },
-        { id: 'cloud', label: '☁️ Cloud Platform' },
-        { id: 'ice', label: '🧊 Ice Block' }
-      ],
-      enemy: [
-        { id: 'walker', label: '🥔 Potato Walker' },
-        { id: 'winged', label: '🪽 Winged Hopper' },
-        { id: 'spiky', label: '🦔 Armored Spiky' }
-      ],
-      collectible: [
-        { id: 'coin', label: '🪙 Gold Coin' },
-        { id: 'star', label: '⭐ Star Gem' },
-        { id: 'heart', label: '❤️ Health Heart' }
-      ],
-      springboard: [
-        { id: 'spring', label: '🌀 Standard Spring' },
-        { id: 'mega', label: '🚀 Mega Trampoline' }
-      ]
-    };
+    const defs = this.getVariantDefs()[item];
+    if (!defs) return;
 
-    const variants = variantDefs[item];
-    if (!variants) {
-      container.style.display = 'none';
+    // If already open for this exact item, toggle off
+    if (this.activeFlyoutItem === item && flyout.style.display !== 'none') {
+      this.closeComponentFlyout();
       return;
     }
 
-    container.style.display = 'block';
-    list.innerHTML = '';
+    this.activeFlyoutItem = item;
+    titleEl.textContent = defs.title;
+    optionsList.innerHTML = '';
 
-    variants.forEach(v => {
+    const currentVariant = this.activeComponentVariants[item] || defs.variants[0].id;
+
+    defs.variants.forEach(v => {
       const btn = document.createElement('button');
-      btn.className = `variant-pill ${this.editor.selectedPaletteVariant === v.id ? 'active' : ''}`;
-      btn.setAttribute('data-variant', v.id);
-      btn.textContent = v.label;
-      btn.addEventListener('click', () => {
-        list.querySelectorAll('.variant-pill').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        this.editor.setPaletteVariant(v.id);
+      btn.className = `flyout-option-btn ${currentVariant === v.id ? 'active' : ''}`;
+      btn.innerHTML = `
+        <span class="flyout-option-icon">${v.icon}</span>
+        <div class="flyout-option-text">
+          <span class="flyout-option-name">${v.name}</span>
+          <span class="flyout-option-desc">${v.desc}</span>
+        </div>
+      `;
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        this.selectComponentVariant(item, v.id, v.icon, v.shortName);
       });
-      list.appendChild(btn);
+      optionsList.appendChild(btn);
     });
+
+    // Mark active state on triangle button
+    document.querySelectorAll('.palette-triangle-btn').forEach(tb => {
+      tb.classList.toggle('active', tb.getAttribute('data-triangle') === item);
+    });
+
+    // Position flyout directly adjacent to the anchor element (just outside the drawer)
+    const rect = anchorEl.getBoundingClientRect();
+    let left = rect.right + 10;
+    let top = rect.top - 10;
+
+    // Clamp within viewport
+    const menuHeight = 240;
+    if (top + menuHeight > window.innerHeight) {
+      top = Math.max(12, window.innerHeight - menuHeight - 12);
+    }
+    if (top < 12) top = 12;
+
+    flyout.style.left = `${left}px`;
+    flyout.style.top = `${top}px`;
+    flyout.style.display = 'flex';
+    sounds.playClick();
+  }
+
+  // Close component flyout popup
+  closeComponentFlyout() {
+    const flyout = document.getElementById('component-flyout-menu');
+    if (flyout) flyout.style.display = 'none';
+    this.activeFlyoutItem = null;
+    document.querySelectorAll('.palette-triangle-btn').forEach(tb => {
+      tb.classList.remove('active');
+    });
+  }
+
+  // Select variant from flyout
+  selectComponentVariant(item, variantId, icon, shortName) {
+    this.activeComponentVariants[item] = variantId;
+    this.editor.setPaletteItem(item, variantId);
+
+    // Update palette button label and icon
+    const iconEl = document.getElementById(`palette-icon-${item}`);
+    if (iconEl && icon) iconEl.textContent = icon;
+    const nameEl = document.getElementById(`palette-name-${item}`);
+    if (nameEl && shortName) nameEl.textContent = shortName;
+
+    // Highlight active palette button in drawer
+    document.querySelectorAll('.palette-item').forEach(b => {
+      b.classList.toggle('active', b.getAttribute('data-palette') === item);
+    });
+
+    // Switch to place tool
+    document.querySelectorAll('[data-tool]').forEach(b => {
+      b.classList.toggle('active', b.getAttribute('data-tool') === 'place');
+    });
+    this.editor.setTool('place');
+
+    this.closeComponentFlyout();
+    sounds.playClick();
+    this.showToast(`Selected ${shortName || variantId}!`);
   }
 
   bindUI() {
@@ -523,18 +542,11 @@ class SidehopApp {
       }
     });
 
-    // 3. Audio & Music Buttons
+    // 3. Audio Sound Effects Button
     const soundBtn = document.getElementById('sound-toggle-btn');
-    soundBtn.addEventListener('click', () => {
+    soundBtn?.addEventListener('click', () => {
       sounds.setMuted(!sounds.muted);
       soundBtn.querySelector('span').textContent = sounds.muted ? '🔇' : '🔊';
-      sounds.playClick();
-    });
-
-    const bgmBtn = document.getElementById('bgm-toggle-btn');
-    bgmBtn.addEventListener('click', () => {
-      const playing = sounds.toggleBgm();
-      bgmBtn.style.backgroundColor = playing ? 'var(--mint-green)' : 'var(--bg-panel)';
       sounds.playClick();
     });
 
@@ -609,6 +621,7 @@ class SidehopApp {
     document.getElementById('load-preset-btn').addEventListener('click', () => {
       this.loadStarterWorld();
       sounds.playLand();
+      this.showToast('🔄 World Reset to Default!');
     });
 
     document.getElementById('export-level-btn').addEventListener('click', () => {
@@ -646,62 +659,54 @@ class SidehopApp {
         paletteButtons.forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
         const item = btn.getAttribute('data-palette');
-        this.editor.setPaletteItem(item);
-        this.updatePaletteVariants(item);
+        const activeVariant = this.activeComponentVariants[item] || null;
+        this.editor.setPaletteItem(item, activeVariant);
 
         // Switch to place tool automatically when selecting a component
         toolButtons.forEach(b => b.classList.remove('active'));
         const placeBtn = document.querySelector('[data-tool="place"]');
         if (placeBtn) placeBtn.classList.add('active');
+        this.editor.setTool('place');
       });
+    });
+
+    // Triangle corner buttons for component type flyout popups (Mario Maker style)
+    const triangleButtons = document.querySelectorAll('.palette-triangle-btn');
+    triangleButtons.forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const item = btn.getAttribute('data-triangle');
+        this.openComponentFlyout(item, btn);
+      });
+    });
+
+    // Flyout close button
+    document.getElementById('flyout-close-btn')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      this.closeComponentFlyout();
+      sounds.playClick();
+    });
+
+    // Dismiss flyout when clicking anywhere outside
+    window.addEventListener('click', (e) => {
+      const flyout = document.getElementById('component-flyout-menu');
+      if (flyout && flyout.style.display !== 'none') {
+        if (!flyout.contains(e.target) && !e.target.closest('.palette-triangle-btn')) {
+          this.closeComponentFlyout();
+        }
+      }
+    });
+
+    // Dismiss flyout on Escape key
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        this.closeComponentFlyout();
+      }
     });
 
     // Undo / Redo Header Buttons
     document.getElementById('undo-btn')?.addEventListener('click', () => this.undo());
     document.getElementById('redo-btn')?.addEventListener('click', () => this.redo());
-
-    // Asset Library & Sticker Book
-    const assetLibraryModal = document.getElementById('asset-library-modal');
-    document.getElementById('asset-library-btn')?.addEventListener('click', () => {
-      this.renderAssetLibrary();
-      assetLibraryModal.classList.add('active');
-      sounds.playClick();
-    });
-
-    document.getElementById('close-asset-library')?.addEventListener('click', () => {
-      assetLibraryModal.classList.remove('active');
-      sounds.playClick();
-    });
-
-    document.getElementById('asset-library-done-btn')?.addEventListener('click', () => {
-      assetLibraryModal.classList.remove('active');
-      sounds.playClick();
-    });
-
-    const libraryFileInput = document.getElementById('library-file-input');
-    libraryFileInput?.addEventListener('change', (e) => {
-      if (e.target.files && e.target.files[0]) {
-        const file = e.target.files[0];
-        const reader = new FileReader();
-        reader.onload = (ev) => {
-          const name = file.name.replace(/\.[^/.]+$/, '').slice(0, 16);
-          AssetLibrary.saveAsset(name || 'Custom Sticker', ev.target.result);
-          this.renderAssetLibrary();
-          sounds.playCollect();
-          this.showToast(`Saved "${name}" to Library!`);
-        };
-        reader.readAsDataURL(file);
-      }
-    });
-
-    // Art Studio "Save to Library" button
-    document.getElementById('paint-save-library-btn')?.addEventListener('click', () => {
-      const saved = this.artStudio.saveToLibrary();
-      if (saved) {
-        sounds.playCollect();
-        this.showToast('⭐ Saved to Asset Library!');
-      }
-    });
 
     // 7. Entity Floating Action Card
     const actionCard = document.getElementById('entity-action-card');
@@ -728,13 +733,6 @@ class SidehopApp {
         sounds.playClick();
       });
     }
-
-    // Action Card Stickers button
-    document.getElementById('action-sticker-btn')?.addEventListener('click', () => {
-      this.renderAssetLibrary();
-      assetLibraryModal.classList.add('active');
-      sounds.playClick();
-    });
 
     document.getElementById('action-paint-btn').addEventListener('click', () => {
       if (this.editor.selectedEntity) {

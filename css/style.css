@@ -204,6 +204,47 @@ body {
   gap: 10px;
 }
 
+.palette-slot {
+  position: relative;
+  display: flex;
+}
+
+.palette-slot .palette-item {
+  flex: 1;
+  width: 100%;
+}
+
+.palette-triangle-btn {
+  position: absolute;
+  top: 3px;
+  right: 3px;
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  background: var(--ink-black);
+  color: #FFF;
+  border: none;
+  font-size: 11px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 2;
+  transition: transform 0.12s ease, background 0.12s ease;
+  padding: 0;
+}
+
+.palette-triangle-btn:hover {
+  background: var(--bubblegum-pink);
+  transform: scale(1.15);
+}
+
+.palette-triangle-btn.active {
+  background: var(--bubblegum-pink);
+  transform: rotate(180deg);
+}
+
 .palette-item {
   display: flex;
   flex-direction: column;
@@ -648,38 +689,74 @@ body {
   transform: none !important;
 }
 
-/* MARIO MAKER COMPONENT VARIANT SELECTOR BAR */
-.palette-variants-container {
-  margin-top: 10px;
+/* COMPONENT TYPE / VARIANT POPUP FLYOUT */
+.component-flyout-menu {
+  position: fixed;
+  z-index: 1000;
+  background: #FFF;
+  border: 3px solid var(--ink-black);
+  border-radius: 12px;
+  box-shadow: 4px 4px 0 var(--ink-black);
+  min-width: 190px;
+  max-width: 230px;
   padding: 8px;
-  background: var(--bg-cream);
-  border: 2px solid var(--ink-black);
-  border-radius: 10px;
-  box-shadow: 2px 2px 0 var(--ink-black);
-}
-
-.variant-label {
-  font-size: 11px;
-  font-weight: 700;
-  text-transform: uppercase;
-  color: #666;
-  margin-bottom: 6px;
-}
-
-.palette-variants-list {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 6px;
+  animation: flyoutPop 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
-.variant-pill {
+@keyframes flyoutPop {
+  0% { transform: scale(0.92) translateY(-4px); opacity: 0; }
+  100% { transform: scale(1) translateY(0); opacity: 1; }
+}
+
+.flyout-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 2px dashed #E0E0E0;
+  padding-bottom: 4px;
+  margin-bottom: 2px;
+}
+
+.flyout-title {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: #666;
+}
+
+.flyout-close-btn {
+  background: none;
+  border: none;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  line-height: 1;
+  color: #888;
+  padding: 0 4px;
+}
+
+.flyout-close-btn:hover {
+  color: var(--ink-black);
+}
+
+.flyout-options-list {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.flyout-option-btn {
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 5px 8px;
-  background: #FFF;
+  gap: 8px;
+  padding: 7px 10px;
+  background: var(--bg-cream);
   border: 2px solid var(--ink-black);
-  border-radius: 6px;
+  border-radius: 8px;
   font-family: inherit;
   font-size: 12px;
   font-weight: 700;
@@ -687,17 +764,40 @@ body {
   box-shadow: 2px 2px 0 var(--ink-black);
   transition: all 0.1s ease;
   text-align: left;
+  width: 100%;
 }
 
-.variant-pill:hover {
+.flyout-option-btn:hover {
   background: var(--canary-yellow);
   transform: scale(1.02);
 }
 
-.variant-pill.active {
+.flyout-option-btn.active {
   background: var(--cyber-cyan);
   box-shadow: 1px 1px 0 var(--ink-black);
   transform: translate(1px, 1px);
+}
+
+.flyout-option-icon {
+  font-size: 18px;
+  line-height: 1;
+}
+
+.flyout-option-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+}
+
+.flyout-option-name {
+  font-weight: 800;
+  color: var(--ink-black);
+}
+
+.flyout-option-desc {
+  font-size: 9px;
+  font-weight: 600;
+  color: #666;
 }
 
 /* FLOATING ACTION CARD VARIANT PICKER */
@@ -726,92 +826,6 @@ body {
 .action-variant-pill.active {
   background: var(--bubblegum-pink);
   color: #FFF;
-}
-
-/* ASSET LIBRARY MODAL & CARDS */
-.asset-library-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
-  gap: 12px;
-}
-
-.asset-card {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  background: #FFF;
-  border: 2.5px solid var(--ink-black);
-  border-radius: 12px;
-  box-shadow: 3px 3px 0 var(--ink-black);
-  padding: 8px;
-  text-align: center;
-  position: relative;
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
-}
-
-.asset-card:hover {
-  transform: translate(-2px, -2px);
-  box-shadow: 5px 5px 0 var(--ink-black);
-}
-
-.asset-thumb-wrap {
-  width: 72px;
-  height: 72px;
-  border: 2px solid var(--ink-black);
-  border-radius: 8px;
-  background: var(--bg-cream);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 6px;
-  overflow: hidden;
-  padding: 4px;
-}
-
-.asset-thumb-img {
-  max-width: 100%;
-  max-height: 100%;
-  object-fit: contain;
-  image-rendering: pixelated;
-}
-
-.asset-name {
-  font-size: 12px;
-  font-weight: 700;
-  color: var(--ink-black);
-  margin-bottom: 6px;
-  max-width: 100%;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.asset-card-actions {
-  display: flex;
-  gap: 4px;
-  width: 100%;
-}
-
-.asset-use-btn {
-  flex: 1;
-  padding: 4px 6px;
-  font-size: 11px;
-  font-weight: 700;
-  background: var(--mint-green);
-  border: 2px solid var(--ink-black);
-  border-radius: 6px;
-  cursor: pointer;
-  box-shadow: 1px 1px 0 var(--ink-black);
-}
-
-.asset-delete-btn {
-  padding: 4px 6px;
-  font-size: 11px;
-  background: var(--bg-cream);
-  border: 2px solid var(--ink-black);
-  border-radius: 6px;
-  cursor: pointer;
-  color: var(--hazard-red);
 }
 
 /* TOAST NOTIFICATION */
