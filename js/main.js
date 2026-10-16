@@ -2172,7 +2172,31 @@ class SidehopApp {
   }
 }
 
+// Mobile Device Detection & Advisory
+function initMobileCheck() {
+  const blocker = document.getElementById('mobile-blocker');
+  if (!blocker) return;
+
+  function evaluateDevice() {
+    const isMobileUA = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    const isSmallScreen = window.innerWidth <= 768;
+    const isCoarseTouch = window.matchMedia && window.matchMedia('(pointer: coarse)').matches && window.innerWidth <= 900;
+
+    if (isMobileUA || isSmallScreen || isCoarseTouch) {
+      blocker.style.display = 'flex';
+    } else {
+      blocker.style.display = '';
+    }
+  }
+
+  window.addEventListener('resize', evaluateDevice);
+  window.addEventListener('orientationchange', evaluateDevice);
+  evaluateDevice();
+}
+
 // Start Sidehop!
 window.addEventListener('DOMContentLoaded', () => {
+  initMobileCheck();
   window.sidehop = new SidehopApp();
 });
+
