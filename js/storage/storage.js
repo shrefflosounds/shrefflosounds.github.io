@@ -2,7 +2,7 @@
 
 import { SolidBlock, Springboard, HazardSpikes, EnemyWalker, MovingPlatform, Collectible, GoalFlag } from '../engine/entities.js';
 
-const STORAGE_KEY = 'sidehop_saved_level_v2';
+const STORAGE_KEY = 'sidehop_saved_level_v3';
 
 export class LevelStorage {
   // Serialize active level to JSON-compatible object
@@ -186,51 +186,214 @@ export class LevelStorage {
     reader.readAsText(file);
   }
 
-  // Default Preset 1: World 1-1 "Sidehop Meadow"
+  // Default Preset 1: World 1-1 "Sidehop Meadow (Expanded Edition)"
   static getStarterWorld() {
     const entities = [];
     const T = 40;
 
-    // 1. Starting Ground Runway
-    for (let x = 0; x < 360; x += T) {
-      entities.push(new SolidBlock(x, 480, T, T));
+    // Helper: Add double-layer solid ground strip
+    const addGround = (startX, endX, topY = 480, variant = 'solid') => {
+      for (let x = startX; x < endX; x += T) {
+        entities.push(new SolidBlock(x, topY, T, T, variant));
+        entities.push(new SolidBlock(x, topY + T, T, T, variant));
+      }
+    };
+
+    // -------------------------------------------------------------
+    // SECTION 1: RUNWAY, MYSTERY BLOCKS & FIRST POTATO (x: 0 -> 480)
+    // -------------------------------------------------------------
+    addGround(0, 480, 480, 'solid');
+
+    // Overhead Mario-style Mystery & Solid Blocks
+    entities.push(new SolidBlock(200, 320, T, T, 'solid'));
+    entities.push(new SolidBlock(240, 320, T, T, 'mystery')); // Bumpable [?]
+    entities.push(new SolidBlock(280, 320, T, T, 'solid'));
+    entities.push(new SolidBlock(320, 320, T, T, 'mystery')); // Bumpable [?]
+    entities.push(new SolidBlock(360, 320, T, T, 'solid'));
+
+    // Coins under & above blocks
+    entities.push(new Collectible(244, 270, 32, 32, 'coin'));
+    entities.push(new Collectible(324, 270, 32, 32, 'coin'));
+
+    // Patrolling Potato Walker
+    const enemy1 = new EnemyWalker(380, 440, T, T, 'walker');
+    enemy1.patrolRange = 90;
+    entities.push(enemy1);
+
+    // -------------------------------------------------------------
+    // SECTION 2: SLOPES & WARP PIPE PLATEAU (x: 480 -> 960)
+    // -------------------------------------------------------------
+    // Incline hill slant
+    entities.push(new SolidBlock(480, 480, T, T, 'slope_up'));
+    entities.push(new SolidBlock(480, 520, T, T, 'solid'));
+
+    // Elevated Plateau (y: 440)
+    for (let x = 520; x < 760; x += T) {
+      entities.push(new SolidBlock(x, 440, T, T, 'solid'));
+      entities.push(new SolidBlock(x, 480, T, T, 'solid'));
+      entities.push(new SolidBlock(x, 520, T, T, 'solid'));
     }
 
-    // 2. Gentle Ascending Platformer Steps
-    entities.push(new SolidBlock(240, 440, T, T));
-    entities.push(new SolidBlock(280, 440, T, T));
-    entities.push(new SolidBlock(280, 400, T, T));
-    entities.push(new Collectible(284, 350, 32, 32));
+    // Iconic Tall Warp Pipe (40x80) on the plateau
+    entities.push(new SolidBlock(600, 360, 40, 80, 'pipe'));
+    entities.push(new Collectible(604, 310, 32, 32, 'coin'));
 
-    // 3. Floating Mystery Island with Coin
-    for (let x = 360; x < 480; x += T) {
-      entities.push(new SolidBlock(x, 320, T, T));
-    }
-    entities.push(new Collectible(420, 270, 32, 32));
+    // Winged Hopper on the elevated ground
+    const enemy2 = new EnemyWalker(680, 400, T, T, 'winged');
+    enemy2.patrolRange = 80;
+    entities.push(enemy2);
 
-    // 4. Springboard Leap over Spike Gap
-    for (let x = 400; x < 600; x += T) {
+    // Decline hill slant
+    entities.push(new SolidBlock(760, 480, T, T, 'slope_down'));
+    entities.push(new SolidBlock(760, 520, T, T, 'solid'));
+
+    // Valley ground
+    addGround(800, 960, 480, 'solid');
+    entities.push(new Collectible(844, 430, 32, 32, 'coin'));
+    entities.push(new Collectible(904, 430, 32, 32, 'coin'));
+
+    // -------------------------------------------------------------
+    // SECTION 3: NOTE BLOCK, HALF SLABS & SKY CLOUD ISLAND (x: 960 -> 1440)
+    // -------------------------------------------------------------
+    // Spike Pit (x: 960 -> 1200)
+    for (let x = 960; x < 1200; x += T) {
       entities.push(new HazardSpikes(x, 500, T, T));
     }
-    // High bounce launch pad
-    entities.push(new Springboard(360, 480, T, T));
 
-    // 5. Landing Terrace with Patrolling Enemy
-    for (let x = 640; x < 960; x += T) {
-      entities.push(new SolidBlock(x, 440, T, T));
+    // Musical Note Block trampoline right at edge of the pit
+    entities.push(new SolidBlock(920, 440, T, T, 'note'));
+
+    // Stepping Half Slabs over the hazard
+    entities.push(new SolidBlock(1000, 440, 40, 20, 'slab'));
+    entities.push(new Collectible(1004, 390, 32, 32, 'coin'));
+
+    entities.push(new SolidBlock(1100, 420, 40, 20, 'slab'));
+    entities.push(new Collectible(1104, 370, 32, 32, 'coin'));
+
+    // High Sky Cloud Island (accessible via Note Block bounce!)
+    entities.push(new SolidBlock(1000, 220, T, T, 'cloud'));
+    entities.push(new SolidBlock(1040, 220, T, T, 'cloud'));
+    entities.push(new SolidBlock(1080, 220, T, T, 'cloud'));
+    entities.push(new SolidBlock(1120, 220, T, T, 'cloud'));
+    // Secret 500-pt Star Gem on the cloud!
+    entities.push(new Collectible(1064, 170, 32, 32, 'star'));
+
+    // Landing Ground
+    addGround(1200, 1400, 480, 'solid');
+    entities.push(new Collectible(1284, 430, 32, 32, 'coin'));
+    entities.push(new Collectible(1344, 430, 32, 32, 'coin'));
+
+    // -------------------------------------------------------------
+    // SECTION 4: DONUT LIFT BRIDGE & SLIPPERY ICE CAVERN (x: 1400 -> 1920)
+    // -------------------------------------------------------------
+    // Donut Lift Bridge over bottomless chasm (x: 1400 -> 1600)
+    entities.push(new SolidBlock(1400, 480, T, T, 'donut'));
+    entities.push(new Collectible(1404, 430, 32, 32, 'coin'));
+
+    entities.push(new SolidBlock(1440, 480, T, T, 'donut'));
+    entities.push(new Collectible(1444, 430, 32, 32, 'coin'));
+
+    entities.push(new SolidBlock(1480, 480, T, T, 'donut'));
+    entities.push(new Collectible(1484, 430, 32, 32, 'coin'));
+
+    entities.push(new SolidBlock(1520, 480, T, T, 'donut'));
+    entities.push(new Collectible(1524, 430, 32, 32, 'coin'));
+
+    // Slippery Ice Plateau (x: 1600 -> 1880)
+    for (let x = 1600; x < 1880; x += T) {
+      entities.push(new SolidBlock(x, 480, T, T, 'ice'));
+      entities.push(new SolidBlock(x, 520, T, T, 'solid'));
     }
-    entities.push(new EnemyWalker(740, 400, T, T));
-    entities.push(new Collectible(800, 380, 32, 32));
-    entities.push(new Collectible(860, 380, 32, 32));
 
-    // 6. Smooth Moving Platform across the Chasm
-    entities.push(new MovingPlatform(1020, 380, 80, 24));
+    // Armored Spiky Enemy on the ice (Cannot stomp!)
+    const enemy3 = new EnemyWalker(1720, 440, T, T, 'spiky');
+    enemy3.patrolRange = 90;
+    entities.push(enemy3);
 
-    // 7. Victory Platform with Goal Flag
-    for (let x = 1200; x < 1440; x += T) {
-      entities.push(new SolidBlock(x, 440, T, T));
+    // Heart Health Pickup floating above the ice
+    entities.push(new Collectible(1724, 360, 32, 32, 'heart'));
+
+    // -------------------------------------------------------------
+    // SECTION 5: DUAL MOVING PLATFORMS & SEMISOLID LEDGE (x: 1880 -> 2400)
+    // -------------------------------------------------------------
+    // Massive Chasm (x: 1880 -> 2360)
+    // Vertical moving elevator platform
+    const vertPlat = new MovingPlatform(1920, 440, 80, 24);
+    vertPlat.axis = 'vertical';
+    vertPlat.distance = 110;
+    vertPlat.speed = 60;
+    entities.push(vertPlat);
+
+    // High Semisolid Platform in the middle (jump through from below)
+    entities.push(new SolidBlock(2060, 320, T, T, 'semisolid'));
+    entities.push(new SolidBlock(2100, 320, T, T, 'semisolid'));
+    entities.push(new SolidBlock(2140, 320, T, T, 'semisolid'));
+    entities.push(new Collectible(2104, 270, 32, 32, 'star')); // Hidden Star!
+
+    // Horizontal moving ferry platform
+    const horizPlat = new MovingPlatform(2220, 440, 80, 24);
+    horizPlat.axis = 'horizontal';
+    horizPlat.distance = 100;
+    horizPlat.speed = 70;
+    entities.push(horizPlat);
+
+    // -------------------------------------------------------------
+    // SECTION 6: CASTLE STONE FORTRESS & MEGA TRAMPOLINE (x: 2360 -> 2840)
+    // -------------------------------------------------------------
+    // Castle Stone Fortress Base
+    for (let x = 2360; x < 2720; x += T) {
+      entities.push(new SolidBlock(x, 480, T, T, 'stone'));
+      entities.push(new SolidBlock(x, 520, T, T, 'stone'));
     }
-    entities.push(new GoalFlag(1340, 360, 48, 80));
+
+    // Standard Springboard
+    entities.push(new Springboard(2400, 440, T, T, 'spring'));
+
+    // 2x2 Mega Blocks (80x80) forming fortress towers
+    entities.push(new SolidBlock(2480, 400, 80, 80, 'mega'));
+    entities.push(new Collectible(2514, 340, 32, 32, 'coin'));
+
+    // Warp Pipe on fortress
+    entities.push(new SolidBlock(2600, 400, 40, 80, 'pipe'));
+    entities.push(new Collectible(2604, 350, 32, 32, 'coin'));
+
+    // Mega Trampoline launcher: shoots player soaring over the final moat!
+    entities.push(new Springboard(2680, 440, T, T, 'mega'));
+
+    // Final Moat filled with Hazards (x: 2720 -> 2920)
+    for (let x = 2720; x < 2920; x += T) {
+      entities.push(new HazardSpikes(x, 500, T, T));
+    }
+
+    // -------------------------------------------------------------
+    // SECTION 7: GRAND STAIRCASE & VICTORY FLAG (x: 2920 -> 3480)
+    // -------------------------------------------------------------
+    // Ascending Staircase Base
+    addGround(2920, 3120, 480, 'stone');
+
+    // Column 1
+    entities.push(new SolidBlock(2960, 440, T, T, 'stone'));
+    // Column 2
+    entities.push(new SolidBlock(3000, 440, T, T, 'stone'));
+    entities.push(new SolidBlock(3000, 400, T, T, 'stone'));
+    // Column 3
+    entities.push(new SolidBlock(3040, 440, T, T, 'stone'));
+    entities.push(new SolidBlock(3040, 400, T, T, 'stone'));
+    entities.push(new SolidBlock(3040, 360, T, T, 'stone'));
+    // Column 4 (Peak)
+    entities.push(new SolidBlock(3080, 440, T, T, 'stone'));
+    entities.push(new SolidBlock(3080, 400, T, T, 'stone'));
+    entities.push(new SolidBlock(3080, 360, T, T, 'stone'));
+    entities.push(new SolidBlock(3080, 320, T, T, 'stone'));
+    entities.push(new Collectible(3084, 270, 32, 32, 'coin'));
+
+    // Victory Courtyard
+    addGround(3120, 3440, 480, 'stone');
+
+    // The Goal Flag!
+    entities.push(new GoalFlag(3320, 400, 48, 80));
+    // High Star above the flag
+    entities.push(new Collectible(3328, 330, 32, 32, 'star'));
 
     return {
       background: { theme: 'sky', customImage: null },
