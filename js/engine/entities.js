@@ -727,13 +727,13 @@ export class Springboard extends Entity {
   constructor(x, y, width = 40, height = 40, variant = 'spring') {
     super(null, 'springboard', x, y, width, height);
     this.variant = variant || 'spring'; // 'spring', 'mega'
-    this.launchForce = this.variant === 'mega' ? 1350 : 980;
+    this.launchForce = this.variant === 'mega' ? 1020 : 820;
     this.compressTimer = 0;
   }
 
   setVariant(variant) {
     this.variant = variant;
-    this.launchForce = variant === 'mega' ? 1350 : 980;
+    this.launchForce = variant === 'mega' ? 1020 : 820;
   }
 
   trigger() {
