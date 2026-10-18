@@ -838,13 +838,14 @@ body {
   border: 3px solid var(--ink-black);
   border-radius: 12px;
   box-shadow: 4px 4px 0 var(--ink-black);
-  min-width: 210px;
-  max-width: 260px;
-  max-height: calc(100vh - 24px);
+  min-width: 220px;
+  max-width: 275px;
+  max-height: calc(100vh - 32px);
   padding: 8px;
   display: flex;
   flex-direction: column;
   gap: 6px;
+  box-sizing: border-box;
   animation: flyoutPop 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
@@ -860,6 +861,7 @@ body {
   border-bottom: 2px dashed #E0E0E0;
   padding-bottom: 4px;
   margin-bottom: 2px;
+  flex-shrink: 0;
 }
 
 .flyout-title {
@@ -889,9 +891,27 @@ body {
   display: flex;
   flex-direction: column;
   gap: 5px;
-  max-height: calc(100vh - 80px);
+  flex: 1 1 auto;
+  min-height: 0;
+  max-height: 100%;
   overflow-y: auto;
-  padding-right: 4px;
+  overflow-x: hidden;
+  padding-right: 6px;
+  overscroll-behavior: contain;
+}
+
+.flyout-options-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.flyout-options-list::-webkit-scrollbar-track {
+  background: #F0F0F0;
+  border-radius: 4px;
+}
+
+.flyout-options-list::-webkit-scrollbar-thumb {
+  background: var(--ink-black);
+  border-radius: 4px;
 }
 
 .flyout-option-btn {

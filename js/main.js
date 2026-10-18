@@ -1008,21 +1008,37 @@ class SidehopApp {
       tb.classList.toggle('active', tb.getAttribute('data-triangle') === item);
     });
 
+    // Reset scroll to top
+    optionsList.scrollTop = 0;
+
+    // Show flyout to position and constrain
+    flyout.style.display = 'flex';
+
     // Position flyout directly adjacent to the anchor element (just outside the drawer)
     const rect = anchorEl.getBoundingClientRect();
-    let left = rect.right + 10;
+    const left = rect.right + 10;
+
+    // Clamp cleanly within viewport so full menu is visible and scrollable
+    const targetMaxH = Math.min(480, window.innerHeight - 32);
     let top = rect.top - 10;
-
-    // Clamp within viewport
-    const menuHeight = 240;
-    if (top + menuHeight > window.innerHeight) {
-      top = Math.max(12, window.innerHeight - menuHeight - 12);
+    if (top + targetMaxH > window.innerHeight - 16) {
+      top = Math.max(16, window.innerHeight - targetMaxH - 16);
     }
-    if (top < 12) top = 12;
+    if (top < 16) top = 16;
 
+    const availableH = window.innerHeight - top - 16;
     flyout.style.left = `${left}px`;
     flyout.style.top = `${top}px`;
-    flyout.style.display = 'flex';
+    flyout.style.maxHeight = `${availableH}px`;
+
+    // Ensure mouse wheel scrolling stays smooth within flyout
+    if (!this._flyoutWheelBound) {
+      flyout.addEventListener('wheel', (e) => {
+        e.stopPropagation();
+      }, { passive: true });
+      this._flyoutWheelBound = true;
+    }
+
     sounds.playClick();
   }
 
