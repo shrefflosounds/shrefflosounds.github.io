@@ -383,6 +383,7 @@ class SidehopApp {
 
     // Detect if right-clicked directly on an entity
     const clickedEnt = this.editor.findEntityAt(worldPos.x, worldPos.y, this.entities, this.player);
+    this.contextMenuTargetEntity = clickedEnt;
     if (clickedEnt) {
       if (this.editor.selectedEntities && this.editor.selectedEntities.length > 1 && this.editor.selectedEntities.includes(clickedEnt)) {
         if (titleEl) titleEl.textContent = `SELECTION (${this.editor.selectedEntities.length} ITEMS)`;
@@ -415,6 +416,18 @@ class SidehopApp {
     const hasSelection = Boolean(this.editor.selectedEntity) || isMulti;
     const isPlayer = !isMulti && (this.editor.selectedEntity === this.player || this.editor.selectedEntity?.type === 'player');
     const hasClipboard = Boolean(this.clipboardEntity) || (this.clipboardGroup && this.clipboardGroup.length > 0);
+
+    const deselectBtn = document.getElementById('ctx-deselect-item-btn');
+    const deselectLabel = document.getElementById('ctx-deselect-item-label');
+    if (deselectBtn) {
+      if (isMulti && clickedEnt && this.editor.selectedEntities.includes(clickedEnt)) {
+        deselectBtn.style.display = 'flex';
+        const typeName = clickedEnt.type === 'player' ? 'Player Spawn' : (clickedEnt.variant ? `${clickedEnt.variant} ${clickedEnt.type}` : clickedEnt.type);
+        if (deselectLabel) deselectLabel.textContent = `Remove ${typeName.toUpperCase()} from Group`;
+      } else {
+        deselectBtn.style.display = 'none';
+      }
+    }
 
     const copyBtn = document.getElementById('ctx-copy-btn');
     const pasteBtn = document.getElementById('ctx-paste-btn');
@@ -493,6 +506,7 @@ class SidehopApp {
     const menuEl = document.getElementById('editor-context-menu');
     if (menuEl) menuEl.style.display = 'none';
     this.contextMenuGrid = null;
+    this.contextMenuTargetEntity = null;
   }
 
   // --- Stretched Frame Mode (Fit Screen Minus Header) ---
@@ -733,6 +747,9 @@ class SidehopApp {
       const badge = document.getElementById('action-entity-badge');
       if (badge) badge.textContent = `📦 GROUP (${count} SELECTED)`;
 
+      const hint = document.getElementById('action-group-hint');
+      if (hint) hint.style.display = 'inline';
+
       const dupBtn = document.getElementById('action-duplicate-btn');
       if (dupBtn) dupBtn.style.display = 'inline-flex';
       const delBtn = document.getElementById('action-delete-btn');
@@ -770,6 +787,9 @@ class SidehopApp {
       actionCard.style.top = `${top}px`;
       return;
     }
+
+    const hint = document.getElementById('action-group-hint');
+    if (hint) hint.style.display = 'none';
 
     if (!ent) {
       actionCard.classList.remove('active');
@@ -1256,6 +1276,7 @@ class SidehopApp {
     if (actionCloseBtn) {
       actionCloseBtn.addEventListener('click', () => {
         this.editor.selectedEntity = null;
+        this.editor.selectedEntities = [];
         actionCard.classList.remove('active');
         sounds.playClick();
       });
@@ -1316,6 +1337,20 @@ class SidehopApp {
     });
 
     // Context Menu Action Listeners
+    document.getElementById('ctx-deselect-item-btn')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const target = this.contextMenuTargetEntity;
+      this.closeContextMenu();
+      if (target) {
+        this.editor.deselectEntity(target);
+        if (this.editor.selectedEntities.length > 0) {
+          this.updateActionCard(this.editor.selectedEntity);
+        } else {
+          document.getElementById('entity-action-card')?.classList.remove('active');
+        }
+      }
+    });
+
     document.getElementById('ctx-copy-btn')?.addEventListener('click', (e) => {
       e.stopPropagation();
       this.closeContextMenu();

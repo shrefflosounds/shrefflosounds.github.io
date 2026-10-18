@@ -27,6 +27,11 @@ export class GridEditor {
     this.boxCurrent = { x: 0, y: 0 };
     this.dragStartWorld = { x: 0, y: 0 };
     this.groupDragOffsets = [];
+    this.initialBoxSelection = [];
+    this.boxModifier = null;
+    this.hoveredEntity = null;
+    this.hoveredRemoveBadgeEntity = null;
+    this.lastClickedEntity = null;
 
     // Drag-to-move entity in Select mode
     this.isDraggingEntity = false;
@@ -54,6 +59,32 @@ export class GridEditor {
         this.selectedEntities = [ent];
       }
     }
+  }
+
+  deselectEntity(entity) {
+    if (!entity) return;
+    const idx = this.selectedEntities.indexOf(entity);
+    if (idx !== -1) {
+      this.selectedEntities.splice(idx, 1);
+      sounds.playClick();
+      if (this.selectedEntities.length > 0) {
+        this.notifyEntitySelected(this.selectedEntity);
+      } else {
+        if (this.onDeselect) this.onDeselect();
+      }
+    }
+  }
+
+  checkRemoveBadgeClicked(worldX, worldY) {
+    if (this.selectedEntities.length <= 1) return null;
+    for (const ent of this.selectedEntities) {
+      const bx = ent.x + ent.width;
+      const by = ent.y;
+      if (Math.hypot(worldX - bx, worldY - by) <= 12) {
+        return ent;
+      }
+    }
+    return null;
   }
 
   setPaletteItem(item, variant = null) {
@@ -85,17 +116,21 @@ export class GridEditor {
     sounds.playClick();
   }
 
-  updateCursor() {
+  updateCursor(e) {
     if (this.isPanning || (this.isMouseDown && this.currentTool === 'pan')) {
       this.canvas.style.cursor = 'grabbing';
     } else if (this.currentTool === 'pan' || this.isSpacePan) {
       this.canvas.style.cursor = 'grab';
+    } else if (this.hoveredRemoveBadgeEntity) {
+      this.canvas.style.cursor = 'pointer';
+    } else if (this.hoveredEntity && this.selectedEntities.includes(this.hoveredEntity) && (e?.shiftKey || e?.altKey || e?.ctrlKey || e?.metaKey)) {
+      this.canvas.style.cursor = 'pointer';
     } else if (this.currentTool === 'boxselect' || this.isBoxSelecting) {
       this.canvas.style.cursor = 'crosshair';
     } else if (this.currentTool === 'erase') {
       this.canvas.style.cursor = 'crosshair';
     } else if (this.currentTool === 'select') {
-      this.canvas.style.cursor = 'default';
+      this.canvas.style.cursor = this.hoveredEntity ? 'pointer' : 'default';
     } else {
       this.canvas.style.cursor = 'crosshair';
     }
@@ -151,11 +186,15 @@ export class GridEditor {
     const mouseX = (e.clientX - rect.left) * scaleX;
     const mouseY = (e.clientY - rect.top) * scaleY;
 
-    // Pan with Middle-click, Alt-click, Pan Tool, or Spacebar held
-    if (e.button === 1 || e.altKey || this.currentTool === 'pan' || this.isSpacePan) {
+    const worldPos = this.camera.screenToWorld(mouseX, mouseY);
+    const clickedEntity = this.findEntityAt(worldPos.x, worldPos.y, entities, player);
+    const hasModifier = Boolean(e.shiftKey || e.ctrlKey || e.metaKey || e.altKey);
+
+    // Pan with Middle-click, Pan Tool, Spacebar held, or Alt-click on empty canvas
+    if (e.button === 1 || this.currentTool === 'pan' || this.isSpacePan || (e.altKey && !clickedEntity)) {
       this.isPanning = true;
       this.panStart = { x: mouseX, y: mouseY };
-      this.updateCursor();
+      this.updateCursor(e);
       return;
     }
 
@@ -165,7 +204,6 @@ export class GridEditor {
     }
 
     this.isMouseDown = true;
-    const worldPos = this.camera.screenToWorld(mouseX, mouseY);
     const gridX = Math.floor(worldPos.x / this.tileSize) * this.tileSize;
     const gridY = Math.floor(worldPos.y / this.tileSize) * this.tileSize;
 
@@ -177,37 +215,52 @@ export class GridEditor {
       this.eraseAt(gridX, gridY, entities);
     } else if (this.currentTool === 'place') {
       this.placeAt(gridX, gridY, entities, player);
-    } else if (this.currentTool === 'boxselect' || (this.currentTool === 'select' && (e.shiftKey || e.ctrlKey || e.metaKey) && !this.findEntityAt(worldPos.x, worldPos.y, entities, player))) {
-      // Box / Marquee Drag-Selection mode
-      this.isBoxSelecting = true;
-      this.boxStart = { x: worldPos.x, y: worldPos.y };
-      this.boxCurrent = { x: worldPos.x, y: worldPos.y };
-      if (!e.shiftKey && !e.ctrlKey && !e.metaKey) {
-        this.selectedEntities = [];
+    } else if (this.currentTool === 'select' || this.currentTool === 'boxselect') {
+      // 1. Direct click on individual entity's "✕" remove badge in a multi-selection
+      const badgeEntity = this.checkRemoveBadgeClicked(worldPos.x, worldPos.y);
+      if (badgeEntity) {
+        this.deselectEntity(badgeEntity);
+        return;
       }
-      this.updateCursor();
-    } else if (this.currentTool === 'select') {
-      const clickedEntity = this.findEntityAt(worldPos.x, worldPos.y, entities, player);
-      if (clickedEntity) {
-        // Shift/Ctrl Click: Toggle inclusion in multi-selection
-        if (e.shiftKey || e.ctrlKey || e.metaKey) {
-          const idx = this.selectedEntities.indexOf(clickedEntity);
-          if (idx !== -1) {
-            this.selectedEntities.splice(idx, 1);
-          } else {
-            this.selectedEntities.push(clickedEntity);
-          }
-          if (this.selectedEntities.length > 0) {
-            this.notifyEntitySelected(this.selectedEntity);
-          } else {
-            if (this.onDeselect) this.onDeselect();
-          }
-          sounds.playClick();
-          return;
-        }
 
-        // If clicking an already selected entity in a multi-selection, drag the whole group together!
+      // 2. Modifier-click (Shift, Cmd, Ctrl, Alt) on an entity:
+      // Toggles inclusion — immediately deselects it from group without deselecting others!
+      if (clickedEntity && hasModifier) {
+        const idx = this.selectedEntities.indexOf(clickedEntity);
+        if (idx !== -1) {
+          this.deselectEntity(clickedEntity);
+        } else {
+          this.selectedEntities.push(clickedEntity);
+          this.notifyEntitySelected(this.selectedEntity);
+          sounds.playClick();
+        }
+        return;
+      }
+
+      // 3. Marquee Box Selection mode
+      // Activated in 'boxselect' tool, OR in 'select' tool when dragging empty space with modifier
+      if (this.currentTool === 'boxselect' || (this.currentTool === 'select' && hasModifier && !clickedEntity)) {
+        this.isBoxSelecting = true;
+        this.boxStart = { x: worldPos.x, y: worldPos.y };
+        this.boxCurrent = { x: worldPos.x, y: worldPos.y };
+        this.initialBoxSelection = [...this.selectedEntities];
+        this.boxModifier = {
+          shift: Boolean(e.shiftKey),
+          ctrl: Boolean(e.ctrlKey || e.metaKey),
+          alt: Boolean(e.altKey)
+        };
+        if (!hasModifier) {
+          this.selectedEntities = [];
+        }
+        this.updateCursor(e);
+        return;
+      }
+
+      // 4. In 'select' tool without modifier keys:
+      if (clickedEntity) {
+        this.lastClickedEntity = clickedEntity;
         if (this.selectedEntities.includes(clickedEntity)) {
+          // Drag the group together if mouse moves
           this.isDraggingEntity = true;
           this.didDragMove = false;
           this.dragStartWorld = { x: worldPos.x, y: worldPos.y };
@@ -232,7 +285,7 @@ export class GridEditor {
           sounds.playClick();
         }
       } else {
-        // Left-click on empty space: drag/pan the stage!
+        // Left-click on empty space: pan the stage and deselect
         this.isPanning = true;
         this.panStart = { x: mouseX, y: mouseY };
         this.didDragMove = false;
@@ -240,7 +293,7 @@ export class GridEditor {
           this.selectedEntities = [];
           if (this.onDeselect) this.onDeselect();
         }
-        this.updateCursor();
+        this.updateCursor(e);
       }
     }
   }
@@ -289,6 +342,10 @@ export class GridEditor {
     this.hoverGrid.x = Math.floor(worldPos.x / this.tileSize) * this.tileSize;
     this.hoverGrid.y = Math.floor(worldPos.y / this.tileSize) * this.tileSize;
 
+    this.hoveredEntity = this.findEntityAt(worldPos.x, worldPos.y, entities, player);
+    this.hoveredRemoveBadgeEntity = this.checkRemoveBadgeClicked(worldPos.x, worldPos.y);
+    this.updateCursor(e);
+
     // Sync keyboard building placement spot if mouse moves without panning or dragging
     if (!this.isPanning && !this.isDraggingEntity && !this.isMouseDown && !this.isBoxSelecting) {
       this.cursorGrid.x = this.hoverGrid.x;
@@ -314,7 +371,19 @@ export class GridEditor {
       if (player && player.x < maxX && player.x + player.width > minX && player.y < maxY && player.y + player.height > minY) {
         inBox.push(player);
       }
-      this.selectedEntities = inBox;
+
+      if (this.boxModifier && this.boxModifier.alt) {
+        // Alt-drag = Subtract from current selection!
+        const boxSet = new Set(inBox);
+        this.selectedEntities = (this.initialBoxSelection || []).filter(item => !boxSet.has(item));
+      } else if (this.boxModifier && (this.boxModifier.shift || this.boxModifier.ctrl)) {
+        // Shift/Ctrl-drag = Union / Add to selection!
+        const combined = new Set([...(this.initialBoxSelection || []), ...inBox]);
+        this.selectedEntities = Array.from(combined);
+      } else {
+        this.selectedEntities = inBox;
+      }
+
       if (this.selectedEntities.length > 0) {
         this.notifyEntitySelected(this.selectedEntity);
       } else {
@@ -528,9 +597,10 @@ export class GridEditor {
       // Individual component outlines
       for (const ent of this.selectedEntities) {
         const entScreen = this.camera.worldToScreen(ent.x, ent.y);
+        const isHovered = (this.hoveredEntity === ent || this.hoveredRemoveBadgeEntity === ent);
         ctx.save();
         ctx.translate(entScreen.x, entScreen.y);
-        ctx.strokeStyle = '#00E5FF'; // Cyber cyan
+        ctx.strokeStyle = (isHovered && this.selectedEntities.length > 1) ? '#FF5252' : '#00E5FF';
         ctx.lineWidth = 2.5;
         ctx.setLineDash([5, 3]);
         ctx.strokeRect(-3, -3, ent.width + 6, ent.height + 6);
@@ -540,9 +610,29 @@ export class GridEditor {
         ctx.setLineDash([]);
         const s = 5;
         ctx.fillRect(-5, -5, s, s);
-        ctx.fillRect(ent.width, -5, s, s);
         ctx.fillRect(-5, ent.height, s, s);
         ctx.fillRect(ent.width, ent.height, s, s);
+
+        // If part of multi-selection, render a clickable "✕" deselect badge at top-right
+        if (this.selectedEntities.length > 1) {
+          const isBadgeHovered = (this.hoveredRemoveBadgeEntity === ent);
+          ctx.beginPath();
+          ctx.arc(ent.width, 0, 7.5, 0, Math.PI * 2);
+          ctx.fillStyle = isBadgeHovered ? '#FF3B30' : (isHovered ? '#FF9800' : '#FFE600');
+          ctx.fill();
+          ctx.strokeStyle = '#121212';
+          ctx.lineWidth = 1.5;
+          ctx.stroke();
+
+          ctx.font = 'bold 9px sans-serif';
+          ctx.fillStyle = isBadgeHovered ? '#FFFFFF' : '#121212';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText('✕', ent.width, 0);
+        } else {
+          ctx.fillRect(ent.width, -5, s, s);
+        }
+
         ctx.restore();
       }
 

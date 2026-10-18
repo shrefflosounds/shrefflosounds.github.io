@@ -191,7 +191,8 @@
       <div id="entity-action-card" class="entity-action-card">
         <div class="action-card-header">
           <span id="action-entity-badge" class="action-entity-badge">📦 COMPONENT</span>
-          <button id="action-close-btn" class="action-card-close" title="Deselect">&times;</button>
+          <span id="action-group-hint" class="action-group-hint" style="display: none;">(Shift+Click or Right-Click item to deselect)</span>
+          <button id="action-close-btn" class="action-card-close" title="Deselect All">&times;</button>
         </div>
         <div id="action-variant-picker" class="action-variant-picker"></div>
         <div class="action-card-buttons">
@@ -400,6 +401,10 @@
       <span id="context-menu-coords" class="context-menu-coords"></span>
     </div>
     <div class="context-menu-items">
+      <button id="ctx-deselect-item-btn" class="context-menu-item" style="display: none; background: #FFF4E5;">
+        <span class="ctx-item-icon">➖</span>
+        <span id="ctx-deselect-item-label" class="ctx-item-label">Remove From Group</span>
+      </button>
       <button id="ctx-copy-btn" class="context-menu-item">
         <span class="ctx-item-icon">📋</span>
         <span class="ctx-item-label">Copy</span>
