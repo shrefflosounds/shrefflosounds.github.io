@@ -46,13 +46,33 @@ export class VideoRecorder {
     if (this.isRecording) return;
     try {
       const stream = this.canvas.captureStream(30); // 30 FPS canvas stream
-      this.recordedChunks = [];
 
-      const options = { mimeType: 'video/webm;codecs=vp9' };
-      if (!MediaRecorder.isTypeSupported(options.mimeType)) {
-        options.mimeType = 'video/webm';
+      // Optionally mix game audio into recording stream
+      try {
+        if (sounds && sounds.ctx && sounds.masterGain) {
+          const dest = sounds.ctx.createMediaStreamDestination();
+          sounds.masterGain.connect(dest);
+          dest.stream.getAudioTracks().forEach(track => stream.addTrack(track));
+        }
+      } catch (audioErr) {
+        // Fallback to video-only if audio capture fails
       }
 
+      this.recordedChunks = [];
+
+      // Prioritize MP4 formats
+      const mimeCandidates = [
+        'video/mp4;codecs=avc1,mp4a.40.2',
+        'video/mp4;codecs=avc1',
+        'video/mp4;codecs=h264',
+        'video/mp4',
+        'video/webm;codecs=h264',
+        'video/webm;codecs=vp9',
+        'video/webm'
+      ];
+      this.selectedMime = mimeCandidates.find(type => MediaRecorder.isTypeSupported(type)) || 'video/mp4';
+
+      const options = { mimeType: this.selectedMime };
       this.mediaRecorder = new MediaRecorder(stream, options);
 
       this.mediaRecorder.ondataavailable = (e) => {
@@ -62,7 +82,7 @@ export class VideoRecorder {
       };
 
       this.mediaRecorder.onstop = () => {
-        this.lastRecordedBlob = new Blob(this.recordedChunks, { type: 'video/webm' });
+        this.lastRecordedBlob = new Blob(this.recordedChunks, { type: this.selectedMime });
         this.lastRecordedUrl = URL.createObjectURL(this.lastRecordedBlob);
         this.openPreview(this.lastRecordedUrl);
       };
@@ -126,7 +146,7 @@ export class VideoRecorder {
     if (!this.lastRecordedUrl) return;
     const a = document.createElement('a');
     a.href = this.lastRecordedUrl;
-    a.download = `sidehop-clip-${Date.now()}.webm`;
+    a.download = `sidehop-clip-${Date.now()}.mp4`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
