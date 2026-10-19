@@ -54,17 +54,20 @@
         <span>🌄 Background</span>
       </button>
 
-      <!-- Level Management -->
+      <!-- Level & Personal Asset Management -->
       <button id="load-preset-btn" class="neo-btn neo-btn-accent" title="Reset World to default layout">
         <span>🔄 Reset World</span>
       </button>
-      <button id="export-level-btn" class="neo-btn" title="Save level as JSON file">
-        <span>💾 Export</span>
+      <button id="assets-modal-btn" class="neo-btn neo-btn-pink" title="Open Personal Assets Library (.sidehop)">
+        <span>🎒 My Assets</span>
       </button>
-      <button id="import-level-btn" class="neo-btn" title="Load level from JSON file">
-        <span>📂 Import</span>
+      <button id="export-level-btn" class="neo-btn" title="Save level as .sidehop file">
+        <span>💾 Export (.sidehop)</span>
       </button>
-      <input type="file" id="import-file-input" accept=".json" style="display: none;">
+      <button id="import-level-btn" class="neo-btn" title="Load level or personal asset from .sidehop file">
+        <span>📂 Import (.sidehop)</span>
+      </button>
+      <input type="file" id="import-file-input" accept=".sidehop,.json" style="display: none;">
     </div>
   </header>
 
@@ -160,6 +163,11 @@
         </div>
       </div>
 
+      <div class="drawer-title" style="margin-top: 8px;">Personal Assets</div>
+      <button id="drawer-assets-btn" class="neo-btn neo-btn-pink" style="width: 100%; justify-content: center; font-size: 13px;" title="Open Personal Assets Library (.sidehop)">
+        <span>🎒 Asset Stash (.sidehop)</span>
+      </button>
+
       <details class="drawer-tips">
         <summary>⌨️ Quick Shortcuts ▾</summary>
         <div class="drawer-tips-content">
@@ -181,6 +189,15 @@
     <!-- CENTER CANVAS STAGE -->
     <section class="canvas-wrapper">
       <canvas id="game-canvas" width="960" height="540"></canvas>
+
+      <!-- Drag & Drop .sidehop File Overlay -->
+      <div id="drag-drop-overlay" class="drag-drop-overlay" style="display: none;">
+        <div class="drag-drop-card">
+          <div class="drag-drop-icon">📦 🚀</div>
+          <div class="drag-drop-title">DROP .SIDEHOP FILE</div>
+          <div class="drag-drop-sub">Release to load level or personal asset!</div>
+        </div>
+      </div>
 
       <!-- Floating Stretch Frame Button (Visible in Play Mode) -->
       <button id="stage-stretch-btn" class="stage-stretch-btn" title="Stretch frame to fit screen minus header" style="display: none;">
@@ -281,18 +298,36 @@
             <input type="range" id="paint-brush-size" min="3" max="24" value="8" class="neo-slider" style="width: 100%;">
           </div>
 
-          <div style="margin-top: 6px;">
+          <div style="margin-top: 6px; display: flex; flex-direction: column; gap: 6px;">
             <label class="neo-btn" style="width: 100%; justify-content: center; font-size: 13px; cursor: pointer;">
               📁 Upload Image / GIF
               <input type="file" id="paint-image-upload" accept="image/*" style="display: none;">
             </label>
+            <label class="neo-btn neo-btn-cyan" style="width: 100%; justify-content: center; font-size: 13px; cursor: pointer;">
+              📂 Import .sidehop Asset
+              <input type="file" id="paint-asset-upload" accept=".sidehop,.json" style="display: none;">
+            </label>
+          </div>
+
+          <div class="art-quick-stash-container">
+            <div class="art-quick-stash-label">
+              <span>⭐ Saved Stash</span>
+              <button id="paint-open-stash-btn" class="neo-btn" style="padding: 2px 8px; font-size: 11px;" type="button">Manage All</button>
+            </div>
+            <div id="art-quick-stash-strip" class="art-quick-stash-strip"></div>
           </div>
         </div>
       </div>
 
-      <div style="display: flex; justify-content: flex-end; align-items: center; margin-top: 10px; flex-wrap: wrap; gap: 8px;">
-        <button id="paint-reset-btn" class="neo-btn">Reset Default</button>
-        <button id="paint-apply-btn" class="neo-btn neo-btn-primary">Apply to Entity</button>
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px; flex-wrap: wrap; gap: 8px;">
+        <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+          <button id="paint-save-asset-btn" class="neo-btn neo-btn-pink" title="Save this artwork to your Personal Assets stash">⭐ Save to Stash</button>
+          <button id="paint-export-asset-btn" class="neo-btn neo-btn-accent" title="Download this artwork as a .sidehop asset file">💾 Export .sidehop</button>
+        </div>
+        <div style="display: flex; gap: 6px;">
+          <button id="paint-reset-btn" class="neo-btn">Reset Default</button>
+          <button id="paint-apply-btn" class="neo-btn neo-btn-primary">Apply to Entity</button>
+        </div>
       </div>
     </div>
   </div>
@@ -366,13 +401,22 @@
           </button>
         </div>
 
-        <div style="border-top: 2px dashed #E0E0E0; padding-top: 12px;">
-          <label style="font-size: 13px; font-weight: 700; display: block; margin-bottom: 6px;">Custom Image or GIF</label>
-          <label class="neo-btn" style="width: 100%; justify-content: center; font-size: 13px; cursor: pointer;">
-            📁 Upload Custom Background (PNG / JPG / GIF)
-            <input type="file" id="bg-image-upload" accept="image/*" style="display: none;">
-          </label>
-          <p id="bg-custom-status" style="font-size: 11px; color: #666; margin-top: 4px; display: none;">Custom background image active</p>
+        <div style="border-top: 2px dashed #E0E0E0; padding-top: 12px; display: flex; flex-direction: column; gap: 8px;">
+          <label style="font-size: 13px; font-weight: 700; display: block;">Custom Background Art (.sidehop / Image)</label>
+          <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+            <label class="neo-btn" style="flex: 1; justify-content: center; font-size: 12px; cursor: pointer;">
+              📁 Upload Image
+              <input type="file" id="bg-image-upload" accept="image/*" style="display: none;">
+            </label>
+            <label class="neo-btn neo-btn-cyan" style="flex: 1; justify-content: center; font-size: 12px; cursor: pointer;">
+              📂 Import .sidehop
+              <input type="file" id="bg-sidehop-upload" accept=".sidehop,.json" style="display: none;">
+            </label>
+            <button id="bg-export-sidehop-btn" class="neo-btn neo-btn-accent" style="font-size: 12px;" type="button">
+              💾 Export .sidehop
+            </button>
+          </div>
+          <p id="bg-custom-status" style="font-size: 11px; color: #666; margin-top: 2px; display: none;">Custom background image active</p>
         </div>
       </div>
 
@@ -448,6 +492,55 @@
     </div>
   </div>
 
+  <!-- PERSONAL ASSETS STUDIO MODAL (.sidehop) -->
+  <div id="assets-modal" class="neo-modal-overlay">
+    <div class="neo-modal-box" style="max-width: 680px;">
+      <div class="modal-header">
+        <div>
+          <h3 class="modal-title">🎒 Personal Asset Studio</h3>
+          <p style="font-size: 12px; font-weight: 600; color: #555; margin-top: 2px;">
+            Manage and share custom sprites, skins, blocks &amp; backgrounds using <strong>.sidehop</strong> packages
+          </p>
+        </div>
+        <button id="close-assets-modal" class="modal-close-btn">&times;</button>
+      </div>
+
+      <!-- Asset Studio Toolbar -->
+      <div class="assets-toolbar">
+        <div class="assets-category-tabs">
+          <button class="asset-filter-btn active" data-asset-filter="all">All</button>
+          <button class="asset-filter-btn" data-asset-filter="player">🐰 Player</button>
+          <button class="asset-filter-btn" data-asset-filter="block">🧱 Blocks</button>
+          <button class="asset-filter-btn" data-asset-filter="enemy">👾 Enemies</button>
+          <button class="asset-filter-btn" data-asset-filter="collectible">⭐ Items</button>
+          <button class="asset-filter-btn" data-asset-filter="sprite">🎨 Sprites</button>
+        </div>
+        <div class="assets-action-btns">
+          <button id="assets-paint-new-btn" class="neo-btn neo-btn-pink" style="padding: 5px 10px; font-size: 12px;">
+            <span>➕ Paint New</span>
+          </button>
+          <label class="neo-btn neo-btn-cyan" style="padding: 5px 10px; font-size: 12px; cursor: pointer;">
+            <span>📂 Import .sidehop</span>
+            <input type="file" id="assets-import-file" accept=".sidehop,.json" style="display: none;">
+          </label>
+          <button id="assets-export-all-btn" class="neo-btn" style="padding: 5px 10px; font-size: 12px;" title="Export entire personal stash as a .sidehop bundle">
+            <span>💾 Export All</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Assets Grid Container -->
+      <div id="assets-grid" class="assets-grid">
+        <!-- Injected dynamically -->
+      </div>
+
+      <div class="modal-footer" style="display: flex; justify-content: space-between; align-items: center; border-top: 2px dashed #DDD; padding-top: 10px;">
+        <span id="assets-count-label" style="font-size: 12px; font-weight: 700; color: #555;">0 assets in personal stash</span>
+        <button id="close-assets-done" class="neo-btn neo-btn-primary">Done</button>
+      </div>
+    </div>
+  </div>
+
   <!-- MOBILE DEVICE ONLY ADVISORY OVERLAY -->
   <div id="mobile-blocker" class="mobile-blocker-overlay" role="dialog" aria-modal="true" aria-label="Desktop browser required">
     <div class="mobile-blocker-card">
@@ -467,6 +560,6 @@
   </div>
 
   <!-- MAIN SCRIPT -->
-  <script type="module" src="js/main.js"></script>
+  <script type="module" src="js/main.js?v=2"></script>
 </body>
 </html>

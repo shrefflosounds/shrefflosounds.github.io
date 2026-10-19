@@ -1,6 +1,8 @@
 // Sidehop Level Persistence & Preset Levels Engine
 
 import { SolidBlock, Springboard, HazardSpikes, EnemyWalker, MovingPlatform, Collectible, GoalFlag } from '../engine/entities.js';
+import { SidehopFile } from './sidehop-format.js';
+import { PersonalAssetLibrary } from './asset-library.js';
 
 const STORAGE_KEY = 'sidehop_saved_level_v4';
 
@@ -157,30 +159,72 @@ export class LevelStorage {
     return null;
   }
 
-  // Download JSON file
-  static exportLevel(player, entities, background) {
+  // Download Level as .sidehop package file
+  static exportLevel(player, entities, background, customTitle) {
     const data = this.serialize(player, entities, background);
-    const jsonStr = JSON.stringify(data, null, 2);
-    const blob = new Blob([jsonStr], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `sidehop-level-${Date.now()}.json`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
+    const title = customTitle || data.name || 'Sidehop Level';
+    const pkg = SidehopFile.createLevelPackage(data, {
+      title: title,
+      description: 'Platformer level created with Sidehop'
+    });
+    const slug = title
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-|-$/g, '') || 'sidehop-level';
+    SidehopFile.download(`${slug}-${Date.now()}.sidehop`, pkg);
+    return pkg;
   }
 
-  // Import JSON file
+  // Import any .sidehop package (or legacy JSON level)
   static importLevel(file, player, entities, callback) {
     const reader = new FileReader();
     reader.onload = (e) => {
       try {
-        const data = JSON.parse(e.target.result);
-        const bg = this.deserialize(data, player, entities);
-        if (callback) callback(bg);
+        const parsed = SidehopFile.parse(e.target.result);
+
+        if (parsed.kind === 'level') {
+          const bg = this.deserialize(parsed.level, player, entities);
+          if (callback) {
+            callback({
+              kind: 'level',
+              background: bg,
+              meta: parsed.meta,
+              levelName: parsed.meta?.title || parsed.level?.name || 'Sidehop Level'
+            });
+          }
+        } else if (parsed.kind === 'asset') {
+          // Save to Personal Assets library
+          const saved = PersonalAssetLibrary.save(parsed.asset);
+          if (callback) {
+            callback({
+              kind: 'asset',
+              asset: saved,
+              meta: parsed.meta
+            });
+          }
+        } else if (parsed.kind === 'bundle') {
+          // Save all bundled assets
+          let savedAssets = [];
+          if (Array.isArray(parsed.assets)) {
+            savedAssets = parsed.assets.map(a => PersonalAssetLibrary.save(a));
+          }
+          let bg = null;
+          if (parsed.level) {
+            bg = this.deserialize(parsed.level, player, entities);
+          }
+          if (callback) {
+            callback({
+              kind: 'bundle',
+              background: bg,
+              level: parsed.level,
+              assets: savedAssets,
+              meta: parsed.meta
+            });
+          }
+        }
       } catch (err) {
-        alert('Invalid Sidehop level file.');
+        console.error('Sidehop file import error:', err);
+        alert('Invalid Sidehop file (.sidehop or .json): ' + (err.message || 'Parse error'));
       }
     };
     reader.readAsText(file);

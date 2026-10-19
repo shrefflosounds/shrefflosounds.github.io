@@ -1,4 +1,6 @@
 import { sounds } from '../audio/sound.js';
+import { SidehopFile } from '../storage/sidehop-format.js';
+import { PersonalAssetLibrary } from '../storage/asset-library.js';
 
 export class ArtStudio {
   constructor(modalElement, canvasElement) {
@@ -178,7 +180,122 @@ export class ArtStudio {
       this.ctx.stroke();
     }
 
-    ctx.restore();
+    this.ctx.restore();
+  }
+
+  // Load image from Data URL or path
+  loadImageFromUrl(dataUrl, callback) {
+    if (!dataUrl) return;
+    const img = new Image();
+    img.src = dataUrl;
+    img.onload = () => {
+      this.clearCanvas();
+      const scale = Math.min(this.canvas.width / img.width, this.canvas.height / img.height);
+      const drawW = img.width * scale;
+      const drawH = img.height * scale;
+      const offsetX = (this.canvas.width - drawW) / 2;
+      const offsetY = (this.canvas.height - drawH) / 2;
+      this.ctx.drawImage(img, offsetX, offsetY, drawW, drawH);
+      sounds.playPaintSquish();
+      if (callback) callback();
+    };
+  }
+
+  getSuggestedCategory() {
+    if (!this.targetEntity) return 'sprite';
+    const type = this.targetEntity.type;
+    if (type === 'player') return 'player';
+    if (type === 'block' || type === 'crate') return 'block';
+    if (type === 'enemy') return 'enemy';
+    if (type === 'collectible') return 'collectible';
+    if (type === 'springboard') return 'spring';
+    if (type === 'hazard') return 'hazard';
+    return 'sprite';
+  }
+
+  // Export current artwork as a .sidehop asset package
+  exportAsset(assetName) {
+    const dataUrl = this.canvas.toDataURL('image/png');
+    const category = this.getSuggestedCategory();
+    const name = assetName || (this.targetEntity ? `${this.targetEntity.type} Art` : 'Custom Asset');
+
+    const pkg = SidehopFile.createAssetPackage({
+      name: name,
+      category: category,
+      targetType: this.targetEntity?.type || 'all',
+      dataUrl: dataUrl,
+      width: this.canvas.width,
+      height: this.canvas.height
+    }, {
+      title: name,
+      description: `Personal asset created in Kid Pix Art Studio`
+    });
+
+    const slug = name
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-|-$/g, '') || 'personal-asset';
+
+    SidehopFile.download(`${slug}.sidehop`, pkg);
+    sounds.playCollect();
+    return pkg;
+  }
+
+  // Save current artwork to PersonalAssetLibrary in localStorage
+  saveToLibrary(assetName) {
+    const dataUrl = this.canvas.toDataURL('image/png');
+    const category = this.getSuggestedCategory();
+    const name = assetName || (this.targetEntity ? `${this.targetEntity.type} Art` : 'Custom Asset');
+
+    const saved = PersonalAssetLibrary.save({
+      name: name,
+      category: category,
+      targetType: this.targetEntity?.type || 'all',
+      dataUrl: dataUrl,
+      width: this.canvas.width,
+      height: this.canvas.height
+    });
+
+    sounds.playCollect();
+    return saved;
+  }
+
+  // Import a .sidehop or image file onto the painting canvas
+  importAssetFile(file, callback) {
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const parsed = SidehopFile.parse(e.target.result);
+        if (parsed.kind === 'asset' && parsed.asset?.dataUrl) {
+          this.loadImageFromUrl(parsed.asset.dataUrl, () => {
+            PersonalAssetLibrary.save(parsed.asset);
+            if (callback) callback(parsed.asset);
+          });
+          return;
+        } else if (parsed.kind === 'bundle' && parsed.assets?.length > 0) {
+          const first = parsed.assets[0];
+          if (first && first.dataUrl) {
+            this.loadImageFromUrl(first.dataUrl, () => {
+              PersonalAssetLibrary.importPackage(parsed);
+              if (callback) callback(first);
+            });
+            return;
+          }
+        }
+      } catch (_) {
+        // Fallback to standard image dataURL upload
+        this.handleFileUpload(file);
+        if (callback) callback(null);
+      }
+    };
+
+    if (file.name.endsWith('.sidehop') || file.name.endsWith('.json')) {
+      reader.readAsText(file);
+    } else {
+      this.handleFileUpload(file);
+      if (callback) callback(null);
+    }
   }
 
   // Handle Image/GIF File Upload

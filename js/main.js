@@ -1,7 +1,7 @@
 // Sidehop Master Application Coordinator — Enhanced Custom Backgrounds, Asset Library & Undo/Redo
 
 import { Player } from './engine/entities.js';
-import { PhysicsEngine } from './engine/physics.js';
+import { PhysicsEngine } from './engine/physics.js?v=2';
 import { Camera } from './engine/camera.js';
 import { GridEditor } from './editor/grid.js';
 import { ArtStudio } from './editor/paint.js';
@@ -10,6 +10,8 @@ import { VideoRecorder } from './recorder/recorder.js';
 import { LevelStorage } from './storage/storage.js';
 import { HistoryManager } from './editor/history.js';
 import { sounds } from './audio/sound.js';
+import { SidehopFile } from './storage/sidehop-format.js';
+import { PersonalAssetLibrary } from './storage/asset-library.js';
 
 class SidehopApp {
   constructor() {
@@ -68,6 +70,9 @@ class SidehopApp {
     // Confetti particles for victory
     this.confetti = [];
 
+    // Personal Asset Library Active Filter
+    this.currentAssetFilter = 'all';
+
     this.lastTime = performance.now();
 
     // Wire History State Change to Header Undo/Redo Buttons
@@ -86,6 +91,7 @@ class SidehopApp {
     this.initLevel();
     this.bindUI();
     this.bindEvents();
+    this.initDragAndDrop();
 
     // Initial snapshot for Undo stack
     this.history.pushState(this.player, this.entities, this.background);
@@ -917,6 +923,241 @@ class SidehopApp {
     setTimeout(() => toast.remove(), 2200);
   }
 
+  // --- Personal Assets Studio (.sidehop) ---
+  openAssetsModal() {
+    const modal = document.getElementById('assets-modal');
+    if (!modal) return;
+    this.renderAssetsGrid();
+    modal.classList.add('active');
+    sounds.playClick();
+  }
+
+  closeAssetsModal() {
+    const modal = document.getElementById('assets-modal');
+    if (modal) modal.classList.remove('active');
+    sounds.playClick();
+  }
+
+  renderAssetsGrid() {
+    const grid = document.getElementById('assets-grid');
+    const countLabel = document.getElementById('assets-count-label');
+    if (!grid) return;
+
+    const assets = PersonalAssetLibrary.getByCategory(this.currentAssetFilter);
+    if (countLabel) {
+      countLabel.textContent = `${assets.length} personal ${assets.length === 1 ? 'asset' : 'assets'} in stash`;
+    }
+
+    grid.innerHTML = '';
+
+    if (assets.length === 0) {
+      grid.innerHTML = `
+        <div class="assets-empty-state">
+          <div class="assets-empty-icon">🎨 🎒</div>
+          <div class="assets-empty-title">No assets in this category yet</div>
+          <div class="assets-empty-sub">Paint an asset in Art Studio or import a <strong>.sidehop</strong> file!</div>
+        </div>
+      `;
+      return;
+    }
+
+    assets.forEach(asset => {
+      const card = document.createElement('div');
+      card.className = 'asset-card';
+
+      card.innerHTML = `
+        <div class="asset-preview-box" title="Click to apply to active entity / stage">
+          <img src="${asset.preview || asset.dataUrl}" alt="${asset.name}" class="asset-preview-img">
+        </div>
+        <div class="asset-info">
+          <span class="asset-title" title="${asset.name}">${asset.name}</span>
+          <span class="asset-category-badge">${asset.category || 'sprite'}</span>
+        </div>
+        <div class="asset-btn-row">
+          <button class="asset-card-btn apply-btn" title="Apply visual to active component">
+            <span>Apply</span>
+          </button>
+          <button class="asset-card-btn export-btn" title="Export as .sidehop asset file">
+            <span>💾 .sidehop</span>
+          </button>
+          <button class="asset-card-btn edit-btn" title="Edit in Kid Pix Art Studio">
+            <span>✏️</span>
+          </button>
+          <button class="asset-card-btn danger-btn delete-btn" title="Delete from stash">
+            <span>🗑️</span>
+          </button>
+        </div>
+      `;
+
+      // Apply button / preview box click
+      const applyAction = () => {
+        this.applyAssetToActiveTarget(asset);
+      };
+      card.querySelector('.asset-preview-box').addEventListener('click', applyAction);
+      card.querySelector('.apply-btn').addEventListener('click', applyAction);
+
+      // Export as .sidehop file
+      card.querySelector('.export-btn').addEventListener('click', (e) => {
+        e.stopPropagation();
+        PersonalAssetLibrary.exportAsset(asset.id);
+        this.showToast(`💾 Exported ${asset.name}.sidehop!`);
+        sounds.playCollect();
+      });
+
+      // Edit in Art Studio
+      card.querySelector('.edit-btn').addEventListener('click', (e) => {
+        e.stopPropagation();
+        this.closeAssetsModal();
+        const target = this.editor.selectedEntity || this.player;
+        this.artStudio.openForEntity(target, () => {
+          LevelStorage.autoSave(this.player, this.entities, this.background);
+        });
+        this.artStudio.loadImageFromUrl(asset.dataUrl);
+        this.renderArtStudioQuickStash();
+      });
+
+      // Delete from stash
+      card.querySelector('.delete-btn').addEventListener('click', (e) => {
+        e.stopPropagation();
+        PersonalAssetLibrary.delete(asset.id);
+        this.renderAssetsGrid();
+        this.renderArtStudioQuickStash();
+        sounds.playPaintSquish();
+        this.showToast(`🗑️ Removed ${asset.name} from stash`);
+      });
+
+      grid.appendChild(card);
+    });
+  }
+
+  applyAssetToActiveTarget(asset) {
+    if (!asset || !asset.dataUrl) return;
+
+    if (asset.category === 'background') {
+      this.background.theme = 'custom';
+      this.background.customImage = asset.dataUrl;
+      const img = new Image();
+      img.src = asset.dataUrl;
+      img.onload = () => {
+        this.background.customImageElement = img;
+      };
+      LevelStorage.autoSave(this.player, this.entities, this.background);
+      this.showToast(`🌄 Applied background: ${asset.name}`);
+      sounds.playCollect();
+      this.closeAssetsModal();
+      return;
+    }
+
+    const target = this.editor.selectedEntity || this.player;
+    target.setCustomVisual(asset.dataUrl);
+    if (asset.properties) {
+      if (asset.properties.speed && target.speed !== undefined) target.speed = asset.properties.speed;
+      if (asset.properties.jumpForce && target.jumpForce !== undefined) target.jumpForce = asset.properties.jumpForce;
+      if (asset.properties.bounciness && target.bounciness !== undefined) target.bounciness = asset.properties.bounciness;
+    }
+    LevelStorage.autoSave(this.player, this.entities, this.background);
+    sounds.playCollect();
+    this.showToast(`🎨 Applied ${asset.name} to ${target === this.player ? 'Player Hero' : target.type}!`);
+    this.closeAssetsModal();
+  }
+
+  renderArtStudioQuickStash() {
+    const strip = document.getElementById('art-quick-stash-strip');
+    if (!strip) return;
+
+    const assets = PersonalAssetLibrary.getAll();
+    strip.innerHTML = '';
+
+    if (assets.length === 0) {
+      strip.innerHTML = '<span style="font-size: 11px; color: #888;">No saved assets yet</span>';
+      return;
+    }
+
+    assets.slice(0, 10).forEach(asset => {
+      const thumb = document.createElement('div');
+      thumb.className = 'art-quick-thumb';
+      thumb.title = `Load ${asset.name} onto canvas`;
+      thumb.innerHTML = `<img src="${asset.preview || asset.dataUrl}" alt="${asset.name}">`;
+      thumb.addEventListener('click', () => {
+        this.artStudio.loadImageFromUrl(asset.dataUrl);
+        this.showToast(`Loaded ${asset.name} into canvas`);
+      });
+      strip.appendChild(thumb);
+    });
+  }
+
+  // --- Drag & Drop .sidehop File Integration ---
+  initDragAndDrop() {
+    const overlay = document.getElementById('drag-drop-overlay');
+    let dragCounter = 0;
+
+    window.addEventListener('dragenter', (e) => {
+      e.preventDefault();
+      dragCounter++;
+      if (overlay) overlay.style.display = 'flex';
+    });
+
+    window.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      if (overlay) overlay.style.display = 'flex';
+    });
+
+    window.addEventListener('dragleave', (e) => {
+      e.preventDefault();
+      dragCounter--;
+      if (dragCounter <= 0) {
+        dragCounter = 0;
+        if (overlay) overlay.style.display = 'none';
+      }
+    });
+
+    window.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dragCounter = 0;
+      if (overlay) overlay.style.display = 'none';
+
+      if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0]) {
+        const file = e.dataTransfer.files[0];
+        this.handleUniversalSidehopImport(file);
+      }
+    });
+  }
+
+  handleUniversalSidehopImport(file) {
+    if (!file) return;
+    LevelStorage.importLevel(file, this.player, this.entities, (result) => {
+      if (!result) return;
+
+      if (result.kind === 'level') {
+        if (result.background) this.applyBackground(result.background);
+        this.history.pushState(this.player, this.entities, this.background);
+        LevelStorage.autoSave(this.player, this.entities, this.background);
+        sounds.playCollect();
+        this.showToast(`🎮 Loaded Level: ${result.levelName || 'Custom Level'} (.sidehop)`);
+      } else if (result.kind === 'asset') {
+        sounds.playCollect();
+        this.showToast(`🎨 Imported Asset: ${result.asset.name} (.sidehop)`);
+        // If an entity is selected, apply it immediately
+        if (this.editor.selectedEntity) {
+          this.editor.selectedEntity.setCustomVisual(result.asset.dataUrl);
+          LevelStorage.autoSave(this.player, this.entities, this.background);
+        }
+        this.renderAssetsGrid();
+        this.renderArtStudioQuickStash();
+      } else if (result.kind === 'bundle') {
+        if (result.background) this.applyBackground(result.background);
+        if (result.level) {
+          this.history.pushState(this.player, this.entities, this.background);
+          LevelStorage.autoSave(this.player, this.entities, this.background);
+        }
+        sounds.playCollect();
+        this.showToast(`📦 Imported .sidehop Bundle (${result.assets?.length || 0} assets)!`);
+        this.renderAssetsGrid();
+        this.renderArtStudioQuickStash();
+      }
+    });
+  }
+
   // Definitions of Mario Maker-style component types / variants
   getVariantDefs() {
     return {
@@ -1180,7 +1421,75 @@ class SidehopApp {
       LevelStorage.autoSave(this.player, this.entities, this.background);
     });
 
-    // 5. Presets and Level Management
+    // Background .sidehop Export & Import
+    document.getElementById('bg-export-sidehop-btn')?.addEventListener('click', () => {
+      let dataUrl = this.background.customImage;
+      if (!dataUrl) {
+        const bgCanvas = document.createElement('canvas');
+        bgCanvas.width = 960;
+        bgCanvas.height = 540;
+        const bgCtx = bgCanvas.getContext('2d');
+        const prevW = this.canvas.width;
+        const prevH = this.canvas.height;
+        this.canvas.width = 960;
+        this.canvas.height = 540;
+        this.renderBackground();
+        dataUrl = this.canvas.toDataURL('image/png');
+        this.canvas.width = prevW;
+        this.canvas.height = prevH;
+      }
+      const title = `${this.background.theme.toUpperCase()} Background`;
+      const pkg = SidehopFile.createAssetPackage({
+        name: title,
+        category: 'background',
+        targetType: 'background',
+        dataUrl: dataUrl,
+        width: 960,
+        height: 540
+      }, {
+        title: title,
+        description: 'Level background exported from Sidehop'
+      });
+      SidehopFile.download(`${this.background.theme}-background.sidehop`, pkg);
+      sounds.playCollect();
+      this.showToast('💾 Exported Background (.sidehop)!');
+    });
+
+    const bgSidehopUpload = document.getElementById('bg-sidehop-upload');
+    bgSidehopUpload?.addEventListener('change', (e) => {
+      if (e.target.files && e.target.files[0]) {
+        const file = e.target.files[0];
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+          try {
+            const parsed = SidehopFile.parse(ev.target.result);
+            const asset = parsed.asset || (parsed.kind === 'asset' ? parsed.asset : null);
+            const dataUrl = asset?.dataUrl || parsed.dataUrl;
+            if (dataUrl) {
+              this.background.theme = 'custom';
+              this.background.customImage = dataUrl;
+              const img = new Image();
+              img.src = dataUrl;
+              img.onload = () => {
+                this.background.customImageElement = img;
+              };
+              bgThemeCards.forEach(c => c.classList.remove('active'));
+              const customStatus = document.getElementById('bg-custom-status');
+              if (customStatus) customStatus.style.display = 'block';
+              LevelStorage.autoSave(this.player, this.entities, this.background);
+              sounds.playCollect();
+              this.showToast('🌄 Loaded .sidehop Background!');
+            }
+          } catch (err) {
+            alert('Failed to load .sidehop background: ' + err.message);
+          }
+        };
+        reader.readAsText(file);
+        bgSidehopUpload.value = '';
+      }
+    });
+
+    // 5. Presets, .sidehop Level and Personal Asset Management
     document.getElementById('load-preset-btn').addEventListener('click', () => {
       this.loadStarterWorld();
       sounds.playLand();
@@ -1190,6 +1499,7 @@ class SidehopApp {
     document.getElementById('export-level-btn').addEventListener('click', () => {
       LevelStorage.exportLevel(this.player, this.entities, this.background);
       sounds.playCollect();
+      this.showToast('💾 Level Exported (.sidehop)!');
     });
 
     const importInput = document.getElementById('import-file-input');
@@ -1199,11 +1509,62 @@ class SidehopApp {
 
     importInput.addEventListener('change', (e) => {
       if (e.target.files && e.target.files[0]) {
-        LevelStorage.importLevel(e.target.files[0], this.player, this.entities, (bg) => {
-          if (bg) this.applyBackground(bg);
-          sounds.playCollect();
-        });
+        this.handleUniversalSidehopImport(e.target.files[0]);
+        importInput.value = '';
       }
+    });
+
+    // Personal Assets Modal Controls
+    document.getElementById('assets-modal-btn')?.addEventListener('click', () => {
+      this.openAssetsModal();
+    });
+    document.getElementById('drawer-assets-btn')?.addEventListener('click', () => {
+      this.openAssetsModal();
+    });
+    document.getElementById('close-assets-modal')?.addEventListener('click', () => {
+      this.closeAssetsModal();
+    });
+    document.getElementById('close-assets-done')?.addEventListener('click', () => {
+      this.closeAssetsModal();
+    });
+
+    // Asset Category Filter Buttons
+    const filterBtns = document.querySelectorAll('.asset-filter-btn');
+    filterBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        filterBtns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        this.currentAssetFilter = btn.getAttribute('data-asset-filter') || 'all';
+        this.renderAssetsGrid();
+        sounds.playClick();
+      });
+    });
+
+    // Asset Studio Paint New Button
+    document.getElementById('assets-paint-new-btn')?.addEventListener('click', () => {
+      this.closeAssetsModal();
+      const target = this.editor.selectedEntity || this.player;
+      this.artStudio.openForEntity(target, () => {
+        LevelStorage.autoSave(this.player, this.entities, this.background);
+      });
+      this.artStudio.clearCanvas();
+      this.renderArtStudioQuickStash();
+    });
+
+    // Import asset into stash
+    const assetImportInput = document.getElementById('assets-import-file');
+    assetImportInput?.addEventListener('change', (e) => {
+      if (e.target.files && e.target.files[0]) {
+        this.handleUniversalSidehopImport(e.target.files[0]);
+        assetImportInput.value = '';
+      }
+    });
+
+    // Export all assets as .sidehop bundle
+    document.getElementById('assets-export-all-btn')?.addEventListener('click', () => {
+      PersonalAssetLibrary.exportAll();
+      sounds.playCollect();
+      this.showToast('💾 Exported All Assets (.sidehop)!');
     });
 
     // 6. Tool Drawer Palette Clicks
@@ -1311,6 +1672,7 @@ class SidehopApp {
         this.artStudio.openForEntity(this.editor.selectedEntity, () => {
           LevelStorage.autoSave(this.player, this.entities, this.background);
         });
+        this.renderArtStudioQuickStash();
       }
     });
 
@@ -1538,6 +1900,45 @@ class SidehopApp {
       if (e.target.files && e.target.files[0]) {
         this.artStudio.handleFileUpload(e.target.files[0]);
       }
+    });
+
+    // Art Studio .sidehop Asset Handlers
+    const paintAssetInput = document.getElementById('paint-asset-upload');
+    paintAssetInput?.addEventListener('change', (e) => {
+      if (e.target.files && e.target.files[0]) {
+        this.artStudio.importAssetFile(e.target.files[0], (asset) => {
+          this.renderArtStudioQuickStash();
+          this.showToast(`🎨 Loaded ${asset?.name || 'asset'} into canvas!`);
+        });
+        paintAssetInput.value = '';
+      }
+    });
+
+    document.getElementById('paint-save-asset-btn')?.addEventListener('click', () => {
+      const defaultName = this.artStudio.targetEntity?.type
+        ? `${this.artStudio.targetEntity.type.toUpperCase()} Art`
+        : 'Custom Doodle';
+      const name = prompt('Name your personal asset for your stash:', defaultName);
+      if (name !== null) {
+        this.artStudio.saveToLibrary(name || defaultName);
+        this.renderArtStudioQuickStash();
+        this.showToast(`⭐ Saved "${name || defaultName}" to Stash!`);
+      }
+    });
+
+    document.getElementById('paint-export-asset-btn')?.addEventListener('click', () => {
+      const defaultName = this.artStudio.targetEntity?.type
+        ? `${this.artStudio.targetEntity.type.toLowerCase()}-art`
+        : 'personal-asset';
+      const name = prompt('Name your .sidehop asset file:', defaultName);
+      if (name !== null) {
+        this.artStudio.exportAsset(name || defaultName);
+        this.showToast(`💾 Exported .sidehop Asset!`);
+      }
+    });
+
+    document.getElementById('paint-open-stash-btn')?.addEventListener('click', () => {
+      this.openAssetsModal();
     });
 
     // 10. Inspector Modal Controls

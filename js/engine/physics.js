@@ -26,8 +26,9 @@ export class PhysicsEngine {
     if (entity.vy > 1200) entity.vy = 1200;
 
     // 1. Horizontal Movement & Collision
+    const prevX = entity.x;
     entity.x += entity.vx * dt;
-    this.resolveHorizontalCollisions(entity, solids);
+    this.resolveHorizontalCollisions(entity, solids, prevX);
 
     // 2. Vertical Movement & Collision
     const prevVy = entity.vy;
@@ -52,11 +53,19 @@ export class PhysicsEngine {
     this.updateProceduralDeformation(entity, dt);
   }
 
-  resolveHorizontalCollisions(entity, solids) {
+  resolveHorizontalCollisions(entity, solids, prevX) {
     for (const solid of solids) {
       if (!solid.active) continue;
       // Skip one-way platforms and angled sloped surfaces horizontally
       if (solid.isOneWay || solid.variant === 'cloud' || solid.variant === 'semisolid' || solid.variant === 'slope_up' || solid.variant === 'slope_down') continue;
+
+      // Skip solid blocks that are covered underneath any slope
+      const isUnderSlope = solids.some(s =>
+        s.active && (s.variant === 'slope_up' || s.variant === 'slope_down') &&
+        Math.abs(s.x - solid.x) < 2 &&
+        solid.y >= s.y + s.height - 2
+      );
+      if (isUnderSlope) continue;
 
       // Ignore horizontal collision if vertical overlap is merely boundary-level (e.g. resting on floor)
       const verticalOverlap = Math.min(entity.y + entity.height, solid.y + solid.height) - Math.max(entity.y, solid.y);
@@ -64,9 +73,33 @@ export class PhysicsEngine {
 
       if (this.checkOverlap(entity, solid)) {
         if (entity.vx > 0) {
+          // Entity moving right: only solid's left edge can block it!
+          // If entity was already past solid's left edge, solid is behind or beneath entity (e.g. descending adjacent slope)
+          if (prevX !== undefined && prevX + entity.width > solid.x + 2) continue;
+
+          // Check if left face is the top junction of an adjoining slope_up
+          const connectedSlopeUp = solids.some(s =>
+            s.active && s.variant === 'slope_up' &&
+            Math.abs((s.x + s.width) - solid.x) <= 2 &&
+            Math.abs(s.y - solid.y) <= 2
+          );
+          if (connectedSlopeUp) continue;
+
           entity.x = solid.x - entity.width;
           entity.vx = 0;
         } else if (entity.vx < 0) {
+          // Entity moving left: only solid's right edge can block it!
+          // If entity was already past solid's right edge, solid is behind or beneath entity (e.g. descending adjacent slope)
+          if (prevX !== undefined && prevX < solid.x + solid.width - 2) continue;
+
+          // Check if right face is the top junction of an adjoining slope_down
+          const connectedSlopeDown = solids.some(s =>
+            s.active && s.variant === 'slope_down' &&
+            Math.abs(s.x - (solid.x + solid.width)) <= 2 &&
+            Math.abs(s.y - solid.y) <= 2
+          );
+          if (connectedSlopeDown) continue;
+
           entity.x = solid.x + solid.width;
           entity.vx = 0;
         }
@@ -89,8 +122,11 @@ export class PhysicsEngine {
             : solid.y + relX * solid.height;
 
           const footY = entity.y + entity.height;
-          // Check if player feet are near or descending onto slope surface
-          if (footY >= surfaceY - 8 && footY <= solid.y + solid.height + 6 && entity.vy >= -40) {
+          // Downward snapping tolerance: snap down by up to 32px to track downhill runs smoothly without airborne bouncing
+          const snapDownTol = (entity.grounded || entity.standingOnSolid) ? 32 : 16;
+
+          // Catch player anytime feet are near or descending onto slope surface (and not actively jumping upward)
+          if (footY >= surfaceY - snapDownTol && footY <= solid.y + solid.height + 4 && entity.vy >= -60) {
             entity.y = surfaceY - entity.height;
             entity.vy = 0;
             entity.grounded = true;

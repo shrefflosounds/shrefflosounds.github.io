@@ -128,13 +128,24 @@
 │   ├── recorder/
 │   │   └── recorder.js     # MediaRecorder canvas video capture & replay buffer
 │   └── storage/
-│       └── storage.js      # LocalStorage auto-save & JSON level import/export
+│       ├── storage.js          # LocalStorage auto-save & level persistence
+│       ├── sidehop-format.js   # Universal .sidehop package parser, serializer & schema
+│       └── asset-library.js    # Personal asset library manager & preset stash
 ├── assets/                 # Default SVG stamps, sound presets, and demo levels
 ├── .github/
 │   └── workflows/
 │       └── deploy.yml      # Automated GitHub Pages CI/CD deployment
 └── SPEC.md                 # This live specification document
 ```
+
+### The `.sidehop` File Format Specification
+The `.sidehop` file is a structured JSON package (`application/x-sidehop+json`) supporting three primary payload kinds:
+1. **`kind: "level"`**: Full level world definition (version, name, background, player parameters, and entity list with custom visuals).
+2. **`kind: "asset"`**: Single personal visual asset (name, category, dataUrl, preview, width, height, and optional physics properties).
+3. **`kind: "bundle"`**: Collection of personal assets with an optional companion level.
+
+- **Universal Auto-Detection:** Seamlessly parses `.sidehop` packages or legacy JSON levels and auto-loads or saves to the personal asset stash.
+- **Drag-and-Drop:** Canvas stage detects file drops and loads `.sidehop` levels or personal assets immediately.
 
 - **Runtime:** 100% Client-Side Modern JavaScript (ES6 Modules) + HTML5 2D Canvas.
 - **Zero Heavy Build Dependencies:** No complex node build toolchains required to run; instant live reload, zero build errors, completely static and guaranteed 100% compatible with GitHub Pages.

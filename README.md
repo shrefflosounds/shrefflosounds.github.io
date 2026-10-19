@@ -35,8 +35,21 @@ Build levels with snap-to-grid placement, customize every visual element using a
   8. Goal Finish Line with Confetti Fanfare
 - **Dual-Mode Video Recording:** Manual `● REC` button to capture canvas gameplay via `MediaRecorder` API with one-click `.webm` download, plus instant replay highlights.
 - **Procedural Web Audio Engine:** Built-in retro chiptune BGM loop, goofy boings, squishy drawing sounds, coin chimes, and victory fanfares (zero external audio files needed).
-- **Universal Level Sharing:** Auto-saves to browser storage (`localStorage`) and allows one-click JSON Level Export and Import.
+- **Universal Level & Personal Asset Sharing (.sidehop):** Custom package format (`.sidehop`) for one-click export and import of both complete playable levels and individual personal assets (hero skins, painted blocks, custom enemy doodles, animated GIF textures, custom backgrounds, and asset bundles), featuring instant drag-and-drop canvas loading.
+- **Personal Asset Studio & Stash:** In-browser personal asset library for saving, managing, applying, and exporting custom visual components across levels.
 - **Bundled Showcase Level:** "World 1-1: Sidehop Meadow" starter adventure included out of the box.
+
+---
+
+## 📦 The `.sidehop` File Format
+
+Sidehop features a universal package format with the extension **`.sidehop`** (`application/x-sidehop+json`) for sharing creative platformer content:
+
+- **Playable Levels (`kind: "level"`):** Saves level layouts, entity placements, custom physics parameters, player stats, and embedded personal art.
+- **Personal Assets (`kind: "asset"`):** Saves individual custom sprites, hero skins, hand-painted tiles, stamp doodles, or custom background art created in the Kid Pix Art Studio.
+- **Asset Bundles (`kind: "bundle"`):** Packages multiple personal assets or levels with companion asset stashes for easy sharing.
+- **Drag-and-Drop Support:** Drag any `.sidehop` file from your desktop directly onto the canvas stage to instantly load the level or save the asset into your personal stash!
+
 
 ---
 

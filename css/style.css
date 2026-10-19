@@ -1224,3 +1224,310 @@ body {
   }
 }
 
+/* ==========================================================================
+   PERSONAL ASSETS STUDIO & .SIDEHOP DRAG/DROP STYLING
+   ========================================================================== */
+
+/* DRAG & DROP OVERLAY */
+.drag-drop-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 229, 255, 0.25);
+  backdrop-filter: blur(4px);
+  border: 4px dashed var(--ink-black);
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 150;
+  pointer-events: none;
+  animation: popIn 0.15s ease;
+}
+
+.drag-drop-card {
+  background: var(--canary-yellow);
+  border: var(--border-thick);
+  border-radius: 16px;
+  padding: 24px 32px;
+  box-shadow: 8px 8px 0px var(--ink-black);
+  text-align: center;
+  transform: rotate(-1deg);
+  animation: pulseCard 1s infinite alternate ease-in-out;
+}
+
+@keyframes pulseCard {
+  from { transform: scale(1) rotate(-1deg); }
+  to { transform: scale(1.03) rotate(1deg); }
+}
+
+.drag-drop-icon {
+  font-size: 40px;
+  margin-bottom: 8px;
+}
+
+.drag-drop-title {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--ink-black);
+  text-transform: uppercase;
+  letter-spacing: -0.5px;
+}
+
+.drag-drop-sub {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ink-black);
+  margin-top: 4px;
+}
+
+/* PERSONAL ASSETS STUDIO MODAL */
+.assets-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.assets-category-tabs {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.asset-filter-btn {
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 5px 10px;
+  border-radius: 8px;
+  border: 2px solid var(--ink-black);
+  background: var(--bg-cream);
+  color: var(--ink-black);
+  cursor: pointer;
+  box-shadow: 2px 2px 0 var(--ink-black);
+  transition: all 0.08s ease;
+}
+
+.asset-filter-btn:hover {
+  background: var(--canary-yellow);
+  transform: translate(-1px, -1px);
+  box-shadow: 3px 3px 0 var(--ink-black);
+}
+
+.asset-filter-btn.active {
+  background: var(--cyber-cyan);
+  transform: translate(1px, 1px);
+  box-shadow: 1px 1px 0 var(--ink-black);
+}
+
+.assets-action-btns {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.assets-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(135px, 1fr));
+  gap: 12px;
+  max-height: 400px;
+  overflow-y: auto;
+  padding: 4px 4px 10px 4px;
+}
+
+.asset-card {
+  background: var(--bg-cream);
+  border: 2.5px solid var(--ink-black);
+  border-radius: 12px;
+  padding: 8px;
+  box-shadow: 3px 3px 0 var(--ink-black);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  position: relative;
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+}
+
+.asset-card:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 5px 5px 0 var(--ink-black);
+  background: #FFF;
+}
+
+.asset-preview-box {
+  width: 100%;
+  height: 90px;
+  border: 2px solid var(--ink-black);
+  border-radius: 8px;
+  background-color: #FFF;
+  background-image: radial-gradient(var(--ink-black) 0.75px, transparent 0.75px);
+  background-size: 8px 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.asset-preview-img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+
+.asset-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.asset-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--ink-black);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.asset-category-badge {
+  display: inline-block;
+  align-self: flex-start;
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  padding: 1px 6px;
+  border-radius: 4px;
+  border: 1.5px solid var(--ink-black);
+  background: var(--canary-yellow);
+}
+
+.asset-btn-row {
+  display: flex;
+  gap: 4px;
+  margin-top: 4px;
+}
+
+.asset-card-btn {
+  flex: 1;
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 6px;
+  border-radius: 6px;
+  border: 1.5px solid var(--ink-black);
+  background: #FFF;
+  box-shadow: 1.5px 1.5px 0 var(--ink-black);
+  cursor: pointer;
+  text-align: center;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  transition: all 0.08s ease;
+}
+
+.asset-card-btn:hover {
+  background: var(--canary-yellow);
+  transform: translate(-1px, -1px);
+}
+
+.asset-card-btn:active {
+  transform: translate(1px, 1px);
+  box-shadow: 0 0 0;
+}
+
+.asset-card-btn.apply-btn {
+  background: var(--mint-green);
+}
+
+.asset-card-btn.danger-btn {
+  color: var(--hazard-red);
+  max-width: 26px;
+  padding: 4px;
+}
+
+.assets-empty-state {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 36px 16px;
+  border: 2px dashed #AAA;
+  border-radius: 12px;
+  background: #FFF;
+}
+
+.assets-empty-icon {
+  font-size: 32px;
+  margin-bottom: 6px;
+}
+
+.assets-empty-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: #333;
+}
+
+.assets-empty-sub {
+  font-size: 12px;
+  color: #777;
+  margin-top: 4px;
+}
+
+/* ART STUDIO QUICK STASH STRIP */
+.art-quick-stash-container {
+  margin-top: 8px;
+  border-top: 2px dashed #E0E0E0;
+  padding-top: 8px;
+}
+
+.art-quick-stash-label {
+  font-size: 12px;
+  font-weight: 700;
+  margin-bottom: 6px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.art-quick-stash-strip {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+
+.art-quick-thumb {
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  border: 2px solid var(--ink-black);
+  border-radius: 8px;
+  background: #FFF;
+  box-shadow: 2px 2px 0 var(--ink-black);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px;
+  transition: transform 0.08s ease;
+}
+
+.art-quick-thumb:hover {
+  transform: scale(1.1);
+  background: var(--canary-yellow);
+}
+
+.art-quick-thumb img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+
