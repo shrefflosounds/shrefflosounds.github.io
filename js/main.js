@@ -1,6 +1,6 @@
 // Sidehop Master Application Coordinator — Enhanced Custom Backgrounds, Asset Library & Undo/Redo
 
-import { Player } from './engine/entities.js';
+import { Player, Bullet } from './engine/entities.js';
 import { PhysicsEngine } from './engine/physics.js?v=2';
 import { Camera } from './engine/camera.js';
 import { GridEditor } from './editor/grid.js';
@@ -23,6 +23,7 @@ class SidehopApp {
     this.camera = new Camera(this.canvas.width, this.canvas.height);
     this.player = new Player(80, 400);
     this.entities = [];
+    this.bullets = [];
     this.keys = {};
     this.score = 0;
     this.isLevelWon = false;
@@ -848,7 +849,7 @@ class SidehopApp {
         block: blockVariants,
         crate: blockVariants,
         enemy: [{ id: 'walker', label: '🥔 Walker' }, { id: 'winged', label: '🪽 Winged' }, { id: 'spiky', label: '🦔 Spiky' }],
-        collectible: [{ id: 'star', label: '⭐ Star' }, { id: 'coin', label: '🪙 Coin' }, { id: 'heart', label: '❤️ Heart' }],
+        collectible: [{ id: 'star', label: '⭐ Star' }, { id: 'coin', label: '🪙 Coin' }, { id: 'heart', label: '❤️ Heart' }, { id: 'pistol', label: '🔫 Pistol' }],
         springboard: [{ id: 'spring', label: '🌀 Standard' }, { id: 'mega', label: '🚀 Mega' }]
       };
 
@@ -1197,9 +1198,10 @@ class SidehopApp {
       collectible: {
         title: 'COLLECTIBLE TYPES',
         variants: [
-          { id: 'star', icon: '⭐', name: 'Star Gem', desc: 'Bright glowing star token (+100 pts)', shortName: 'Star' },
-          { id: 'coin', icon: '🪙', name: 'Gold Coin', desc: 'Shiny spinning coin token (+50 pts)', shortName: 'Coin' },
-          { id: 'heart', icon: '❤️', name: 'Health Heart', desc: 'Restores +1 heart of player health', shortName: 'Heart' }
+          { id: 'star', icon: '⭐', name: 'Star Gem', desc: 'Bright glowing star token (+500 pts)', shortName: 'Star' },
+          { id: 'coin', icon: '🪙', name: 'Gold Coin', desc: 'Shiny spinning coin token (+100 pts)', shortName: 'Coin' },
+          { id: 'heart', icon: '❤️', name: 'Health Heart', desc: 'Restores +1 heart of player health', shortName: 'Heart' },
+          { id: 'pistol', icon: '🔫', name: 'Pistol Gun', desc: 'Sidearm blaster weapon (+15 Ammo)', shortName: 'Pistol' }
         ]
       }
     };
@@ -1999,6 +2001,7 @@ class SidehopApp {
 
       this.score = 0;
       this.isLevelWon = false;
+      this.bullets = [];
       this.player.hearts = this.player.maxHearts || 4;
       this.player.invulnerableTimer = 0;
       document.getElementById('victory-overlay').classList.remove('active');
@@ -2017,6 +2020,7 @@ class SidehopApp {
       toolDrawer.classList.remove('minimized');
       if (navControls) navControls.classList.remove('hidden');
       this.player.respawn();
+      this.bullets = [];
       this.player.hearts = this.player.maxHearts || 4;
       this.player.invulnerableTimer = 0;
 
@@ -2218,11 +2222,19 @@ class SidehopApp {
       }
     });
 
-    // Mouse Canvas Inputs for Edit Mode
+    // Mouse Canvas Inputs for Edit Mode & Play Shooting
     this.canvas.addEventListener('mousedown', (e) => {
       if (this.mode === 'edit') {
         this.closeContextMenu();
         this.editor.handleMouseDown(e, this.entities, this.player);
+      } else if (this.mode === 'play' && e.button === 0 && !this.isLevelWon) {
+        if (this.player.hasPistol && this.player.shootCooldown <= 0) {
+          const bullet = this.player.shoot();
+          if (bullet) {
+            this.bullets.push(bullet);
+            sounds.playShoot();
+          }
+        }
       }
     });
 
@@ -2259,7 +2271,11 @@ class SidehopApp {
   update(dt) {
     if (this.mode === 'play' && !this.isLevelWon) {
       // 1. Update Player Input & Movement
-      this.player.handleInput(this.keys, dt);
+      const firedBullet = this.player.handleInput(this.keys, dt);
+      if (firedBullet) {
+        this.bullets.push(firedBullet);
+        sounds.playShoot();
+      }
 
       // Collect solid collision objects (Blocks and Moving Platforms)
       const solids = this.entities.filter(ent => ent.type === 'crate' || ent.type === 'block' || ent.type === 'moving_platform');
@@ -2267,6 +2283,26 @@ class SidehopApp {
         if (s.update && (s.type === 'crate' || s.type === 'block')) s.update(dt);
       }
       this.physics.updateEntity(this.player, solids, dt);
+
+      // 1b. Update Bullets & Bullet-Enemy Collisions
+      if (this.bullets && this.bullets.length > 0) {
+        for (const bullet of this.bullets) {
+          bullet.update(dt, solids);
+          if (!bullet.active) continue;
+
+          for (const ent of this.entities) {
+            if (!ent.active || ent.type !== 'enemy' || ent.isSquashed) continue;
+            if (this.physics.checkOverlap(bullet, ent)) {
+              bullet.active = false;
+              ent.stomp(); // Defeats enemy (including armored spiky!)
+              this.score += (ent.variant === 'spiky' ? 200 : (ent.variant === 'winged' ? 150 : 100));
+              this.spawnHurtParticles(ent.x + ent.width / 2, ent.y + ent.height / 2);
+              break;
+            }
+          }
+        }
+        this.bullets = this.bullets.filter(b => b.active);
+      }
 
       // 2. Check Entity Interactions
       for (const ent of this.entities) {
@@ -2290,6 +2326,7 @@ class SidehopApp {
               this.spawnHurtParticles(this.player.x + this.player.width / 2, this.player.y + this.player.height / 2);
               if (this.player.hearts <= 0) {
                 this.player.respawn();
+                this.bullets = [];
               }
             }
           }
@@ -2318,6 +2355,7 @@ class SidehopApp {
                 this.spawnHurtParticles(this.player.x + this.player.width / 2, this.player.y + this.player.height / 2);
                 if (this.player.hearts <= 0) {
                   this.player.respawn();
+                  this.bullets = [];
                 }
               }
             }
@@ -2339,12 +2377,17 @@ class SidehopApp {
           }
         }
 
-        // Collectibles (Coin, Star Gem, Heart)
+        // Collectibles (Coin, Star Gem, Heart, Pistol Powerup)
         else if (ent.type === 'collectible') {
           ent.update(dt);
           if (this.physics.checkOverlap(this.player, ent)) {
             ent.collect();
-            if (ent.variant === 'heart') {
+            if (ent.variant === 'pistol') {
+              this.player.hasPistol = true;
+              this.player.ammo = (this.player.ammo || 0) + 15;
+              this.score += 300;
+              this.showToast('🔫 Pistol Acquired! (+15 Ammo) [F/X to Shoot]');
+            } else if (ent.variant === 'heart') {
               this.player.hearts = Math.min(this.player.maxHearts, this.player.hearts + 1);
               this.score += 200;
               this.showToast('❤️ +1 Heart!');
@@ -2369,6 +2412,7 @@ class SidehopApp {
       if (this.player.y > 1000) {
         sounds.playHurt();
         this.player.respawn();
+        this.bullets = [];
       }
 
       // Camera follow in Play Mode
@@ -2475,6 +2519,12 @@ class SidehopApp {
       ent.draw(this.ctx);
     }
 
+    if (this.bullets && this.bullets.length > 0) {
+      for (const b of this.bullets) {
+        b.draw(this.ctx);
+      }
+    }
+
     this.player.draw(this.ctx);
 
     this.ctx.restore();
@@ -2504,7 +2554,7 @@ class SidehopApp {
     }
   }
 
-  // --- Neo-Brutalist Play HUD (Score & 4 Hearts) ---
+  // --- Neo-Brutalist Play HUD (Score, Hearts & Ammo) ---
   drawPlayHUD() {
     this.ctx.save();
 
@@ -2557,6 +2607,39 @@ class SidehopApp {
       const isFilled = i < currentH;
       const isLow = (currentH === 1);
       this.drawHeartIcon(heartStartX + i * heartSpacing, heartY, isFilled, isLow);
+    }
+
+    // Neo-Brutalist Ammo Card (Visible when Pistol is equipped)
+    if (this.player.hasPistol && this.player.ammo > 0) {
+      const ammoX = hudX + hudW + 12;
+      const ammoY = hudY;
+      const ammoW = 145;
+      const ammoH = hudH;
+
+      // Hard drop-shadow
+      this.ctx.fillStyle = '#121212';
+      this.ctx.beginPath();
+      this.ctx.roundRect(ammoX + 4, ammoY + 4, ammoW, ammoH, 12);
+      this.ctx.fill();
+
+      // Bright yellow foreground pill with thick black border
+      this.ctx.fillStyle = '#FFEE58';
+      this.ctx.strokeStyle = '#121212';
+      this.ctx.lineWidth = 3;
+      this.ctx.beginPath();
+      this.ctx.roundRect(ammoX, ammoY, ammoW, ammoH, 12);
+      this.ctx.fill();
+      this.ctx.stroke();
+
+      // Gun icon & Ammo Count
+      this.ctx.font = '900 16px "Fredoka", sans-serif';
+      this.ctx.fillStyle = '#121212';
+      this.ctx.fillText(`🔫 ${this.player.ammo} RDS`, ammoX + 12, ammoY + 28);
+
+      // Key prompt
+      this.ctx.font = '700 10px "Fredoka", sans-serif';
+      this.ctx.fillStyle = '#555555';
+      this.ctx.fillText('[F / X / Click]', ammoX + 14, ammoY + 42);
     }
 
     this.ctx.restore();

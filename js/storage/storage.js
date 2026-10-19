@@ -4,7 +4,7 @@ import { SolidBlock, Springboard, HazardSpikes, EnemyWalker, MovingPlatform, Col
 import { SidehopFile } from './sidehop-format.js';
 import { PersonalAssetLibrary } from './asset-library.js';
 
-const STORAGE_KEY = 'sidehop_saved_level_v4';
+const STORAGE_KEY = 'sidehop_saved_level_v5';
 
 export class LevelStorage {
   // Serialize active level to JSON-compatible object
@@ -255,8 +255,9 @@ export class LevelStorage {
     entities.push(new SolidBlock(320, 320, T, T, 'mystery')); // Bumpable [?]
     entities.push(new SolidBlock(360, 320, T, T, 'solid'));
 
-    // Coins under & above blocks
+    // Coins & Pistol under and above blocks
     entities.push(new Collectible(244, 270, 32, 32, 'coin'));
+    entities.push(new Collectible(284, 268, 32, 32, 'pistol')); // Pistol Gun Powerup!
     entities.push(new Collectible(324, 270, 32, 32, 'coin'));
 
     // Patrolling Potato Walker
@@ -368,7 +369,7 @@ export class LevelStorage {
     entities.push(new SolidBlock(1700, 340, T, T, 'cloud'));
     entities.push(new SolidBlock(1740, 340, T, T, 'cloud'));
     entities.push(new SolidBlock(1780, 340, T, T, 'mystery'));
-    entities.push(new Collectible(1704, 290, 32, 32, 'coin'));
+    entities.push(new Collectible(1704, 290, 32, 32, 'pistol')); // Pistol Gun Powerup!
     entities.push(new Collectible(1744, 290, 32, 32, 'coin'));
 
     // -------------------------------------------------------------

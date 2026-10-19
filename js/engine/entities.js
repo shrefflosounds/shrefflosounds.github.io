@@ -59,6 +59,13 @@ export class Player extends Entity {
     this.hearts = 4;
     this.invulnerableTimer = 0; // Invincibility frames after taking damage
 
+    // Pistol Gun Powerup
+    this.hasPistol = false;
+    this.ammo = 0;
+    this.shootCooldown = 0;
+    this.recoilTimer = 0;
+    this.shootKeyHeld = false;
+
     // Movement Tuning
     this.coyoteTimer = 0;
     this.jumpBufferTimer = 0;
@@ -84,6 +91,11 @@ export class Player extends Entity {
     this.grounded = false;
     this.hearts = this.maxHearts;
     this.invulnerableTimer = 0;
+    this.hasPistol = false;
+    this.ammo = 0;
+    this.shootCooldown = 0;
+    this.recoilTimer = 0;
+    this.shootKeyHeld = false;
     this.deformation = { scaleX: 1, scaleY: 1, rotation: 0 };
     this.squashFactor = 0;
     this.squashTime = 0;
@@ -100,10 +112,28 @@ export class Player extends Entity {
     this.hasDoubleJump = this.doubleJumpAllowed;
     this.hearts = this.maxHearts;
     this.invulnerableTimer = 0;
+    this.hasPistol = false;
+    this.ammo = 0;
+    this.shootCooldown = 0;
+    this.recoilTimer = 0;
+    this.shootKeyHeld = false;
     this.deformation = { scaleX: 1, scaleY: 1, rotation: 0 };
     this.squashFactor = 0;
     this.squashTime = 0;
     this.idleTimer = 0;
+  }
+
+  shoot() {
+    if (!this.hasPistol || this.ammo <= 0) return null;
+    this.ammo -= 1;
+    this.shootCooldown = 0.22;
+    this.recoilTimer = 0.14;
+    const bx = this.facing > 0 ? this.x + this.width + 4 : this.x - 20;
+    const by = this.y + 18;
+    if (this.ammo <= 0) {
+      this.hasPistol = false;
+    }
+    return new Bullet(bx, by, this.facing);
   }
 
   takeDamage(amount = 1, knockbackDir = 0) {
@@ -188,6 +218,23 @@ export class Player extends Entity {
         sounds.playBounce();
       }
     }
+
+    // Pistol Shooting (Keys: KeyF, KeyX, KeyJ, ShiftLeft, ShiftRight)
+    if (this.shootCooldown > 0) this.shootCooldown -= dt;
+    if (this.recoilTimer > 0) this.recoilTimer -= dt;
+
+    let shotBullet = null;
+    const isShootKey = Boolean(keys['KeyF'] || keys['KeyX'] || keys['KeyJ'] || keys['ShiftLeft'] || keys['ShiftRight']);
+    if (this.hasPistol && isShootKey) {
+      if (!this.shootKeyHeld && this.shootCooldown <= 0) {
+        this.shootKeyHeld = true;
+        shotBullet = this.shoot();
+      }
+    } else if (!isShootKey) {
+      this.shootKeyHeld = false;
+    }
+
+    return shotBullet;
   }
 
   draw(ctx) {
@@ -249,6 +296,51 @@ export class Player extends Entity {
       ctx.roundRect(22, this.height - 8, 14, 8, 4);
       ctx.fill();
       ctx.stroke();
+
+      // Equipped Pistol (Kid Pix / Neo-brutalist sidearm)
+      if (this.hasPistol) {
+        const recoilX = this.recoilTimer > 0 ? -4 : 0;
+        ctx.save();
+        ctx.translate(26 + recoilX, 22);
+
+        // Slide & Barrel
+        ctx.fillStyle = '#222222';
+        ctx.strokeStyle = '#121212';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.roundRect(0, -6, 16, 7, 2);
+        ctx.fill();
+        ctx.stroke();
+
+        // Grip / Handle
+        ctx.beginPath();
+        ctx.roundRect(-2, 0, 6, 9, 2);
+        ctx.fill();
+        ctx.stroke();
+
+        // Neon orange slide accent
+        ctx.fillStyle = '#FF6D00';
+        ctx.fillRect(4, -5, 8, 2);
+
+        // Muzzle flash when firing
+        if (this.recoilTimer > 0.08) {
+          ctx.fillStyle = '#FFEE58';
+          ctx.strokeStyle = '#FF3D00';
+          ctx.lineWidth = 1.5;
+          ctx.beginPath();
+          ctx.moveTo(16, -2.5);
+          ctx.lineTo(24, -6);
+          ctx.lineTo(20, -2.5);
+          ctx.lineTo(26, -2.5);
+          ctx.lineTo(20, 0);
+          ctx.lineTo(24, 2);
+          ctx.closePath();
+          ctx.fill();
+          ctx.stroke();
+        }
+
+        ctx.restore();
+      }
     });
 
     ctx.restore();
@@ -1087,19 +1179,83 @@ export class MovingPlatform extends Entity {
   }
 }
 
-// 7. COLLECTIBLE TOKEN / COIN (Coin & Star Variants)
+// 7. BULLET PROJECTILE (Fired by Player Pistol)
+export class Bullet extends Entity {
+  constructor(x, y, dir = 1) {
+    super(null, 'bullet', x, y, 16, 8);
+    this.dir = dir; // 1 = right, -1 = left
+    this.speed = 720;
+    this.life = 1.2; // seconds
+  }
+
+  update(dt, solids) {
+    this.x += this.dir * this.speed * dt;
+    this.life -= dt;
+    if (this.life <= 0) {
+      this.active = false;
+      return;
+    }
+
+    // Check collision with solid blocks
+    for (const solid of solids) {
+      if (!solid.active || solid.isOneWay || solid.variant === 'cloud') continue;
+      if (
+        this.x < solid.x + solid.width &&
+        this.x + this.width > solid.x &&
+        this.y < solid.y + solid.height &&
+        this.y + this.height > solid.y
+      ) {
+        this.active = false;
+        return;
+      }
+    }
+  }
+
+  draw(ctx) {
+    if (!this.active) return;
+    ctx.save();
+    ctx.translate(this.x + this.width / 2, this.y + this.height / 2);
+    ctx.scale(this.dir, 1);
+
+    // Glowing Neon Yellow energy slug
+    ctx.fillStyle = '#FFEE58';
+    ctx.strokeStyle = '#121212';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.roundRect(-8, -4, 16, 8, 4);
+    ctx.fill();
+    ctx.stroke();
+
+    // Hot White energy core
+    ctx.fillStyle = '#FFFFFF';
+    ctx.beginPath();
+    ctx.roundRect(-4, -2, 8, 4, 2);
+    ctx.fill();
+
+    ctx.restore();
+  }
+}
+
+// 8. COLLECTIBLE TOKEN / POWERUP (Coin, Star, Heart, Pistol)
 export class Collectible extends Entity {
   constructor(x, y, width = 32, height = 32, variant = 'coin') {
     super(null, 'collectible', x, y, width, height);
-    this.variant = variant || 'coin'; // 'coin', 'star', 'heart'
+    this.variant = variant || 'coin'; // 'coin', 'star', 'heart', 'pistol'
     this.bobTimer = Math.random() * Math.PI;
     this.collected = false;
-    this.points = this.variant === 'star' ? 500 : (this.variant === 'heart' ? 200 : 100);
+    this.points = this.calcPoints(this.variant);
+  }
+
+  calcPoints(v) {
+    if (v === 'star') return 500;
+    if (v === 'heart') return 200;
+    if (v === 'pistol') return 300;
+    return 100;
   }
 
   setVariant(variant) {
     this.variant = variant;
-    this.points = variant === 'star' ? 500 : (variant === 'heart' ? 200 : 100);
+    this.points = this.calcPoints(variant);
   }
 
   update(dt) {
@@ -1109,7 +1265,11 @@ export class Collectible extends Entity {
   collect() {
     this.collected = true;
     this.active = false;
-    sounds.playCollect();
+    if (this.variant === 'pistol') {
+      sounds.playGunPickup();
+    } else {
+      sounds.playCollect();
+    }
   }
 
   draw(ctx) {
@@ -1144,6 +1304,37 @@ export class Collectible extends Entity {
         ctx.beginPath();
         ctx.arc(-4, -3, 2.5, 0, Math.PI * 2);
         ctx.fill();
+      } else if (this.variant === 'pistol') {
+        // Pistol Gun Powerup Bubble
+        const aura = 1 + Math.sin(this.bobTimer * 2) * 0.08;
+        ctx.fillStyle = '#FFF9C4';
+        ctx.strokeStyle = '#121212';
+        ctx.lineWidth = 2.5;
+        ctx.beginPath();
+        ctx.arc(this.width / 2, this.height / 2, 15 * aura, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+
+        // Mini Kid-Pix Pistol
+        ctx.save();
+        ctx.translate(this.width / 2 - 8, this.height / 2 - 2);
+        // Slide / Barrel
+        ctx.fillStyle = '#222222';
+        ctx.strokeStyle = '#121212';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.roundRect(0, -5, 16, 6, 2);
+        ctx.fill();
+        ctx.stroke();
+        // Grip / Handle
+        ctx.beginPath();
+        ctx.roundRect(-2, 0, 6, 9, 2);
+        ctx.fill();
+        ctx.stroke();
+        // Neon orange slide accent
+        ctx.fillStyle = '#FF6D00';
+        ctx.fillRect(4, -4, 8, 2);
+        ctx.restore();
       } else if (this.variant === 'star') {
         // Glowing Star Gem (+500 pts)
         ctx.fillStyle = '#FFE600';

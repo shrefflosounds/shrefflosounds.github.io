@@ -229,6 +229,47 @@ class SoundEngine {
     osc.start(now);
     osc.stop(now + 0.04);
   }
+
+  // Pistol Gun Shot (Punchy 8-bit blast)
+  playShoot() {
+    if (this.muted) return;
+    this.ensureContext();
+    const now = this.ctx.currentTime;
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(880, now);
+    osc.frequency.exponentialRampToValueAtTime(110, now + 0.12);
+
+    gain.gain.setValueAtTime(0.35, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
+
+    osc.connect(gain);
+    gain.connect(this.masterGain);
+    osc.start(now);
+    osc.stop(now + 0.12);
+  }
+
+  // Gun Powerup Cocking Chime
+  playGunPickup() {
+    if (this.muted) return;
+    this.ensureContext();
+    const now = this.ctx.currentTime;
+    [220, 440, 880].forEach((freq, idx) => {
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      const t = now + idx * 0.05;
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(freq, t);
+      gain.gain.setValueAtTime(0.3, t);
+      gain.gain.exponentialRampToValueAtTime(0.001, t + 0.1);
+      osc.connect(gain);
+      gain.connect(this.masterGain);
+      osc.start(t);
+      osc.stop(t + 0.1);
+    });
+  }
 }
 
 export const sounds = new SoundEngine();
