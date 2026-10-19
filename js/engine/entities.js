@@ -141,6 +141,10 @@ export class Player extends Entity {
     this.hearts = Math.max(0, this.hearts - amount);
     this.invulnerableTimer = 1.35; // 1.35s of invincibility
 
+    // Lose gun powerup when hurt (like Fire Flower in Mario)
+    this.hasPistol = false;
+    this.ammo = 0;
+
     // Apply arcade knockback bounce
     this.vy = -340;
     this.vx = (knockbackDir !== 0 ? knockbackDir : -this.facing) * 260;

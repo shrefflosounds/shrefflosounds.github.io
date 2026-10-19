@@ -2321,9 +2321,14 @@ class SidehopApp {
         else if (ent.type === 'hazard') {
           if (this.physics.checkOverlap(this.player, ent)) {
             const knockDir = (this.player.x + this.player.width / 2 < ent.x + ent.width / 2) ? -1 : 1;
+            const hadPistol = this.player.hasPistol;
             if (this.player.takeDamage(1, knockDir)) {
               sounds.playHurt();
               this.spawnHurtParticles(this.player.x + this.player.width / 2, this.player.y + this.player.height / 2);
+              if (hadPistol) {
+                this.spawnPistolLostParticles(this.player.x + this.player.width / 2, this.player.y + this.player.height / 2);
+                this.showToast('💥 Lost Pistol Powerup!');
+              }
               if (this.player.hearts <= 0) {
                 this.player.respawn();
                 this.bullets = [];
@@ -2348,11 +2353,16 @@ class SidehopApp {
               this.player.y = ent.y - this.player.height - 2;
               this.score += (ent.variant === 'winged' ? 150 : 100);
             } else {
-              // Hurt player on collision (depletes 1 heart with i-frames & knockback)
+              // Hurt player on collision (depletes 1 heart with i-frames & knockback, loses gun powerup)
               const knockDir = (this.player.x + this.player.width / 2 < ent.x + ent.width / 2) ? -1 : 1;
+              const hadPistol = this.player.hasPistol;
               if (this.player.takeDamage(1, knockDir)) {
                 sounds.playHurt();
                 this.spawnHurtParticles(this.player.x + this.player.width / 2, this.player.y + this.player.height / 2);
+                if (hadPistol) {
+                  this.spawnPistolLostParticles(this.player.x + this.player.width / 2, this.player.y + this.player.height / 2);
+                  this.showToast('💥 Lost Pistol Powerup!');
+                }
                 if (this.player.hearts <= 0) {
                   this.player.respawn();
                   this.bullets = [];
@@ -2501,6 +2511,22 @@ class SidehopApp {
         rotation: Math.random() * Math.PI,
         vRot: (Math.random() - 0.5) * 0.3,
         life: 0.9
+      });
+    }
+  }
+
+  spawnPistolLostParticles(x, y) {
+    for (let i = 0; i < 14; i++) {
+      this.confetti.push({
+        x: x,
+        y: y,
+        vx: (Math.random() - 0.5) * 14,
+        vy: -Math.random() * 10 - 4,
+        size: Math.random() * 6 + 4,
+        color: i % 2 === 0 ? '#FFEE58' : '#FF6D00',
+        rotation: Math.random() * Math.PI,
+        vRot: (Math.random() - 0.5) * 0.4,
+        life: 1.1
       });
     }
   }
