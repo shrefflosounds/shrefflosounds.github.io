@@ -161,6 +161,7 @@ export class ArtStudio {
       this.ctx.moveTo(0, 4);
       this.ctx.bezierCurveTo(-14, -12, -14, 10, 0, 16);
       this.ctx.bezierCurveTo(14, 10, 14, -12, 0, 4);
+      this.ctx.closePath();
       this.ctx.fill();
       this.ctx.stroke();
     } else if (this.currentStamp === 'smile') {
@@ -168,34 +169,63 @@ export class ArtStudio {
       this.ctx.arc(0, 0, 14, 0, Math.PI * 2);
       this.ctx.fill();
       this.ctx.stroke();
-
       this.ctx.fillStyle = '#121212';
+      this.ctx.fillRect(-6, -5, 3, 3);
+      this.ctx.fillRect(3, -5, 3, 3);
       this.ctx.beginPath();
-      this.ctx.arc(-5, -3, 2, 0, Math.PI * 2);
-      this.ctx.arc(5, -3, 2, 0, Math.PI * 2);
-      this.ctx.fill();
-
-      this.ctx.beginPath();
-      this.ctx.arc(0, 2, 6, 0.2, Math.PI - 0.2);
+      this.ctx.arc(0, 2, 7, 0, Math.PI);
       this.ctx.stroke();
+    } else if (this.currentStamp === 'doodle') {
+      this.ctx.beginPath();
+      this.ctx.arc(0, 0, 12, 0, Math.PI * 2);
+      this.ctx.stroke();
+      this.ctx.fillRect(-4, -4, 8, 8);
     }
-
     this.ctx.restore();
   }
 
-  // Load image from Data URL or path
+  setTool(tool) {
+    this.currentTool = tool;
+  }
+
+  setColor(color) {
+    this.currentColor = color;
+  }
+
+  setBrushSize(size) {
+    this.brushSize = parseInt(size, 10) || 8;
+  }
+
+  setStamp(stamp) {
+    this.currentStamp = stamp;
+  }
+
+  // Load custom image/GIF onto canvas preserving aspect ratio & block geometry
   loadImageFromUrl(dataUrl, callback) {
     if (!dataUrl) return;
     const img = new Image();
     img.src = dataUrl;
     img.onload = () => {
       this.clearCanvas();
-      const scale = Math.min(this.canvas.width / img.width, this.canvas.height / img.height);
+      const isBlock = this.targetEntity && (this.targetEntity.type === 'crate' || this.targetEntity.type === 'block');
+      const scale = isBlock
+        ? Math.max(this.canvas.width / img.width, this.canvas.height / img.height)
+        : Math.min(this.canvas.width / img.width, this.canvas.height / img.height);
       const drawW = img.width * scale;
       const drawH = img.height * scale;
       const offsetX = (this.canvas.width - drawW) / 2;
       const offsetY = (this.canvas.height - drawH) / 2;
+
+      if (isBlock) {
+        this.ctx.fillStyle = '#FFE600';
+        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+      }
       this.ctx.drawImage(img, offsetX, offsetY, drawW, drawH);
+      if (isBlock) {
+        this.ctx.strokeStyle = '#121212';
+        this.ctx.lineWidth = 4;
+        this.ctx.strokeRect(0, 0, this.canvas.width, this.canvas.height);
+      }
       sounds.playPaintSquish();
       if (callback) callback();
     };
@@ -307,13 +337,26 @@ export class ArtStudio {
       img.src = e.target.result;
       img.onload = () => {
         this.clearCanvas();
-        // Scale and center image onto canvas preserving aspect ratio
-        const scale = Math.min(this.canvas.width / img.width, this.canvas.height / img.height);
+        // For square blocks, ensure the square shape is filled and preserved without distortion
+        const isBlock = this.targetEntity && (this.targetEntity.type === 'crate' || this.targetEntity.type === 'block');
+        const scale = isBlock
+          ? Math.max(this.canvas.width / img.width, this.canvas.height / img.height)
+          : Math.min(this.canvas.width / img.width, this.canvas.height / img.height);
         const drawW = img.width * scale;
         const drawH = img.height * scale;
         const offsetX = (this.canvas.width - drawW) / 2;
         const offsetY = (this.canvas.height - drawH) / 2;
+
+        if (isBlock) {
+          this.ctx.fillStyle = '#FFE600';
+          this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+        }
         this.ctx.drawImage(img, offsetX, offsetY, drawW, drawH);
+        if (isBlock) {
+          this.ctx.strokeStyle = '#121212';
+          this.ctx.lineWidth = 4;
+          this.ctx.strokeRect(0, 0, this.canvas.width, this.canvas.height);
+        }
         sounds.playPaintSquish();
       };
     };

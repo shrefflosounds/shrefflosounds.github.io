@@ -11,21 +11,25 @@ export class Camera {
     this.zoom = 1.0;
     this.minX = -300;
     this.minY = -1200;
-    this.maxX = 5000;
+    this.maxX = 12000;
     this.maxY = 1600;
   }
 
   resize(width, height) {
+    const prevHeight = this.viewportHeight;
     this.viewportWidth = width;
     this.viewportHeight = height;
+    if (prevHeight && prevHeight !== height) {
+      this.y += (prevHeight - height);
+    }
     this.clamp();
   }
 
   // Smoothly track target in Play Mode
   follow(target, dt) {
     if (!target) return;
-    const desiredX = target.x + target.width / 2 - this.viewportWidth * 0.45;
-    const desiredY = target.y + target.height / 2 - this.viewportHeight * 0.6;
+    const desiredX = Math.max(0, target.x + target.width / 2 - this.viewportWidth * 0.45);
+    const desiredY = Math.min(560 - this.viewportHeight, target.y + target.height / 2 - this.viewportHeight * 0.6);
 
     const lerpSpeed = 7.0;
     this.x += (desiredX - this.x) * Math.min(1.0, lerpSpeed * dt);
@@ -43,8 +47,8 @@ export class Camera {
 
   // Center smoothly or instantly on an entity
   recenter(worldX, worldY) {
-    this.x = worldX - this.viewportWidth * 0.45;
-    this.y = worldY - this.viewportHeight * 0.6;
+    this.x = Math.max(0, worldX - this.viewportWidth * 0.45);
+    this.y = Math.min(560 - this.viewportHeight, worldY - this.viewportHeight * 0.6);
     this.clamp();
   }
 

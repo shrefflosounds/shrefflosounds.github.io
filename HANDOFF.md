@@ -1,0 +1,25 @@
+# Sidehop — Handoff Notes
+
+- **Current Version:** `v00000-001`
+- **What Works:**
+  - Full dual-mode 2D platformer engine (Edit Mode and Playtest Mode).
+  - Procedural squash & stretch animation on custom player/entity doodles.
+  - In-app Art Studio (Kid Pix paint canvas with brushes, stamps, erase, image/GIF import).
+  - Component Inspector with real-time physics and behavior parameter tuning.
+  - Multi-theme background system + custom image/GIF parallax backgrounds.
+  - Procedural Web Audio API sound generator (chiptune BGM, boings, chimes, fanfares).
+  - Video recording (`MediaRecorder` API) with WebM capture download.
+  - Package format (`.sidehop`) for saving/loading levels and asset bundles with drag-and-drop.
+  - Undo / Redo history stack for level editing.
+  - Local markup review tooling installed (`tools/markup-server.py`, `tools/markup-inject.js`).
+- **What's Broken / In Progress:**
+  - Need PWA manifest and service worker wired up for offline support.
+  - Need searchable `<dialog id="help">` with control ringing and `<dialog id="about">` modal.
+  - Need version chip (`#chip`) in corner for update checking.
+- **What's Next:**
+  - Register Service Worker and PWA manifest.
+  - Integrate Help/About dialogs and version chip.
+  - Tag release `v00000-001`.
+- **Rules Learned:**
+  - All operations must remain 100% client-side with zero external network or database requirements.
+  - Always keep the file format backwards-compatible when modifying `.sidehop` schemas.

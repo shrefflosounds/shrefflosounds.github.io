@@ -1,6 +1,6 @@
 // Sidehop Master Application Coordinator — Enhanced Custom Backgrounds, Asset Library & Undo/Redo
 
-import { Player, Bullet } from './engine/entities.js';
+import { Player, Bullet, SolidBlock } from './engine/entities.js';
 import { PhysicsEngine } from './engine/physics.js?v=2';
 import { Camera } from './engine/camera.js';
 import { GridEditor } from './editor/grid.js';
@@ -12,12 +12,14 @@ import { HistoryManager } from './editor/history.js';
 import { sounds } from './audio/sound.js';
 import { SidehopFile } from './storage/sidehop-format.js';
 import { PersonalAssetLibrary } from './storage/asset-library.js';
+import { SidehopDemo } from './editor/demo.js';
 
 class SidehopApp {
   constructor() {
     this.canvas = document.getElementById('game-canvas');
     this.ctx = this.canvas.getContext('2d');
     this.mode = 'edit'; // 'edit' or 'play'
+    this.isDemoActive = false;
 
     this.physics = new PhysicsEngine(40);
     this.camera = new Camera(this.canvas.width, this.canvas.height);
@@ -44,6 +46,7 @@ class SidehopApp {
     this.inspector = new Inspector(document.getElementById('inspector-modal'));
     this.recorder = new VideoRecorder(this.canvas);
     this.history = new HistoryManager(50);
+    this.demo = new SidehopDemo(this);
 
     // Component Flyout State & Stored Type Selections
     this.activeFlyoutItem = null;
@@ -71,8 +74,12 @@ class SidehopApp {
     // Confetti particles for victory
     this.confetti = [];
 
+    // Track if gun was acquired during this level attempt
+    this.gunPickedUpInLevel = false;
+
     // Personal Asset Library Active Filter
     this.currentAssetFilter = 'all';
+
 
     this.lastTime = performance.now();
 
@@ -89,9 +96,12 @@ class SidehopApp {
       this.history.pushState(this.player, this.entities, this.background);
     };
 
+    this.initStageFrame();
+    this.updateCanvasDimensions();
     this.initLevel();
     this.bindUI();
     this.bindEvents();
+    this.initFrameResize();
     this.initDragAndDrop();
 
     // Initial snapshot for Undo stack
@@ -530,7 +540,7 @@ class SidehopApp {
 
     if (this.isFrameStretched) {
       if (workbench) workbench.classList.add('frame-stretched');
-      this.updateStretchedDimensions();
+      this.updateCanvasDimensions();
 
       if (stretchIcon) stretchIcon.textContent = '⤡';
       if (stretchText) stretchText.textContent = 'STANDARD FRAME';
@@ -542,9 +552,7 @@ class SidehopApp {
       this.showToast('⤢ Frame Stretched to Screen');
     } else {
       if (workbench) workbench.classList.remove('frame-stretched');
-      this.canvas.width = 960;
-      this.canvas.height = 540;
-      this.camera.resize(960, 540);
+      this.updateCanvasDimensions();
 
       if (stretchIcon) stretchIcon.textContent = '⤢';
       if (stretchText) stretchText.textContent = 'STRETCH FRAME';
@@ -557,17 +565,193 @@ class SidehopApp {
     }
   }
 
-  updateStretchedDimensions() {
-    if (!this.isFrameStretched) return;
-    const header = document.querySelector('.neo-header');
-    const headerH = header ? header.offsetHeight : 56;
-    const w = window.innerWidth;
-    const h = window.innerHeight - headerH;
+  getStageBounds() {
+    const workbench = document.querySelector('.workbench-container');
+    const toolDrawer = document.getElementById('tool-drawer');
+    const wbW = workbench ? workbench.clientWidth : window.innerWidth;
+    const wbH = workbench ? workbench.clientHeight : (window.innerHeight - 56);
+    const drawerVisible = toolDrawer && !toolDrawer.classList.contains('minimized');
+    const minLeft = drawerVisible ? (toolDrawer.offsetLeft + toolDrawer.offsetWidth + 16) : 14;
+    const minTop = 12;
+    const maxRight = Math.max(minLeft + 480, wbW - 14);
+    const maxBottom = Math.max(minTop + 320, wbH - 12);
+    return { minLeft, minTop, maxRight, maxBottom, availW: maxRight - minLeft, availH: maxBottom - minTop };
+  }
 
-    if (w > 0 && h > 0) {
-      this.canvas.width = w;
-      this.canvas.height = h;
-      this.camera.resize(w, h);
+  initStageFrame() {
+    const wrapper = this.canvas.parentElement;
+    if (!wrapper) return;
+    const { minLeft, minTop, availW, availH } = this.getStageBounds();
+    // Default to 88% of the available stage area so whitespace is minimal while corner handles remain easy to grab
+    const initW = Math.max(480, Math.round(availW * 0.88));
+    const initH = Math.max(320, Math.round(availH * 0.88));
+    const initLeft = Math.round(minLeft + (availW - initW) / 2);
+    const initTop = Math.round(minTop + (availH - initH) / 2);
+    this.applyFrameRect(initLeft, initTop, initW, initH);
+  }
+
+  applyFrameRect(left, top, width, height) {
+    const wrapper = this.canvas.parentElement;
+    if (!wrapper) return;
+    this.frameRect = { left, top, width, height };
+    wrapper.style.left = `${Math.round(left)}px`;
+    wrapper.style.top = `${Math.round(top)}px`;
+    wrapper.style.width = `${Math.round(width)}px`;
+    wrapper.style.height = `${Math.round(height)}px`;
+  }
+
+  initFrameResize() {
+    const wrapper = this.canvas.parentElement;
+    if (!wrapper) return;
+    const handles = wrapper.querySelectorAll('[data-resize]');
+
+    handles.forEach(handle => {
+      // Double-click any corner/edge handle to toggle between 100% full stage and default 88% frame
+      handle.addEventListener('dblclick', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const { minLeft, minTop, maxRight, maxBottom, availW, availH } = this.getStageBounds();
+        const cur = this.frameRect || { left: wrapper.offsetLeft, top: wrapper.offsetTop, width: wrapper.offsetWidth, height: wrapper.offsetHeight };
+        const isMaximized = Math.abs(cur.width - availW) < 12 && Math.abs(cur.height - availH) < 12;
+
+        if (!isMaximized) {
+          this.savedPreMaxRect = { ...cur };
+          const dLeft = minLeft - cur.left;
+          const dTop = minTop - cur.top;
+          this.applyFrameRect(minLeft, minTop, maxRight - minLeft, maxBottom - minTop);
+          this.canvas.width = maxRight - minLeft;
+          this.canvas.height = maxBottom - minTop;
+          this.camera.viewportWidth = this.canvas.width;
+          this.camera.viewportHeight = this.canvas.height;
+          this.camera.pan(dLeft, dTop);
+          this.showToast('⤢ Stage Maximized');
+        } else {
+          const restore = this.savedPreMaxRect || {
+            left: Math.round(minLeft + availW * 0.06),
+            top: Math.round(minTop + availH * 0.06),
+            width: Math.round(availW * 0.88),
+            height: Math.round(availH * 0.88)
+          };
+          const dLeft = restore.left - cur.left;
+          const dTop = restore.top - cur.top;
+          this.applyFrameRect(restore.left, restore.top, restore.width, restore.height);
+          this.canvas.width = restore.width;
+          this.canvas.height = restore.height;
+          this.camera.viewportWidth = this.canvas.width;
+          this.camera.viewportHeight = this.canvas.height;
+          this.camera.pan(dLeft, dTop);
+          this.showToast('⤡ Frame Restored');
+        }
+        sounds.playClick();
+      });
+
+      handle.addEventListener('mousedown', (e) => {
+        if (e.button !== 0 || this.isFrameStretched) return;
+        e.preventDefault();
+        e.stopPropagation();
+
+        const dir = handle.getAttribute('data-resize') || 'se';
+        handle.classList.add('dragging');
+
+        const startMouseX = e.clientX;
+        const startMouseY = e.clientY;
+        const cur = this.frameRect || {
+          left: wrapper.offsetLeft,
+          top: wrapper.offsetTop,
+          width: wrapper.offsetWidth,
+          height: wrapper.offsetHeight
+        };
+        const startLeft = cur.left;
+        const startTop = cur.top;
+        const startRight = cur.left + cur.width;
+        const startBottom = cur.top + cur.height;
+        const startCamX = this.camera.x;
+        const startCamY = this.camera.y;
+        const minW = 480;
+        const minH = 320;
+
+        const onMove = (moveEvent) => {
+          const dx = moveEvent.clientX - startMouseX;
+          const dy = moveEvent.clientY - startMouseY;
+          const { minLeft, minTop, maxRight, maxBottom } = this.getStageBounds();
+
+          let newLeft = startLeft;
+          let newRight = startRight;
+          let newTop = startTop;
+          let newBottom = startBottom;
+
+          if (dir.includes('w')) {
+            newLeft = Math.max(minLeft, Math.min(startRight - minW, startLeft + dx));
+          }
+          if (dir.includes('e')) {
+            newRight = Math.min(maxRight, Math.max(startLeft + minW, startRight + dx));
+          }
+          if (dir.includes('n')) {
+            newTop = Math.max(minTop, Math.min(startBottom - minH, startTop + dy));
+          }
+          if (dir.includes('s')) {
+            newBottom = Math.min(maxBottom, Math.max(startTop + minH, startBottom + dy));
+          }
+
+          const newW = Math.round(newRight - newLeft);
+          const newH = Math.round(newBottom - newTop);
+          this.applyFrameRect(newLeft, newTop, newW, newH);
+
+          this.canvas.width = newW;
+          this.canvas.height = newH;
+          this.camera.viewportWidth = newW;
+          this.camera.viewportHeight = newH;
+          // Shift camera by top-left delta so the world stays anchored on screen while the dragged corner opens up the view
+          this.camera.x = startCamX + (newLeft - startLeft);
+          this.camera.y = startCamY + (newTop - startTop);
+          this.camera.clamp();
+
+          if (this.editor.selectedEntity) {
+            this.updateActionCard(this.editor.selectedEntity);
+          }
+        };
+
+        const onUp = () => {
+          handle.classList.remove('dragging');
+          window.removeEventListener('mousemove', onMove);
+          window.removeEventListener('mouseup', onUp);
+        };
+
+        window.addEventListener('mousemove', onMove);
+        window.addEventListener('mouseup', onUp);
+      });
+    });
+  }
+
+  updateStretchedDimensions() {
+    this.updateCanvasDimensions();
+  }
+
+  updateCanvasDimensions() {
+    if (this.recorder && this.recorder.isRecording) return;
+    if (this.isFrameStretched) {
+      const header = document.querySelector('.neo-header');
+      const headerH = header ? header.offsetHeight : 56;
+      const w = window.innerWidth;
+      const h = window.innerHeight - headerH;
+
+      if (w > 0 && h > 0 && (this.canvas.width !== w || this.canvas.height !== h)) {
+        this.canvas.width = w;
+        this.canvas.height = h;
+        this.camera.resize(w, h);
+      }
+      return;
+    }
+
+    const wrapper = this.canvas.parentElement;
+    if (wrapper) {
+      const w = wrapper.clientWidth;
+      const h = wrapper.clientHeight;
+      if (w > 0 && h > 0 && (this.canvas.width !== w || this.canvas.height !== h)) {
+        this.canvas.width = w;
+        this.canvas.height = h;
+        this.camera.resize(w, h);
+      }
     }
   }
 
@@ -577,6 +761,7 @@ class SidehopApp {
       this.loadStarterWorld();
     } else {
       this.applyBackground(loadedBg);
+      this.camera.recenter(this.player.spawnX, this.player.spawnY);
     }
   }
 
@@ -924,6 +1109,81 @@ class SidehopApp {
     setTimeout(() => toast.remove(), 2200);
   }
 
+  // --- Mario-Style Mystery Question Block [?] Hit Handler ---
+  handleMysteryBlockHit(block) {
+    let kind = block.content || 'auto';
+
+    if (kind === 'auto') {
+      // Mario-style item selection:
+      if (this.player.hearts < (this.player.maxHearts || 4) && Math.random() < 0.45) {
+        kind = 'heart';
+      } else if (!this.player.hasPistol || this.player.ammo <= 5) {
+        kind = 'powerup';
+      } else {
+        const roll = Math.random();
+        if (roll < 0.4) kind = 'coin';
+        else if (roll < 0.7) kind = 'powerup';
+        else kind = 'heart';
+      }
+    }
+
+    // Resolve powerup: Gun vs. Ammunition
+    // After picking up gun for first time, refills appear as ammunition!
+    let variant = 'coin';
+    if (kind === 'powerup' || kind === 'gun' || kind === 'pistol' || kind === 'ammo') {
+      variant = this.gunPickedUpInLevel ? 'ammo' : 'pistol';
+    } else if (kind === 'heart') {
+      variant = 'heart';
+    } else if (kind === 'star') {
+      variant = 'star';
+    } else {
+      variant = 'coin';
+    }
+
+    if (variant === 'coin') {
+      // Mario pop-up coin
+      sounds.playCollect();
+      this.score += 100;
+      this.spawnCoinBounceParticle(block.x + block.width / 2, block.y);
+      this.showToast('🪙 +100 PTS!');
+    } else {
+      // Health Heart, Pistol Gun, or Ammunition Box emerges from top of block
+      const itemW = 32;
+      const itemH = 32;
+      const itemX = block.x + (block.width - itemW) / 2;
+      const targetY = block.y - itemH - 4;
+      const item = new Collectible(itemX, block.y, itemW, itemH, variant);
+      item.targetY = targetY;
+      item.emerging = true;
+      item.emergeVy = -190;
+      sounds.playGunPickup();
+      this.entities.push(item);
+
+      const label = variant === 'pistol'
+        ? '🔫 Gun Powerup!'
+        : variant === 'ammo'
+          ? '📦 Ammunition Box!'
+          : '❤️ Health Heart!';
+      this.showToast(`✨ ${label}`);
+    }
+  }
+
+  spawnCoinBounceParticle(x, y) {
+    for (let i = 0; i < 8; i++) {
+      this.confetti.push({
+        x: x + (Math.random() - 0.5) * 16,
+        y: y - 10,
+        vx: (Math.random() - 0.5) * 6,
+        vy: -Math.random() * 8 - 4,
+        size: Math.random() * 5 + 3,
+        color: '#FFD700',
+        rotation: Math.random() * Math.PI,
+        vRot: (Math.random() - 0.5) * 0.3,
+        life: 0.6
+      });
+    }
+  }
+
   // --- Personal Assets Studio (.sidehop) ---
   openAssetsModal() {
     const modal = document.getElementById('assets-modal');
@@ -1129,7 +1389,7 @@ class SidehopApp {
     LevelStorage.importLevel(file, this.player, this.entities, (result) => {
       if (!result) return;
 
-      if (result.kind === 'level') {
+      if (result.kind === 'level' || result.level) {
         if (result.background) this.applyBackground(result.background);
         this.history.pushState(this.player, this.entities, this.background);
         LevelStorage.autoSave(this.player, this.entities, this.background);
@@ -1146,13 +1406,8 @@ class SidehopApp {
         this.renderAssetsGrid();
         this.renderArtStudioQuickStash();
       } else if (result.kind === 'bundle') {
-        if (result.background) this.applyBackground(result.background);
-        if (result.level) {
-          this.history.pushState(this.player, this.entities, this.background);
-          LevelStorage.autoSave(this.player, this.entities, this.background);
-        }
         sounds.playCollect();
-        this.showToast(`📦 Imported .sidehop Bundle (${result.assets?.length || 0} assets)!`);
+        this.showToast(`📦 Imported ${result.assets?.length || 0} Assets (.sidehop)`);
         this.renderAssetsGrid();
         this.renderArtStudioQuickStash();
       }
@@ -1201,7 +1456,8 @@ class SidehopApp {
           { id: 'star', icon: '⭐', name: 'Star Gem', desc: 'Bright glowing star token (+500 pts)', shortName: 'Star' },
           { id: 'coin', icon: '🪙', name: 'Gold Coin', desc: 'Shiny spinning coin token (+100 pts)', shortName: 'Coin' },
           { id: 'heart', icon: '❤️', name: 'Health Heart', desc: 'Restores +1 heart of player health', shortName: 'Heart' },
-          { id: 'pistol', icon: '🔫', name: 'Pistol Gun', desc: 'Sidearm blaster weapon (+15 Ammo)', shortName: 'Pistol' }
+          { id: 'pistol', icon: '🔫', name: 'Pistol Gun', desc: 'Sidearm blaster weapon (+15 Ammo)', shortName: 'Pistol' },
+          { id: 'ammo', icon: '📦', name: 'Ammunition Box', desc: 'Ammo reload (+15 rounds)', shortName: 'Ammo' }
         ]
       }
     };
@@ -1329,6 +1585,11 @@ class SidehopApp {
       this.toggleMode();
     });
 
+    // Demo Mode Button (Interactive Feature Tour)
+    document.getElementById('demo-btn')?.addEventListener('click', () => {
+      this.demo.start();
+    });
+
     // Stretch Frame Buttons (Header and Floating Stage Button)
     document.getElementById('stretch-frame-btn')?.addEventListener('click', () => {
       this.toggleFrameStretch();
@@ -1423,14 +1684,10 @@ class SidehopApp {
       LevelStorage.autoSave(this.player, this.entities, this.background);
     });
 
-    // Background .sidehop Export & Import
+    // Background .sidehop Export Button
     document.getElementById('bg-export-sidehop-btn')?.addEventListener('click', () => {
       let dataUrl = this.background.customImage;
       if (!dataUrl) {
-        const bgCanvas = document.createElement('canvas');
-        bgCanvas.width = 960;
-        bgCanvas.height = 540;
-        const bgCtx = bgCanvas.getContext('2d');
         const prevW = this.canvas.width;
         const prevH = this.canvas.height;
         this.canvas.width = 960;
@@ -1483,15 +1740,14 @@ class SidehopApp {
               this.showToast('🌄 Loaded .sidehop Background!');
             }
           } catch (err) {
-            alert('Failed to load .sidehop background: ' + err.message);
+            console.warn('Background import error:', err);
           }
         };
         reader.readAsText(file);
-        bgSidehopUpload.value = '';
       }
     });
 
-    // 5. Presets, .sidehop Level and Personal Asset Management
+    // 5. Presets & .sidehop Level Management
     document.getElementById('load-preset-btn').addEventListener('click', () => {
       this.loadStarterWorld();
       sounds.playLand();
@@ -1776,6 +2032,7 @@ class SidehopApp {
         this.artStudio.openForEntity(this.editor.selectedEntity, () => {
           LevelStorage.autoSave(this.player, this.entities, this.background);
         });
+        this.renderArtStudioQuickStash();
       }
     });
 
@@ -1904,7 +2161,7 @@ class SidehopApp {
       }
     });
 
-    // Art Studio .sidehop Asset Handlers
+    // Import .sidehop asset onto painting canvas
     const paintAssetInput = document.getElementById('paint-asset-upload');
     paintAssetInput?.addEventListener('change', (e) => {
       if (e.target.files && e.target.files[0]) {
@@ -1953,9 +2210,17 @@ class SidehopApp {
     document.getElementById('victory-restart-btn').addEventListener('click', () => {
       document.getElementById('victory-overlay').classList.remove('active');
       this.isLevelWon = false;
+      this.gunPickedUpInLevel = false;
       this.player.respawn();
       this.player.hearts = this.player.maxHearts || 4;
       this.player.invulnerableTimer = 0;
+      for (const ent of this.entities) {
+        if (ent.variant === 'mystery') ent.isUsed = false;
+        if (ent.type === 'collectible') {
+          ent.collected = false;
+          ent.active = true;
+        }
+      }
       sounds.playClick();
     });
 
@@ -2002,9 +2267,18 @@ class SidehopApp {
       this.score = 0;
       this.isLevelWon = false;
       this.bullets = [];
+      this.gunPickedUpInLevel = false;
       this.player.hearts = this.player.maxHearts || 4;
       this.player.invulnerableTimer = 0;
       document.getElementById('victory-overlay').classList.remove('active');
+      // Reset mystery blocks and collectibles for play session
+      for (const ent of this.entities) {
+        if (ent.variant === 'mystery') ent.isUsed = false;
+        if (ent.type === 'collectible') {
+          ent.collected = false;
+          ent.active = true;
+        }
+      }
       LevelStorage.autoSave(this.player, this.entities, this.background);
 
       // Show Stretch Frame buttons in Play Mode
@@ -2021,8 +2295,12 @@ class SidehopApp {
       if (navControls) navControls.classList.remove('hidden');
       this.player.respawn();
       this.bullets = [];
+      this.gunPickedUpInLevel = false;
       this.player.hearts = this.player.maxHearts || 4;
       this.player.invulnerableTimer = 0;
+      for (const ent of this.entities) {
+        if (ent.variant === 'mystery') ent.isUsed = false;
+      }
 
       // Hide Stretch Frame buttons and restore standard frame in Edit Mode
       const stretchHeaderBtn = document.getElementById('stretch-frame-btn');
@@ -2262,9 +2540,10 @@ class SidehopApp {
       }
     });
     window.addEventListener('resize', () => {
-      if (this.isFrameStretched && this.mode === 'play') {
-        this.updateStretchedDimensions();
+      if (!this.isFrameStretched) {
+        this.initStageFrame();
       }
+      this.updateCanvasDimensions();
     });
   }
 
@@ -2332,6 +2611,10 @@ class SidehopApp {
               if (this.player.hearts <= 0) {
                 this.player.respawn();
                 this.bullets = [];
+                this.gunPickedUpInLevel = false;
+                for (const e of this.entities) {
+                  if (e.variant === 'mystery') e.isUsed = false;
+                }
               }
             }
           }
@@ -2366,6 +2649,10 @@ class SidehopApp {
                 if (this.player.hearts <= 0) {
                   this.player.respawn();
                   this.bullets = [];
+                  this.gunPickedUpInLevel = false;
+                  for (const e of this.entities) {
+                    if (e.variant === 'mystery') e.isUsed = false;
+                  }
                 }
               }
             }
@@ -2387,16 +2674,24 @@ class SidehopApp {
           }
         }
 
-        // Collectibles (Coin, Star Gem, Heart, Pistol Powerup)
+        // Collectibles (Coin, Star Gem, Heart, Pistol Powerup, Ammunition)
         else if (ent.type === 'collectible') {
           ent.update(dt);
           if (this.physics.checkOverlap(this.player, ent)) {
             ent.collect();
-            if (ent.variant === 'pistol') {
+            const isAmmo = (ent.variant === 'ammo' || (ent.variant === 'pistol' && this.gunPickedUpInLevel));
+            if (ent.variant === 'pistol' && !this.gunPickedUpInLevel) {
               this.player.hasPistol = true;
               this.player.ammo = (this.player.ammo || 0) + 15;
+              this.gunPickedUpInLevel = true;
               this.score += 300;
               this.showToast('🔫 Pistol Acquired! (+15 Ammo) [F/X to Shoot]');
+            } else if (isAmmo) {
+              this.player.hasPistol = true;
+              this.player.ammo = (this.player.ammo || 0) + 15;
+              this.gunPickedUpInLevel = true;
+              this.score += 200;
+              this.showToast('📦 Ammo Reloaded! (+15 Rounds) [F/X to Shoot]');
             } else if (ent.variant === 'heart') {
               this.player.hearts = Math.min(this.player.maxHearts, this.player.hearts + 1);
               this.score += 200;
@@ -2423,6 +2718,10 @@ class SidehopApp {
         sounds.playHurt();
         this.player.respawn();
         this.bullets = [];
+        this.gunPickedUpInLevel = false;
+        for (const e of this.entities) {
+          if (e.variant === 'mystery') e.isUsed = false;
+        }
       }
 
       // Camera follow in Play Mode
@@ -2532,7 +2831,11 @@ class SidehopApp {
   }
 
   render() {
+    this.updateCanvasDimensions();
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+    // Update terrain spatial map for seamless autotiling & neighbor detection
+    SolidBlock.updateTerrainMap(this.entities);
 
     // 1. Draw Active Background Atmosphere / Custom Art
     this.renderBackground();
@@ -2739,20 +3042,38 @@ function initMobileCheck() {
   if (!blocker) return;
 
   function evaluateDevice() {
-    const isMobileUA = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-    const isSmallScreen = window.innerWidth <= 768;
-    const isCoarseTouch = window.matchMedia && window.matchMedia('(pointer: coarse)').matches && window.innerWidth <= 900;
+    // Check if this is an actual mobile handheld phone or tablet device
+    const isMobileUA = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Mobile/i.test(navigator.userAgent);
+    const isCoarseTouchOnly = window.matchMedia && window.matchMedia('(pointer: coarse) and (hover: none)').matches;
+    const hasTouchPoints = navigator.maxTouchPoints && navigator.maxTouchPoints > 1;
 
-    if (isMobileUA || isSmallScreen || isCoarseTouch) {
+    // Desktop computers have fine mouse/trackpad pointer and hover capabilities.
+    // When dragged inward to make smaller on desktop, it should NEVER trigger the mobile blocker!
+    const isDesktopPointer = window.matchMedia && window.matchMedia('(pointer: fine)').matches;
+    const hasHover = window.matchMedia && window.matchMedia('(hover: hover)').matches;
+
+    const isTrueMobile = (isMobileUA || (isCoarseTouchOnly && hasTouchPoints)) && (!isDesktopPointer || !hasHover) && window.innerWidth <= 820;
+
+    if (isTrueMobile) {
+      blocker.classList.add('is-mobile-device');
       blocker.style.display = 'flex';
     } else {
-      blocker.style.display = '';
+      blocker.classList.remove('is-mobile-device');
+      blocker.style.display = 'none';
     }
   }
 
   window.addEventListener('resize', evaluateDevice);
   window.addEventListener('orientationchange', evaluateDevice);
   evaluateDevice();
+
+  const dismissBtn = document.getElementById('mobile-blocker-dismiss');
+  if (dismissBtn) {
+    dismissBtn.addEventListener('click', () => {
+      blocker.classList.remove('is-mobile-device');
+      blocker.style.display = 'none';
+    });
+  }
 }
 
 // Start Sidehop!

@@ -4,8 +4,15 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Sidehop — 2D Platformer Creator & Personalization Studio</title>
+  <meta name="description" content="Sidehop — A 2D platformer creator and playful personalization studio.">
+  <meta property="og:title" content="Sidehop — 2D Platformer Creator">
+  <meta property="og:description" content="Build, paint, tune, and play 2D platformers in your browser. No accounts, no servers.">
+  <meta property="og:image" content="og.png">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="apple-touch-icon" href="icon-180.png">
+  <meta name="theme-color" content="#FFE600">
   <link rel="stylesheet" href="css/style.css">
-  <link rel="icon" type="image/png" href="assets/logo.png">
 </head>
 <body>
 
@@ -21,6 +28,17 @@
       <button id="mode-toggle-btn" class="neo-btn neo-btn-primary" title="Press Space to toggle mode">
         <span id="mode-icon">▶</span>
         <span id="mode-text">PLAY TEST</span>
+      </button>
+
+      <!-- Searchable Help & About Modals -->
+      <button id="help-modal-btn" class="neo-btn" title="Searchable Help and Controls (H)">
+        <span>❓ Help</span>
+      </button>
+      <button id="about-modal-btn" class="neo-btn" title="About Sidehop">
+        <span>ℹ️ About</span>
+      </button>
+      <button id="demo-btn" class="neo-btn neo-btn-accent" title="Watch interactive guided demo tour">
+        <span>🎬 Demo</span>
       </button>
 
       <!-- Stretch Frame Button (Visible in Play Mode) -->
@@ -188,7 +206,18 @@
     </aside>
 
     <!-- CENTER CANVAS STAGE -->
-    <section class="canvas-wrapper">
+    <section id="canvas-wrapper" class="canvas-wrapper">
+      <!-- Interactive Corner & Edge Resize Handles -->
+      <div class="frame-resize-handle handle-nw" data-resize="nw" title="Drag corner to expand level view (Double-click to maximize)"></div>
+      <div class="frame-resize-handle handle-ne" data-resize="ne" title="Drag corner to expand level view (Double-click to maximize)"></div>
+      <div class="frame-resize-handle handle-sw" data-resize="sw" title="Drag corner to expand level view (Double-click to maximize)"></div>
+      <div class="frame-resize-handle handle-se" data-resize="se" title="Drag corner to expand level view (Double-click to maximize)"></div>
+      <div class="frame-resize-edge edge-n" data-resize="n" title="Drag edge to resize view"></div>
+      <div class="frame-resize-edge edge-s" data-resize="s" title="Drag edge to resize view"></div>
+      <div class="frame-resize-edge edge-e" data-resize="e" title="Drag edge to resize view"></div>
+      <div class="frame-resize-edge edge-w" data-resize="w" title="Drag edge to resize view"></div>
+
+      <div id="progress" class="stage-progress"></div>
       <canvas id="game-canvas" width="960" height="540"></canvas>
 
       <!-- Drag & Drop .sidehop File Overlay -->
@@ -196,7 +225,7 @@
         <div class="drag-drop-card">
           <div class="drag-drop-icon">📦 🚀</div>
           <div class="drag-drop-title">DROP .SIDEHOP FILE</div>
-          <div class="drag-drop-sub">Release to load level or personal asset!</div>
+          <div class="drag-drop-sub">Release to load level!</div>
         </div>
       </div>
 
@@ -493,6 +522,7 @@
     </div>
   </div>
 
+
   <!-- PERSONAL ASSETS STUDIO MODAL (.sidehop) -->
   <div id="assets-modal" class="neo-modal-overlay">
     <div class="neo-modal-box" style="max-width: 680px;">
@@ -557,8 +587,407 @@
       <p class="mobile-blocker-sub">
         Please open Sidehop on your computer to create and play levels!
       </p>
+      <button id="mobile-blocker-dismiss" class="neo-btn" style="margin-top: 14px; background: #FFFFFF; font-size: 13px; font-weight: 700; padding: 8px 16px;">
+        ✕ Dismiss Advisory
+      </button>
     </div>
   </div>
+
+  <!-- VERSION CHIP (PWA UPDATE CHECKER) -->
+  <button id="chip" class="version-chip" title="Check for a newer version">v00000-001 ↻</button>
+
+  <!-- SEARCHABLE HELP DIALOG (TEMPLATE PART 3.7) -->
+  <dialog id="help" class="neo-dialog">
+    <div class="neo-dialog-header">
+      <span class="neo-dialog-title">❓ Sidehop Controls &amp; Help</span>
+      <button id="help-close-btn" class="neo-dialog-close" title="Close Help">&times;</button>
+    </div>
+    <div class="neo-dialog-body">
+      <input type="text" id="help-search" class="help-search-input" placeholder="Search controls, tools, shortcuts (e.g. 'undo', 'play', 'block')...">
+      <div id="help-list" class="help-list"></div>
+    </div>
+  </dialog>
+
+  <!-- ABOUT DIALOG (TABS & COMPREHENSIVE CREDITS) -->
+  <dialog id="about" class="neo-dialog" style="max-width: 620px;">
+    <div class="neo-dialog-header">
+      <span class="neo-dialog-title">ℹ️ About Sidehop &amp; Credits</span>
+      <button id="about-close-btn" class="neo-dialog-close" title="Close About">&times;</button>
+    </div>
+    <div class="neo-dialog-body">
+      <div class="about-hero">
+        <img src="assets/logo.png" alt="Sidehop Logo" class="about-logo">
+        <div>
+          <div class="about-h1">Sidehop</div>
+          <div id="about-version-label" class="about-version">v00000-001 &bull; 2D Platformer Creator</div>
+        </div>
+      </div>
+
+      <!-- About Tabs Navigation -->
+      <div class="about-tabs-nav">
+        <button class="about-tab-btn active" data-tab="vision">🌟 Overview</button>
+        <button class="about-tab-btn" data-tab="influences">💡 Inspirations</button>
+        <button class="about-tab-btn" data-tab="tech">🛠️ Code &amp; Engine</button>
+        <button class="about-tab-btn" data-tab="design">🎨 Design &amp; Type</button>
+        <button class="about-tab-btn" data-tab="credits">🤝 Acknowledgements</button>
+      </div>
+
+      <!-- Tab 1: Overview & Raison d'Être -->
+      <div id="about-tab-vision" class="about-tab-panel active">
+        <div class="about-section">
+          <strong>Raison d'Être:</strong><br>
+          <em>Sidehop exists because building and playing your own video games should feel as immediate, tactile, and expressive as finger painting on drafting paper.</em>
+        </div>
+        <div class="about-credit-card">
+          <div class="about-credit-title">
+            <span>John O'Brien</span>
+            <span class="about-credit-role">Creator &amp; Lead Designer</span>
+          </div>
+          <p class="about-credit-desc">
+            Game design, audio direction, creative mechanics, and interactive sandbox architecture.<br>
+            Portfolio: <a href="https://shrefflosounds.github.io/" target="_blank" rel="noopener" style="color: #0077CC; font-weight: 700;">shrefflosounds.github.io</a> &bull;
+            GitHub: <a href="https://github.com/shrefflosounds/sidehop" target="_blank" rel="noopener" style="color: #0077CC; font-weight: 700;">shrefflosounds/sidehop</a>
+          </p>
+        </div>
+        <div class="about-privacy-badge">
+          🔒 <strong>100% Local-First:</strong> All levels, art, and custom assets are created, simulated, and stored right in your browser. No accounts, no trackers, zero remote servers.
+        </div>
+        <div style="margin-top: 10px; font-size: 11px; color: #666; text-align: center;">
+          Released under the MIT Open Source License. &copy; 2026 John O'Brien.
+        </div>
+      </div>
+
+      <!-- Tab 2: Inspirations & Creative Influences -->
+      <div id="about-tab-influences" class="about-tab-panel">
+        <p style="font-size: 12px; margin-bottom: 12px; color: #555;">
+          Sidehop stands on the shoulders of legendary creative game-making tools and responsive platformers:
+        </p>
+        <div class="about-credit-card">
+          <div class="about-credit-title">
+            <span>Super Mario Maker (Nintendo, 2015)</span>
+            <span class="about-credit-role">Game Flow &amp; Sandbox UI</span>
+          </div>
+          <p class="about-credit-desc">
+            Directed by Takashi Tezuka and produced by Shigeru Miyamoto. Inspired Sidehop's seamless in-place playtesting, snap-to-grid entity placement, corner flyout component menus, mystery question blocks, springboards, note blocks, donut drop lifts, and flagpole victory celebrations.
+          </p>
+        </div>
+        <div class="about-credit-card">
+          <div class="about-credit-title">
+            <span>Kid Pix &amp; Kid Pix 3D (Broderbund, 1989/1994)</span>
+            <span class="about-credit-role">Art Studio &amp; Tactile Feel</span>
+          </div>
+          <p class="about-credit-desc">
+            Created by Craig Hickman. The guiding spirit behind Sidehop's Kid Pix Art Studio: chunky tactile toolbars, wacky stamps, squishy audio feedback, and the philosophy that creating things should be messy, joyful, and hilarious.
+          </p>
+        </div>
+        <div class="about-credit-card">
+          <div class="about-credit-title">
+            <span>Drawn to Life (5th Cell / THQ, 2007)</span>
+            <span class="about-credit-role">Personalization &amp; Custom Heroes</span>
+          </div>
+          <p class="about-credit-desc">
+            Directed by Jeremiah Slaczka. Inspired Sidehop's player personalization: the magical feeling of drawing your own hero and platforms directly into a living physics engine.
+          </p>
+        </div>
+        <div class="about-credit-card">
+          <div class="about-credit-title">
+            <span>WarioWare D.I.Y. (Nintendo, 2009)</span>
+            <span class="about-credit-role">Micro-Creation &amp; Tuning</span>
+          </div>
+          <p class="about-credit-desc">
+            Directed by Goro Abe. Inspired the Component Inspector: tactile parameter sliders making physics tuning (gravity, speed, bounciness) accessible and fun for all ages.
+          </p>
+        </div>
+        <div class="about-credit-card">
+          <div class="about-credit-title">
+            <span>Sonic the Hedgehog &amp; Celeste</span>
+            <span class="about-credit-role">Kinetic Feel &amp; 45° Slopes</span>
+          </div>
+          <p class="about-credit-desc">
+            Sonic Team (Yuji Naka &amp; Hirokazu Yasuhara) for 45° incline/decline slope momentum and spring mechanics; Maddy Thorson &amp; Noel Berry (Celeste) for coyote time, jump buffering, and snappy platforming feel.
+          </p>
+        </div>
+      </div>
+
+      <!-- Tab 3: Code, Web Technologies & Engine -->
+      <div id="about-tab-tech" class="about-tab-panel">
+        <p style="font-size: 12px; margin-bottom: 12px; color: #555;">
+          Sidehop is built from scratch with zero heavy frameworks, running entirely on modern web standards:
+        </p>
+        <div class="about-credit-card">
+          <div class="about-credit-title">
+            <span>HTML5 Canvas 2D Engine</span>
+            <span class="about-credit-role">Graphics &amp; Physics</span>
+          </div>
+          <p class="about-credit-desc">
+            Custom-engineered 60 FPS subpixel platformer engine. Features subpixel AABB collision detection, 45-degree slope heightmap physics, dynamic squash-and-stretch matrices, smooth camera lerp tracking, and procedural terrain tile rendering.
+          </p>
+        </div>
+        <div class="about-credit-card">
+          <div class="about-credit-title">
+            <span>Web Audio API Chiptune Synth</span>
+            <span class="about-credit-role">Zero-Asset Sound Synthesizer</span>
+          </div>
+          <p class="about-credit-desc">
+            Procedural chiptune sound generator inspired by Tomas Pettersson's <em>sfxr / bfxr</em> algorithms. Generates real-time square-wave melodies, frequency-swept jump boings, white-noise impact thuds, and fanfare chimes without loading external audio files.
+          </p>
+        </div>
+        <div class="about-credit-card">
+          <div class="about-credit-title">
+            <span>MediaRecorder API</span>
+            <span class="about-credit-role">In-Browser Video Capture</span>
+          </div>
+          <p class="about-credit-desc">
+            Direct 60 FPS canvas video capture pipeline allowing users to record crisp MP4 / WebM gameplay video clips and download them instantly with zero server encoding.
+          </p>
+        </div>
+        <div class="about-credit-card">
+          <div class="about-credit-title">
+            <span>.sidehop File Architecture &amp; LocalStorage</span>
+            <span class="about-credit-role">Storage &amp; Portability</span>
+          </div>
+          <p class="about-credit-desc">
+            Portable custom JSON package format (.sidehop) for level sharing, drag-and-drop bundle imports, undo/redo state history, and offline client persistence.
+          </p>
+        </div>
+      </div>
+
+      <!-- Tab 4: Typography, Design & Icons -->
+      <div id="about-tab-design" class="about-tab-panel">
+        <div class="about-credit-card">
+          <div class="about-credit-title">
+            <span>Space Grotesk &amp; Fredoka</span>
+            <span class="about-credit-role">Typography</span>
+          </div>
+          <p class="about-credit-desc">
+            <strong>Space Grotesk</strong> by Florian Karsten — sharp, modern brutalist geometric type.<br>
+            <strong>Fredoka</strong> by Milena Brandao — warm, friendly, rounded display typography full of personality.
+          </p>
+        </div>
+        <div class="about-credit-card">
+          <div class="about-credit-title">
+            <span>Neo-Brutalist Toy Workbench</span>
+            <span class="about-credit-role">Visual Language</span>
+          </div>
+          <p class="about-credit-desc">
+            High-contrast ink borders (#121212), tactile compressed drop shadows, cheerful canary yellow (#FFE600), cyber cyan (#00E5FF), bubblegum pink (#FF3388), and mint green (#00E676) accents.
+          </p>
+        </div>
+        <div class="about-credit-card">
+          <div class="about-credit-title">
+            <span>Glyphs &amp; Iconography</span>
+            <span class="about-credit-role">Icons</span>
+          </div>
+          <p class="about-credit-desc">
+            Custom SVG vectors and universal Unicode Consortium emoji glyphs for cross-platform visual clarity.
+          </p>
+        </div>
+      </div>
+
+      <!-- Tab 5: AI Collaboration & Acknowledgements -->
+      <div id="about-tab-credits" class="about-tab-panel">
+        <div class="about-credit-card">
+          <div class="about-credit-title">
+            <span>Antigravity (Google DeepMind)</span>
+            <span class="about-credit-role">AI Architecture Partner</span>
+          </div>
+          <p class="about-credit-desc">
+            Assisted with code architecture, physics slope integration, refactoring, single-file bundling pipelines, and accessibility hardening. All creative concepts, aesthetic choices, sound direction, and game design authored and directed by John O'Brien.
+          </p>
+        </div>
+        <div class="about-credit-card">
+          <div class="about-credit-title">
+            <span>Open Web &amp; Indie Game Creators</span>
+            <span class="about-credit-role">Community</span>
+          </div>
+          <p class="about-credit-desc">
+            Warm gratitude to the global indie web game development community, MDN Web Docs, and creators proving that the open web is an incredible, unconstrained canvas for playful software.
+          </p>
+        </div>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- PWA, HELP & APP RUNTIME HOOKS -->
+  <script>
+    "use strict";
+    window.APP = {
+      name: "Sidehop",
+      id: "sidehop",
+      version: "v00000-001",
+      author: "John O'Brien",
+      site: "https://shrefflosounds.github.io/",
+      repo: "https://github.com/shrefflosounds/sidehop"
+    };
+
+    // Update version chip label
+    const chipBtn = document.getElementById("chip");
+    if (chipBtn) chipBtn.textContent = window.APP.version + " ↻";
+    const aboutVer = document.getElementById("about-version-label");
+    if (aboutVer) aboutVer.textContent = window.APP.version;
+
+    // Service Worker lifecycle & update check
+    const SW_ON = "serviceWorker" in navigator && !["localhost", "127.0.0.1"].includes(location.hostname);
+    if (SW_ON) {
+      const hadController = !!navigator.serviceWorker.controller;
+      navigator.serviceWorker.register("sw.js");
+      navigator.serviceWorker.addEventListener("controllerchange", () => {
+        if (hadController) location.reload();
+      });
+    }
+
+    async function checkForUpdate() {
+      const reg = SW_ON && await navigator.serviceWorker.getRegistration();
+      if (!reg) {
+        alert("You are running locally on version " + window.APP.version);
+        return;
+      }
+      try {
+        await reg.update();
+      } catch (e) {
+        alert("Couldn't check for updates (offline?).");
+        return;
+      }
+      const w = reg.installing;
+      if (w) await new Promise(r => w.addEventListener("statechange", () => w.state !== "installing" && r()));
+      if (reg.waiting) {
+        if (confirm("New version available! Reload now to update?")) {
+          reg.waiting.postMessage("SKIP_WAITING");
+        }
+      } else {
+        alert("You have the latest version: " + window.APP.version);
+      }
+    }
+    if (chipBtn) chipBtn.onclick = checkForUpdate;
+
+    // Control Ringing Utility
+    window.ring = function(selector) {
+      const el = document.querySelector(selector);
+      if (!el) return;
+      el.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      el.classList.add("ring");
+      setTimeout(() => el.classList.remove("ring"), 1600);
+    };
+
+    // Searchable Help Database
+    const HELP_ENTRIES = [
+      { title: "Play / Test Mode", body: "Toggle between Edit workbench and live playable arcade mode.", control: "#mode-toggle-btn", keys: "Space / ▶" },
+      { title: "Select & Inspect Tool", body: "Select placed items to move, paint art, or tune physics.", control: '[data-tool="select"]', keys: "1" },
+      { title: "Place Tool", body: "Stamp the currently chosen component onto the grid.", control: '[data-tool="place"]', keys: "2" },
+      { title: "Pan Stage", body: "Drag to move around the level canvas without placing blocks.", control: '[data-tool="pan"]', keys: "3 / Space+Drag" },
+      { title: "Erase Tool", body: "Click or drag across placed components to remove them.", control: '[data-tool="erase"]', keys: "4" },
+      { title: "Box Select", body: "Drag a box to select multiple components at once.", control: '[data-tool="boxselect"]', keys: "5 / Shift+Drag" },
+      { title: "Solid Block Component", body: "Place ground blocks. Click arrow for mystery, cloud, and ice.", control: '[data-palette="block"]', keys: "B" },
+      { title: "Springboard Bouncer", body: "Place trampolines that launch player and enemies upward.", control: '[data-palette="springboard"]', keys: "S" },
+      { title: "Spike Hazard", body: "Deadly spikes triggering instant defeat and respawn.", control: '[data-palette="hazard"]', keys: "H" },
+      { title: "Patrolling Enemy", body: "Stompable walking enemies with customizable patrol paths.", control: '[data-palette="enemy"]', keys: "E" },
+      { title: "Moving Platform", body: "Floating platform traveling back and forth horizontally or vertically.", control: '[data-palette="moving_platform"]', keys: "M" },
+      { title: "Collectibles", body: "Stars, coins, hearts, or pistols with shootable bullets.", control: '[data-palette="collectible"]', keys: "C" },
+      { title: "Goal Finish Line", body: "Flagpole triggering victory fanfare and confetti celebration.", control: '[data-palette="goal"]', keys: "G" },
+      { title: "Hero Spawn Point", body: "Sets the starting spawn position for the player character.", control: '[data-palette="player"]', keys: "P" },
+      { title: "Record Gameplay Clip", body: "Record video clips directly from canvas and download WebM.", control: "#rec-btn", keys: "R / ●" },
+      { title: "Undo Modification", body: "Revert the last level edit or placement change.", control: "#undo-btn", keys: "⌘Z / Ctrl+Z" },
+      { title: "Redo Modification", body: "Reapply a previously undone change.", control: "#redo-btn", keys: "⌘⇧Z / Ctrl+Y" },
+      { title: "Atmospheric Background", body: "Choose background themes or upload custom images and GIFs.", control: "#bg-modal-btn", keys: "BG" },
+      { title: "Personal Assets Library (.sidehop)", body: "Manage and share custom sprites, skins, blocks & backgrounds using .sidehop packages.", control: "#assets-modal-btn", keys: "🎒 Assets" },
+      { title: "Interactive Guided Demo", body: "Watch automated guided tour highlighting all major creation & play features non-destructively.", control: "#demo-btn", keys: "🎬 Demo" },
+      { title: "About Sidehop & Credits", body: "View inspirations, engine architecture, typography, open-source libraries, and author credits.", control: "#about-modal-btn", keys: "ℹ️ About" },
+      { title: "Export Level (.sidehop)", body: "Save your entire playable level to your computer.", control: "#export-level-btn", keys: "Export" },
+      { title: "Import Level (.sidehop)", body: "Load a .sidehop level from your computer.", control: "#import-level-btn", keys: "Import" },
+      { title: "Version Chip", body: "Shows current release build and checks for offline updates.", control: "#chip", keys: "Click ↻" }
+    ];
+
+    const helpDialog = document.getElementById("help");
+    const aboutDialog = document.getElementById("about");
+    const helpSearchInput = document.getElementById("help-search");
+    const helpListContainer = document.getElementById("help-list");
+
+    function renderHelp(query = "") {
+      const q = query.trim().toLowerCase();
+      const filtered = HELP_ENTRIES.filter(e =>
+        !q || e.title.toLowerCase().includes(q) || e.body.toLowerCase().includes(q) || e.keys.toLowerCase().includes(q)
+      );
+      helpListContainer.innerHTML = "";
+      if (!filtered.length) {
+        helpListContainer.innerHTML = '<div style="padding: 12px; font-size: 13px; color: #777;">No matching controls found.</div>';
+        return;
+      }
+      filtered.forEach(entry => {
+        const row = document.createElement("button");
+        row.className = "help-row-btn";
+        row.innerHTML = `
+          <div class="help-row-left">
+            <span class="help-row-title">${entry.title}</span>
+            <span class="help-row-body">${entry.body}</span>
+          </div>
+          <span class="help-row-keys">${entry.keys}</span>
+        `;
+        row.onclick = () => {
+          helpDialog.close();
+          window.ring(entry.control);
+        };
+        helpListContainer.appendChild(row);
+      });
+    }
+
+    if (helpSearchInput) {
+      helpSearchInput.addEventListener("input", e => renderHelp(e.target.value));
+    }
+
+    document.getElementById("help-modal-btn")?.addEventListener("click", () => {
+      renderHelp(helpSearchInput ? helpSearchInput.value : "");
+      helpDialog.showModal();
+      helpSearchInput?.focus();
+    });
+    document.getElementById("help-close-btn")?.addEventListener("click", () => helpDialog.close());
+
+    document.getElementById("about-modal-btn")?.addEventListener("click", () => aboutDialog.showModal());
+    document.getElementById("about-close-btn")?.addEventListener("click", () => aboutDialog.close());
+
+    // About Dialog Tabs switching
+    const aboutTabBtns = document.querySelectorAll(".about-tab-btn");
+    const aboutPanels = document.querySelectorAll(".about-tab-panel");
+    aboutTabBtns.forEach(btn => {
+      btn.addEventListener("click", () => {
+        const targetTab = btn.getAttribute("data-tab");
+        aboutTabBtns.forEach(b => b.classList.remove("active"));
+        aboutPanels.forEach(p => p.classList.remove("active"));
+        btn.classList.add("active");
+        document.getElementById(`about-tab-${targetTab}`)?.classList.add("active");
+      });
+    });
+
+    // Close on backdrop click
+    [helpDialog, aboutDialog].forEach(d => {
+      d?.addEventListener("click", e => {
+        const rect = d.getBoundingClientRect();
+        if (e.clientX < rect.left || e.clientX > rect.right || e.clientY < rect.top || e.clientY > rect.bottom) {
+          d.close();
+        }
+      });
+    });
+
+    // Keyboard shortcut 'H' for Help (when not typing in inputs)
+    window.addEventListener("keydown", e => {
+      if (e.target.matches("input, textarea, [contenteditable]")) return;
+      if (e.key.toLowerCase() === "h" && !e.ctrlKey && !e.metaKey) {
+        e.preventDefault();
+        renderHelp("");
+        helpDialog.showModal();
+      }
+    });
+
+    // Markup Review Tool context hook (Template Part 10.4)
+    window.__markupContext = () => {
+      const app = window.sidehop || window.sidehopInstance;
+      return {
+        screen: app?.mode || "edit",
+        tool: app?.editor?.currentTool || "select",
+        helpOpen: helpDialog?.open || false,
+        aboutOpen: aboutDialog?.open || false,
+      };
+    };
+  </script>
 
   <!-- MAIN SCRIPT -->
   <script type="module" src="js/main.js?v=3"></script>

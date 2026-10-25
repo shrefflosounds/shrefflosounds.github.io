@@ -35,21 +35,35 @@ Build levels with snap-to-grid placement, customize every visual element using a
   8. Goal Finish Line with Confetti Fanfare
 - **Dual-Mode Video Recording:** Manual `● REC` button to capture canvas gameplay via `MediaRecorder` API with one-click `.webm` download, plus instant replay highlights.
 - **Procedural Web Audio Engine:** Built-in retro chiptune BGM loop, goofy boings, squishy drawing sounds, coin chimes, and victory fanfares (zero external audio files needed).
-- **Universal Level & Personal Asset Sharing (.sidehop):** Custom package format (`.sidehop`) for one-click export and import of both complete playable levels and individual personal assets (hero skins, painted blocks, custom enemy doodles, animated GIF textures, custom backgrounds, and asset bundles), featuring instant drag-and-drop canvas loading.
-- **Personal Asset Studio & Stash:** In-browser personal asset library for saving, managing, applying, and exporting custom visual components across levels.
+- **Universal Level Sharing (.sidehop):** Custom package format (`.sidehop`) for one-click export and import of complete playable levels (layouts, physics parameters, custom entity visuals, and backgrounds), featuring instant drag-and-drop canvas loading.
 - **Bundled Showcase Level:** "World 1-1: Sidehop Meadow" starter adventure included out of the box.
 
 ---
 
 ## 📦 The `.sidehop` File Format
 
-Sidehop features a universal package format with the extension **`.sidehop`** (`application/x-sidehop+json`) for sharing creative platformer content:
+Sidehop features a universal package format with the extension **`.sidehop`** (`application/x-sidehop+json`) for sharing creative platformer levels:
 
-- **Playable Levels (`kind: "level"`):** Saves level layouts, entity placements, custom physics parameters, player stats, and embedded personal art.
-- **Personal Assets (`kind: "asset"`):** Saves individual custom sprites, hero skins, hand-painted tiles, stamp doodles, or custom background art created in the Kid Pix Art Studio.
-- **Asset Bundles (`kind: "bundle"`):** Packages multiple personal assets or levels with companion asset stashes for easy sharing.
-- **Drag-and-Drop Support:** Drag any `.sidehop` file from your desktop directly onto the canvas stage to instantly load the level or save the asset into your personal stash!
+- **Playable Levels (`kind: "level"`):** Saves level layouts, entity placements, custom physics parameters, player stats, and embedded custom visuals.
+- **Drag-and-Drop Support:** Drag any `.sidehop` file from your desktop directly onto the canvas stage to instantly load the level!
 
+
+---
+
+## 🌐 Live Application
+
+- **Live URL:** [https://shrefflosounds.github.io/sidehop/](https://shrefflosounds.github.io/sidehop/)
+- **Author Portfolio:** [https://shrefflosounds.github.io/](https://shrefflosounds.github.io/)
+- **Current Version:** `v00000-001`
+
+---
+
+## 📲 Installing as a PWA (Offline Support)
+
+Sidehop is a Progressive Web App (PWA) that installs directly to your home screen or dock and works completely offline:
+- **Chrome / Edge (Mac, Windows, Android):** Click the install icon in the address bar, or choose Menu → *Install Sidehop*.
+- **Safari on Mac:** Choose File → *Add to Dock*.
+- **Safari on iPhone / iPad:** Tap Share → *Add to Home Screen*.
 
 ---
 
@@ -58,13 +72,26 @@ Sidehop features a universal package format with the extension **`.sidehop`** (`
 To run locally in any modern browser:
 
 ```bash
-# Using Python 3's built-in HTTP server:
+# Standard local preview:
 python3 -m http.server 8000
 ```
 Then open: `http://localhost:8000`
 
+### Designer Markup & Review Tooling
+Sidehop includes local markup review tools (Appendix A & B from course guidelines):
+```bash
+# Start local review server with interactive markup toolbar:
+python3 tools/markup-server.py
+```
+This serves `http://localhost:8765/` with on-screen pen, arrow, note, and text editing tools. Marking up and clicking *Send batch to assistant* writes to `tools/markup-feedback.json` for rapid iteration.
+
 ---
 
-## 🌐 Live GitHub Pages Deployment
+## 📄 Documentation & Credits
 
-This repository includes an automated GitHub Actions workflow (`.github/workflows/deploy.yml`) that publishes directly to GitHub Pages upon pushing to `main`.
+- [BRIEF.md](BRIEF.md) — Design interview, user profile, core loop, and raison d'être
+- [HANDOFF.md](HANDOFF.md) — Session handoff log, what works, and next steps
+- [CHANGELOG.md](CHANGELOG.md) — Version history and release notes
+- [ATTRIBUTION.md](ATTRIBUTION.md) — Borrowed techniques, inspirations, and API credits
+- [LICENSE](LICENSE) — MIT License (c) 2026 John O'Brien
+

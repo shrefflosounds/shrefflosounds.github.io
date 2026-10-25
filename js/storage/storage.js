@@ -4,7 +4,7 @@ import { SolidBlock, Springboard, HazardSpikes, EnemyWalker, MovingPlatform, Col
 import { SidehopFile } from './sidehop-format.js';
 import { PersonalAssetLibrary } from './asset-library.js';
 
-const STORAGE_KEY = 'sidehop_saved_level_v5';
+const LEVEL_STORAGE_KEY = 'sidehop_saved_level_v6';
 
 export class LevelStorage {
   // Serialize active level to JSON-compatible object
@@ -33,6 +33,7 @@ export class LevelStorage {
     return {
       type: ent.type,
       variant: ent.variant,
+      content: ent.content || null,
       x: ent.x,
       y: ent.y,
       width: ent.width,
@@ -56,9 +57,10 @@ export class LevelStorage {
     switch (d.type) {
       case 'crate':
       case 'block':
-        ent = new SolidBlock(d.x, d.y, d.width, d.height, d.variant || 'solid');
+        ent = new SolidBlock(d.x, d.y, d.width, d.height, d.variant || 'solid', d.content || null);
         if (d.bounciness !== undefined) ent.bounciness = d.bounciness;
         if (d.friction !== undefined) ent.friction = d.friction;
+        if (d.content) ent.content = d.content;
         break;
       case 'springboard':
         ent = new Springboard(d.x, d.y, d.width, d.height, d.variant || 'spring');
@@ -137,9 +139,13 @@ export class LevelStorage {
 
   // LocalStorage Auto-save
   static autoSave(player, entities, background) {
+    // Never overwrite user's work while built-in interactive demo is running
+    if (typeof window !== 'undefined' && window.sidehop && window.sidehop.isDemoActive) {
+      return;
+    }
     try {
       const data = this.serialize(player, entities, background);
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      localStorage.setItem(LEVEL_STORAGE_KEY, JSON.stringify(data));
     } catch (e) {
       console.warn('LocalStorage save failed:', e);
     }
@@ -148,7 +154,7 @@ export class LevelStorage {
   // LocalStorage Auto-load
   static autoLoad(player, entities) {
     try {
-      const raw = localStorage.getItem(STORAGE_KEY);
+      const raw = localStorage.getItem(LEVEL_STORAGE_KEY);
       if (raw) {
         const data = JSON.parse(raw);
         return this.deserialize(data, player, entities);
@@ -182,14 +188,15 @@ export class LevelStorage {
       try {
         const parsed = SidehopFile.parse(e.target.result);
 
-        if (parsed.kind === 'level') {
-          const bg = this.deserialize(parsed.level, player, entities);
+        if (parsed.kind === 'level' || parsed.level) {
+          const levelData = parsed.level || parsed;
+          const bg = this.deserialize(levelData, player, entities);
           if (callback) {
             callback({
               kind: 'level',
               background: bg,
               meta: parsed.meta,
-              levelName: parsed.meta?.title || parsed.level?.name || 'Sidehop Level'
+              levelName: parsed.meta?.title || levelData?.name || 'Sidehop Level'
             });
           }
         } else if (parsed.kind === 'asset') {
@@ -221,6 +228,8 @@ export class LevelStorage {
               meta: parsed.meta
             });
           }
+        } else {
+          alert('This file does not contain a Sidehop level or asset.');
         }
       } catch (err) {
         console.error('Sidehop file import error:', err);
@@ -230,7 +239,7 @@ export class LevelStorage {
     reader.readAsText(file);
   }
 
-  // Default Preset 1: World 1-1 "Sidehop Meadow (Expanded Edition)"
+  // Default Preset 1: World 1-1 "Sidehop Meadow (Grand Expanded Edition)"
   static getStarterWorld() {
     const entities = [];
     const T = 40;
@@ -244,29 +253,30 @@ export class LevelStorage {
     };
 
     // -------------------------------------------------------------
-    // SECTION 1: RUNWAY, MYSTERY BLOCKS & FIRST POTATO (x: 0 -> 480)
+    // SECTION 1: TUTORIAL RUNWAY & MYSTERY BLOCKS (x: 0 -> 480)
     // -------------------------------------------------------------
     addGround(0, 480, 480, 'solid');
 
     // Overhead Mario-style Mystery & Solid Blocks
     entities.push(new SolidBlock(200, 320, T, T, 'solid'));
-    entities.push(new SolidBlock(240, 320, T, T, 'mystery')); // Bumpable [?]
+    // Question block [?] containing the Pistol Gun Powerup!
+    entities.push(new SolidBlock(240, 320, T, T, 'mystery', 'powerup'));
     entities.push(new SolidBlock(280, 320, T, T, 'solid'));
-    entities.push(new SolidBlock(320, 320, T, T, 'mystery')); // Bumpable [?]
+    // Question block [?] containing Coin!
+    entities.push(new SolidBlock(320, 320, T, T, 'mystery', 'coin'));
     entities.push(new SolidBlock(360, 320, T, T, 'solid'));
 
-    // Coins & Pistol under and above blocks
-    entities.push(new Collectible(244, 270, 32, 32, 'coin'));
-    entities.push(new Collectible(284, 268, 32, 32, 'pistol')); // Pistol Gun Powerup!
-    entities.push(new Collectible(324, 270, 32, 32, 'coin'));
+    // Coins under and above blocks
+    entities.push(new Collectible(244, 430, 32, 32, 'coin'));
+    entities.push(new Collectible(324, 430, 32, 32, 'coin'));
 
-    // Patrolling Potato Walker
+    // Patrolling Potato Walker (Shoot with Pistol or Stomp!)
     const enemy1 = new EnemyWalker(380, 440, T, T, 'walker');
     enemy1.patrolRange = 90;
     entities.push(enemy1);
 
     // -------------------------------------------------------------
-    // SECTION 2: SMOOTH SLOPES & WARP PIPE PLATEAU (x: 480 -> 960)
+    // SECTION 2: SMOOTH SLOPES & WARP PIPE PLATEAU (x: 480 -> 1000)
     // -------------------------------------------------------------
     // Incline hill slant (surface rises smoothly from 480 to 440)
     entities.push(new SolidBlock(480, 440, T, T, 'slope_up'));
@@ -274,186 +284,385 @@ export class LevelStorage {
     entities.push(new SolidBlock(480, 520, T, T, 'solid'));
 
     // Elevated Plateau (y: 440)
-    for (let x = 520; x < 760; x += T) {
+    for (let x = 520; x < 800; x += T) {
       entities.push(new SolidBlock(x, 440, T, T, 'solid'));
       entities.push(new SolidBlock(x, 480, T, T, 'solid'));
       entities.push(new SolidBlock(x, 520, T, T, 'solid'));
     }
 
+    // Mystery Block with Health Heart on the plateau!
+    entities.push(new SolidBlock(560, 320, T, T, 'mystery', 'heart'));
+
     // Iconic Tall Warp Pipe (40x80) on the plateau
-    entities.push(new SolidBlock(600, 360, 40, 80, 'pipe'));
-    entities.push(new Collectible(604, 310, 32, 32, 'coin'));
+    entities.push(new SolidBlock(640, 360, 40, 80, 'pipe'));
+    entities.push(new Collectible(644, 310, 32, 32, 'coin'));
 
     // Winged Hopper on the elevated ground
-    const enemy2 = new EnemyWalker(680, 400, T, T, 'winged');
+    const enemy2 = new EnemyWalker(720, 400, T, T, 'winged');
     enemy2.patrolRange = 60;
     entities.push(enemy2);
 
     // Decline hill slant (surface descends smoothly from 440 to 480)
-    entities.push(new SolidBlock(760, 440, T, T, 'slope_down'));
-    entities.push(new SolidBlock(760, 480, T, T, 'solid'));
-    entities.push(new SolidBlock(760, 520, T, T, 'solid'));
+    entities.push(new SolidBlock(800, 440, T, T, 'slope_down'));
+    entities.push(new SolidBlock(800, 480, T, T, 'solid'));
+    entities.push(new SolidBlock(800, 520, T, T, 'solid'));
 
     // Valley ground
-    addGround(800, 960, 480, 'solid');
-    entities.push(new Collectible(844, 430, 32, 32, 'coin'));
-    entities.push(new Collectible(904, 430, 32, 32, 'coin'));
+    addGround(840, 1000, 480, 'solid');
+    entities.push(new Collectible(884, 430, 32, 32, 'coin'));
+    entities.push(new Collectible(944, 430, 32, 32, 'coin'));
 
     // -------------------------------------------------------------
-    // SECTION 3: NOTE BLOCK, HALF SLABS & SKY CLOUD ISLAND (x: 960 -> 1400)
+    // SECTION 3: NOTE BLOCK, HALF SLABS & SKY CLOUD ISLAND (x: 1000 -> 1520)
     // -------------------------------------------------------------
-    // Spike Pit with solid foundation floor (x: 960 -> 1200)
-    for (let x = 960; x < 1200; x += T) {
+    // Spike Pit with solid foundation floor (x: 1040 -> 1280)
+    for (let x = 1040; x < 1280; x += T) {
       entities.push(new HazardSpikes(x, 480, T, T));
       entities.push(new SolidBlock(x, 520, T, T, 'solid'));
     }
 
     // Musical Note Block super trampoline right at edge of the pit (resting on ground at 480)
-    entities.push(new SolidBlock(920, 440, T, T, 'note'));
+    entities.push(new SolidBlock(1000, 440, T, T, 'note'));
 
     // Stepping Half Slabs over the hazard
-    entities.push(new SolidBlock(1020, 420, 40, 20, 'slab'));
-    entities.push(new Collectible(1024, 370, 32, 32, 'coin'));
+    entities.push(new SolidBlock(1100, 420, 40, 20, 'slab'));
+    entities.push(new Collectible(1104, 370, 32, 32, 'coin'));
 
-    entities.push(new SolidBlock(1120, 420, 40, 20, 'slab'));
-    entities.push(new Collectible(1124, 370, 32, 32, 'coin'));
+    entities.push(new SolidBlock(1200, 420, 40, 20, 'slab'));
+    entities.push(new Collectible(1204, 370, 32, 32, 'coin'));
 
     // High Sky Cloud Island (accessible via Note Block bounce!)
-    for (let x = 1000; x <= 1160; x += T) {
+    for (let x = 1080; x <= 1280; x += T) {
       entities.push(new SolidBlock(x, 220, T, T, 'cloud'));
     }
     // Secret 500-pt Star Gem on the cloud!
-    entities.push(new Collectible(1080, 170, 32, 32, 'star'));
+    entities.push(new Collectible(1160, 170, 32, 32, 'star'));
 
     // Landing Ground
-    addGround(1200, 1400, 480, 'solid');
-    entities.push(new Collectible(1264, 430, 32, 32, 'coin'));
-    entities.push(new Collectible(1324, 430, 32, 32, 'coin'));
-
-    // -------------------------------------------------------------
-    // SECTION 4: DONUT LIFT BRIDGE & SLIPPERY ICE CAVERN (x: 1400 -> 1920)
-    // -------------------------------------------------------------
-    // Donut Lift Bridge with middle resting stone pier over chasm
-    entities.push(new SolidBlock(1400, 480, T, T, 'donut'));
-    entities.push(new Collectible(1404, 430, 32, 32, 'coin'));
-
-    entities.push(new SolidBlock(1440, 480, T, T, 'donut'));
+    addGround(1280, 1520, 480, 'solid');
+    const enemy3 = new EnemyWalker(1360, 440, T, T, 'walker');
+    enemy3.patrolRange = 70;
+    entities.push(enemy3);
     entities.push(new Collectible(1444, 430, 32, 32, 'coin'));
 
-    // Solid resting stone pier
-    entities.push(new SolidBlock(1480, 480, T, T, 'stone'));
-    entities.push(new SolidBlock(1480, 520, T, T, 'stone'));
-
+    // -------------------------------------------------------------
+    // SECTION 4: DONUT BRIDGE & SLIPPERY ICE CHASM (x: 1520 -> 2160)
+    // -------------------------------------------------------------
+    // Donut Lift Bridge with middle resting stone pier over chasm
     entities.push(new SolidBlock(1520, 480, T, T, 'donut'));
     entities.push(new Collectible(1524, 430, 32, 32, 'coin'));
 
     entities.push(new SolidBlock(1560, 480, T, T, 'donut'));
     entities.push(new Collectible(1564, 430, 32, 32, 'coin'));
 
-    // Slippery Ice Plateau (x: 1600 -> 1920)
-    for (let x = 1600; x < 1920; x += T) {
+    // Solid resting stone pier
+    entities.push(new SolidBlock(1600, 480, T, T, 'stone'));
+    entities.push(new SolidBlock(1600, 520, T, T, 'stone'));
+
+    entities.push(new SolidBlock(1640, 480, T, T, 'donut'));
+    entities.push(new Collectible(1644, 430, 32, 32, 'coin'));
+
+    entities.push(new SolidBlock(1680, 480, T, T, 'donut'));
+    entities.push(new Collectible(1684, 430, 32, 32, 'coin'));
+
+    // Slippery Ice Plateau (x: 1720 -> 2160)
+    for (let x = 1720; x < 2160; x += T) {
       entities.push(new SolidBlock(x, 480, T, T, 'ice'));
       entities.push(new SolidBlock(x, 520, T, T, 'solid'));
     }
 
-    // Armored Spiky Enemy on the ice (Cannot stomp!)
-    const enemy3 = new EnemyWalker(1740, 440, T, T, 'spiky');
-    enemy3.patrolRange = 60;
-    entities.push(enemy3);
-
-    // Heart Health Pickup floating above the ice
-    entities.push(new Collectible(1744, 400, 32, 32, 'heart'));
+    // Armored Spiky Enemy on the ice (Cannot stomp! Must shoot with gun or leap over!)
+    const enemySpiky1 = new EnemyWalker(1880, 440, T, T, 'spiky');
+    enemySpiky1.patrolRange = 70;
+    entities.push(enemySpiky1);
 
     // Upper Bypass Route: Cloud & Mystery Block bridge (y: 340)
-    entities.push(new SolidBlock(1660, 340, T, T, 'mystery'));
-    entities.push(new SolidBlock(1700, 340, T, T, 'cloud'));
-    entities.push(new SolidBlock(1740, 340, T, T, 'cloud'));
-    entities.push(new SolidBlock(1780, 340, T, T, 'mystery'));
-    entities.push(new Collectible(1704, 290, 32, 32, 'pistol')); // Pistol Gun Powerup!
-    entities.push(new Collectible(1744, 290, 32, 32, 'coin'));
+    // If the player already picked up the gun, this mystery block dispenses AMMUNITION!
+    entities.push(new SolidBlock(1800, 340, T, T, 'mystery', 'powerup'));
+    entities.push(new SolidBlock(1840, 340, T, T, 'cloud'));
+    entities.push(new SolidBlock(1880, 340, T, T, 'cloud'));
+    entities.push(new SolidBlock(1920, 340, T, T, 'mystery', 'coin'));
+    entities.push(new Collectible(1844, 290, 32, 32, 'coin'));
 
     // -------------------------------------------------------------
-    // SECTION 5: DUAL MOVING PLATFORMS & SEMISOLID LEDGE (x: 1920 -> 2400)
+    // SECTION 5: DUAL MOVING LIFTS ACROSS THE ABYSS (x: 2160 -> 2840)
     // -------------------------------------------------------------
-    // Deep Chasm (x: 1920 -> 2400)
+    // Deep Chasm (x: 2160 -> 2840)
     // Vertical moving elevator platform (cycles smoothly between y: 335 and 445)
-    const vertPlat = new MovingPlatform(1960, 390, 80, 24);
+    const vertPlat = new MovingPlatform(2220, 390, 80, 24);
     vertPlat.axis = 'vertical';
     vertPlat.distance = 55;
     vertPlat.speed = 50;
     entities.push(vertPlat);
 
     // High Semisolid Platform in the middle (jump through from below)
-    entities.push(new SolidBlock(2080, 320, T, T, 'semisolid'));
-    entities.push(new SolidBlock(2120, 320, T, T, 'semisolid'));
-    entities.push(new SolidBlock(2160, 320, T, T, 'semisolid'));
-    entities.push(new Collectible(2124, 270, 32, 32, 'star')); // Hidden Star!
+    entities.push(new SolidBlock(2360, 320, T, T, 'semisolid'));
+    entities.push(new SolidBlock(2400, 320, T, T, 'semisolid'));
+    entities.push(new SolidBlock(2440, 320, T, T, 'semisolid'));
+    entities.push(new Collectible(2404, 270, 32, 32, 'star')); // Hidden Star!
 
-    // Horizontal moving ferry platform (cycles smoothly between x: 2190 and 2330 at y: 420)
-    const horizPlat = new MovingPlatform(2260, 420, 80, 24);
+    // Winged Hopper airborne over the abyss
+    const enemyWinged2 = new EnemyWalker(2400, 240, T, T, 'winged');
+    enemyWinged2.patrolRange = 50;
+    entities.push(enemyWinged2);
+
+    // Horizontal moving ferry platform (cycles smoothly between x: 2510 and 2650 at y: 420)
+    const horizPlat = new MovingPlatform(2580, 420, 80, 24);
     horizPlat.axis = 'horizontal';
     horizPlat.distance = 70;
     horizPlat.speed = 60;
     entities.push(horizPlat);
 
-    // -------------------------------------------------------------
-    // SECTION 6: CASTLE STONE FORTRESS & MEGA TRAMPOLINE (x: 2400 -> 2940)
-    // -------------------------------------------------------------
-    // Castle Stone Fortress Base
-    for (let x = 2400; x < 2740; x += T) {
+    // Landing Fortress Pier (x: 2700 -> 2840)
+    for (let x = 2700; x < 2840; x += T) {
       entities.push(new SolidBlock(x, 480, T, T, 'stone'));
       entities.push(new SolidBlock(x, 520, T, T, 'stone'));
     }
 
-    // Standard Springboard
-    entities.push(new Springboard(2440, 440, T, T, 'spring'));
+    // -------------------------------------------------------------
+    // SECTION 6: CITADEL GATEWAY & MEGA TRAMPOLINE (x: 2840 -> 3520)
+    // -------------------------------------------------------------
+    for (let x = 2840; x < 3320; x += T) {
+      entities.push(new SolidBlock(x, 480, T, T, 'stone'));
+      entities.push(new SolidBlock(x, 520, T, T, 'stone'));
+    }
 
-    // 2x2 Mega Blocks (80x80) forming fortress tower
-    entities.push(new SolidBlock(2520, 400, 80, 80, 'mega'));
-    entities.push(new Collectible(2544, 340, 32, 32, 'coin'));
+    // Mystery Block with Heart (health restore)
+    entities.push(new SolidBlock(2920, 340, T, T, 'mystery', 'heart'));
+
+    // 2x2 Mega Blocks forming fortress tower
+    entities.push(new SolidBlock(3000, 400, 80, 80, 'mega'));
+    entities.push(new Collectible(3024, 340, 32, 32, 'coin'));
 
     // Warp Pipe on fortress
-    entities.push(new SolidBlock(2640, 400, 40, 80, 'pipe'));
-    entities.push(new Collectible(2644, 350, 32, 32, 'coin'));
+    entities.push(new SolidBlock(3140, 400, 40, 80, 'pipe'));
+    entities.push(new Collectible(3144, 350, 32, 32, 'coin'));
 
-    // Mega Trampoline launcher: calibrated to sail player comfortably onto the Grand Staircase
-    entities.push(new Springboard(2700, 440, T, T, 'mega'));
+    // Armored Guard patrolling
+    const enemySpiky2 = new EnemyWalker(3220, 440, T, T, 'spiky');
+    enemySpiky2.patrolRange = 40;
+    entities.push(enemySpiky2);
 
-    // Final Moat filled with Hazards (x: 2740 -> 2940)
-    for (let x = 2740; x < 2940; x += T) {
+    // Mega Trampoline launcher: launches player high over the moat
+    entities.push(new Springboard(3280, 440, T, T, 'mega'));
+
+    // Spiked Moat (x: 3320 -> 3520)
+    for (let x = 3320; x < 3520; x += T) {
       entities.push(new HazardSpikes(x, 480, T, T));
       entities.push(new SolidBlock(x, 520, T, T, 'stone'));
     }
 
     // -------------------------------------------------------------
-    // SECTION 7: GRAND STAIRCASE & VICTORY FLAG (x: 2940 -> 3500)
+    // SECTION 7: THE TWIN PEAKS & CANYON CROSSING (x: 3520 -> 4320)
+    // -------------------------------------------------------------
+    // Peak 1 Incline (rises from 480 to 400)
+    entities.push(new SolidBlock(3520, 440, T, T, 'slope_up'));
+    entities.push(new SolidBlock(3520, 480, T, T, 'stone'));
+    entities.push(new SolidBlock(3520, 520, T, T, 'stone'));
+    entities.push(new SolidBlock(3560, 400, T, T, 'slope_up'));
+    entities.push(new SolidBlock(3560, 440, T, T, 'stone'));
+    entities.push(new SolidBlock(3560, 480, T, T, 'stone'));
+    entities.push(new SolidBlock(3560, 520, T, T, 'stone'));
+
+    // Peak 1 Crest (y: 400)
+    entities.push(new SolidBlock(3600, 400, T, T, 'stone'));
+    entities.push(new SolidBlock(3600, 440, T, T, 'stone'));
+    entities.push(new SolidBlock(3600, 480, T, T, 'stone'));
+    entities.push(new SolidBlock(3600, 520, T, T, 'stone'));
+
+    // High Mystery Block over Peak 1 (Sprouts Ammunition refill!)
+    entities.push(new SolidBlock(3600, 280, T, T, 'mystery', 'powerup'));
+
+    // Canyon Gap with Falling Donut Lifts & Moving Platform
+    entities.push(new SolidBlock(3680, 420, T, T, 'donut'));
+    entities.push(new Collectible(3684, 370, 32, 32, 'coin'));
+
+    // Fast Vertical Ferry across the canyon
+    const canyonPlat = new MovingPlatform(3780, 380, 80, 24);
+    canyonPlat.axis = 'vertical';
+    canyonPlat.distance = 60;
+    canyonPlat.speed = 65;
+    entities.push(canyonPlat);
+
+    // Winged Hopper guarding the gap
+    const enemyWinged3 = new EnemyWalker(3780, 240, T, T, 'winged');
+    enemyWinged3.patrolRange = 60;
+    entities.push(enemyWinged3);
+
+    entities.push(new SolidBlock(3900, 420, T, T, 'donut'));
+    entities.push(new Collectible(3904, 370, 32, 32, 'coin'));
+
+    // Peak 2 Crest & Decline (x: 3960 -> 4320)
+    for (let x = 3960; x < 4120; x += T) {
+      entities.push(new SolidBlock(x, 400, T, T, 'stone'));
+      entities.push(new SolidBlock(x, 440, T, T, 'stone'));
+      entities.push(new SolidBlock(x, 480, T, T, 'stone'));
+      entities.push(new SolidBlock(x, 520, T, T, 'stone'));
+    }
+    const enemyWalker2 = new EnemyWalker(4020, 360, T, T, 'walker');
+    enemyWalker2.patrolRange = 50;
+    entities.push(enemyWalker2);
+
+    entities.push(new SolidBlock(4120, 400, T, T, 'slope_down'));
+    entities.push(new SolidBlock(4120, 440, T, T, 'stone'));
+    entities.push(new SolidBlock(4120, 480, T, T, 'stone'));
+    entities.push(new SolidBlock(4120, 520, T, T, 'stone'));
+
+    entities.push(new SolidBlock(4160, 440, T, T, 'slope_down'));
+    entities.push(new SolidBlock(4160, 480, T, T, 'stone'));
+    entities.push(new SolidBlock(4160, 520, T, T, 'stone'));
+
+    addGround(4200, 4320, 480, 'solid');
+
+    // -------------------------------------------------------------
+    // SECTION 8: GLACIAL SLOPES & SPIKY GAUNTLET (x: 4320 -> 5120)
+    // -------------------------------------------------------------
+    // Slippery ice runway with slopes
+    for (let x = 4320; x < 4880; x += T) {
+      entities.push(new SolidBlock(x, 480, T, T, 'ice'));
+      entities.push(new SolidBlock(x, 520, T, T, 'solid'));
+    }
+
+    // High Semisolid Escape Route above the ice (y: 340)
+    for (let x = 4440; x <= 4720; x += T) {
+      entities.push(new SolidBlock(x, 340, T, T, 'semisolid'));
+    }
+    // Health Heart in mystery block on the upper route!
+    entities.push(new SolidBlock(4560, 240, T, T, 'mystery', 'heart'));
+    entities.push(new Collectible(4644, 290, 32, 32, 'coin'));
+
+    // Spiky Gauntlet on the ice below (Use pistol or take upper route!)
+    const enemySpiky3 = new EnemyWalker(4460, 440, T, T, 'spiky');
+    enemySpiky3.patrolRange = 60;
+    enemySpiky3.speed = 55;
+    entities.push(enemySpiky3);
+
+    const enemySpiky4 = new EnemyWalker(4680, 440, T, T, 'spiky');
+    enemySpiky4.patrolRange = 60;
+    enemySpiky4.speed = 60;
+    entities.push(enemySpiky4);
+
+    // Mystery Block dispensing Ammunition to reload pistol!
+    entities.push(new SolidBlock(4800, 340, T, T, 'mystery', 'powerup'));
+
+    addGround(4880, 5120, 480, 'solid');
+    const enemyWalker3 = new EnemyWalker(4960, 440, T, T, 'walker');
+    enemyWalker3.patrolRange = 70;
+    entities.push(enemyWalker3);
+
+    // -------------------------------------------------------------
+    // SECTION 9: SKY ISLES & THE CLOUD EXPRESS (x: 5120 -> 5960)
+    // -------------------------------------------------------------
+    // Vast chasm with floating cloud formations & moving ferries
+    for (let x = 5160; x <= 5320; x += T) {
+      entities.push(new SolidBlock(x, 400, T, T, 'cloud'));
+    }
+    entities.push(new Collectible(5204, 350, 32, 32, 'coin'));
+    entities.push(new Collectible(5284, 350, 32, 32, 'coin'));
+
+    // High Musical Note Block for high sky access
+    entities.push(new SolidBlock(5320, 360, T, T, 'note'));
+
+    // Airborne Cloud Island (y: 220) with Star Gem!
+    for (let x = 5280; x <= 5440; x += T) {
+      entities.push(new SolidBlock(x, 220, T, T, 'cloud'));
+    }
+    entities.push(new Collectible(5364, 170, 32, 32, 'star'));
+
+    // Horizontal Cloud Express Ferry platform
+    const skyPlat = new MovingPlatform(5480, 380, 80, 24);
+    skyPlat.axis = 'horizontal';
+    skyPlat.distance = 80;
+    skyPlat.speed = 70;
+    entities.push(skyPlat);
+
+    // Winged Hopper patrolling over the void
+    const enemyWinged4 = new EnemyWalker(5480, 240, T, T, 'winged');
+    enemyWinged4.patrolRange = 60;
+    entities.push(enemyWinged4);
+
+    // Second Cloud Island with Mystery Block [?] for Ammo
+    for (let x = 5660; x <= 5820; x += T) {
+      entities.push(new SolidBlock(x, 380, T, T, 'cloud'));
+    }
+    entities.push(new SolidBlock(5740, 260, T, T, 'mystery', 'powerup'));
+    entities.push(new Collectible(5704, 330, 32, 32, 'coin'));
+
+    // Donut stepping stones
+    entities.push(new SolidBlock(5860, 420, T, T, 'donut'));
+    entities.push(new SolidBlock(5900, 420, T, T, 'donut'));
+
+    // -------------------------------------------------------------
+    // SECTION 10: FORTRESS OF SPIKES & FINAL MOAT (x: 5960 -> 6640)
+    // -------------------------------------------------------------
+    // Castle Base
+    for (let x = 5960; x < 6440; x += T) {
+      entities.push(new SolidBlock(x, 480, T, T, 'stone'));
+      entities.push(new SolidBlock(x, 520, T, T, 'stone'));
+    }
+
+    // Fortress Watchtower with Mega Block and Pipe
+    entities.push(new SolidBlock(6080, 400, 80, 80, 'mega'));
+    entities.push(new SolidBlock(6200, 360, 40, 80, 'pipe'));
+
+    // Final Health Heart & Coin Mystery Blocks
+    entities.push(new SolidBlock(6080, 280, T, T, 'mystery', 'heart'));
+    entities.push(new SolidBlock(6120, 280, T, T, 'mystery', 'coin'));
+
+    // Patrolling Armored Spiky and Walker
+    const enemySpiky5 = new EnemyWalker(6280, 440, T, T, 'spiky');
+    enemySpiky5.patrolRange = 50;
+    entities.push(enemySpiky5);
+
+    // Final Mega Trampoline launching over the deep spiked moat!
+    entities.push(new Springboard(6380, 440, T, T, 'mega'));
+
+    // Giant Spiked Moat
+    for (let x = 6440; x < 6640; x += T) {
+      entities.push(new HazardSpikes(x, 480, T, T));
+      entities.push(new SolidBlock(x, 520, T, T, 'stone'));
+    }
+
+    // -------------------------------------------------------------
+    // SECTION 11: GRAND PYRAMID STAIRCASE & GOAL FLAG (x: 6640 -> 7300)
     // -------------------------------------------------------------
     // Ascending Staircase Base
-    addGround(2940, 3140, 480, 'stone');
+    addGround(6640, 6880, 480, 'stone');
 
-    // Column 1
-    entities.push(new SolidBlock(2980, 440, T, T, 'stone'));
-    // Column 2
-    entities.push(new SolidBlock(3020, 440, T, T, 'stone'));
-    entities.push(new SolidBlock(3020, 400, T, T, 'stone'));
-    // Column 3
-    entities.push(new SolidBlock(3060, 440, T, T, 'stone'));
-    entities.push(new SolidBlock(3060, 400, T, T, 'stone'));
-    entities.push(new SolidBlock(3060, 360, T, T, 'stone'));
-    // Column 4 (Peak)
-    entities.push(new SolidBlock(3100, 440, T, T, 'stone'));
-    entities.push(new SolidBlock(3100, 400, T, T, 'stone'));
-    entities.push(new SolidBlock(3100, 360, T, T, 'stone'));
-    entities.push(new SolidBlock(3100, 320, T, T, 'stone'));
-    entities.push(new Collectible(3104, 270, 32, 32, 'coin'));
+    // Column 1 (Height: 1 block, y: 440)
+    entities.push(new SolidBlock(6680, 440, T, T, 'stone'));
 
-    // Victory Courtyard
-    addGround(3140, 3480, 480, 'stone');
+    // Column 2 (Height: 2 blocks, y: 400)
+    entities.push(new SolidBlock(6720, 440, T, T, 'stone'));
+    entities.push(new SolidBlock(6720, 400, T, T, 'stone'));
 
-    // The Goal Flag!
-    entities.push(new GoalFlag(3340, 400, 48, 80));
+    // Column 3 (Height: 3 blocks, y: 360)
+    entities.push(new SolidBlock(6760, 440, T, T, 'stone'));
+    entities.push(new SolidBlock(6760, 400, T, T, 'stone'));
+    entities.push(new SolidBlock(6760, 360, T, T, 'stone'));
+
+    // Column 4 (Height: 4 blocks, y: 320)
+    entities.push(new SolidBlock(6800, 440, T, T, 'stone'));
+    entities.push(new SolidBlock(6800, 400, T, T, 'stone'));
+    entities.push(new SolidBlock(6800, 360, T, T, 'stone'));
+    entities.push(new SolidBlock(6800, 320, T, T, 'stone'));
+
+    // Column 5 (Apex / Height: 5 blocks, y: 280)
+    entities.push(new SolidBlock(6840, 440, T, T, 'stone'));
+    entities.push(new SolidBlock(6840, 400, T, T, 'stone'));
+    entities.push(new SolidBlock(6840, 360, T, T, 'stone'));
+    entities.push(new SolidBlock(6840, 320, T, T, 'stone'));
+    entities.push(new SolidBlock(6840, 280, T, T, 'stone'));
+    // Glowing Star Gem right above the peak!
+    entities.push(new Collectible(6844, 230, 32, 32, 'star'));
+
+    // Victory Courtyard Floor
+    addGround(6880, 7280, 480, 'stone');
+
+    // Triumphal Goal Finish Line Flag!
+    entities.push(new GoalFlag(7100, 400, 48, 80));
     // High Star above the flag
-    entities.push(new Collectible(3348, 330, 32, 32, 'star'));
+    entities.push(new Collectible(7108, 330, 32, 32, 'star'));
 
     return {
       background: { theme: 'sky', customImage: null },

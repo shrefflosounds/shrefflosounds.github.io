@@ -353,7 +353,7 @@ export class Player extends Entity {
 
 // 2. SOLID BLOCK (Mario Maker 2 Styles, Shapes, Sizes & Slants)
 export class SolidBlock extends Entity {
-  constructor(x, y, width = 40, height = 40, variant = 'solid') {
+  constructor(x, y, width = 40, height = 40, variant = 'solid', content = null) {
     let w = width;
     let h = height;
     if (variant === 'mega' && width === 40 && height === 40) { w = 80; h = 80; }
@@ -362,6 +362,7 @@ export class SolidBlock extends Entity {
 
     super(null, 'crate', x, y, w, h); // type remains 'crate' internally for physics/solids compatibility
     this.variant = variant || 'solid';
+    this.content = content || null; // 'powerup', 'heart', 'coin', 'star', 'ammo', or null (auto)
     this.bounciness = this.variant === 'note' ? 0.95 : 0.0;
     this.friction = this.variant === 'ice' ? 0.12 : 1.0;
     this.isOneWay = (this.variant === 'cloud' || this.variant === 'semisolid');
@@ -398,14 +399,18 @@ export class SolidBlock extends Entity {
     }
   }
 
-  bump() {
+  bump(entity = null) {
     if (this.variant === 'mystery' && this.isUsed) return;
     this.bumpTimer = 0.22;
     if (this.variant === 'mystery') {
       this.isUsed = true;
-      sounds.playCollect();
-      if (typeof window !== 'undefined' && window.sidehop) {
-        window.sidehop.score += 100;
+      if (typeof window !== 'undefined' && window.sidehop && window.sidehop.handleMysteryBlockHit) {
+        window.sidehop.handleMysteryBlockHit(this);
+      } else {
+        sounds.playCollect();
+        if (typeof window !== 'undefined' && window.sidehop) {
+          window.sidehop.score += 100;
+        }
       }
     } else if (this.variant === 'note') {
       sounds.playBounce();
@@ -450,6 +455,116 @@ export class SolidBlock extends Entity {
     }
   }
 
+  getNeighbors() {
+    if (!SolidBlock.terrainMapActive || SolidBlock.terrainMap.size === 0) {
+      if (typeof window !== 'undefined' && window.sidehop && window.sidehop.entities) {
+        SolidBlock.updateTerrainMap(window.sidehop.entities);
+      }
+    }
+    const col = Math.round(this.x / 40);
+    const row = Math.round(this.y / 40);
+
+    const isSolidOpaque = (ent) => {
+      if (!ent || !ent.active) return false;
+      return ent.variant !== 'cloud' && ent.variant !== 'semisolid';
+    };
+
+    const topEnt = SolidBlock.terrainMap.get(`${col},${row - 1}`);
+    const bottomEnt = SolidBlock.terrainMap.get(`${col},${row + 1}`);
+    const leftEnt = SolidBlock.terrainMap.get(`${col - 1},${row}`);
+    const rightEnt = SolidBlock.terrainMap.get(`${col + 1},${row}`);
+
+    const hasTop = Boolean(topEnt && topEnt !== this && isSolidOpaque(topEnt));
+    const hasBottom = Boolean(bottomEnt && bottomEnt !== this && isSolidOpaque(bottomEnt));
+    const hasLeft = Boolean(leftEnt && leftEnt !== this && (leftEnt.variant === 'solid' || leftEnt.variant === 'slope_up'));
+    const hasRight = Boolean(rightEnt && rightEnt !== this && (rightEnt.variant === 'solid' || rightEnt.variant === 'slope_down'));
+
+    return { hasTop, hasBottom, hasLeft, hasRight, topEnt, bottomEnt, leftEnt, rightEnt };
+  }
+
+  // Ensure square block assets remain in their physical block shape when an image or GIF is applied
+  renderCustomOrFallback(ctx, fallbackDrawFn) {
+    if (this.customImageElement && this.customImageElement.complete) {
+      ctx.save();
+
+      if (this.variant === 'slope_up') {
+        // 45° Incline Triangle Clipping
+        ctx.beginPath();
+        ctx.moveTo(0, this.height);
+        ctx.lineTo(this.width, 0);
+        ctx.lineTo(this.width, this.height);
+        ctx.closePath();
+        ctx.fillStyle = '#866043';
+        ctx.fill();
+        ctx.clip();
+      } else if (this.variant === 'slope_down') {
+        // 45° Decline Triangle Clipping
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.lineTo(this.width, this.height);
+        ctx.lineTo(0, this.height);
+        ctx.closePath();
+        ctx.fillStyle = '#866043';
+        ctx.fill();
+        ctx.clip();
+      } else {
+        // Square & rectangular blocks: retain solid square block shape
+        ctx.fillStyle = '#FFE600'; // Cheerful square block base
+        ctx.fillRect(0, 0, this.width, this.height);
+
+        ctx.beginPath();
+        ctx.rect(0, 0, this.width, this.height);
+        ctx.clip();
+      }
+
+      // Draw custom visual using Aspect-Ratio Preserving Cover Mode
+      // Centers the image and scales it so it completely fills the block shape without spilling or distorting!
+      const img = this.customImageElement;
+      const imgW = img.naturalWidth || img.width || this.width;
+      const imgH = img.naturalHeight || img.height || this.height;
+      const scale = Math.max(this.width / imgW, this.height / imgH);
+      const dw = imgW * scale;
+      const dh = imgH * scale;
+      const dx = (this.width - dw) / 2;
+      const dy = (this.height - dh) / 2;
+
+      ctx.drawImage(img, dx, dy, dw, dh);
+      ctx.restore();
+
+      // Outer neo-brutalist border and bevel so the block retains its physical block appearance
+      ctx.save();
+      ctx.strokeStyle = '#121212';
+      ctx.lineWidth = 3;
+      if (this.variant === 'slope_up') {
+        ctx.beginPath();
+        ctx.moveTo(0, this.height);
+        ctx.lineTo(this.width, 0);
+        ctx.lineTo(this.width, this.height);
+        ctx.closePath();
+        ctx.stroke();
+      } else if (this.variant === 'slope_down') {
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.lineTo(this.width, this.height);
+        ctx.lineTo(0, this.height);
+        ctx.closePath();
+        ctx.stroke();
+      } else {
+        ctx.strokeRect(0, 0, this.width, this.height);
+
+        // Subtle top bevel highlight for 3D physical block depth
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+        ctx.fillRect(2, 2, this.width - 4, 3);
+        // Subtle bottom bevel shadow
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
+        ctx.fillRect(2, this.height - 5, this.width - 4, 3);
+      }
+      ctx.restore();
+    } else {
+      fallbackDrawFn();
+    }
+  }
+
   draw(ctx) {
     ctx.save();
     ctx.translate(this.x + (this.shakeOffsetX || 0), this.y + (this.bumpOffsetY || 0));
@@ -457,63 +572,161 @@ export class SolidBlock extends Entity {
     this.renderCustomOrFallback(ctx, () => {
       // 1. SLANT UP (45° Incline /)
       if (this.variant === 'slope_up') {
-        ctx.fillStyle = '#FFB300';
-        ctx.strokeStyle = '#121212';
-        ctx.lineWidth = 3;
+        const col = Math.round(this.x / 40);
+        const row = Math.round(this.y / 40);
+        const bottomEnt = SolidBlock.terrainMap.get(`${col},${row + 1}`);
+        const rightEnt = SolidBlock.terrainMap.get(`${col + 1},${row}`);
+        const isSolidOpaque = (ent) => ent && ent.active && ent.variant !== 'cloud' && ent.variant !== 'semisolid';
+        const hasBottom = Boolean(bottomEnt && isSolidOpaque(bottomEnt));
+        const hasRight = Boolean(rightEnt && isSolidOpaque(rightEnt));
 
+        // Base Dirt Fill
         ctx.beginPath();
         ctx.moveTo(0, this.height);
-        ctx.lineTo(this.width, this.height);
-        ctx.lineTo(this.width, 0);
+        ctx.lineTo(this.width + (hasRight ? 0.5 : 0), this.height + (hasBottom ? 0.5 : 0));
+        ctx.lineTo(this.width + (hasRight ? 0.5 : 0), 0);
         ctx.closePath();
+        ctx.fillStyle = '#866043';
         ctx.fill();
-        ctx.stroke();
 
-        // Lush grass trim along the hypotenuse
-        ctx.strokeStyle = '#00E676';
-        ctx.lineWidth = 5;
+        // Dirt specks inside lower-right half of triangle
+        ctx.fillStyle = '#5D4037';
+        ctx.fillRect(26, 26, 4, 3);
+        ctx.fillRect(33, 14, 3, 4);
+        ctx.fillStyle = '#9C724E';
+        ctx.fillRect(18, 30, 4, 3);
+        ctx.fillStyle = '#6D4C41';
+        ctx.fillRect(32, 28, 4, 3);
+
+        // Lush grass band along angled hypotenuse
         ctx.beginPath();
         ctx.moveTo(0, this.height);
-        ctx.lineTo(this.width, 0);
+        ctx.lineTo(this.width + (hasRight ? 0.5 : 0), 0);
+        ctx.lineTo(this.width + (hasRight ? 0.5 : 0), 10);
+        ctx.lineTo(10, this.height);
+        ctx.closePath();
+        ctx.fillStyle = '#558B2F';
+        ctx.fill();
+
+        // Grass top highlight
+        ctx.strokeStyle = '#7CB342';
+        ctx.lineWidth = 2.5;
+        ctx.beginPath();
+        ctx.moveTo(0, this.height);
+        ctx.lineTo(this.width + (hasRight ? 0.5 : 0), 0);
         ctx.stroke();
 
-        // Slope angle indicator hatch
-        ctx.strokeStyle = 'rgba(18, 18, 18, 0.25)';
+        // Grass underside shadow edge
+        ctx.strokeStyle = '#33691E';
         ctx.lineWidth = 2;
         ctx.beginPath();
-        ctx.moveTo(this.width * 0.45, this.height);
-        ctx.lineTo(this.width, this.height * 0.45);
+        ctx.moveTo(10, this.height);
+        ctx.lineTo(this.width + (hasRight ? 0.5 : 0), 10);
+        ctx.stroke();
+
+        // Grass fringe droplets into dirt
+        ctx.fillStyle = '#558B2F';
+        ctx.fillRect(16, 22, 4, 3);
+        ctx.fillRect(26, 12, 4, 3);
+        ctx.fillStyle = '#33691E';
+        ctx.fillRect(16, 24, 4, 1);
+        ctx.fillRect(26, 14, 4, 1);
+
+        // Outlines (only exposed faces)
+        ctx.strokeStyle = '#121212';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.moveTo(0, this.height);
+        ctx.lineTo(this.width, 0);
+
+        if (!hasRight) {
+          ctx.moveTo(this.width, 0);
+          ctx.lineTo(this.width, this.height);
+        }
+        if (!hasBottom) {
+          ctx.moveTo(0, this.height);
+          ctx.lineTo(this.width, this.height);
+        }
         ctx.stroke();
       }
 
       // 2. SLANT DOWN (45° Decline \)
       else if (this.variant === 'slope_down') {
-        ctx.fillStyle = '#FFB300';
-        ctx.strokeStyle = '#121212';
-        ctx.lineWidth = 3;
+        const col = Math.round(this.x / 40);
+        const row = Math.round(this.y / 40);
+        const bottomEnt = SolidBlock.terrainMap.get(`${col},${row + 1}`);
+        const leftEnt = SolidBlock.terrainMap.get(`${col - 1},${row}`);
+        const isSolidOpaque = (ent) => ent && ent.active && ent.variant !== 'cloud' && ent.variant !== 'semisolid';
+        const hasBottom = Boolean(bottomEnt && isSolidOpaque(bottomEnt));
+        const hasLeft = Boolean(leftEnt && isSolidOpaque(leftEnt));
 
+        // Base Dirt Fill
         ctx.beginPath();
         ctx.moveTo(0, 0);
-        ctx.lineTo(0, this.height);
-        ctx.lineTo(this.width, this.height);
+        ctx.lineTo(0, this.height + (hasBottom ? 0.5 : 0));
+        ctx.lineTo(this.width + (hasLeft ? 0.5 : 0), this.height + (hasBottom ? 0.5 : 0));
         ctx.closePath();
+        ctx.fillStyle = '#866043';
         ctx.fill();
-        ctx.stroke();
 
-        // Lush grass trim along hypotenuse
-        ctx.strokeStyle = '#00E676';
-        ctx.lineWidth = 5;
+        // Dirt specks inside lower-left half of triangle
+        ctx.fillStyle = '#5D4037';
+        ctx.fillRect(10, 26, 4, 3);
+        ctx.fillRect(4, 14, 3, 4);
+        ctx.fillStyle = '#9C724E';
+        ctx.fillRect(18, 30, 4, 3);
+        ctx.fillStyle = '#6D4C41';
+        ctx.fillRect(4, 28, 4, 3);
+
+        // Lush grass band along angled hypotenuse
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.lineTo(this.width, this.height);
+        ctx.lineTo(30, this.height);
+        ctx.lineTo(0, 10);
+        ctx.closePath();
+        ctx.fillStyle = '#558B2F';
+        ctx.fill();
+
+        // Grass top highlight
+        ctx.strokeStyle = '#7CB342';
+        ctx.lineWidth = 2.5;
         ctx.beginPath();
         ctx.moveTo(0, 0);
         ctx.lineTo(this.width, this.height);
         ctx.stroke();
 
-        // Slope angle indicator hatch
-        ctx.strokeStyle = 'rgba(18, 18, 18, 0.25)';
+        // Grass underside shadow edge
+        ctx.strokeStyle = '#33691E';
         ctx.lineWidth = 2;
         ctx.beginPath();
-        ctx.moveTo(0, this.height * 0.45);
-        ctx.lineTo(this.width * 0.55, this.height);
+        ctx.moveTo(0, 10);
+        ctx.lineTo(30, this.height);
+        ctx.stroke();
+
+        // Grass fringe droplets into dirt
+        ctx.fillStyle = '#558B2F';
+        ctx.fillRect(10, 12, 4, 3);
+        ctx.fillRect(20, 22, 4, 3);
+        ctx.fillStyle = '#33691E';
+        ctx.fillRect(10, 14, 4, 1);
+        ctx.fillRect(20, 24, 4, 1);
+
+        // Outlines (only exposed faces)
+        ctx.strokeStyle = '#121212';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.lineTo(this.width, this.height);
+
+        if (!hasLeft) {
+          ctx.moveTo(0, 0);
+          ctx.lineTo(0, this.height);
+        }
+        if (!hasBottom) {
+          ctx.moveTo(0, this.height);
+          ctx.lineTo(this.width, this.height);
+        }
         ctx.stroke();
       }
 
@@ -547,42 +760,63 @@ export class SolidBlock extends Entity {
 
       // 4. HALF SLAB (40×20 Stepping Stone)
       else if (this.variant === 'slab') {
-        ctx.fillStyle = '#FFB300';
+        const { hasTop } = this.getNeighbors();
+        // Base dirt
+        ctx.fillStyle = '#866043';
+        ctx.fillRect(0, 0, this.width, this.height);
+
+        // Specks
+        ctx.fillStyle = '#5D4037';
+        ctx.fillRect(8, 12, 4, 3);
+        ctx.fillStyle = '#9C724E';
+        ctx.fillRect(24, 10, 4, 3);
+
+        // Grass cap if not covered
+        if (!hasTop) {
+          ctx.fillStyle = '#558B2F';
+          ctx.fillRect(0, 0, this.width, 6);
+
+          ctx.fillStyle = '#7CB342';
+          ctx.fillRect(0, 0, this.width, 2);
+
+          ctx.fillStyle = '#33691E';
+          ctx.fillRect(0, 5, this.width, 1);
+
+          ctx.fillStyle = '#558B2F';
+          ctx.fillRect(6, 6, 4, 2);
+          ctx.fillRect(22, 6, 4, 2);
+        }
+
         ctx.strokeStyle = '#121212';
         ctx.lineWidth = 3;
-        ctx.fillRect(0, 0, this.width, this.height);
         ctx.strokeRect(0, 0, this.width, this.height);
-
-        // Mint grass cap
-        ctx.fillStyle = '#00E676';
-        ctx.fillRect(0, 0, this.width, 6);
-        ctx.strokeRect(0, 0, this.width, 6);
-
-        // Center brick seam
-        ctx.strokeStyle = 'rgba(18, 18, 18, 0.3)';
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        ctx.moveTo(this.width / 2, 6);
-        ctx.lineTo(this.width / 2, this.height);
-        ctx.stroke();
       }
 
       // 5. MEGA BLOCK (80×80 2×2 Giant Terrain Block)
       else if (this.variant === 'mega') {
-        ctx.fillStyle = '#8D6E63';
+        ctx.fillStyle = '#866043';
         ctx.strokeStyle = '#121212';
         ctx.lineWidth = 4;
         ctx.fillRect(0, 0, this.width, this.height);
         ctx.strokeRect(0, 0, this.width, this.height);
 
         // Top lush grass cap
-        ctx.fillStyle = '#00E676';
+        ctx.fillStyle = '#558B2F';
         ctx.fillRect(0, 0, this.width, 14);
-        ctx.strokeRect(0, 0, this.width, 14);
+        ctx.fillStyle = '#7CB342';
+        ctx.fillRect(0, 0, this.width, 3);
+        ctx.fillStyle = '#33691E';
+        ctx.fillRect(0, 13, this.width, 2);
 
-        // 4 interior masonry quadrants
-        ctx.strokeStyle = 'rgba(18, 18, 18, 0.45)';
-        ctx.lineWidth = 3;
+        // Drooping grass fringe
+        ctx.fillStyle = '#558B2F';
+        for (let fx = 8; fx < this.width - 8; fx += 14) {
+          ctx.fillRect(fx, 14, 6, 5);
+        }
+
+        // 4 interior quadrants
+        ctx.strokeStyle = 'rgba(18, 18, 18, 0.3)';
+        ctx.lineWidth = 2.5;
         ctx.beginPath();
         ctx.moveTo(0, this.height / 2); ctx.lineTo(this.width, this.height / 2);
         ctx.moveTo(this.width / 2, 14); ctx.lineTo(this.width / 2, this.height);
@@ -593,6 +827,8 @@ export class SolidBlock extends Entity {
         ctx.beginPath();
         ctx.arc(this.width / 2, this.height / 2, 10, 0, Math.PI * 2);
         ctx.fill();
+        ctx.strokeStyle = '#121212';
+        ctx.lineWidth = 3;
         ctx.stroke();
       }
 
@@ -782,31 +1018,117 @@ export class SolidBlock extends Entity {
         ctx.stroke();
       }
 
-      // 13. STANDARD SOLID GROUND BLOCK
+      // 13. STANDARD SOLID GROUND BLOCK (Minecraft Dirt & Grass)
       else {
-        ctx.fillStyle = '#FFB300';
+        const { hasTop, hasBottom, hasLeft, hasRight } = this.getNeighbors();
+
+        // Base Dirt Fill (with seamless 0.5px overlap on connecting edges)
+        const fillW = this.width + (hasRight ? 0.5 : 0);
+        const fillH = this.height + (hasBottom ? 0.5 : 0);
+        ctx.fillStyle = '#866043';
+        ctx.fillRect(0, 0, fillW, fillH);
+
+        // Deterministic organic Minecraft dirt specks
+        const col = Math.round(this.x / 40);
+        const row = Math.round(this.y / 40);
+        const speckShift = ((col * 31) ^ (row * 17)) & 3;
+
+        // Dark brown specks (#5D4037)
+        ctx.fillStyle = '#5D4037';
+        ctx.fillRect(6 + speckShift, 14, 4, 3);
+        ctx.fillRect(24 - speckShift, 28, 4, 3);
+        ctx.fillRect(14, 33, 3, 3);
+        ctx.fillRect(31, 20 + speckShift, 3, 4);
+
+        // Light brown specks (#9C724E)
+        ctx.fillStyle = '#9C724E';
+        ctx.fillRect(18 - speckShift, 16, 4, 3);
+        ctx.fillRect(8, 26 - speckShift, 3, 4);
+        ctx.fillRect(28 + speckShift, 34, 4, 3);
+
+        // Medium brown specks (#6D4C41)
+        ctx.fillStyle = '#6D4C41';
+        ctx.fillRect(26, 8 + speckShift, 4, 3);
+        ctx.fillRect(4 + speckShift, 33, 3, 3);
+        ctx.fillRect(16 + speckShift, 22, 3, 3);
+
+        // Extra underground specks in upper region if covered
+        if (hasTop) {
+          ctx.fillStyle = '#9C724E';
+          ctx.fillRect(8 + speckShift, 4, 4, 3);
+          ctx.fillStyle = '#5D4037';
+          ctx.fillRect(22 - speckShift, 3, 4, 3);
+          ctx.fillStyle = '#6D4C41';
+          ctx.fillRect(32, 5 + speckShift, 3, 3);
+        }
+
+        // LUSH MINECRAFT GRASS (ONLY ON EXPOSED TOP LAYER!)
+        if (!hasTop) {
+          const grassW = this.width + (hasRight ? 0.5 : 0);
+
+          // Grass main body
+          ctx.fillStyle = '#558B2F';
+          ctx.fillRect(0, 0, grassW, 8);
+
+          // Grass top highlight
+          ctx.fillStyle = '#7CB342';
+          ctx.fillRect(0, 0, grassW, 2.5);
+
+          // Grass underside shadow
+          ctx.fillStyle = '#33691E';
+          ctx.fillRect(0, 8, grassW, 2);
+
+          // Drooping grass blades / fringe into dirt
+          ctx.fillStyle = '#558B2F';
+          ctx.fillRect(5, 8, 4, 4);
+          ctx.fillRect(14, 8, 5, 5);
+          ctx.fillRect(23, 8, 4, 4);
+          ctx.fillRect(32, 8, 5, 5);
+
+          // Fringe bottom shadow
+          ctx.fillStyle = '#33691E';
+          ctx.fillRect(5, 11, 4, 1.5);
+          ctx.fillRect(14, 12, 5, 1.5);
+          ctx.fillRect(23, 11, 4, 1.5);
+          ctx.fillRect(32, 12, 5, 1.5);
+
+          // Side drape on exposed left/right corners
+          if (!hasLeft) {
+            ctx.fillStyle = '#558B2F';
+            ctx.fillRect(0, 8, 3, 5);
+            ctx.fillStyle = '#33691E';
+            ctx.fillRect(0, 12, 3, 1.5);
+          }
+          if (!hasRight) {
+            ctx.fillStyle = '#558B2F';
+            ctx.fillRect(this.width - 3, 8, 3, 5);
+            ctx.fillStyle = '#33691E';
+            ctx.fillRect(this.width - 3, 12, 3, 1.5);
+          }
+        }
+
+        // Outer contour outlines (only on exposed faces!)
         ctx.strokeStyle = '#121212';
         ctx.lineWidth = 3;
-        ctx.fillRect(0, 0, this.width, this.height);
-        ctx.strokeRect(0, 0, this.width, this.height);
-
-        // Mint grass cap
-        ctx.fillStyle = '#00E676';
-        ctx.fillRect(0, 0, this.width, 10);
-        ctx.strokeRect(0, 0, this.width, 10);
-
-        // Brick seams
-        ctx.strokeStyle = 'rgba(18, 18, 18, 0.35)';
-        ctx.lineWidth = 2;
+        ctx.lineCap = 'square';
         ctx.beginPath();
-        ctx.moveTo(0, this.height / 2 + 5);
-        ctx.lineTo(this.width, this.height / 2 + 5);
-        ctx.moveTo(this.width / 2, 10);
-        ctx.lineTo(this.width / 2, this.height / 2 + 5);
-        ctx.moveTo(this.width / 4, this.height / 2 + 5);
-        ctx.lineTo(this.width / 4, this.height);
-        ctx.moveTo((this.width * 3) / 4, this.height / 2 + 5);
-        ctx.lineTo((this.width * 3) / 4, this.height);
+
+        if (!hasTop) {
+          ctx.moveTo(0, 0);
+          ctx.lineTo(this.width, 0);
+        }
+        if (!hasBottom) {
+          ctx.moveTo(0, this.height);
+          ctx.lineTo(this.width, this.height);
+        }
+        if (!hasLeft) {
+          ctx.moveTo(0, 0);
+          ctx.lineTo(0, this.height);
+        }
+        if (!hasRight) {
+          ctx.moveTo(this.width, 0);
+          ctx.lineTo(this.width, this.height);
+        }
         ctx.stroke();
       }
     });
@@ -814,6 +1136,30 @@ export class SolidBlock extends Entity {
     ctx.restore();
   }
 }
+
+// Terrain Spatial Autotiling Map Cache
+SolidBlock.terrainMap = new Map();
+SolidBlock.terrainMapActive = false;
+SolidBlock.updateTerrainMap = function(entities) {
+  if (!entities) return;
+  SolidBlock.terrainMap.clear();
+  for (let i = 0; i < entities.length; i++) {
+    const ent = entities[i];
+    if (!ent || !ent.active || ent.isDropping) continue;
+    if (ent.type === 'crate' || ent instanceof SolidBlock) {
+      const col = Math.round(ent.x / 40);
+      const row = Math.round(ent.y / 40);
+      const wTiles = Math.max(1, Math.round(ent.width / 40));
+      const hTiles = Math.max(1, Math.round(ent.height / 40));
+      for (let c = 0; c < wTiles; c++) {
+        for (let r = 0; r < hTiles; r++) {
+          SolidBlock.terrainMap.set(`${col + c},${row + r}`, ent);
+        }
+      }
+    }
+  }
+  SolidBlock.terrainMapActive = true;
+};
 
 // Backward-compatible alias
 export const CrateBlock = SolidBlock;
@@ -1240,20 +1586,24 @@ export class Bullet extends Entity {
   }
 }
 
-// 8. COLLECTIBLE TOKEN / POWERUP (Coin, Star, Heart, Pistol)
+// 8. COLLECTIBLE TOKEN / POWERUP (Coin, Star, Heart, Pistol, Ammo)
 export class Collectible extends Entity {
   constructor(x, y, width = 32, height = 32, variant = 'coin') {
     super(null, 'collectible', x, y, width, height);
-    this.variant = variant || 'coin'; // 'coin', 'star', 'heart', 'pistol'
+    this.variant = variant || 'coin'; // 'coin', 'star', 'heart', 'pistol', 'ammo'
     this.bobTimer = Math.random() * Math.PI;
     this.collected = false;
     this.points = this.calcPoints(this.variant);
+    this.emerging = false;
+    this.emergeVy = 0;
+    this.targetY = y;
   }
 
   calcPoints(v) {
     if (v === 'star') return 500;
     if (v === 'heart') return 200;
     if (v === 'pistol') return 300;
+    if (v === 'ammo') return 200;
     return 100;
   }
 
@@ -1264,12 +1614,21 @@ export class Collectible extends Entity {
 
   update(dt) {
     this.bobTimer += dt * 4;
+    if (this.emerging) {
+      this.y += this.emergeVy * dt;
+      this.emergeVy += 520 * dt;
+      if (this.y >= this.targetY) {
+        this.y = this.targetY;
+        this.emerging = false;
+        this.emergeVy = 0;
+      }
+    }
   }
 
   collect() {
     this.collected = true;
     this.active = false;
-    if (this.variant === 'pistol') {
+    if (this.variant === 'pistol' || this.variant === 'ammo') {
       sounds.playGunPickup();
     } else {
       sounds.playCollect();
@@ -1283,6 +1642,9 @@ export class Collectible extends Entity {
     ctx.translate(this.x, this.y + bobOffset);
 
     this.renderCustomOrFallback(ctx, () => {
+      const isAmmoRefill = this.variant === 'ammo' ||
+        (this.variant === 'pistol' && typeof window !== 'undefined' && window.sidehop && window.sidehop.gunPickedUpInLevel);
+
       if (this.variant === 'heart') {
         // Heart Health Pickup (+1 Heart, +200 pts)
         const pulse = 1 + Math.sin(this.bobTimer * 1.5) * 0.08;
@@ -1308,6 +1670,64 @@ export class Collectible extends Entity {
         ctx.beginPath();
         ctx.arc(-4, -3, 2.5, 0, Math.PI * 2);
         ctx.fill();
+      } else if (isAmmoRefill) {
+        // Ammunition Box Pickup (+15 Rounds)
+        const aura = 1 + Math.sin(this.bobTimer * 2) * 0.08;
+        ctx.fillStyle = '#C8E6C9';
+        ctx.strokeStyle = '#121212';
+        ctx.lineWidth = 2.5;
+        ctx.beginPath();
+        ctx.arc(this.width / 2, this.height / 2, 15 * aura, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.save();
+        ctx.translate(this.width / 2 - 11, this.height / 2 - 9);
+
+        // Olive drab metal ammo can
+        ctx.fillStyle = '#2E7D32';
+        ctx.strokeStyle = '#121212';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.roundRect(0, 4, 22, 14, 2);
+        ctx.fill();
+        ctx.stroke();
+
+        // Top lid & latch
+        ctx.fillStyle = '#1B5E20';
+        ctx.beginPath();
+        ctx.roundRect(-1, 2, 24, 3, 1);
+        ctx.fill();
+        ctx.stroke();
+
+        // Latch handle
+        ctx.strokeStyle = '#FFD54F';
+        ctx.lineWidth = 1.5;
+        ctx.strokeRect(8, 0, 6, 3);
+
+        // Three golden brass bullets standing in front
+        const bulletXs = [3, 9, 15];
+        for (const bx of bulletXs) {
+          // Bullet casing (gold brass)
+          ctx.fillStyle = '#FFD700';
+          ctx.strokeStyle = '#121212';
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.roundRect(bx, 8, 4, 8, 1);
+          ctx.fill();
+          ctx.stroke();
+          // Copper projectile tip
+          ctx.fillStyle = '#FF6D00';
+          ctx.beginPath();
+          ctx.moveTo(bx, 8);
+          ctx.lineTo(bx + 2, 5);
+          ctx.lineTo(bx + 4, 8);
+          ctx.closePath();
+          ctx.fill();
+          ctx.stroke();
+        }
+
+        ctx.restore();
       } else if (this.variant === 'pistol') {
         // Pistol Gun Powerup Bubble
         const aura = 1 + Math.sin(this.bobTimer * 2) * 0.08;
