@@ -404,9 +404,14 @@ export class SolidBlock extends Entity {
 
     super(null, 'crate', x, y, w, h); // type remains 'crate' internally for physics/solids compatibility
     this.variant = variant || 'solid';
+    this.material = null; // 'stone', 'ice', 'solid', 'cloud', 'semisolid'
+    if (this.variant.startsWith('stone_') || this.variant === 'stone') this.material = 'stone';
+    else if (this.variant.startsWith('ice_') || this.variant === 'ice') this.material = 'ice';
+    else if (this.variant.startsWith('cloud_') || this.variant === 'cloud') this.material = 'cloud';
+
     this.content = content || null; // 'powerup', 'heart', 'coin', 'star', 'ammo', or null (auto)
     this.bounciness = this.variant === 'note' ? 0.95 : 0.0;
-    this.friction = this.variant === 'ice' ? 0.12 : 1.0;
+    this.friction = (this.variant === 'ice' || this.variant.includes('ice_slope')) ? 0.12 : 1.0;
     this.isOneWay = (this.variant === 'cloud' || this.variant === 'semisolid');
 
     // Mystery Block [?] & Note Block Bump State
@@ -424,9 +429,55 @@ export class SolidBlock extends Entity {
     this.respawnTimer = 0;
   }
 
+  get isSlope() {
+    return this.variant === 'slope_up' || this.variant === 'slope_down' ||
+           this.variant === 'stone_slope_up' || this.variant === 'stone_slope_down' ||
+           this.variant === 'ice_slope_up' || this.variant === 'ice_slope_down' ||
+           this.variant.includes('slope');
+  }
+
+  get slopeDirection() {
+    if (this.variant.includes('slope_up')) return 'up';
+    if (this.variant.includes('slope_down')) return 'down';
+    return null;
+  }
+
+  get effectiveMaterial() {
+    if (this.material) return this.material;
+    if (this.variant.startsWith('stone_') || this.variant === 'stone') return 'stone';
+    if (this.variant.startsWith('ice_') || this.variant === 'ice') return 'ice';
+    if (this.variant.startsWith('cloud_') || this.variant === 'cloud') return 'cloud';
+    if (this.variant.startsWith('semisolid_') || this.variant === 'semisolid') return 'semisolid';
+
+    // Auto-detect material for generic slopes based on adjacent blocks
+    if (this.isSlope) {
+      const col = Math.round(this.x / 40);
+      const row = Math.round(this.y / 40);
+      const bottomEnt = SolidBlock.terrainMap.get(`${col},${row + 1}`);
+      const rightEnt = SolidBlock.terrainMap.get(`${col + 1},${row}`);
+      const leftEnt = SolidBlock.terrainMap.get(`${col - 1},${row}`);
+
+      const checkMat = (ent) => {
+        if (!ent || !ent.active) return null;
+        if (ent.variant === 'stone' || ent.variant?.startsWith('stone_') || ent.material === 'stone') return 'stone';
+        if (ent.variant === 'ice' || ent.variant?.startsWith('ice_') || ent.material === 'ice') return 'ice';
+        if (ent.variant === 'cloud' || ent.variant?.startsWith('cloud_') || ent.material === 'cloud') return 'cloud';
+        return null;
+      };
+
+      const mat = checkMat(bottomEnt) || checkMat(rightEnt) || checkMat(leftEnt);
+      if (mat) return mat;
+    }
+    return 'solid';
+  }
+
   setVariant(variant) {
     this.variant = variant;
-    this.friction = variant === 'ice' ? 0.12 : 1.0;
+    if (variant === 'stone_slope_up' || variant === 'stone_slope_down' || variant === 'stone') this.material = 'stone';
+    else if (variant === 'ice_slope_up' || variant === 'ice_slope_down' || variant === 'ice') this.material = 'ice';
+    else if (variant === 'solid') this.material = 'solid';
+
+    this.friction = (variant === 'ice' || variant === 'ice_slope_up' || variant === 'ice_slope_down') ? 0.12 : 1.0;
     this.isOneWay = (variant === 'cloud' || variant === 'semisolid');
     this.bounciness = variant === 'note' ? 0.95 : 0.0;
 
@@ -434,7 +485,7 @@ export class SolidBlock extends Entity {
     else if (variant === 'slab') { this.width = 40; this.height = 20; }
     else if (variant === 'pipe') { this.width = 40; this.height = 80; }
     else if (this.width !== 40 || this.height !== 40) {
-      if (['solid', 'slope_up', 'slope_down', 'semisolid', 'donut', 'note', 'mystery', 'ice', 'cloud', 'stone'].includes(variant)) {
+      if (['solid', 'slope_up', 'slope_down', 'stone_slope_up', 'stone_slope_down', 'ice_slope_up', 'ice_slope_down', 'semisolid', 'donut', 'note', 'mystery', 'ice', 'cloud', 'stone'].includes(variant)) {
         this.width = 40;
         this.height = 40;
       }
@@ -529,7 +580,7 @@ export class SolidBlock extends Entity {
   }
 
   static getThemePalette() {
-    const theme = (typeof window !== 'undefined' && window.sidehop?.currentTheme) || 'grass';
+    const theme = (typeof window !== 'undefined' && (window.sidehop?.currentTheme || window.__SIDEHOP_THEME__)) || 'grass';
     switch (theme) {
       case 'snowy':
         return {
@@ -651,7 +702,7 @@ export class SolidBlock extends Entity {
         try {
           const pal = SolidBlock.getThemePalette();
 
-          if (this.variant === 'slope_up') {
+          if (this.isSlope && this.slopeDirection === 'up') {
             // 45° Incline Triangle Clipping
             ctx.beginPath();
             ctx.moveTo(0, this.height);
@@ -661,7 +712,7 @@ export class SolidBlock extends Entity {
             ctx.fillStyle = pal.dirtBase;
             ctx.fill();
             ctx.clip();
-          } else if (this.variant === 'slope_down') {
+          } else if (this.isSlope && this.slopeDirection === 'down') {
             // 45° Decline Triangle Clipping
             ctx.beginPath();
             ctx.moveTo(0, 0);
@@ -701,14 +752,14 @@ export class SolidBlock extends Entity {
         try {
           ctx.strokeStyle = '#121212';
           ctx.lineWidth = 3;
-          if (this.variant === 'slope_up') {
+          if (this.isSlope && this.slopeDirection === 'up') {
             ctx.beginPath();
             ctx.moveTo(0, this.height);
             ctx.lineTo(this.width, 0);
             ctx.lineTo(this.width, this.height);
             ctx.closePath();
             ctx.stroke();
-          } else if (this.variant === 'slope_down') {
+          } else if (this.isSlope && this.slopeDirection === 'down') {
             ctx.beginPath();
             ctx.moveTo(0, 0);
             ctx.lineTo(this.width, this.height);
@@ -745,7 +796,7 @@ export class SolidBlock extends Entity {
       const pal = SolidBlock.getThemePalette();
 
       // 1. SLANT UP (45° Incline /)
-      if (this.variant === 'slope_up') {
+      if (this.isSlope && this.slopeDirection === 'up') {
         const col = Math.round(this.x / 40);
         const row = Math.round(this.y / 40);
         const bottomEnt = SolidBlock.terrainMap.get(`${col},${row + 1}`);
@@ -753,79 +804,181 @@ export class SolidBlock extends Entity {
         const isSolidOpaque = (ent) => ent && ent.active && ent.variant !== 'cloud' && ent.variant !== 'semisolid';
         const hasBottom = Boolean(bottomEnt && isSolidOpaque(bottomEnt));
         const hasRight = Boolean(rightEnt && isSolidOpaque(rightEnt));
+        const mat = this.effectiveMaterial;
 
-        // Base Dirt Fill
-        ctx.beginPath();
-        ctx.moveTo(0, this.height);
-        ctx.lineTo(this.width + (hasRight ? 0.5 : 0), this.height + (hasBottom ? 0.5 : 0));
-        ctx.lineTo(this.width + (hasRight ? 0.5 : 0), 0);
-        ctx.closePath();
-        ctx.fillStyle = pal.dirtBase;
-        ctx.fill();
-
-        // Dirt specks inside lower-right half of triangle
-        ctx.fillStyle = pal.speckDark;
-        ctx.fillRect(26, 26, 4, 3);
-        ctx.fillRect(33, 14, 3, 4);
-        ctx.fillStyle = pal.speckLight;
-        ctx.fillRect(18, 30, 4, 3);
-        ctx.fillStyle = pal.speckMid;
-        ctx.fillRect(32, 28, 4, 3);
-
-        // Theme-specific turf / band along angled hypotenuse
-        ctx.beginPath();
-        ctx.moveTo(0, this.height);
-        ctx.lineTo(this.width + (hasRight ? 0.5 : 0), 0);
-        ctx.lineTo(this.width + (hasRight ? 0.5 : 0), 10);
-        ctx.lineTo(10, this.height);
-        ctx.closePath();
-        ctx.fillStyle = pal.turfMain;
-        ctx.fill();
-
-        // Turf top highlight
-        ctx.strokeStyle = pal.turfHighlight;
-        ctx.lineWidth = 2.5;
-        ctx.beginPath();
-        ctx.moveTo(0, this.height);
-        ctx.lineTo(this.width + (hasRight ? 0.5 : 0), 0);
-        ctx.stroke();
-
-        // Turf underside shadow edge
-        ctx.strokeStyle = pal.turfShadow;
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        ctx.moveTo(10, this.height);
-        ctx.lineTo(this.width + (hasRight ? 0.5 : 0), 10);
-        ctx.stroke();
-
-        // Turf fringe droplets into dirt
-        ctx.fillStyle = pal.turfMain;
-        ctx.fillRect(16, 22, 4, 3);
-        ctx.fillRect(26, 12, 4, 3);
-        ctx.fillStyle = pal.turfShadow;
-        ctx.fillRect(16, 24, 4, 1);
-        ctx.fillRect(26, 14, 4, 1);
-
-        // Outlines (only exposed faces)
-        ctx.strokeStyle = '#121212';
-        ctx.lineWidth = 3;
-        ctx.beginPath();
-        ctx.moveTo(0, this.height);
-        ctx.lineTo(this.width, 0);
-
-        if (!hasRight) {
-          ctx.moveTo(this.width, 0);
-          ctx.lineTo(this.width, this.height);
-        }
-        if (!hasBottom) {
+        if (mat === 'stone') {
+          // Castle Stone Slope Up (matches gray stone masonry bevels)
+          ctx.beginPath();
           ctx.moveTo(0, this.height);
-          ctx.lineTo(this.width, this.height);
+          ctx.lineTo(this.width + (hasRight ? 0.5 : 0), this.height + (hasBottom ? 0.5 : 0));
+          ctx.lineTo(this.width + (hasRight ? 0.5 : 0), 0);
+          ctx.closePath();
+          ctx.fillStyle = '#9E9E9E';
+          ctx.fill();
+
+          // Chiseled highlights & shadows
+          ctx.strokeStyle = '#EEEEEE';
+          ctx.lineWidth = 2.5;
+          ctx.beginPath();
+          ctx.moveTo(0, this.height);
+          ctx.lineTo(this.width + (hasRight ? 0.5 : 0), 0);
+          ctx.stroke();
+
+          ctx.strokeStyle = '#616161';
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          if (!hasRight) {
+            ctx.moveTo(this.width, 0);
+            ctx.lineTo(this.width, this.height);
+          }
+          if (!hasBottom) {
+            ctx.moveTo(0, this.height);
+            ctx.lineTo(this.width, this.height);
+          }
+          ctx.stroke();
+
+          // Central carving bevel
+          ctx.strokeStyle = 'rgba(18, 18, 18, 0.35)';
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.moveTo(14, this.height - 8);
+          ctx.lineTo(this.width - 8, 14);
+          ctx.lineTo(this.width - 8, this.height - 8);
+          ctx.closePath();
+          ctx.stroke();
+
+          // Outer outlines
+          ctx.strokeStyle = '#121212';
+          ctx.lineWidth = 3;
+          ctx.beginPath();
+          ctx.moveTo(0, this.height);
+          ctx.lineTo(this.width, 0);
+          if (!hasRight) {
+            ctx.moveTo(this.width, 0);
+            ctx.lineTo(this.width, this.height);
+          }
+          if (!hasBottom) {
+            ctx.moveTo(0, this.height);
+            ctx.lineTo(this.width, this.height);
+          }
+          ctx.stroke();
+        } else if (mat === 'ice') {
+          // Slippery Ice Slope Up
+          ctx.beginPath();
+          ctx.moveTo(0, this.height);
+          ctx.lineTo(this.width + (hasRight ? 0.5 : 0), this.height + (hasBottom ? 0.5 : 0));
+          ctx.lineTo(this.width + (hasRight ? 0.5 : 0), 0);
+          ctx.closePath();
+          const iceGrad = ctx.createLinearGradient(0, this.height, this.width, 0);
+          iceGrad.addColorStop(0, '#B2EBF2');
+          iceGrad.addColorStop(1, '#E0F7FA');
+          ctx.fillStyle = iceGrad;
+          ctx.fill();
+
+          ctx.strokeStyle = '#FFFFFF';
+          ctx.lineWidth = 3;
+          ctx.beginPath();
+          ctx.moveTo(0, this.height);
+          ctx.lineTo(this.width, 0);
+          ctx.stroke();
+
+          ctx.strokeStyle = 'rgba(0, 150, 136, 0.35)';
+          ctx.lineWidth = 1.5;
+          ctx.beginPath();
+          ctx.moveTo(14, this.height - 8);
+          ctx.lineTo(this.width - 8, 14);
+          ctx.lineTo(this.width - 8, this.height - 8);
+          ctx.closePath();
+          ctx.stroke();
+
+          ctx.strokeStyle = '#121212';
+          ctx.lineWidth = 3;
+          ctx.beginPath();
+          ctx.moveTo(0, this.height);
+          ctx.lineTo(this.width, 0);
+          if (!hasRight) {
+            ctx.moveTo(this.width, 0);
+            ctx.lineTo(this.width, this.height);
+          }
+          if (!hasBottom) {
+            ctx.moveTo(0, this.height);
+            ctx.lineTo(this.width, this.height);
+          }
+          ctx.stroke();
+        } else {
+          // Base Dirt Fill
+          ctx.beginPath();
+          ctx.moveTo(0, this.height);
+          ctx.lineTo(this.width + (hasRight ? 0.5 : 0), this.height + (hasBottom ? 0.5 : 0));
+          ctx.lineTo(this.width + (hasRight ? 0.5 : 0), 0);
+          ctx.closePath();
+          ctx.fillStyle = pal.dirtBase;
+          ctx.fill();
+
+          // Dirt specks inside lower-right half of triangle
+          ctx.fillStyle = pal.speckDark;
+          ctx.fillRect(26, 26, 4, 3);
+          ctx.fillRect(33, 14, 3, 4);
+          ctx.fillStyle = pal.speckLight;
+          ctx.fillRect(18, 30, 4, 3);
+          ctx.fillStyle = pal.speckMid;
+          ctx.fillRect(32, 28, 4, 3);
+
+          // Theme-specific turf / band along angled hypotenuse
+          ctx.beginPath();
+          ctx.moveTo(0, this.height);
+          ctx.lineTo(this.width + (hasRight ? 0.5 : 0), 0);
+          ctx.lineTo(this.width + (hasRight ? 0.5 : 0), 10);
+          ctx.lineTo(10, this.height);
+          ctx.closePath();
+          ctx.fillStyle = pal.turfMain;
+          ctx.fill();
+
+          // Turf top highlight
+          ctx.strokeStyle = pal.turfHighlight;
+          ctx.lineWidth = 2.5;
+          ctx.beginPath();
+          ctx.moveTo(0, this.height);
+          ctx.lineTo(this.width + (hasRight ? 0.5 : 0), 0);
+          ctx.stroke();
+
+          // Turf underside shadow edge
+          ctx.strokeStyle = pal.turfShadow;
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.moveTo(10, this.height);
+          ctx.lineTo(this.width + (hasRight ? 0.5 : 0), 10);
+          ctx.stroke();
+
+          // Turf fringe droplets into dirt
+          ctx.fillStyle = pal.turfMain;
+          ctx.fillRect(16, 22, 4, 3);
+          ctx.fillRect(26, 12, 4, 3);
+          ctx.fillStyle = pal.turfShadow;
+          ctx.fillRect(16, 24, 4, 1);
+          ctx.fillRect(26, 14, 4, 1);
+
+          // Outlines (only exposed faces)
+          ctx.strokeStyle = '#121212';
+          ctx.lineWidth = 3;
+          ctx.beginPath();
+          ctx.moveTo(0, this.height);
+          ctx.lineTo(this.width, 0);
+
+          if (!hasRight) {
+            ctx.moveTo(this.width, 0);
+            ctx.lineTo(this.width, this.height);
+          }
+          if (!hasBottom) {
+            ctx.moveTo(0, this.height);
+            ctx.lineTo(this.width, this.height);
+          }
+          ctx.stroke();
         }
-        ctx.stroke();
       }
 
       // 2. SLANT DOWN (45° Decline \)
-      else if (this.variant === 'slope_down') {
+      else if (this.isSlope && this.slopeDirection === 'down') {
         const col = Math.round(this.x / 40);
         const row = Math.round(this.y / 40);
         const bottomEnt = SolidBlock.terrainMap.get(`${col},${row + 1}`);
@@ -833,75 +986,174 @@ export class SolidBlock extends Entity {
         const isSolidOpaque = (ent) => ent && ent.active && ent.variant !== 'cloud' && ent.variant !== 'semisolid';
         const hasBottom = Boolean(bottomEnt && isSolidOpaque(bottomEnt));
         const hasLeft = Boolean(leftEnt && isSolidOpaque(leftEnt));
+        const mat = this.effectiveMaterial;
 
-        // Base Dirt Fill
-        ctx.beginPath();
-        ctx.moveTo(0, 0);
-        ctx.lineTo(0, this.height + (hasBottom ? 0.5 : 0));
-        ctx.lineTo(this.width + (hasLeft ? 0.5 : 0), this.height + (hasBottom ? 0.5 : 0));
-        ctx.closePath();
-        ctx.fillStyle = pal.dirtBase;
-        ctx.fill();
-
-        // Dirt specks inside lower-left half of triangle
-        ctx.fillStyle = pal.speckDark;
-        ctx.fillRect(10, 26, 4, 3);
-        ctx.fillRect(4, 14, 3, 4);
-        ctx.fillStyle = pal.speckLight;
-        ctx.fillRect(18, 30, 4, 3);
-        ctx.fillStyle = pal.speckMid;
-        ctx.fillRect(4, 28, 4, 3);
-
-        // Theme-specific turf / band along angled hypotenuse
-        ctx.beginPath();
-        ctx.moveTo(0, 0);
-        ctx.lineTo(this.width, this.height);
-        ctx.lineTo(30, this.height);
-        ctx.lineTo(0, 10);
-        ctx.closePath();
-        ctx.fillStyle = pal.turfMain;
-        ctx.fill();
-
-        // Turf top highlight
-        ctx.strokeStyle = pal.turfHighlight;
-        ctx.lineWidth = 2.5;
-        ctx.beginPath();
-        ctx.moveTo(0, 0);
-        ctx.lineTo(this.width, this.height);
-        ctx.stroke();
-
-        // Turf underside shadow edge
-        ctx.strokeStyle = pal.turfShadow;
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        ctx.moveTo(0, 10);
-        ctx.lineTo(30, this.height);
-        ctx.stroke();
-
-        // Turf fringe droplets into dirt
-        ctx.fillStyle = pal.turfMain;
-        ctx.fillRect(10, 12, 4, 3);
-        ctx.fillRect(20, 22, 4, 3);
-        ctx.fillStyle = pal.turfShadow;
-        ctx.fillRect(10, 14, 4, 1);
-        ctx.fillRect(20, 24, 4, 1);
-
-        // Outlines (only exposed faces)
-        ctx.strokeStyle = '#121212';
-        ctx.lineWidth = 3;
-        ctx.beginPath();
-        ctx.moveTo(0, 0);
-        ctx.lineTo(this.width, this.height);
-
-        if (!hasLeft) {
+        if (mat === 'stone') {
+          // Castle Stone Slope Down
+          ctx.beginPath();
           ctx.moveTo(0, 0);
-          ctx.lineTo(0, this.height);
-        }
-        if (!hasBottom) {
-          ctx.moveTo(0, this.height);
+          ctx.lineTo(0, this.height + (hasBottom ? 0.5 : 0));
+          ctx.lineTo(this.width + (hasLeft ? 0.5 : 0), this.height + (hasBottom ? 0.5 : 0));
+          ctx.closePath();
+          ctx.fillStyle = '#9E9E9E';
+          ctx.fill();
+
+          ctx.strokeStyle = '#EEEEEE';
+          ctx.lineWidth = 2.5;
+          ctx.beginPath();
+          ctx.moveTo(0, 0);
           ctx.lineTo(this.width, this.height);
+          ctx.stroke();
+
+          ctx.strokeStyle = '#616161';
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          if (!hasLeft) {
+            ctx.moveTo(0, 0);
+            ctx.lineTo(0, this.height);
+          }
+          if (!hasBottom) {
+            ctx.moveTo(0, this.height);
+            ctx.lineTo(this.width, this.height);
+          }
+          ctx.stroke();
+
+          ctx.strokeStyle = 'rgba(18, 18, 18, 0.35)';
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.moveTo(8, 14);
+          ctx.lineTo(this.width - 14, this.height - 8);
+          ctx.lineTo(8, this.height - 8);
+          ctx.closePath();
+          ctx.stroke();
+
+          ctx.strokeStyle = '#121212';
+          ctx.lineWidth = 3;
+          ctx.beginPath();
+          ctx.moveTo(0, 0);
+          ctx.lineTo(this.width, this.height);
+          if (!hasLeft) {
+            ctx.moveTo(0, 0);
+            ctx.lineTo(0, this.height);
+          }
+          if (!hasBottom) {
+            ctx.moveTo(0, this.height);
+            ctx.lineTo(this.width, this.height);
+          }
+          ctx.stroke();
+        } else if (mat === 'ice') {
+          // Slippery Ice Slope Down
+          ctx.beginPath();
+          ctx.moveTo(0, 0);
+          ctx.lineTo(0, this.height + (hasBottom ? 0.5 : 0));
+          ctx.lineTo(this.width + (hasLeft ? 0.5 : 0), this.height + (hasBottom ? 0.5 : 0));
+          ctx.closePath();
+          const iceGrad = ctx.createLinearGradient(0, 0, this.width, this.height);
+          iceGrad.addColorStop(0, '#E0F7FA');
+          iceGrad.addColorStop(1, '#B2EBF2');
+          ctx.fillStyle = iceGrad;
+          ctx.fill();
+
+          ctx.strokeStyle = '#FFFFFF';
+          ctx.lineWidth = 3;
+          ctx.beginPath();
+          ctx.moveTo(0, 0);
+          ctx.lineTo(this.width, this.height);
+          ctx.stroke();
+
+          ctx.strokeStyle = 'rgba(0, 150, 136, 0.35)';
+          ctx.lineWidth = 1.5;
+          ctx.beginPath();
+          ctx.moveTo(8, 14);
+          ctx.lineTo(this.width - 14, this.height - 8);
+          ctx.lineTo(8, this.height - 8);
+          ctx.closePath();
+          ctx.stroke();
+
+          ctx.strokeStyle = '#121212';
+          ctx.lineWidth = 3;
+          ctx.beginPath();
+          ctx.moveTo(0, 0);
+          ctx.lineTo(this.width, this.height);
+          if (!hasLeft) {
+            ctx.moveTo(0, 0);
+            ctx.lineTo(0, this.height);
+          }
+          if (!hasBottom) {
+            ctx.moveTo(0, this.height);
+            ctx.lineTo(this.width, this.height);
+          }
+          ctx.stroke();
+        } else {
+          // Base Dirt Fill
+          ctx.beginPath();
+          ctx.moveTo(0, 0);
+          ctx.lineTo(0, this.height + (hasBottom ? 0.5 : 0));
+          ctx.lineTo(this.width + (hasLeft ? 0.5 : 0), this.height + (hasBottom ? 0.5 : 0));
+          ctx.closePath();
+          ctx.fillStyle = pal.dirtBase;
+          ctx.fill();
+
+          // Dirt specks inside lower-left half of triangle
+          ctx.fillStyle = pal.speckDark;
+          ctx.fillRect(10, 26, 4, 3);
+          ctx.fillRect(4, 14, 3, 4);
+          ctx.fillStyle = pal.speckLight;
+          ctx.fillRect(18, 30, 4, 3);
+          ctx.fillStyle = pal.speckMid;
+          ctx.fillRect(4, 28, 4, 3);
+
+          // Theme-specific turf / band along angled hypotenuse
+          ctx.beginPath();
+          ctx.moveTo(0, 0);
+          ctx.lineTo(this.width, this.height);
+          ctx.lineTo(30, this.height);
+          ctx.lineTo(0, 10);
+          ctx.closePath();
+          ctx.fillStyle = pal.turfMain;
+          ctx.fill();
+
+          // Turf top highlight
+          ctx.strokeStyle = pal.turfHighlight;
+          ctx.lineWidth = 2.5;
+          ctx.beginPath();
+          ctx.moveTo(0, 0);
+          ctx.lineTo(this.width, this.height);
+          ctx.stroke();
+
+          // Turf underside shadow edge
+          ctx.strokeStyle = pal.turfShadow;
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.moveTo(0, 10);
+          ctx.lineTo(30, this.height);
+          ctx.stroke();
+
+          // Turf fringe droplets into dirt
+          ctx.fillStyle = pal.turfMain;
+          ctx.fillRect(10, 12, 4, 3);
+          ctx.fillRect(20, 22, 4, 3);
+          ctx.fillStyle = pal.turfShadow;
+          ctx.fillRect(10, 14, 4, 1);
+          ctx.fillRect(20, 24, 4, 1);
+
+          // Outlines (only exposed faces)
+          ctx.strokeStyle = '#121212';
+          ctx.lineWidth = 3;
+          ctx.beginPath();
+          ctx.moveTo(0, 0);
+          ctx.lineTo(this.width, this.height);
+
+          if (!hasLeft) {
+            ctx.moveTo(0, 0);
+            ctx.lineTo(0, this.height);
+          }
+          if (!hasBottom) {
+            ctx.moveTo(0, this.height);
+            ctx.lineTo(this.width, this.height);
+          }
+          ctx.stroke();
         }
-        ctx.stroke();
       }
 
       // 3. SEMI-SOLID PLATFORM (Mario Maker Wood Boardwalk)

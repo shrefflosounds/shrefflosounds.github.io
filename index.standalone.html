@@ -25,6 +25,8 @@
   --ink-black: #1E293B;
   --border-color: #1E293B;
   --shadow-color: #1E293B;
+  --text-muted: #64748B;
+  --border-subtle: #E2E8F0;
   --border-thick: 2.5px solid var(--border-color);
   --shadow-hard: 3px 3px 0px var(--shadow-color);
   --shadow-hover: 4px 4px 0px var(--shadow-color);
@@ -56,6 +58,8 @@ body[data-theme="snowy"] {
   --ink-black: #0F172A;
   --border-color: #334155;
   --shadow-color: #334155;
+  --text-muted: #475569;
+  --border-subtle: #CBD5E1;
   --accent-sun: #7DD3FC;
   --accent-sky: #0284C7;
   --accent-rose: #38BDF8;
@@ -69,8 +73,10 @@ body[data-theme="night"] {
   --bg-panel: #161F30;
   --header-bg: #111827;
   --ink-black: #F8FAFC;
-  --border-color: #334155;
+  --border-color: #475569;
   --shadow-color: #020617;
+  --text-muted: #94A3B8;
+  --border-subtle: #334155;
   --border-thick: 2px solid #475569;
   --shadow-hard: 3px 3px 0px #020617;
   --shadow-hover: 4px 4px 0px #020617;
@@ -108,7 +114,8 @@ body[data-theme="night"] .theme-sub {
   color: #CBD5E1 !important;
 }
 
-body[data-theme="night"] .palette-item {
+body[data-theme="night"] .palette-item,
+body[data-theme="night"] button.palette-item {
   background-color: #1E293B;
   color: #FFFFFF !important;
   border-color: #475569;
@@ -143,6 +150,8 @@ body[data-theme="chrome"] {
   --ink-black: #0F172A;
   --border-color: #1E293B;
   --shadow-color: #475569;
+  --text-muted: #64748B;
+  --border-subtle: #CBD5E1;
   --accent-sun: #94A3B8;
   --accent-sky: #64748B;
   --accent-rose: #475569;
@@ -158,6 +167,8 @@ body[data-theme="8-bit"] {
   --ink-black: #101010;
   --border-color: #101010;
   --shadow-color: #101010;
+  --text-muted: #505050;
+  --border-subtle: #D8D0B8;
   --border-thick: 3px solid #101010;
   --shadow-hard: 3px 3px 0px #101010;
   --accent-sun: #F8B800;
@@ -175,6 +186,8 @@ body[data-theme="jungle"] {
   --ink-black: #1B3828;
   --border-color: #1B3828;
   --shadow-color: #1B3828;
+  --text-muted: #2D6A4F;
+  --border-subtle: #C8DDC8;
   --accent-sun: #52B788;
   --accent-sky: #74C69D;
   --accent-rose: #E76F51;
@@ -190,6 +203,8 @@ body[data-theme="neon"] {
   --ink-black: #FFFFFF;
   --border-color: #00E5FF;
   --shadow-color: #FF007F;
+  --text-muted: #7DD3FC;
+  --border-subtle: #1E293B;
   --border-thick: 2px solid #00E5FF;
   --shadow-hard: 3px 3px 0px #FF007F;
   --shadow-hover: 4px 4px 0px #FF007F;
@@ -229,7 +244,8 @@ body[data-theme="neon"] .theme-sub {
   color: #CBD5E1 !important;
 }
 
-body[data-theme="neon"] .palette-item {
+body[data-theme="neon"] .palette-item,
+body[data-theme="neon"] button.palette-item {
   background-color: #0E0E1A;
   color: #FFFFFF !important;
   border-color: #00E5FF;
@@ -264,6 +280,8 @@ body[data-theme="atlantis"] {
   --ink-black: #E0F2FE;
   --border-color: #38BDF8;
   --shadow-color: #020D17;
+  --text-muted: #7DD3FC;
+  --border-subtle: #0C385C;
   --border-thick: 2px solid #38BDF8;
   --shadow-hard: 3px 3px 0px #020D17;
   --shadow-hover: 4px 4px 0px #020D17;
@@ -303,7 +321,8 @@ body[data-theme="atlantis"] .theme-sub {
   color: #BAE6FD !important;
 }
 
-body[data-theme="atlantis"] .palette-item {
+body[data-theme="atlantis"] .palette-item,
+body[data-theme="atlantis"] button.palette-item {
   background-color: #07233B;
   color: #FFFFFF !important;
   border-color: #38BDF8;
@@ -338,10 +357,129 @@ body[data-theme="mixed"] {
   --ink-black: #262626;
   --border-color: #3F3F46;
   --shadow-color: #71717A;
+  --text-muted: #78716C;
+  --border-subtle: #E7E5E4;
   --accent-sun: #F59E0B;
   --accent-sky: #0284C7;
   --accent-rose: #E11D48;
   --accent-mint: #059669;
+}
+
+/* Unified Dark Theme Readability Rules (Night, Neon over Black, Atlantis) */
+body[data-theme="night"] .editor-context-menu,
+body[data-theme="neon"] .editor-context-menu,
+body[data-theme="atlantis"] .editor-context-menu {
+  background-color: var(--bg-panel);
+  border-color: var(--border-color);
+  box-shadow: var(--shadow-hard);
+  color: var(--ink-black);
+}
+
+body[data-theme="night"] .canvas-nav-controls,
+body[data-theme="neon"] .canvas-nav-controls,
+body[data-theme="atlantis"] .canvas-nav-controls {
+  background-color: var(--bg-panel);
+  border-color: var(--border-color);
+  box-shadow: var(--shadow-hard);
+}
+
+body[data-theme="night"] .canvas-nav-controls .neo-btn,
+body[data-theme="neon"] .canvas-nav-controls .neo-btn,
+body[data-theme="atlantis"] .canvas-nav-controls .neo-btn {
+  background-color: var(--bg-cream);
+  border-color: var(--border-color);
+  color: var(--ink-black);
+}
+
+body[data-theme="night"] .action-variant-pill,
+body[data-theme="neon"] .action-variant-pill,
+body[data-theme="atlantis"] .action-variant-pill {
+  background-color: var(--bg-cream);
+  border-color: var(--border-color);
+  color: var(--ink-black);
+}
+
+body[data-theme="night"] .action-variant-pill.active,
+body[data-theme="neon"] .action-variant-pill.active,
+body[data-theme="atlantis"] .action-variant-pill.active {
+  background-color: var(--accent-rose);
+  color: #FFFFFF !important;
+}
+
+body[data-theme="night"] .bg-theme-card,
+body[data-theme="neon"] .bg-theme-card,
+body[data-theme="atlantis"] .bg-theme-card {
+  background-color: var(--bg-cream);
+  border-color: var(--border-color);
+  color: var(--ink-black);
+}
+
+body[data-theme="night"] .about-tab-btn,
+body[data-theme="neon"] .about-tab-btn,
+body[data-theme="atlantis"] .about-tab-btn {
+  background-color: var(--bg-cream);
+  border-color: var(--border-color);
+  color: var(--ink-black);
+}
+
+body[data-theme="night"] .about-tab-btn.active,
+body[data-theme="neon"] .about-tab-btn.active,
+body[data-theme="atlantis"] .about-tab-btn.active {
+  background-color: var(--accent-sun);
+  color: #050508 !important;
+}
+
+body[data-theme="night"] .about-tab-btn:hover,
+body[data-theme="neon"] .about-tab-btn:hover,
+body[data-theme="atlantis"] .about-tab-btn:hover {
+  background-color: var(--accent-sun);
+  color: #050508 !important;
+}
+
+body[data-theme="night"] .about-credit-title,
+body[data-theme="neon"] .about-credit-title,
+body[data-theme="atlantis"] .about-credit-title {
+  color: var(--ink-black);
+}
+
+body[data-theme="night"] .about-credit-role,
+body[data-theme="neon"] .about-credit-role,
+body[data-theme="atlantis"] .about-credit-role {
+  background-color: var(--bg-cream);
+  color: var(--ink-black);
+  border-color: var(--border-color);
+}
+
+body[data-theme="night"] .about-credit-desc,
+body[data-theme="neon"] .about-credit-desc,
+body[data-theme="atlantis"] .about-credit-desc {
+  color: var(--text-muted) !important;
+}
+
+body[data-theme="night"] .about-colophon-bottom,
+body[data-theme="neon"] .about-colophon-bottom,
+body[data-theme="atlantis"] .about-colophon-bottom {
+  border-top-color: var(--border-subtle);
+}
+
+body[data-theme="night"] .about-logo-bottom,
+body[data-theme="neon"] .about-logo-bottom,
+body[data-theme="atlantis"] .about-logo-bottom {
+  background-color: var(--bg-cream);
+  border-color: var(--border-color);
+  box-shadow: var(--shadow-hard);
+}
+
+body[data-theme="night"] .about-colophon-title,
+body[data-theme="neon"] .about-colophon-title,
+body[data-theme="atlantis"] .about-colophon-title {
+  color: var(--ink-black);
+}
+
+body[data-theme="night"] .about-colophon-sub,
+body[data-theme="neon"] .about-colophon-sub,
+body[data-theme="atlantis"] .about-colophon-sub {
+  color: var(--text-muted);
 }
 
 * {
@@ -996,7 +1134,7 @@ body[data-theme="atlantis"] .neo-btn:disabled span {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-bottom: 2px dashed #E0E0E0;
+  border-bottom: 2px dashed var(--border-subtle);
   padding-bottom: 4px;
   width: 100%;
   box-sizing: border-box;
@@ -1005,19 +1143,20 @@ body[data-theme="atlantis"] .neo-btn:disabled span {
 
 .action-entity-badge {
   font-size: 11px;
-  font-weight: 700;
+  font-weight: 800;
   text-transform: uppercase;
   background-color: var(--canary-yellow);
+  color: #050508 !important;
   padding: 2px 6px;
   border-radius: 6px;
-  border: 1px solid var(--ink-black);
+  border: 1px solid var(--border-color);
   white-space: nowrap;
 }
 
 .action-group-hint {
   font-size: 11px;
-  color: #666;
-  font-weight: 600;
+  color: var(--text-muted);
+  font-weight: 700;
   white-space: nowrap;
 }
 
@@ -1029,7 +1168,7 @@ body[data-theme="atlantis"] .neo-btn:disabled span {
   cursor: pointer;
   line-height: 1;
   padding: 0 4px;
-  color: #666;
+  color: var(--text-muted);
   margin-left: auto;
 }
 
@@ -1059,11 +1198,11 @@ body[data-theme="atlantis"] .neo-btn:disabled span {
   flex-direction: column;
   align-items: center;
   gap: 4px;
-  background-color: rgba(255, 255, 255, 0.95);
-  border: 2px solid var(--ink-black);
+  background-color: var(--bg-panel);
+  border: var(--border-thick);
   border-radius: 12px;
   padding: 6px;
-  box-shadow: 3px 3px 0 var(--ink-black);
+  box-shadow: var(--shadow-hard);
   z-index: 60;
   transition: opacity 0.2s ease, transform 0.2s ease;
 }
@@ -1267,12 +1406,26 @@ body[data-theme="atlantis"] .neo-btn:disabled span {
   transform: scale(1.1);
 }
 
-/* INSPECTOR SLIDERS */
+/* INSPECTOR SLIDERS & CONTROLS */
 .inspector-control-group {
   display: flex;
   flex-direction: column;
   gap: 6px;
   margin-bottom: 14px;
+}
+
+.inspector-info-card {
+  background-color: var(--bg-cream);
+  border: 2px solid var(--border-color);
+  border-radius: 8px;
+  padding: 8px 12px;
+  margin-bottom: 12px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--ink-black);
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
 }
 
 .control-header {
@@ -1284,18 +1437,20 @@ body[data-theme="atlantis"] .neo-btn:disabled span {
 
 .val-badge {
   background-color: var(--canary-yellow);
+  color: #050508 !important;
+  font-weight: 800;
   padding: 2px 6px;
   border-radius: 6px;
-  border: 1px solid var(--ink-black);
+  border: 1px solid var(--border-color);
 }
 
 .neo-slider {
   -webkit-appearance: none;
   height: 10px;
   border-radius: 5px;
-  background: #E0E0E0;
+  background: var(--border-subtle);
   outline: none;
-  border: 2px solid var(--ink-black);
+  border: 2px solid var(--border-color);
 }
 
 .neo-slider::-webkit-slider-thumb {
@@ -1303,10 +1458,90 @@ body[data-theme="atlantis"] .neo-btn:disabled span {
   width: 22px;
   height: 22px;
   border-radius: 50%;
-  background: var(--cyber-cyan);
-  border: 2px solid var(--ink-black);
-  box-shadow: 2px 2px 0 var(--ink-black);
+  background: var(--accent-sky);
+  border: 2px solid var(--border-color);
+  box-shadow: 2px 2px 0 var(--border-color);
   cursor: pointer;
+}
+
+.neo-select {
+  background-color: var(--bg-cream);
+  color: var(--ink-black);
+  border: 2px solid var(--border-color);
+  border-radius: 8px;
+  padding: 6px 10px;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  outline: none;
+  cursor: pointer;
+  width: 100%;
+  box-sizing: border-box;
+  transition: border-color 0.15s ease;
+}
+
+.neo-select:focus {
+  border-color: var(--accent-sky);
+}
+
+.neo-select option {
+  background-color: var(--bg-panel);
+  color: var(--ink-black);
+}
+
+.toggle-group {
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.neo-toggle-switch {
+  position: relative;
+  display: inline-block;
+  width: 44px;
+  height: 24px;
+  cursor: pointer;
+}
+
+.neo-toggle-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+  position: absolute;
+}
+
+.toggle-knob {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: var(--border-subtle);
+  border: 2px solid var(--border-color);
+  border-radius: 24px;
+  transition: 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.toggle-knob:before {
+  position: absolute;
+  content: "";
+  height: 14px;
+  width: 14px;
+  left: 3px;
+  bottom: 3px;
+  background-color: #FFFFFF;
+  border: 1.5px solid var(--border-color);
+  border-radius: 50%;
+  transition: 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+input:checked + .toggle-knob {
+  background-color: var(--accent-mint);
+}
+
+input:checked + .toggle-knob:before {
+  transform: translateX(18px);
+  background-color: #FFFFFF;
 }
 
 /* VICTORY OVERLAY */
@@ -1420,7 +1655,7 @@ body[data-theme="atlantis"] .neo-btn:disabled span {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-bottom: 2px dashed #E0E0E0;
+  border-bottom: 2px dashed var(--border-subtle);
   padding-bottom: 4px;
   margin-bottom: 2px;
   flex-shrink: 0;
@@ -1431,7 +1666,7 @@ body[data-theme="atlantis"] .neo-btn:disabled span {
   font-weight: 800;
   letter-spacing: 0.5px;
   text-transform: uppercase;
-  color: #666;
+  color: var(--text-muted);
 }
 
 .flyout-close-btn {
@@ -1441,7 +1676,7 @@ body[data-theme="atlantis"] .neo-btn:disabled span {
   font-weight: 700;
   cursor: pointer;
   line-height: 1;
-  color: #888;
+  color: var(--text-muted);
   padding: 0 4px;
 }
 
@@ -1467,7 +1702,7 @@ body[data-theme="atlantis"] .neo-btn:disabled span {
 }
 
 .flyout-options-list::-webkit-scrollbar-track {
-  background: #F0F0F0;
+  background: var(--bg-cream);
   border-radius: 4px;
 }
 
@@ -1482,13 +1717,14 @@ body[data-theme="atlantis"] .neo-btn:disabled span {
   gap: 8px;
   padding: 7px 10px;
   background: var(--bg-cream);
-  border: 2px solid var(--ink-black);
+  border: 2px solid var(--border-color);
   border-radius: 8px;
   font-family: inherit;
   font-size: 12px;
   font-weight: 700;
+  color: var(--ink-black);
   cursor: pointer;
-  box-shadow: 2px 2px 0 var(--ink-black);
+  box-shadow: 2px 2px 0 var(--shadow-color);
   transition: all 0.1s ease;
   text-align: left;
   width: 100%;
@@ -1496,12 +1732,14 @@ body[data-theme="atlantis"] .neo-btn:disabled span {
 
 .flyout-option-btn:hover {
   background: var(--canary-yellow);
+  color: #050508 !important;
   transform: scale(1.02);
 }
 
 .flyout-option-btn.active {
   background: var(--cyber-cyan);
-  box-shadow: 1px 1px 0 var(--ink-black);
+  color: #050508 !important;
+  box-shadow: 1px 1px 0 var(--shadow-color);
   transform: translate(1px, 1px);
 }
 
@@ -1518,13 +1756,13 @@ body[data-theme="atlantis"] .neo-btn:disabled span {
 
 .flyout-option-name {
   font-weight: 800;
-  color: var(--ink-black);
+  color: inherit;
 }
 
 .flyout-option-desc {
   font-size: 9px;
   font-weight: 600;
-  color: #666;
+  color: var(--text-muted);
 }
 
 /* FLOATING ACTION CARD VARIANT PICKER */
@@ -1582,15 +1820,16 @@ body[data-theme="atlantis"] .neo-btn:disabled span {
 .editor-context-menu {
   position: fixed;
   z-index: 1050;
-  background-color: #FFFFFF;
-  border: 3px solid var(--ink-black);
+  background-color: var(--bg-panel);
+  border: var(--border-thick);
   border-radius: 12px;
-  box-shadow: 4px 4px 0 var(--ink-black);
+  box-shadow: var(--shadow-hard);
   min-width: 210px;
   padding: 6px;
   display: flex;
   flex-direction: column;
   gap: 3px;
+  color: var(--ink-black);
   animation: flyoutPop 0.12s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
@@ -1599,7 +1838,7 @@ body[data-theme="atlantis"] .neo-btn:disabled span {
   justify-content: space-between;
   align-items: center;
   padding: 4px 8px 6px 8px;
-  border-bottom: 2px dashed #E0E0E0;
+  border-bottom: 2px dashed var(--border-subtle);
   margin-bottom: 3px;
 }
 
@@ -1608,13 +1847,13 @@ body[data-theme="atlantis"] .neo-btn:disabled span {
   font-weight: 800;
   letter-spacing: 0.5px;
   text-transform: uppercase;
-  color: #666;
+  color: var(--text-muted);
 }
 
 .context-menu-coords {
   font-size: 10px;
   font-weight: 700;
-  color: #888;
+  color: var(--text-muted);
 }
 
 .context-menu-items {
@@ -1643,8 +1882,9 @@ body[data-theme="atlantis"] .neo-btn:disabled span {
 
 .context-menu-item:hover:not(:disabled) {
   background-color: var(--canary-yellow);
-  border-color: var(--ink-black);
-  box-shadow: 2px 2px 0 var(--ink-black);
+  color: #050508 !important;
+  border-color: var(--border-color);
+  box-shadow: 2px 2px 0 var(--shadow-color);
   transform: translate(-1px, -1px);
 }
 
@@ -1660,7 +1900,7 @@ body[data-theme="atlantis"] .neo-btn:disabled span {
 
 .context-menu-item.ctx-danger:hover:not(:disabled) {
   background-color: #FFE5E5;
-  color: var(--hazard-red);
+  color: var(--hazard-red) !important;
 }
 
 .ctx-item-icon {
@@ -1676,16 +1916,16 @@ body[data-theme="atlantis"] .neo-btn:disabled span {
 .ctx-item-shortcut {
   font-size: 10px;
   font-weight: 800;
-  color: #666;
-  background: #F0F0F0;
-  border: 1.5px solid #CCC;
+  color: var(--text-muted);
+  background: var(--bg-cream);
+  border: 1.5px solid var(--border-color);
   border-radius: 4px;
   padding: 1px 5px;
 }
 
 .context-menu-divider {
   height: 1px;
-  background: #E0E0E0;
+  background: var(--border-subtle);
   margin: 3px 0;
 }
 
@@ -1984,7 +2224,7 @@ dialog.neo-dialog::backdrop {
 .help-row-body {
   font-size: 12px;
   font-weight: 500;
-  color: #555;
+  color: var(--text-muted);
 }
 
 .help-row-keys {
@@ -1992,9 +2232,10 @@ dialog.neo-dialog::backdrop {
   font-size: 11px;
   font-weight: 700;
   padding: 2px 8px;
-  border: 1px solid var(--ink-black);
+  border: 1px solid var(--border-color);
   border-radius: 6px;
   background: var(--canary-yellow);
+  color: #050508 !important;
   white-space: nowrap;
 }
 
@@ -2016,12 +2257,13 @@ dialog.neo-dialog::backdrop {
   font-size: 24px;
   font-weight: 700;
   line-height: 1.1;
+  color: var(--ink-black);
 }
 
 .about-version {
   font-size: 12px;
   font-family: ui-monospace, monospace;
-  color: #666;
+  color: var(--text-muted);
   font-weight: 700;
 }
 
@@ -2029,6 +2271,7 @@ dialog.neo-dialog::backdrop {
   margin-bottom: 14px;
   font-size: 13px;
   line-height: 1.5;
+  color: var(--ink-black);
 }
 
 .about-section strong {
@@ -2036,9 +2279,9 @@ dialog.neo-dialog::backdrop {
 }
 
 .about-privacy-badge {
-  background: #E8F5E9;
-  border: 2px solid #2E7D32;
-  color: #1B5E20;
+  background: var(--bg-cream);
+  border: 2px solid var(--accent-mint);
+  color: var(--accent-mint);
   padding: 8px 12px;
   border-radius: 8px;
   font-size: 12px;
@@ -2052,16 +2295,17 @@ dialog.neo-dialog::backdrop {
   display: flex;
   gap: 6px;
   flex-wrap: wrap;
-  border-bottom: 2px solid var(--ink-black);
+  border-bottom: 2px solid var(--border-subtle);
   padding-bottom: 10px;
   margin-bottom: 14px;
 }
 
 .about-tab-btn {
-  background: #FFFFFF;
-  border: 2px solid var(--ink-black);
+  background: var(--bg-cream);
+  border: 2px solid var(--border-color);
   border-radius: 8px;
-  box-shadow: 2px 2px 0 var(--ink-black);
+  box-shadow: 2px 2px 0 var(--shadow-color);
+  color: var(--ink-black);
   padding: 6px 12px;
   font-family: inherit;
   font-size: 12px;
@@ -2071,12 +2315,14 @@ dialog.neo-dialog::backdrop {
 }
 
 .about-tab-btn:hover {
-  background: #FFF9C4;
+  background: var(--canary-yellow);
+  color: #050508 !important;
 }
 
 .about-tab-btn.active {
   background: var(--canary-yellow);
-  box-shadow: inset 1px 1px 0 var(--ink-black);
+  color: #050508 !important;
+  box-shadow: inset 1px 1px 0 var(--shadow-color);
   transform: translate(1px, 1px);
 }
 
@@ -2090,10 +2336,11 @@ dialog.neo-dialog::backdrop {
 }
 
 .about-credit-card {
-  background: #FFFFFF;
-  border: 2px solid var(--ink-black);
+  background: var(--bg-panel);
+  border: var(--border-thick);
   border-radius: 10px;
-  box-shadow: 3px 3px 0 var(--ink-black);
+  box-shadow: var(--shadow-hard);
+  color: var(--ink-black);
   padding: 12px;
   margin-bottom: 10px;
 }
@@ -2112,9 +2359,9 @@ dialog.neo-dialog::backdrop {
 
 .about-credit-role {
   font-size: 11px;
-  background: #E0F7FA;
-  color: #006064;
-  border: 1px solid var(--ink-black);
+  background: var(--bg-cream);
+  color: var(--ink-black);
+  border: 1px solid var(--border-color);
   border-radius: 6px;
   padding: 2px 6px;
   font-weight: 700;
@@ -2122,7 +2369,8 @@ dialog.neo-dialog::backdrop {
 
 .about-credit-desc {
   font-size: 12px;
-  color: #444;
+  color: var(--ink-black);
+  opacity: 0.9;
   line-height: 1.45;
   margin: 0;
 }
@@ -2174,21 +2422,21 @@ dialog.neo-dialog::backdrop {
 .demo-step-counter {
   font-size: 11px;
   font-weight: 700;
-  color: #555;
+  color: #334155;
   font-family: ui-monospace, monospace;
 }
 
 .demo-step-title {
   font-size: 14px;
-  font-weight: 700;
-  color: var(--ink-black);
+  font-weight: 800;
+  color: #050508 !important;
 }
 
 .demo-banner-center {
   flex: 1;
   font-size: 12px;
-  font-weight: 500;
-  color: #333;
+  font-weight: 600;
+  color: #050508 !important;
   line-height: 1.35;
 }
 
@@ -2730,8 +2978,8 @@ body[data-theme="night"] .about-colophon-sub {
             <span>Midnight</span>
           </button>
           <button class="bg-theme-card" data-bg-theme="neon">
-            <div class="bg-theme-preview" style="background: linear-gradient(180deg, #1A0B2E, #4A154B); color: #FFF;">🌆</div>
-            <span>Neon</span>
+            <div class="bg-theme-preview" style="background: linear-gradient(180deg, #030305, #140520); color: #00E5FF;">⚡</div>
+            <span>Neon over Black</span>
           </button>
           <button class="bg-theme-card" data-bg-theme="gray">
             <div class="bg-theme-preview" style="background: linear-gradient(180deg, #64748B, #94A3B8); color: #FFF;">🌫️</div>
@@ -3963,14 +4211,18 @@ class PhysicsEngine {
   }
 
   resolveHorizontalCollisions(entity, solids, prevX) {
+    const isSlope = (s) => s && (s.isSlope || s.variant?.includes('slope'));
+    const isSlopeUp = (s) => s && (s.slopeDirection === 'up' || s.variant?.includes('slope_up'));
+    const isSlopeDown = (s) => s && (s.slopeDirection === 'down' || s.variant?.includes('slope_down'));
+
     for (const solid of solids) {
       if (!solid.active) continue;
       // Skip one-way platforms and angled sloped surfaces horizontally
-      if (solid.isOneWay || solid.variant === 'cloud' || solid.variant === 'semisolid' || solid.variant === 'slope_up' || solid.variant === 'slope_down') continue;
+      if (solid.isOneWay || solid.variant === 'cloud' || solid.variant === 'semisolid' || isSlope(solid)) continue;
 
       // Skip solid blocks that are covered underneath any slope
       const isUnderSlope = solids.some(s =>
-        s.active && (s.variant === 'slope_up' || s.variant === 'slope_down') &&
+        s.active && isSlope(s) &&
         Math.abs(s.x - solid.x) < 2 &&
         solid.y >= s.y + s.height - 2
       );
@@ -3988,7 +4240,7 @@ class PhysicsEngine {
 
           // Check if left face is the top junction of an adjoining slope_up
           const connectedSlopeUp = solids.some(s =>
-            s.active && s.variant === 'slope_up' &&
+            s.active && isSlopeUp(s) &&
             Math.abs((s.x + s.width) - solid.x) <= 2 &&
             Math.abs(s.y - solid.y) <= 2
           );
@@ -4003,7 +4255,7 @@ class PhysicsEngine {
 
           // Check if right face is the top junction of an adjoining slope_down
           const connectedSlopeDown = solids.some(s =>
-            s.active && s.variant === 'slope_down' &&
+            s.active && isSlopeDown(s) &&
             Math.abs(s.x - (solid.x + solid.width)) <= 2 &&
             Math.abs(s.y - solid.y) <= 2
           );
@@ -4017,16 +4269,19 @@ class PhysicsEngine {
   }
 
   resolveVerticalCollisions(entity, solids) {
+    const isSlope = (s) => s && (s.isSlope || s.variant?.includes('slope'));
+    const isSlopeUp = (s) => s && (s.slopeDirection === 'up' || s.variant?.includes('slope_up'));
+
     for (const solid of solids) {
       if (!solid.active) continue;
 
-      // 1. Handle Walkable Slopes / Slants (slope_up and slope_down)
-      if (solid.variant === 'slope_up' || solid.variant === 'slope_down') {
+      // 1. Handle Walkable Slopes / Slants (slope_up and slope_down across all materials)
+      if (isSlope(solid)) {
         if (entity.x + entity.width > solid.x && entity.x < solid.x + solid.width) {
           const px = Math.max(solid.x, Math.min(solid.x + solid.width, entity.x + entity.width / 2));
           const relX = (px - solid.x) / solid.width;
 
-          const surfaceY = solid.variant === 'slope_up'
+          const surfaceY = isSlopeUp(solid)
             ? solid.y + (1 - relX) * solid.height
             : solid.y + relX * solid.height;
 
@@ -4111,7 +4366,7 @@ class PhysicsEngine {
     if (!entity.grounded && entity.vy >= 0) {
       for (const solid of solids) {
         if (!solid.active) continue;
-        if (solid.variant === 'slope_up' || solid.variant === 'slope_down') continue;
+        if (solid.isSlope || solid.variant?.includes('slope')) continue;
         const onTop = Math.abs((entity.y + entity.height) - solid.y) <= 1.5;
         const horizAligned = (entity.x + entity.width > solid.x + 2) && (entity.x < solid.x + solid.width - 2);
         if (onTop && horizAligned) {
@@ -4591,9 +4846,14 @@ class SolidBlock extends Entity {
 
     super(null, 'crate', x, y, w, h); // type remains 'crate' internally for physics/solids compatibility
     this.variant = variant || 'solid';
+    this.material = null; // 'stone', 'ice', 'solid', 'cloud', 'semisolid'
+    if (this.variant.startsWith('stone_') || this.variant === 'stone') this.material = 'stone';
+    else if (this.variant.startsWith('ice_') || this.variant === 'ice') this.material = 'ice';
+    else if (this.variant.startsWith('cloud_') || this.variant === 'cloud') this.material = 'cloud';
+
     this.content = content || null; // 'powerup', 'heart', 'coin', 'star', 'ammo', or null (auto)
     this.bounciness = this.variant === 'note' ? 0.95 : 0.0;
-    this.friction = this.variant === 'ice' ? 0.12 : 1.0;
+    this.friction = (this.variant === 'ice' || this.variant.includes('ice_slope')) ? 0.12 : 1.0;
     this.isOneWay = (this.variant === 'cloud' || this.variant === 'semisolid');
 
     // Mystery Block [?] & Note Block Bump State
@@ -4611,9 +4871,55 @@ class SolidBlock extends Entity {
     this.respawnTimer = 0;
   }
 
+  get isSlope() {
+    return this.variant === 'slope_up' || this.variant === 'slope_down' ||
+           this.variant === 'stone_slope_up' || this.variant === 'stone_slope_down' ||
+           this.variant === 'ice_slope_up' || this.variant === 'ice_slope_down' ||
+           this.variant.includes('slope');
+  }
+
+  get slopeDirection() {
+    if (this.variant.includes('slope_up')) return 'up';
+    if (this.variant.includes('slope_down')) return 'down';
+    return null;
+  }
+
+  get effectiveMaterial() {
+    if (this.material) return this.material;
+    if (this.variant.startsWith('stone_') || this.variant === 'stone') return 'stone';
+    if (this.variant.startsWith('ice_') || this.variant === 'ice') return 'ice';
+    if (this.variant.startsWith('cloud_') || this.variant === 'cloud') return 'cloud';
+    if (this.variant.startsWith('semisolid_') || this.variant === 'semisolid') return 'semisolid';
+
+    // Auto-detect material for generic slopes based on adjacent blocks
+    if (this.isSlope) {
+      const col = Math.round(this.x / 40);
+      const row = Math.round(this.y / 40);
+      const bottomEnt = SolidBlock.terrainMap.get(`${col},${row + 1}`);
+      const rightEnt = SolidBlock.terrainMap.get(`${col + 1},${row}`);
+      const leftEnt = SolidBlock.terrainMap.get(`${col - 1},${row}`);
+
+      const checkMat = (ent) => {
+        if (!ent || !ent.active) return null;
+        if (ent.variant === 'stone' || ent.variant?.startsWith('stone_') || ent.material === 'stone') return 'stone';
+        if (ent.variant === 'ice' || ent.variant?.startsWith('ice_') || ent.material === 'ice') return 'ice';
+        if (ent.variant === 'cloud' || ent.variant?.startsWith('cloud_') || ent.material === 'cloud') return 'cloud';
+        return null;
+      };
+
+      const mat = checkMat(bottomEnt) || checkMat(rightEnt) || checkMat(leftEnt);
+      if (mat) return mat;
+    }
+    return 'solid';
+  }
+
   setVariant(variant) {
     this.variant = variant;
-    this.friction = variant === 'ice' ? 0.12 : 1.0;
+    if (variant === 'stone_slope_up' || variant === 'stone_slope_down' || variant === 'stone') this.material = 'stone';
+    else if (variant === 'ice_slope_up' || variant === 'ice_slope_down' || variant === 'ice') this.material = 'ice';
+    else if (variant === 'solid') this.material = 'solid';
+
+    this.friction = (variant === 'ice' || variant === 'ice_slope_up' || variant === 'ice_slope_down') ? 0.12 : 1.0;
     this.isOneWay = (variant === 'cloud' || variant === 'semisolid');
     this.bounciness = variant === 'note' ? 0.95 : 0.0;
 
@@ -4621,7 +4927,7 @@ class SolidBlock extends Entity {
     else if (variant === 'slab') { this.width = 40; this.height = 20; }
     else if (variant === 'pipe') { this.width = 40; this.height = 80; }
     else if (this.width !== 40 || this.height !== 40) {
-      if (['solid', 'slope_up', 'slope_down', 'semisolid', 'donut', 'note', 'mystery', 'ice', 'cloud', 'stone'].includes(variant)) {
+      if (['solid', 'slope_up', 'slope_down', 'stone_slope_up', 'stone_slope_down', 'ice_slope_up', 'ice_slope_down', 'semisolid', 'donut', 'note', 'mystery', 'ice', 'cloud', 'stone'].includes(variant)) {
         this.width = 40;
         this.height = 40;
       }
@@ -4716,7 +5022,7 @@ class SolidBlock extends Entity {
   }
 
   static getThemePalette() {
-    const theme = (typeof window !== 'undefined' && window.sidehop?.currentTheme) || 'grass';
+    const theme = (typeof window !== 'undefined' && (window.sidehop?.currentTheme || window.__SIDEHOP_THEME__)) || 'grass';
     switch (theme) {
       case 'snowy':
         return {
@@ -4838,7 +5144,7 @@ class SolidBlock extends Entity {
         try {
           const pal = SolidBlock.getThemePalette();
 
-          if (this.variant === 'slope_up') {
+          if (this.isSlope && this.slopeDirection === 'up') {
             // 45° Incline Triangle Clipping
             ctx.beginPath();
             ctx.moveTo(0, this.height);
@@ -4848,7 +5154,7 @@ class SolidBlock extends Entity {
             ctx.fillStyle = pal.dirtBase;
             ctx.fill();
             ctx.clip();
-          } else if (this.variant === 'slope_down') {
+          } else if (this.isSlope && this.slopeDirection === 'down') {
             // 45° Decline Triangle Clipping
             ctx.beginPath();
             ctx.moveTo(0, 0);
@@ -4888,14 +5194,14 @@ class SolidBlock extends Entity {
         try {
           ctx.strokeStyle = '#121212';
           ctx.lineWidth = 3;
-          if (this.variant === 'slope_up') {
+          if (this.isSlope && this.slopeDirection === 'up') {
             ctx.beginPath();
             ctx.moveTo(0, this.height);
             ctx.lineTo(this.width, 0);
             ctx.lineTo(this.width, this.height);
             ctx.closePath();
             ctx.stroke();
-          } else if (this.variant === 'slope_down') {
+          } else if (this.isSlope && this.slopeDirection === 'down') {
             ctx.beginPath();
             ctx.moveTo(0, 0);
             ctx.lineTo(this.width, this.height);
@@ -4932,7 +5238,7 @@ class SolidBlock extends Entity {
       const pal = SolidBlock.getThemePalette();
 
       // 1. SLANT UP (45° Incline /)
-      if (this.variant === 'slope_up') {
+      if (this.isSlope && this.slopeDirection === 'up') {
         const col = Math.round(this.x / 40);
         const row = Math.round(this.y / 40);
         const bottomEnt = SolidBlock.terrainMap.get(`${col},${row + 1}`);
@@ -4940,79 +5246,181 @@ class SolidBlock extends Entity {
         const isSolidOpaque = (ent) => ent && ent.active && ent.variant !== 'cloud' && ent.variant !== 'semisolid';
         const hasBottom = Boolean(bottomEnt && isSolidOpaque(bottomEnt));
         const hasRight = Boolean(rightEnt && isSolidOpaque(rightEnt));
+        const mat = this.effectiveMaterial;
 
-        // Base Dirt Fill
-        ctx.beginPath();
-        ctx.moveTo(0, this.height);
-        ctx.lineTo(this.width + (hasRight ? 0.5 : 0), this.height + (hasBottom ? 0.5 : 0));
-        ctx.lineTo(this.width + (hasRight ? 0.5 : 0), 0);
-        ctx.closePath();
-        ctx.fillStyle = pal.dirtBase;
-        ctx.fill();
-
-        // Dirt specks inside lower-right half of triangle
-        ctx.fillStyle = pal.speckDark;
-        ctx.fillRect(26, 26, 4, 3);
-        ctx.fillRect(33, 14, 3, 4);
-        ctx.fillStyle = pal.speckLight;
-        ctx.fillRect(18, 30, 4, 3);
-        ctx.fillStyle = pal.speckMid;
-        ctx.fillRect(32, 28, 4, 3);
-
-        // Theme-specific turf / band along angled hypotenuse
-        ctx.beginPath();
-        ctx.moveTo(0, this.height);
-        ctx.lineTo(this.width + (hasRight ? 0.5 : 0), 0);
-        ctx.lineTo(this.width + (hasRight ? 0.5 : 0), 10);
-        ctx.lineTo(10, this.height);
-        ctx.closePath();
-        ctx.fillStyle = pal.turfMain;
-        ctx.fill();
-
-        // Turf top highlight
-        ctx.strokeStyle = pal.turfHighlight;
-        ctx.lineWidth = 2.5;
-        ctx.beginPath();
-        ctx.moveTo(0, this.height);
-        ctx.lineTo(this.width + (hasRight ? 0.5 : 0), 0);
-        ctx.stroke();
-
-        // Turf underside shadow edge
-        ctx.strokeStyle = pal.turfShadow;
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        ctx.moveTo(10, this.height);
-        ctx.lineTo(this.width + (hasRight ? 0.5 : 0), 10);
-        ctx.stroke();
-
-        // Turf fringe droplets into dirt
-        ctx.fillStyle = pal.turfMain;
-        ctx.fillRect(16, 22, 4, 3);
-        ctx.fillRect(26, 12, 4, 3);
-        ctx.fillStyle = pal.turfShadow;
-        ctx.fillRect(16, 24, 4, 1);
-        ctx.fillRect(26, 14, 4, 1);
-
-        // Outlines (only exposed faces)
-        ctx.strokeStyle = '#121212';
-        ctx.lineWidth = 3;
-        ctx.beginPath();
-        ctx.moveTo(0, this.height);
-        ctx.lineTo(this.width, 0);
-
-        if (!hasRight) {
-          ctx.moveTo(this.width, 0);
-          ctx.lineTo(this.width, this.height);
-        }
-        if (!hasBottom) {
+        if (mat === 'stone') {
+          // Castle Stone Slope Up (matches gray stone masonry bevels)
+          ctx.beginPath();
           ctx.moveTo(0, this.height);
-          ctx.lineTo(this.width, this.height);
+          ctx.lineTo(this.width + (hasRight ? 0.5 : 0), this.height + (hasBottom ? 0.5 : 0));
+          ctx.lineTo(this.width + (hasRight ? 0.5 : 0), 0);
+          ctx.closePath();
+          ctx.fillStyle = '#9E9E9E';
+          ctx.fill();
+
+          // Chiseled highlights & shadows
+          ctx.strokeStyle = '#EEEEEE';
+          ctx.lineWidth = 2.5;
+          ctx.beginPath();
+          ctx.moveTo(0, this.height);
+          ctx.lineTo(this.width + (hasRight ? 0.5 : 0), 0);
+          ctx.stroke();
+
+          ctx.strokeStyle = '#616161';
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          if (!hasRight) {
+            ctx.moveTo(this.width, 0);
+            ctx.lineTo(this.width, this.height);
+          }
+          if (!hasBottom) {
+            ctx.moveTo(0, this.height);
+            ctx.lineTo(this.width, this.height);
+          }
+          ctx.stroke();
+
+          // Central carving bevel
+          ctx.strokeStyle = 'rgba(18, 18, 18, 0.35)';
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.moveTo(14, this.height - 8);
+          ctx.lineTo(this.width - 8, 14);
+          ctx.lineTo(this.width - 8, this.height - 8);
+          ctx.closePath();
+          ctx.stroke();
+
+          // Outer outlines
+          ctx.strokeStyle = '#121212';
+          ctx.lineWidth = 3;
+          ctx.beginPath();
+          ctx.moveTo(0, this.height);
+          ctx.lineTo(this.width, 0);
+          if (!hasRight) {
+            ctx.moveTo(this.width, 0);
+            ctx.lineTo(this.width, this.height);
+          }
+          if (!hasBottom) {
+            ctx.moveTo(0, this.height);
+            ctx.lineTo(this.width, this.height);
+          }
+          ctx.stroke();
+        } else if (mat === 'ice') {
+          // Slippery Ice Slope Up
+          ctx.beginPath();
+          ctx.moveTo(0, this.height);
+          ctx.lineTo(this.width + (hasRight ? 0.5 : 0), this.height + (hasBottom ? 0.5 : 0));
+          ctx.lineTo(this.width + (hasRight ? 0.5 : 0), 0);
+          ctx.closePath();
+          const iceGrad = ctx.createLinearGradient(0, this.height, this.width, 0);
+          iceGrad.addColorStop(0, '#B2EBF2');
+          iceGrad.addColorStop(1, '#E0F7FA');
+          ctx.fillStyle = iceGrad;
+          ctx.fill();
+
+          ctx.strokeStyle = '#FFFFFF';
+          ctx.lineWidth = 3;
+          ctx.beginPath();
+          ctx.moveTo(0, this.height);
+          ctx.lineTo(this.width, 0);
+          ctx.stroke();
+
+          ctx.strokeStyle = 'rgba(0, 150, 136, 0.35)';
+          ctx.lineWidth = 1.5;
+          ctx.beginPath();
+          ctx.moveTo(14, this.height - 8);
+          ctx.lineTo(this.width - 8, 14);
+          ctx.lineTo(this.width - 8, this.height - 8);
+          ctx.closePath();
+          ctx.stroke();
+
+          ctx.strokeStyle = '#121212';
+          ctx.lineWidth = 3;
+          ctx.beginPath();
+          ctx.moveTo(0, this.height);
+          ctx.lineTo(this.width, 0);
+          if (!hasRight) {
+            ctx.moveTo(this.width, 0);
+            ctx.lineTo(this.width, this.height);
+          }
+          if (!hasBottom) {
+            ctx.moveTo(0, this.height);
+            ctx.lineTo(this.width, this.height);
+          }
+          ctx.stroke();
+        } else {
+          // Base Dirt Fill
+          ctx.beginPath();
+          ctx.moveTo(0, this.height);
+          ctx.lineTo(this.width + (hasRight ? 0.5 : 0), this.height + (hasBottom ? 0.5 : 0));
+          ctx.lineTo(this.width + (hasRight ? 0.5 : 0), 0);
+          ctx.closePath();
+          ctx.fillStyle = pal.dirtBase;
+          ctx.fill();
+
+          // Dirt specks inside lower-right half of triangle
+          ctx.fillStyle = pal.speckDark;
+          ctx.fillRect(26, 26, 4, 3);
+          ctx.fillRect(33, 14, 3, 4);
+          ctx.fillStyle = pal.speckLight;
+          ctx.fillRect(18, 30, 4, 3);
+          ctx.fillStyle = pal.speckMid;
+          ctx.fillRect(32, 28, 4, 3);
+
+          // Theme-specific turf / band along angled hypotenuse
+          ctx.beginPath();
+          ctx.moveTo(0, this.height);
+          ctx.lineTo(this.width + (hasRight ? 0.5 : 0), 0);
+          ctx.lineTo(this.width + (hasRight ? 0.5 : 0), 10);
+          ctx.lineTo(10, this.height);
+          ctx.closePath();
+          ctx.fillStyle = pal.turfMain;
+          ctx.fill();
+
+          // Turf top highlight
+          ctx.strokeStyle = pal.turfHighlight;
+          ctx.lineWidth = 2.5;
+          ctx.beginPath();
+          ctx.moveTo(0, this.height);
+          ctx.lineTo(this.width + (hasRight ? 0.5 : 0), 0);
+          ctx.stroke();
+
+          // Turf underside shadow edge
+          ctx.strokeStyle = pal.turfShadow;
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.moveTo(10, this.height);
+          ctx.lineTo(this.width + (hasRight ? 0.5 : 0), 10);
+          ctx.stroke();
+
+          // Turf fringe droplets into dirt
+          ctx.fillStyle = pal.turfMain;
+          ctx.fillRect(16, 22, 4, 3);
+          ctx.fillRect(26, 12, 4, 3);
+          ctx.fillStyle = pal.turfShadow;
+          ctx.fillRect(16, 24, 4, 1);
+          ctx.fillRect(26, 14, 4, 1);
+
+          // Outlines (only exposed faces)
+          ctx.strokeStyle = '#121212';
+          ctx.lineWidth = 3;
+          ctx.beginPath();
+          ctx.moveTo(0, this.height);
+          ctx.lineTo(this.width, 0);
+
+          if (!hasRight) {
+            ctx.moveTo(this.width, 0);
+            ctx.lineTo(this.width, this.height);
+          }
+          if (!hasBottom) {
+            ctx.moveTo(0, this.height);
+            ctx.lineTo(this.width, this.height);
+          }
+          ctx.stroke();
         }
-        ctx.stroke();
       }
 
       // 2. SLANT DOWN (45° Decline \)
-      else if (this.variant === 'slope_down') {
+      else if (this.isSlope && this.slopeDirection === 'down') {
         const col = Math.round(this.x / 40);
         const row = Math.round(this.y / 40);
         const bottomEnt = SolidBlock.terrainMap.get(`${col},${row + 1}`);
@@ -5020,75 +5428,174 @@ class SolidBlock extends Entity {
         const isSolidOpaque = (ent) => ent && ent.active && ent.variant !== 'cloud' && ent.variant !== 'semisolid';
         const hasBottom = Boolean(bottomEnt && isSolidOpaque(bottomEnt));
         const hasLeft = Boolean(leftEnt && isSolidOpaque(leftEnt));
+        const mat = this.effectiveMaterial;
 
-        // Base Dirt Fill
-        ctx.beginPath();
-        ctx.moveTo(0, 0);
-        ctx.lineTo(0, this.height + (hasBottom ? 0.5 : 0));
-        ctx.lineTo(this.width + (hasLeft ? 0.5 : 0), this.height + (hasBottom ? 0.5 : 0));
-        ctx.closePath();
-        ctx.fillStyle = pal.dirtBase;
-        ctx.fill();
-
-        // Dirt specks inside lower-left half of triangle
-        ctx.fillStyle = pal.speckDark;
-        ctx.fillRect(10, 26, 4, 3);
-        ctx.fillRect(4, 14, 3, 4);
-        ctx.fillStyle = pal.speckLight;
-        ctx.fillRect(18, 30, 4, 3);
-        ctx.fillStyle = pal.speckMid;
-        ctx.fillRect(4, 28, 4, 3);
-
-        // Theme-specific turf / band along angled hypotenuse
-        ctx.beginPath();
-        ctx.moveTo(0, 0);
-        ctx.lineTo(this.width, this.height);
-        ctx.lineTo(30, this.height);
-        ctx.lineTo(0, 10);
-        ctx.closePath();
-        ctx.fillStyle = pal.turfMain;
-        ctx.fill();
-
-        // Turf top highlight
-        ctx.strokeStyle = pal.turfHighlight;
-        ctx.lineWidth = 2.5;
-        ctx.beginPath();
-        ctx.moveTo(0, 0);
-        ctx.lineTo(this.width, this.height);
-        ctx.stroke();
-
-        // Turf underside shadow edge
-        ctx.strokeStyle = pal.turfShadow;
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        ctx.moveTo(0, 10);
-        ctx.lineTo(30, this.height);
-        ctx.stroke();
-
-        // Turf fringe droplets into dirt
-        ctx.fillStyle = pal.turfMain;
-        ctx.fillRect(10, 12, 4, 3);
-        ctx.fillRect(20, 22, 4, 3);
-        ctx.fillStyle = pal.turfShadow;
-        ctx.fillRect(10, 14, 4, 1);
-        ctx.fillRect(20, 24, 4, 1);
-
-        // Outlines (only exposed faces)
-        ctx.strokeStyle = '#121212';
-        ctx.lineWidth = 3;
-        ctx.beginPath();
-        ctx.moveTo(0, 0);
-        ctx.lineTo(this.width, this.height);
-
-        if (!hasLeft) {
+        if (mat === 'stone') {
+          // Castle Stone Slope Down
+          ctx.beginPath();
           ctx.moveTo(0, 0);
-          ctx.lineTo(0, this.height);
-        }
-        if (!hasBottom) {
-          ctx.moveTo(0, this.height);
+          ctx.lineTo(0, this.height + (hasBottom ? 0.5 : 0));
+          ctx.lineTo(this.width + (hasLeft ? 0.5 : 0), this.height + (hasBottom ? 0.5 : 0));
+          ctx.closePath();
+          ctx.fillStyle = '#9E9E9E';
+          ctx.fill();
+
+          ctx.strokeStyle = '#EEEEEE';
+          ctx.lineWidth = 2.5;
+          ctx.beginPath();
+          ctx.moveTo(0, 0);
           ctx.lineTo(this.width, this.height);
+          ctx.stroke();
+
+          ctx.strokeStyle = '#616161';
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          if (!hasLeft) {
+            ctx.moveTo(0, 0);
+            ctx.lineTo(0, this.height);
+          }
+          if (!hasBottom) {
+            ctx.moveTo(0, this.height);
+            ctx.lineTo(this.width, this.height);
+          }
+          ctx.stroke();
+
+          ctx.strokeStyle = 'rgba(18, 18, 18, 0.35)';
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.moveTo(8, 14);
+          ctx.lineTo(this.width - 14, this.height - 8);
+          ctx.lineTo(8, this.height - 8);
+          ctx.closePath();
+          ctx.stroke();
+
+          ctx.strokeStyle = '#121212';
+          ctx.lineWidth = 3;
+          ctx.beginPath();
+          ctx.moveTo(0, 0);
+          ctx.lineTo(this.width, this.height);
+          if (!hasLeft) {
+            ctx.moveTo(0, 0);
+            ctx.lineTo(0, this.height);
+          }
+          if (!hasBottom) {
+            ctx.moveTo(0, this.height);
+            ctx.lineTo(this.width, this.height);
+          }
+          ctx.stroke();
+        } else if (mat === 'ice') {
+          // Slippery Ice Slope Down
+          ctx.beginPath();
+          ctx.moveTo(0, 0);
+          ctx.lineTo(0, this.height + (hasBottom ? 0.5 : 0));
+          ctx.lineTo(this.width + (hasLeft ? 0.5 : 0), this.height + (hasBottom ? 0.5 : 0));
+          ctx.closePath();
+          const iceGrad = ctx.createLinearGradient(0, 0, this.width, this.height);
+          iceGrad.addColorStop(0, '#E0F7FA');
+          iceGrad.addColorStop(1, '#B2EBF2');
+          ctx.fillStyle = iceGrad;
+          ctx.fill();
+
+          ctx.strokeStyle = '#FFFFFF';
+          ctx.lineWidth = 3;
+          ctx.beginPath();
+          ctx.moveTo(0, 0);
+          ctx.lineTo(this.width, this.height);
+          ctx.stroke();
+
+          ctx.strokeStyle = 'rgba(0, 150, 136, 0.35)';
+          ctx.lineWidth = 1.5;
+          ctx.beginPath();
+          ctx.moveTo(8, 14);
+          ctx.lineTo(this.width - 14, this.height - 8);
+          ctx.lineTo(8, this.height - 8);
+          ctx.closePath();
+          ctx.stroke();
+
+          ctx.strokeStyle = '#121212';
+          ctx.lineWidth = 3;
+          ctx.beginPath();
+          ctx.moveTo(0, 0);
+          ctx.lineTo(this.width, this.height);
+          if (!hasLeft) {
+            ctx.moveTo(0, 0);
+            ctx.lineTo(0, this.height);
+          }
+          if (!hasBottom) {
+            ctx.moveTo(0, this.height);
+            ctx.lineTo(this.width, this.height);
+          }
+          ctx.stroke();
+        } else {
+          // Base Dirt Fill
+          ctx.beginPath();
+          ctx.moveTo(0, 0);
+          ctx.lineTo(0, this.height + (hasBottom ? 0.5 : 0));
+          ctx.lineTo(this.width + (hasLeft ? 0.5 : 0), this.height + (hasBottom ? 0.5 : 0));
+          ctx.closePath();
+          ctx.fillStyle = pal.dirtBase;
+          ctx.fill();
+
+          // Dirt specks inside lower-left half of triangle
+          ctx.fillStyle = pal.speckDark;
+          ctx.fillRect(10, 26, 4, 3);
+          ctx.fillRect(4, 14, 3, 4);
+          ctx.fillStyle = pal.speckLight;
+          ctx.fillRect(18, 30, 4, 3);
+          ctx.fillStyle = pal.speckMid;
+          ctx.fillRect(4, 28, 4, 3);
+
+          // Theme-specific turf / band along angled hypotenuse
+          ctx.beginPath();
+          ctx.moveTo(0, 0);
+          ctx.lineTo(this.width, this.height);
+          ctx.lineTo(30, this.height);
+          ctx.lineTo(0, 10);
+          ctx.closePath();
+          ctx.fillStyle = pal.turfMain;
+          ctx.fill();
+
+          // Turf top highlight
+          ctx.strokeStyle = pal.turfHighlight;
+          ctx.lineWidth = 2.5;
+          ctx.beginPath();
+          ctx.moveTo(0, 0);
+          ctx.lineTo(this.width, this.height);
+          ctx.stroke();
+
+          // Turf underside shadow edge
+          ctx.strokeStyle = pal.turfShadow;
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.moveTo(0, 10);
+          ctx.lineTo(30, this.height);
+          ctx.stroke();
+
+          // Turf fringe droplets into dirt
+          ctx.fillStyle = pal.turfMain;
+          ctx.fillRect(10, 12, 4, 3);
+          ctx.fillRect(20, 22, 4, 3);
+          ctx.fillStyle = pal.turfShadow;
+          ctx.fillRect(10, 14, 4, 1);
+          ctx.fillRect(20, 24, 4, 1);
+
+          // Outlines (only exposed faces)
+          ctx.strokeStyle = '#121212';
+          ctx.lineWidth = 3;
+          ctx.beginPath();
+          ctx.moveTo(0, 0);
+          ctx.lineTo(this.width, this.height);
+
+          if (!hasLeft) {
+            ctx.moveTo(0, 0);
+            ctx.lineTo(0, this.height);
+          }
+          if (!hasBottom) {
+            ctx.moveTo(0, this.height);
+            ctx.lineTo(this.width, this.height);
+          }
+          ctx.stroke();
         }
-        ctx.stroke();
       }
 
       // 3. SEMI-SOLID PLATFORM (Mario Maker Wood Boardwalk)
@@ -6587,7 +7094,7 @@ class Inspector {
 
     // General Information Card
     const infoCard = document.createElement('div');
-    infoCard.style.cssText = 'background: #F8FAFC; border: 2px solid #1E293B; border-radius: 8px; padding: 8px 12px; margin-bottom: 12px; font-size: 12px; font-weight: 700; display: flex; flex-direction: column; gap: 3px;';
+    infoCard.className = 'inspector-info-card';
     infoCard.innerHTML = `
       <div>Component: ${ent.type.toUpperCase()}${ent.variant ? ` (${ent.variant})` : ''}</div>
       <div>Position: X: ${Math.round(ent.x)}px, Y: ${Math.round(ent.y)}px</div>
@@ -6651,6 +7158,44 @@ class Inspector {
         ent.hasDoubleJump = val;
       });
     } else if (ent.type === 'crate' || ent.type === 'block') {
+      const shapeOptions = [
+        { value: 'square', label: '■ Full Square Block' },
+        { value: 'slope_up', label: '◢ Slope Up (45° Incline ↗)' },
+        { value: 'slope_down', label: '◣ Slope Down (45° Decline ↘)' }
+      ];
+      const currentShape = ent.isSlope ? (ent.slopeDirection === 'up' ? 'slope_up' : 'slope_down') : 'square';
+      this.addSelect('Block Shape', currentShape, shapeOptions, (shape) => {
+        const mat = ent.effectiveMaterial || 'solid';
+        if (shape === 'square') {
+          ent.setVariant(mat === 'stone' ? 'stone' : mat === 'ice' ? 'ice' : 'solid');
+        } else if (shape === 'slope_up') {
+          ent.setVariant(mat === 'stone' ? 'stone_slope_up' : mat === 'ice' ? 'ice_slope_up' : 'slope_up');
+        } else if (shape === 'slope_down') {
+          ent.setVariant(mat === 'stone' ? 'stone_slope_down' : mat === 'ice' ? 'ice_slope_down' : 'slope_down');
+        }
+      });
+
+      const materialOptions = [
+        { value: 'solid', label: '🟩 Ground Turf' },
+        { value: 'stone', label: '🪨 Castle Stone' },
+        { value: 'ice', label: '🧊 Slippery Ice' },
+        { value: 'cloud', label: '☁️ Soft Cloud' },
+        { value: 'semisolid', label: '🪵 Wood Platform' }
+      ];
+      const currentMat = ent.effectiveMaterial || 'solid';
+      this.addSelect('Surface Material', currentMat, materialOptions, (mat) => {
+        ent.material = mat;
+        if (ent.isSlope) {
+          if (ent.slopeDirection === 'up') {
+            ent.setVariant(mat === 'stone' ? 'stone_slope_up' : mat === 'ice' ? 'ice_slope_up' : 'slope_up');
+          } else {
+            ent.setVariant(mat === 'stone' ? 'stone_slope_down' : mat === 'ice' ? 'ice_slope_down' : 'slope_down');
+          }
+        } else {
+          ent.setVariant(mat);
+        }
+      });
+
       this.addSlider('Bounciness', ent.bounciness || 0, 0, 1.2, 0.05, (val) => ent.bounciness = val);
       this.addSlider('Friction', ent.friction || 0.8, 0.05, 1.0, 0.05, (val) => ent.friction = val);
       this.addToggle('One-Way Platform', !!ent.isOneWay, (val) => ent.isOneWay = val);
@@ -6745,9 +7290,11 @@ class Inspector {
     select.className = 'neo-select';
     options.forEach(opt => {
       const o = document.createElement('option');
-      o.value = opt;
-      o.textContent = opt.charAt(0).toUpperCase() + opt.slice(1);
-      if (opt === currentVal) o.selected = true;
+      const val = typeof opt === 'object' && opt !== null ? opt.value : opt;
+      const text = typeof opt === 'object' && opt !== null ? opt.label : (String(opt).charAt(0).toUpperCase() + String(opt).slice(1));
+      o.value = val;
+      o.textContent = text;
+      if (val === currentVal) o.selected = true;
       select.appendChild(o);
     });
 
@@ -7315,7 +7862,6 @@ const STARTER_WORLD_ENTITIES = [
   { type: 'crate', variant: 'mega', x: 3600, y: 400, width: 80, height: 80 },
   { type: 'collectible', variant: 'coin', x: 3624, y: 340, width: 32, height: 32 },
   { type: 'crate', variant: 'pipe', x: 3900, y: 400, width: 40, height: 80 },
-  { type: 'collectible', variant: 'coin', x: 3864, y: 350, width: 32, height: 32 },
   { type: 'enemy', variant: 'spiky', x: 3780, y: 440, width: 40, height: 40, speed: 75, patrolRange: 40, stompable: false },
   { type: 'springboard', variant: 'mega', x: 3960, y: 440, width: 40, height: 40, launchForce: 1040 },
   { type: 'hazard', x: 4000, y: 480, width: 40, height: 40 },
@@ -7328,10 +7874,10 @@ const STARTER_WORLD_ENTITIES = [
   { type: 'crate', variant: 'stone', x: 4120, y: 520, width: 40, height: 40 },
   { type: 'hazard', x: 4160, y: 480, width: 40, height: 40 },
   { type: 'crate', variant: 'stone', x: 4160, y: 520, width: 40, height: 40 },
-  { type: 'crate', variant: 'slope_up', x: 4200, y: 440, width: 40, height: 40 },
+  { type: 'crate', variant: 'stone_slope_up', x: 4200, y: 440, width: 40, height: 40 },
   { type: 'crate', variant: 'stone', x: 4200, y: 480, width: 40, height: 40 },
   { type: 'crate', variant: 'stone', x: 4200, y: 520, width: 40, height: 40 },
-  { type: 'crate', variant: 'slope_up', x: 4240, y: 400, width: 40, height: 40 },
+  { type: 'crate', variant: 'stone_slope_up', x: 4240, y: 400, width: 40, height: 40 },
   { type: 'crate', variant: 'stone', x: 4240, y: 440, width: 40, height: 40 },
   { type: 'crate', variant: 'stone', x: 4240, y: 480, width: 40, height: 40 },
   { type: 'crate', variant: 'stone', x: 4240, y: 520, width: 40, height: 40 },
@@ -7359,11 +7905,11 @@ const STARTER_WORLD_ENTITIES = [
   { type: 'crate', variant: 'stone', x: 5280, y: 480, width: 40, height: 40 },
   { type: 'crate', variant: 'stone', x: 5280, y: 520, width: 40, height: 40 },
   { type: 'enemy', variant: 'walker', x: 5140, y: 360, width: 40, height: 40, speed: 75, patrolRange: 50, stompable: true },
-  { type: 'crate', variant: 'slope_down', x: 5320, y: 400, width: 40, height: 40 },
+  { type: 'crate', variant: 'stone_slope_down', x: 5320, y: 400, width: 40, height: 40 },
   { type: 'crate', variant: 'stone', x: 5320, y: 440, width: 40, height: 40 },
   { type: 'crate', variant: 'stone', x: 5320, y: 480, width: 40, height: 40 },
   { type: 'crate', variant: 'stone', x: 5320, y: 520, width: 40, height: 40 },
-  { type: 'crate', variant: 'slope_down', x: 5360, y: 440, width: 40, height: 40 },
+  { type: 'crate', variant: 'stone_slope_down', x: 5360, y: 440, width: 40, height: 40 },
   { type: 'crate', variant: 'stone', x: 5360, y: 480, width: 40, height: 40 },
   { type: 'crate', variant: 'stone', x: 5360, y: 520, width: 40, height: 40 },
   { type: 'crate', variant: 'solid', x: 5400, y: 480, width: 40, height: 40 },
@@ -7467,7 +8013,6 @@ const STARTER_WORLD_ENTITIES = [
   { type: 'crate', variant: 'stone', x: 8360, y: 520, width: 40, height: 40 },
   { type: 'crate', variant: 'mega', x: 7920, y: 400, width: 80, height: 80 },
   { type: 'crate', variant: 'pipe', x: 8880, y: 400, width: 40, height: 80 },
-  { type: 'crate', variant: 'mystery', x: 8800, y: 80, width: 40, height: 40, content: 'heart' },
   { type: 'enemy', variant: 'spiky', x: 8190, y: 440, width: 40, height: 40, speed: 75, patrolRange: 50, stompable: false },
   { type: 'springboard', variant: 'mega', x: 8340, y: 440, width: 40, height: 40, launchForce: 1040 },
   { type: 'hazard', x: 8400, y: 480, width: 40, height: 40 },
@@ -7507,7 +8052,7 @@ const STARTER_WORLD_ENTITIES = [
   { type: 'crate', variant: 'stone', x: 8800, y: 360, width: 40, height: 40 },
   { type: 'crate', variant: 'stone', x: 8800, y: 320, width: 40, height: 40 },
   { type: 'crate', variant: 'stone', x: 8800, y: 280, width: 40, height: 40 },
-  { type: 'collectible', variant: 'star', x: 8804, y: 230, width: 32, height: 32 },
+  { type: 'collectible', variant: 'star', x: 8804, y: 110, width: 32, height: 32 },
   { type: 'crate', variant: 'stone', x: 8840, y: 480, width: 40, height: 40 },
   { type: 'crate', variant: 'stone', x: 8840, y: 520, width: 40, height: 40 },
   { type: 'crate', variant: 'stone', x: 8880, y: 480, width: 40, height: 40 },
@@ -7528,51 +8073,13 @@ const STARTER_WORLD_ENTITIES = [
   { type: 'crate', variant: 'stone', x: 9160, y: 520, width: 40, height: 40 },
   { type: 'crate', variant: 'stone', x: 9200, y: 480, width: 40, height: 40 },
   { type: 'crate', variant: 'stone', x: 9200, y: 520, width: 40, height: 40 },
-  { type: 'goal', x: 9060, y: 400, width: 48, height: 80 },
-  { type: 'collectible', variant: 'star', x: 9068, y: 330, width: 32, height: 32 },
+  { type: 'goal', x: 9180, y: 400, width: 48, height: 80 },
   { type: 'crate', variant: 'cloud', x: 2280, y: 200, width: 40, height: 40 },
-  { type: 'collectible', variant: 'pistol', x: 244, y: 284, width: 32, height: 32 },
-  { type: 'collectible', variant: 'pistol', x: 244, y: 284, width: 32, height: 32 },
-  { type: 'collectible', variant: 'ammo', x: 1804, y: 304, width: 32, height: 32 },
   { type: 'springboard', variant: 'mega', x: 1560, y: 200, width: 40, height: 40, launchForce: 1040 },
-  { type: 'collectible', variant: 'pistol', x: 244, y: 284, width: 32, height: 32 },
-  { type: 'collectible', variant: 'ammo', x: 1804, y: 304, width: 32, height: 32 },
-  { type: 'collectible', variant: 'ammo', x: 244, y: 284, width: 32, height: 32 },
-  { type: 'collectible', variant: 'ammo', x: 244, y: 284, width: 32, height: 32 },
-  { type: 'collectible', variant: 'ammo', x: 1804, y: 304, width: 32, height: 32 },
-  { type: 'collectible', variant: 'pistol', x: 244, y: 284, width: 32, height: 32 },
-  { type: 'collectible', variant: 'heart', x: 3484, y: 304, width: 32, height: 32 },
-  { type: 'collectible', variant: 'pistol', x: 244, y: 284, width: 32, height: 32 },
-  { type: 'collectible', variant: 'heart', x: 3444, y: 264, width: 32, height: 32 },
-  { type: 'collectible', variant: 'ammo', x: 4284, y: 164, width: 32, height: 32 },
-  { type: 'collectible', variant: 'pistol', x: 244, y: 284, width: 32, height: 32 },
-  { type: 'collectible', variant: 'heart', x: 3444, y: 264, width: 32, height: 32 },
-  { type: 'collectible', variant: 'ammo', x: 4284, y: 204, width: 32, height: 32 },
-  { type: 'collectible', variant: 'pistol', x: 244, y: 284, width: 32, height: 32 },
-  { type: 'collectible', variant: 'ammo', x: 4284, y: 204, width: 32, height: 32 },
   { type: 'crate', variant: 'mystery', x: 5760, y: 200, width: 40, height: 40, content: 'heart' },
   { type: 'springboard', variant: 'spring', x: 7520, y: 240, width: 40, height: 40, launchForce: 840 },
-  { type: 'collectible', variant: 'pistol', x: 244, y: 284, width: 32, height: 32 },
-  { type: 'collectible', variant: 'heart', x: 3444, y: 264, width: 32, height: 32 },
-  { type: 'collectible', variant: 'ammo', x: 4284, y: 204, width: 32, height: 32 },
-  { type: 'collectible', variant: 'heart', x: 5804, y: 164, width: 32, height: 32 },
-  { type: 'collectible', variant: 'heart', x: 5764, y: 164, width: 32, height: 32 },
-  { type: 'collectible', variant: 'ammo', x: 6164, y: 264, width: 32, height: 32 },
-  { type: 'collectible', variant: 'pistol', x: 244, y: 284, width: 32, height: 32 },
-  { type: 'collectible', variant: 'heart', x: 3444, y: 264, width: 32, height: 32 },
-  { type: 'collectible', variant: 'pistol', x: 4284, y: 204, width: 32, height: 32 },
-  { type: 'collectible', variant: 'heart', x: 5804, y: 164, width: 32, height: 32 },
-  { type: 'collectible', variant: 'heart', x: 5764, y: 164, width: 32, height: 32 },
-  { type: 'collectible', variant: 'ammo', x: 6164, y: 264, width: 32, height: 32 },
-  { type: 'collectible', variant: 'ammo', x: 244, y: 284, width: 32, height: 32 },
-  { type: 'collectible', variant: 'heart', x: 3444, y: 264, width: 32, height: 32 },
-  { type: 'collectible', variant: 'heart', x: 5804, y: 164, width: 32, height: 32 },
-  { type: 'collectible', variant: 'heart', x: 5764, y: 164, width: 32, height: 32 },
   { type: 'crate', variant: 'slab', x: 7360, y: 120, width: 40, height: 20 },
   { type: 'crate', variant: 'slab', x: 7400, y: 120, width: 40, height: 20 },
-  { type: 'collectible', variant: 'pistol', x: 244, y: 284, width: 32, height: 32 },
-  { type: 'collectible', variant: 'heart', x: 3444, y: 264, width: 32, height: 32 },
-  { type: 'collectible', variant: 'ammo', x: 4284, y: 204, width: 32, height: 32 },
 ];
 class LevelStorage {
   // Serialize active level to JSON-compatible object
@@ -7603,6 +8110,7 @@ class LevelStorage {
     return {
       type: ent.type,
       variant: ent.variant,
+      material: ent.material || null,
       content: ent.content || null,
       x: ent.x,
       y: ent.y,
@@ -7628,6 +8136,7 @@ class LevelStorage {
       case 'crate':
       case 'block':
         ent = new SolidBlock(d.x, d.y, d.width, d.height, d.variant || 'solid', d.content || null);
+        if (d.material) ent.material = d.material;
         if (d.bounciness !== undefined) ent.bounciness = d.bounciness;
         if (d.friction !== undefined) ent.friction = d.friction;
         if (d.content) ent.content = d.content;
@@ -7718,6 +8227,10 @@ class LevelStorage {
   static autoSave(player, entities, background) {
     // Never overwrite user's work while built-in interactive demo is running
     if (typeof window !== 'undefined' && window.sidehop && window.sidehop.isDemoActive) {
+      return;
+    }
+    // Never overwrite clean level design while active playtest simulation is running
+    if (typeof window !== 'undefined' && window.sidehop && window.sidehop.mode === 'play') {
       return;
     }
     try {
@@ -9441,6 +9954,17 @@ class SidehopApp {
       drift: Math.random() * 0.6 - 0.3
     }));
 
+    // Bubbles particle cache for atlantis underwater theme
+    this.bubbles = Array.from({ length: 45 }, () => ({
+      x: Math.random() * 2000,
+      y: Math.random() * 1200,
+      radius: Math.random() * 3.5 + 1.8,
+      speed: Math.random() * 0.9 + 0.7,
+      wobbleSpeed: Math.random() * 0.003 + 0.002,
+      wobbleAmp: Math.random() * 16 + 8,
+      baseX: Math.random() * 2000
+    }));
+
     // Subsystems
     this.editor = new GridEditor(this.canvas, this.camera, 40);
     this.artStudio = new ArtStudio(
@@ -10323,91 +10847,363 @@ class SidehopApp {
 
     switch (theme) {
       case 'atlantis': {
-        const grad = this.ctx.createLinearGradient(0, 0, 0, h);
-        grad.addColorStop(0, '#021B33');
-        grad.addColorStop(0.55, '#073B63');
-        grad.addColorStop(1, '#0B598F');
-        this.ctx.fillStyle = grad;
-        this.ctx.fillRect(0, 0, w, h);
-        this.drawParallaxHills(w, h);
+        this.drawAtlantisBackground(w, h);
         break;
       }
       case 'mixed': {
-        const grad = this.ctx.createLinearGradient(0, 0, 0, h);
-        grad.addColorStop(0, '#FDF2D8');
-        grad.addColorStop(0.6, '#F8E3BE');
-        grad.addColorStop(1, '#EDCD9D');
-        this.ctx.fillStyle = grad;
-        this.ctx.fillRect(0, 0, w, h);
-        this.drawParallaxClouds(w, h);
-        this.drawParallaxHills(w, h);
+        this.drawMixedMediaBackground(w, h);
         break;
       }
       case 'snowy': {
-        const grad = this.ctx.createLinearGradient(0, 0, 0, h);
-        grad.addColorStop(0, '#B8DCF5');
-        grad.addColorStop(0.55, '#DCEBF8');
-        grad.addColorStop(1, '#EEF5FC');
-        this.ctx.fillStyle = grad;
-        this.ctx.fillRect(0, 0, w, h);
-
-        this.drawSnowyMountains(w, h);
-        this.drawSnowflakes(w, h);
+        this.drawSnowyBackground(w, h);
         break;
       }
       case 'night': {
-        const grad = this.ctx.createLinearGradient(0, 0, 0, h);
-        grad.addColorStop(0, '#060B19');
-        grad.addColorStop(0.6, '#0E1733');
-        grad.addColorStop(1, '#1E294B');
-        this.ctx.fillStyle = grad;
-        this.ctx.fillRect(0, 0, w, h);
-
-        this.drawStars(w, h);
-        this.drawCrescentMoon(w, h);
+        this.drawNightBackground(w, h);
         break;
       }
       case 'chrome': {
-        const grad = this.ctx.createLinearGradient(0, 0, 0, h);
-        grad.addColorStop(0, '#11151E');
-        grad.addColorStop(0.55, '#202736');
-        grad.addColorStop(1, '#333D4F');
-        this.ctx.fillStyle = grad;
-        this.ctx.fillRect(0, 0, w, h);
-
-        this.drawChromeGrid(w, h);
+        this.drawChromeBackground(w, h);
         break;
       }
       case '8-bit': {
-        this.ctx.fillStyle = '#5C94FC';
-        this.ctx.fillRect(0, 0, w, h);
         this.draw8BitBackground(w, h);
         break;
       }
       case 'jungle': {
-        const grad = this.ctx.createLinearGradient(0, 0, 0, h);
-        grad.addColorStop(0, '#0F2C1B');
-        grad.addColorStop(0.55, '#19492E');
-        grad.addColorStop(1, '#2D6B47');
-        this.ctx.fillStyle = grad;
-        this.ctx.fillRect(0, 0, w, h);
-
         this.drawJungleBackground(w, h);
+        break;
+      }
+      case 'neon': {
+        this.drawNeonBackground(w, h);
         break;
       }
       case 'grass':
       default: {
-        const grad = this.ctx.createLinearGradient(0, 0, 0, h);
-        grad.addColorStop(0, '#70C5FF');
-        grad.addColorStop(1, '#E0F4FF');
-        this.ctx.fillStyle = grad;
-        this.ctx.fillRect(0, 0, w, h);
-
-        this.drawParallaxClouds(w, h);
-        this.drawParallaxHills(w, h);
+        this.drawMeadowsBackground(w, h);
         break;
       }
     }
+  }
+
+  drawAtlantisBackground(w, h) {
+    this.ctx.save();
+
+    // 1. Abyssal deep ocean gradient (surface twilight to deep ocean abyss)
+    const oceanGrad = this.ctx.createLinearGradient(0, 0, 0, h);
+    oceanGrad.addColorStop(0, '#02182B');
+    oceanGrad.addColorStop(0.35, '#052F4E');
+    oceanGrad.addColorStop(0.7, '#07486E');
+    oceanGrad.addColorStop(1, '#021424');
+    this.ctx.fillStyle = oceanGrad;
+    this.ctx.fillRect(0, 0, w, h);
+
+    // 2. Volumetric sunlight caustics / light beams angled down from surface
+    const time = performance.now() * 0.0008;
+    const beamCount = 4;
+    for (let i = 0; i < beamCount; i++) {
+      const beamX = (w * 0.2) + i * (w * 0.22) + Math.sin(time + i * 1.5) * 25;
+      const beamGrad = this.ctx.createLinearGradient(beamX, 0, beamX - 120, h);
+      beamGrad.addColorStop(0, 'rgba(56, 189, 248, 0.14)');
+      beamGrad.addColorStop(0.5, 'rgba(56, 189, 248, 0.05)');
+      beamGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+      this.ctx.fillStyle = beamGrad;
+      this.ctx.beginPath();
+      this.ctx.moveTo(beamX - 30, 0);
+      this.ctx.lineTo(beamX + 35, 0);
+      this.ctx.lineTo(beamX - 70, h);
+      this.ctx.lineTo(beamX - 160, h);
+      this.ctx.closePath();
+      this.ctx.fill();
+    }
+
+    // 3. Distant Atlantean submerged ruins & sunken temple pillars (slow parallax)
+    const horizon = h * 0.74;
+    this.ctx.fillStyle = '#032338';
+    const ruinsLoop = 1200;
+    const ruinsOff = (this.camera.x * 0.05) % ruinsLoop;
+
+    // Distant seabed silhouette
+    this.ctx.beginPath();
+    this.ctx.moveTo(0, h);
+    for (let x = -200; x <= w + 200; x += 150) {
+      const rx = x - ruinsOff;
+      const ry = horizon + Math.sin(x * 0.008) * 20;
+      this.ctx.lineTo(rx, ry);
+    }
+    this.ctx.lineTo(w, h);
+    this.ctx.closePath();
+    this.ctx.fill();
+
+    // Ancient Atlantean pillars & pediments
+    [120, 340, 560, 840, 1020].forEach((colX, idx) => {
+      const px = ((colX - ruinsOff) % ruinsLoop + ruinsLoop) % ruinsLoop - 100;
+      const pBaseY = horizon + Math.sin(colX * 0.008) * 20;
+      const pH = 70 + (idx % 3) * 25;
+      // Pillar shaft
+      this.ctx.fillRect(px, pBaseY - pH, 16, pH);
+      // Capital & base
+      this.ctx.fillRect(px - 4, pBaseY - pH - 6, 24, 7);
+      this.ctx.fillRect(px - 3, pBaseY - 5, 22, 6);
+      // Ruined pediment block occasionally
+      if (idx % 2 === 0) {
+        this.ctx.beginPath();
+        this.ctx.moveTo(px - 14, pBaseY - pH - 6);
+        this.ctx.lineTo(px + 8, pBaseY - pH - 24);
+        this.ctx.lineTo(px + 30, pBaseY - pH - 6);
+        this.ctx.closePath();
+        this.ctx.fill();
+      }
+    });
+
+    // 4. Closer coral reef & swaying sea-kelp silhouette (faster parallax)
+    this.ctx.fillStyle = '#053658';
+    const reefLoop = 900;
+    const reefOff = (this.camera.x * 0.12) % reefLoop;
+    this.ctx.beginPath();
+    this.ctx.moveTo(0, h);
+    for (let x = -200; x <= w + 200; x += 120) {
+      const kx = x - reefOff;
+      const ky = horizon + 25 + Math.cos(x * 0.012) * 25;
+      this.ctx.lineTo(kx, ky);
+    }
+    this.ctx.lineTo(w, h);
+    this.ctx.closePath();
+    this.ctx.fill();
+
+    // Swaying kelp fronds
+    this.ctx.strokeStyle = '#06426C';
+    this.ctx.lineWidth = 6;
+    this.ctx.lineCap = 'round';
+    for (let k = -150; k <= w + 150; k += 85) {
+      const kelpX = k - reefOff;
+      const kelpBaseY = horizon + 30 + Math.cos(k * 0.012) * 25;
+      const kelpHeight = 80 + Math.sin(k * 0.02) * 35;
+      const sway = Math.sin(time * 1.8 + k * 0.03) * 18;
+      this.ctx.beginPath();
+      this.ctx.moveTo(kelpX, kelpBaseY);
+      this.ctx.quadraticCurveTo(kelpX + sway * 0.5, kelpBaseY - kelpHeight * 0.5, kelpX + sway, kelpBaseY - kelpHeight);
+      this.ctx.stroke();
+    }
+
+    // 5. Rising translucent air bubbles with wobble
+    this.bubbles.forEach(b => {
+      b.y -= b.speed;
+      b.x = b.baseX + Math.sin(performance.now() * b.wobbleSpeed) * b.wobbleAmp - (this.camera.x * 0.08);
+      if (b.y < -15) {
+        b.y = h + 15;
+        b.baseX = Math.random() * (w + 400);
+      }
+      const drawX = ((b.x % (w + 200)) + (w + 200)) % (w + 200) - 100;
+
+      // Bubble outline & subtle fill
+      this.ctx.fillStyle = 'rgba(125, 211, 252, 0.22)';
+      this.ctx.strokeStyle = 'rgba(224, 242, 254, 0.75)';
+      this.ctx.lineWidth = 1.2;
+      this.ctx.beginPath();
+      this.ctx.arc(drawX, b.y, b.radius, 0, Math.PI * 2);
+      this.ctx.fill();
+      this.ctx.stroke();
+
+      // Specular shine dot
+      this.ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
+      this.ctx.beginPath();
+      this.ctx.arc(drawX - b.radius * 0.35, b.y - b.radius * 0.35, Math.max(0.8, b.radius * 0.28), 0, Math.PI * 2);
+      this.ctx.fill();
+    });
+
+    this.ctx.restore();
+  }
+
+  drawMixedMediaBackground(w, h) {
+    this.ctx.save();
+
+    // 1. Warm craft paper / textured parchment gradient
+    const paperGrad = this.ctx.createLinearGradient(0, 0, 0, h);
+    paperGrad.addColorStop(0, '#FAF4E8');
+    paperGrad.addColorStop(0.5, '#F4E5CA');
+    paperGrad.addColorStop(1, '#E9D2AC');
+    this.ctx.fillStyle = paperGrad;
+    this.ctx.fillRect(0, 0, w, h);
+
+    // Subtle paper deckle lines / fibers
+    this.ctx.strokeStyle = 'rgba(180, 150, 110, 0.08)';
+    this.ctx.lineWidth = 1;
+    for (let y = 30; y < h; y += 45) {
+      this.ctx.beginPath();
+      this.ctx.moveTo(0, y);
+      this.ctx.lineTo(w, y + (Math.sin(y) * 4));
+      this.ctx.stroke();
+    }
+
+    const horizon = h * 0.72;
+
+    // 2. Distant torn-paper collage horizon layer (soft vintage sage #D4DFD8)
+    this.ctx.fillStyle = '#D4DFD8';
+    this.ctx.beginPath();
+    this.ctx.moveTo(0, h);
+    const loop1 = 900;
+    const off1 = (this.camera.x * 0.06) % loop1;
+    for (let x = -200; x <= w + 200; x += 40) {
+      const rx = x - off1;
+      const tear = Math.sin(x * 0.05) * 14 + Math.cos(x * 0.02) * 22;
+      this.ctx.lineTo(rx, horizon - 50 + tear);
+    }
+    this.ctx.lineTo(w, h);
+    this.ctx.closePath();
+    this.ctx.fill();
+
+    // 3. Closer hand-torn kraft paper layer with exposed white paper fibers along tear
+    this.ctx.fillStyle = '#D6B894';
+    this.ctx.beginPath();
+    this.ctx.moveTo(0, h);
+    const loop2 = 750;
+    const off2 = (this.camera.x * 0.14) % loop2;
+    const tearPoints = [];
+    for (let x = -200; x <= w + 200; x += 30) {
+      const rx = x - off2;
+      const tear = Math.sin(x * 0.07) * 12 + Math.sin(x * 0.015) * 35;
+      const ty = horizon + 5 + tear;
+      tearPoints.push({ x: rx, y: ty });
+      this.ctx.lineTo(rx, ty);
+    }
+    this.ctx.lineTo(w, h);
+    this.ctx.closePath();
+    this.ctx.fill();
+
+    // White torn paper fiber deckle edge highlight
+    this.ctx.strokeStyle = '#FFFDF5';
+    this.ctx.lineWidth = 2.5;
+    this.ctx.beginPath();
+    tearPoints.forEach((pt, idx) => {
+      if (idx === 0) this.ctx.moveTo(pt.x, pt.y);
+      else this.ctx.lineTo(pt.x, pt.y);
+    });
+    this.ctx.stroke();
+
+    // 4. Floating collage paper cutouts & washi tape accents
+    const collageItems = [
+      { colX: 140, y: 90, type: 'tape', w: 60, h: 22, rot: -0.15, color: 'rgba(231, 111, 81, 0.45)' },
+      { colX: 380, y: 140, type: 'dot', r: 18, color: '#2A9D8F' },
+      { colX: 620, y: 80, type: 'tape', w: 70, h: 24, rot: 0.12, color: 'rgba(244, 162, 97, 0.5)' },
+      { colX: 860, y: 130, type: 'rhombus', size: 24, rot: 0.25, color: '#E9C46A' },
+      { colX: 1100, y: 95, type: 'tape', w: 55, h: 20, rot: -0.08, color: 'rgba(231, 111, 81, 0.45)' },
+      { colX: 1340, y: 150, type: 'dot', r: 14, color: '#E76F51' }
+    ];
+
+    const collLoop = 1400;
+    const collOff = (this.camera.x * 0.09) % collLoop;
+    collageItems.forEach(item => {
+      const ix = ((item.colX - collOff) % collLoop + collLoop) % collLoop - 80;
+      this.ctx.save();
+      this.ctx.translate(ix, item.y);
+      if (item.rot) this.ctx.rotate(item.rot);
+
+      if (item.type === 'tape') {
+        this.ctx.fillStyle = item.color;
+        this.ctx.fillRect(-item.w / 2, -item.h / 2, item.w, item.h);
+        // Serrated tape edge ends
+        this.ctx.fillStyle = '#FAF4E8';
+        this.ctx.beginPath();
+        this.ctx.moveTo(-item.w / 2, -item.h / 2);
+        this.ctx.lineTo(-item.w / 2 + 4, -item.h / 4);
+        this.ctx.lineTo(-item.w / 2, 0);
+        this.ctx.lineTo(-item.w / 2 + 4, item.h / 4);
+        this.ctx.lineTo(-item.w / 2, item.h / 2);
+        this.ctx.closePath();
+        this.ctx.fill();
+      } else if (item.type === 'dot') {
+        this.ctx.fillStyle = item.color;
+        this.ctx.globalAlpha = 0.8;
+        this.ctx.beginPath();
+        this.ctx.arc(0, 0, item.r, 0, Math.PI * 2);
+        this.ctx.fill();
+      } else if (item.type === 'rhombus') {
+        this.ctx.fillStyle = item.color;
+        this.ctx.globalAlpha = 0.8;
+        this.ctx.beginPath();
+        this.ctx.moveTo(0, -item.size);
+        this.ctx.lineTo(item.size, 0);
+        this.ctx.lineTo(0, item.size);
+        this.ctx.lineTo(-item.size, 0);
+        this.ctx.closePath();
+        this.ctx.fill();
+      }
+      this.ctx.restore();
+    });
+
+    this.ctx.restore();
+  }
+
+  drawSnowyBackground(w, h) {
+    this.ctx.save();
+    const grad = this.ctx.createLinearGradient(0, 0, 0, h);
+    grad.addColorStop(0, '#94BDE4');
+    grad.addColorStop(0.55, '#D5E6F5');
+    grad.addColorStop(1, '#EEF5FC');
+    this.ctx.fillStyle = grad;
+    this.ctx.fillRect(0, 0, w, h);
+
+    this.drawSnowyMountains(w, h);
+    this.drawSnowflakes(w, h);
+    this.ctx.restore();
+  }
+
+  drawNightBackground(w, h) {
+    this.ctx.save();
+    const grad = this.ctx.createLinearGradient(0, 0, 0, h);
+    grad.addColorStop(0, '#040814');
+    grad.addColorStop(0.55, '#0B132B');
+    grad.addColorStop(1, '#1C2541');
+    this.ctx.fillStyle = grad;
+    this.ctx.fillRect(0, 0, w, h);
+
+    this.drawStars(w, h);
+    this.drawCrescentMoon(w, h);
+
+    // Nocturnal mountain horizon silhouette
+    const horizon = h * 0.78;
+    this.ctx.fillStyle = '#070B18';
+    this.ctx.beginPath();
+    this.ctx.moveTo(0, h);
+    const loop = 800;
+    const off = (this.camera.x * 0.08) % loop;
+    for (let x = -200; x <= w + 200; x += 180) {
+      const hx = x - off;
+      const hy = horizon - 35 + Math.sin(x * 0.012) * 30;
+      this.ctx.lineTo(hx, hy);
+    }
+    this.ctx.lineTo(w, h);
+    this.ctx.closePath();
+    this.ctx.fill();
+
+    this.ctx.restore();
+  }
+
+  drawChromeBackground(w, h) {
+    this.ctx.save();
+    const grad = this.ctx.createLinearGradient(0, 0, 0, h);
+    grad.addColorStop(0, '#0F172A');
+    grad.addColorStop(0.55, '#1E293B');
+    grad.addColorStop(1, '#333D4F');
+    this.ctx.fillStyle = grad;
+    this.ctx.fillRect(0, 0, w, h);
+
+    this.drawChromeGrid(w, h);
+    this.ctx.restore();
+  }
+
+  drawMeadowsBackground(w, h) {
+    this.ctx.save();
+    const grad = this.ctx.createLinearGradient(0, 0, 0, h);
+    grad.addColorStop(0, '#60A5FA');
+    grad.addColorStop(1, '#DBEAFE');
+    this.ctx.fillStyle = grad;
+    this.ctx.fillRect(0, 0, w, h);
+
+    this.drawParallaxClouds(w, h);
+    this.drawParallaxHills(w, h);
+    this.ctx.restore();
   }
 
   drawSnowyMountains(w, h) {
@@ -10554,14 +11350,14 @@ class SidehopApp {
 
     const horizon = h * 0.65;
 
-    // Subtle ambient glowing horizontal light bar at horizon
-    const glowGrad = this.ctx.createLinearGradient(0, horizon - 25, 0, horizon + 25);
+    // Glowing horizontal light bar at horizon
+    const glowGrad = this.ctx.createLinearGradient(0, horizon - 28, 0, horizon + 28);
     glowGrad.addColorStop(0, 'rgba(0, 229, 255, 0)');
-    glowGrad.addColorStop(0.5, 'rgba(0, 229, 255, 0.22)');
-    glowGrad.addColorStop(0.7, 'rgba(255, 0, 127, 0.18)');
+    glowGrad.addColorStop(0.5, 'rgba(0, 229, 255, 0.24)');
+    glowGrad.addColorStop(0.7, 'rgba(255, 0, 127, 0.20)');
     glowGrad.addColorStop(1, 'rgba(255, 0, 127, 0)');
     this.ctx.fillStyle = glowGrad;
-    this.ctx.fillRect(0, horizon - 25, w, 50);
+    this.ctx.fillRect(0, horizon - 28, w, 56);
 
     // Crisp neon laser horizon line
     const lineGrad = this.ctx.createLinearGradient(0, 0, w, 0);
@@ -10569,11 +11365,24 @@ class SidehopApp {
     lineGrad.addColorStop(0.5, '#FF007F');
     lineGrad.addColorStop(1, '#00FF66');
     this.ctx.strokeStyle = lineGrad;
-    this.ctx.lineWidth = 1.5;
+    this.ctx.lineWidth = 2.0;
     this.ctx.beginPath();
     this.ctx.moveTo(0, horizon);
     this.ctx.lineTo(w, horizon);
     this.ctx.stroke();
+
+    // Sleek geometric neon vector ground lines receding to horizon
+    const groundLines = 8;
+    for (let i = 1; i <= groundLines; i++) {
+      const t = Math.pow(i / groundLines, 2.2);
+      const gy = horizon + t * (h - horizon);
+      this.ctx.strokeStyle = `rgba(0, 229, 255, ${0.08 + t * 0.25})`;
+      this.ctx.lineWidth = 1 + t * 1.2;
+      this.ctx.beginPath();
+      this.ctx.moveTo(0, gy);
+      this.ctx.lineTo(w, gy);
+      this.ctx.stroke();
+    }
 
     // Floating vibrant neon stardust particles (smooth camera parallax)
     const neonColors = ['#00E5FF', '#FF007F', '#00FF66', '#FFE600'];
@@ -10630,6 +11439,13 @@ class SidehopApp {
       this.ctx.arc(hx + 150, hillHorizon + 80, 160, Math.PI, 0, false);
       this.ctx.fill();
       this.ctx.stroke();
+
+      // Retro dither dots on hill face
+      this.ctx.fillStyle = '#000000';
+      for (let dotY = hillHorizon + 12; dotY < hillHorizon + 50; dotY += 12) {
+        this.ctx.fillRect(hx + 140 + Math.sin(dotY) * 16, dotY, 4, 4);
+      }
+      this.ctx.fillStyle = '#00A800';
     }
 
     this.ctx.restore();
@@ -10639,8 +11455,8 @@ class SidehopApp {
     this.ctx.save();
     // Sunbeams angled across canopy
     const sunbeamGrad = this.ctx.createLinearGradient(0, 0, w * 0.8, h);
-    sunbeamGrad.addColorStop(0, 'rgba(253, 224, 71, 0.12)');
-    sunbeamGrad.addColorStop(0.5, 'rgba(253, 224, 71, 0.04)');
+    sunbeamGrad.addColorStop(0, 'rgba(253, 224, 71, 0.14)');
+    sunbeamGrad.addColorStop(0.5, 'rgba(253, 224, 71, 0.05)');
     sunbeamGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
     this.ctx.fillStyle = sunbeamGrad;
     this.ctx.beginPath();
@@ -10657,15 +11473,21 @@ class SidehopApp {
     const off = (this.camera.x * 0.1) % loopW;
     for (let x = -100; x < w + 200; x += 140) {
       const tx = x - off;
-      this.ctx.fillRect(tx + 28, h * 0.35, 8, h * 0.65);
+      this.ctx.fillRect(tx + 28, h * 0.35, 10, h * 0.65);
       this.ctx.beginPath();
-      this.ctx.arc(tx + 32, h * 0.35, 45, Math.PI * 0.9, Math.PI * 2.1);
+      this.ctx.arc(tx + 32, h * 0.35, 48, Math.PI * 0.88, Math.PI * 2.12);
       this.ctx.fill();
+      // Vines
       this.ctx.strokeStyle = '#0E2818';
-      this.ctx.lineWidth = 3;
+      this.ctx.lineWidth = 3.5;
       this.ctx.beginPath();
-      this.ctx.moveTo(tx + 15, h * 0.36);
-      this.ctx.quadraticCurveTo(tx + 8, h * 0.5, tx + 18, h * 0.6);
+      this.ctx.moveTo(tx + 12, h * 0.36);
+      this.ctx.quadraticCurveTo(tx + 4, h * 0.52, tx + 16, h * 0.65);
+      this.ctx.stroke();
+
+      this.ctx.beginPath();
+      this.ctx.moveTo(tx + 48, h * 0.38);
+      this.ctx.quadraticCurveTo(tx + 56, h * 0.48, tx + 46, h * 0.58);
       this.ctx.stroke();
     }
 
@@ -10676,7 +11498,7 @@ class SidehopApp {
     this.ctx.save();
     const horizon = h * 0.82;
     // Distant hill layer
-    this.ctx.fillStyle = '#A3E635';
+    this.ctx.fillStyle = '#86EFAC';
     this.ctx.beginPath();
     this.ctx.moveTo(0, h);
     const loop1 = 800;
@@ -10690,7 +11512,7 @@ class SidehopApp {
     this.ctx.fill();
 
     // Closer hill layer
-    this.ctx.fillStyle = '#4ADE80';
+    this.ctx.fillStyle = '#22C55E';
     this.ctx.beginPath();
     this.ctx.moveTo(0, h);
     const loop2 = 600;
@@ -10702,6 +11524,18 @@ class SidehopApp {
     this.ctx.lineTo(w, h);
     this.ctx.closePath();
     this.ctx.fill();
+
+    // Little colorful meadow wildflower dots on the closer hills
+    const flowerColors = ['#FBBF24', '#F43F5E', '#FFFFFF', '#A855F7'];
+    for (let x = -150; x < w + 200; x += 90) {
+      const fx = x - off2;
+      const fy = horizon + 5 + Math.sin(x * 0.03) * 12;
+      const color = flowerColors[Math.abs(Math.round(x / 90)) % flowerColors.length];
+      this.ctx.fillStyle = color;
+      this.ctx.beginPath();
+      this.ctx.arc(fx, fy, 2.5, 0, Math.PI * 2);
+      this.ctx.fill();
+    }
 
     this.ctx.restore();
   }
@@ -10740,11 +11574,13 @@ class SidehopApp {
   drawStars(w, h) {
     this.ctx.save();
     this.ctx.fillStyle = '#FFFFFF';
-    const numStars = 40;
+    const numStars = 48;
+    const pOffX = (this.camera.x * 0.04);
     for (let i = 0; i < numStars; i++) {
-      const seedX = (i * 137.5) % w;
-      const seedY = (i * 89.3) % (h * 0.7);
+      const seedX = ((i * 137.5 - pOffX) % w + w) % w;
+      const seedY = (i * 89.3) % (h * 0.72);
       const twinkle = Math.sin(performance.now() * 0.003 + i) > 0.3 ? 2.5 : 1.5;
+      this.ctx.fillStyle = (i % 5 === 0) ? '#FEF08A' : (i % 7 === 0) ? '#BAE6FD' : '#FFFFFF';
       this.ctx.beginPath();
       this.ctx.arc(seedX, seedY, twinkle, 0, Math.PI * 2);
       this.ctx.fill();
@@ -10847,6 +11683,12 @@ class SidehopApp {
         { id: 'solid', label: '🟩 Solid' },
         { id: 'slope_up', label: '◢ Slope Up' },
         { id: 'slope_down', label: '◣ Slope Down' },
+        { id: 'stone', label: '🪨 Stone' },
+        { id: 'stone_slope_up', label: '🪨◢ Stone Slope Up' },
+        { id: 'stone_slope_down', label: '🪨◣ Stone Slope Down' },
+        { id: 'ice', label: '🧊 Ice' },
+        { id: 'ice_slope_up', label: '🧊◢ Ice Slope Up' },
+        { id: 'ice_slope_down', label: '🧊◣ Ice Slope Down' },
         { id: 'semisolid', label: '🪵 Semi-Solid' },
         { id: 'slab', label: '🪨 Half Slab' },
         { id: 'mega', label: '❇️ Mega Block' },
@@ -10854,9 +11696,7 @@ class SidehopApp {
         { id: 'donut', label: '🍩 Donut Lift' },
         { id: 'note', label: '🎵 Note Block' },
         { id: 'mystery', label: '❓ Mystery' },
-        { id: 'cloud', label: '☁️ Cloud' },
-        { id: 'ice', label: '🧊 Ice' },
-        { id: 'stone', label: '🪨 Stone' }
+        { id: 'cloud', label: '☁️ Cloud' }
       ];
 
       const variantDefs = {
@@ -11017,6 +11857,7 @@ class SidehopApp {
         item.targetY = targetY;
         item.emerging = true;
         item.emergeVy = -190;
+        item.isSpawnedDrop = true; // Mark as in-game drop from play session
         sounds.playGunPickup();
         this.entities.push(item);
 
@@ -11122,8 +11963,14 @@ class SidehopApp {
         title: 'BLOCK & SLOPE TYPES',
         variants: [
           { id: 'solid', icon: '🟩', name: 'Solid Ground', desc: 'Standard solid block platform', shortName: 'Solid' },
-          { id: 'slope_up', icon: '◢', name: 'Slope Up (45°)', desc: 'Walkable incline hill slant', shortName: 'Slope Up' },
-          { id: 'slope_down', icon: '◣', name: 'Slope Down (45°)', desc: 'Walkable decline hill slant', shortName: 'Slope Down' },
+          { id: 'slope_up', icon: '◢', name: 'Turf Slope Up (45°)', desc: 'Walkable turf incline hill slant', shortName: 'Slope Up' },
+          { id: 'slope_down', icon: '◣', name: 'Turf Slope Down (45°)', desc: 'Walkable turf decline hill slant', shortName: 'Slope Down' },
+          { id: 'stone', icon: '🪨', name: 'Stone Block', desc: 'Chiseled fortress stone masonry', shortName: 'Stone' },
+          { id: 'stone_slope_up', icon: '🪨◢', name: 'Stone Slope Up (45°)', desc: 'Chiseled stone incline slant', shortName: 'Stone Slope Up' },
+          { id: 'stone_slope_down', icon: '🪨◣', name: 'Stone Slope Down (45°)', desc: 'Chiseled stone decline slant', shortName: 'Stone Slope Down' },
+          { id: 'ice', icon: '🧊', name: 'Sliding Block', desc: 'Low-friction slippery surface', shortName: 'Ice' },
+          { id: 'ice_slope_up', icon: '🧊◢', name: 'Ice Slope Up (45°)', desc: 'Low-friction ice incline slant', shortName: 'Ice Slope Up' },
+          { id: 'ice_slope_down', icon: '🧊◣', name: 'Ice Slope Down (45°)', desc: 'Low-friction ice decline slant', shortName: 'Ice Slope Down' },
           { id: 'semisolid', icon: '🪵', name: 'Jump-thru Platform', desc: 'Jump through from below, stand on top', shortName: 'Semi-Solid' },
           { id: 'slab', icon: '🪨', name: 'Half-Block (40x20)', desc: 'Half-height stepping stone block', shortName: 'Half Slab' },
           { id: 'mega', icon: '❇️', name: 'Mega Block (80x80)', desc: 'Giant 2x2 fortress block', shortName: 'Mega Block' },
@@ -11131,9 +11978,7 @@ class SidehopApp {
           { id: 'donut', icon: '🍩', name: 'Donut Drop', desc: 'Drops and falls when stood upon', shortName: 'Donut Lift' },
           { id: 'note', icon: '🎵', name: 'Note Block', desc: 'Super bouncy musical trampoline block', shortName: 'Note Block' },
           { id: 'mystery', icon: '❓', name: 'Mystery Block', desc: 'Breakable surprise block [?]', shortName: 'Mystery' },
-          { id: 'ice', icon: '🧊', name: 'Sliding Block', desc: 'Low-friction slippery surface', shortName: 'Ice' },
-          { id: 'cloud', icon: '☁️', name: 'Cloud', desc: 'Soft floating cloud block', shortName: 'Cloud' },
-          { id: 'stone', icon: '🪨', name: 'Stone Block', desc: 'Chiseled fortress stone masonry', shortName: 'Stone' }
+          { id: 'cloud', icon: '☁️', name: 'Cloud', desc: 'Soft floating cloud block', shortName: 'Cloud' }
         ]
       },
       springboard: {
@@ -11880,25 +12725,13 @@ class SidehopApp {
     document.getElementById('victory-restart-btn').addEventListener('click', () => {
       document.getElementById('victory-overlay').classList.remove('active');
       this.isLevelWon = false;
-      this.gunPickedUpInLevel = false;
-      this.player.respawn();
-      this.player.hearts = this.player.maxHearts || 4;
-      this.player.invulnerableTimer = 0;
-      for (const ent of this.entities) {
-        if (ent.variant === 'mystery') ent.isUsed = false;
-        if (ent.type === 'collectible') {
-          ent.collected = false;
-          ent.active = true;
-        }
-      }
+      this.resetPlaySession();
       sounds.playClick();
     });
 
     document.getElementById('victory-edit-btn').addEventListener('click', () => {
       document.getElementById('victory-overlay').classList.remove('active');
       this.isLevelWon = false;
-      this.player.hearts = this.player.maxHearts || 4;
-      this.player.invulnerableTimer = 0;
       this.setMode('edit');
     });
 
@@ -11908,6 +12741,27 @@ class SidehopApp {
         this.recorder.stopRecording();
       }, 3000);
     });
+  }
+
+  resetPlaySession() {
+    if (this.playModeSnapshot) {
+      LevelStorage.deserialize(this.playModeSnapshot, this.player, this.entities);
+    } else {
+      for (const ent of this.entities) {
+        if (ent.variant === 'mystery') ent.isUsed = false;
+        if (ent.type === 'collectible') {
+          ent.collected = false;
+          ent.active = true;
+        }
+      }
+      this.entities = this.entities.filter(e => !e.isSpawnedDrop);
+    }
+    this.score = 0;
+    this.bullets = [];
+    this.gunPickedUpInLevel = false;
+    this.player.respawn();
+    this.player.hearts = this.player.maxHearts || 4;
+    this.player.invulnerableTimer = 0;
   }
 
   toggleMode() {
@@ -11926,6 +12780,10 @@ class SidehopApp {
     sounds.playClick();
 
     if (this.mode === 'play') {
+      // 1. Take snapshot of level right before play begins to ensure clean reset
+      this.playModeSnapshot = LevelStorage.serialize(this.player, this.entities, this.background);
+      LevelStorage.autoSave(this.player, this.entities, this.background);
+
       modeBtn.classList.remove('neo-btn-primary');
       modeBtn.classList.add('neo-btn-pink');
       modeIcon.textContent = '✏️';
@@ -11949,7 +12807,6 @@ class SidehopApp {
           ent.active = true;
         }
       }
-      LevelStorage.autoSave(this.player, this.entities, this.background);
 
       // Show Stretch Frame buttons in Play Mode
       const stretchHeaderBtn = document.getElementById('stretch-frame-btn');
@@ -11957,6 +12814,13 @@ class SidehopApp {
       const stageStretchBtn = document.getElementById('stage-stretch-btn');
       if (stageStretchBtn) stageStretchBtn.style.display = 'flex';
     } else {
+      // Restore clean level snapshot from before play began, resetting drops, coins, and enemies
+      if (this.playModeSnapshot) {
+        LevelStorage.deserialize(this.playModeSnapshot, this.player, this.entities);
+        this.playModeSnapshot = null;
+      }
+      this.entities = this.entities.filter(e => !e.isSpawnedDrop);
+
       modeBtn.classList.add('neo-btn-primary');
       modeBtn.classList.remove('neo-btn-pink');
       modeIcon.textContent = '▶';
@@ -12297,12 +13161,7 @@ class SidehopApp {
                   this.showToast('💥 Pistol Powerup');
                 }
                 if (this.player.hearts <= 0) {
-                  this.player.respawn();
-                  this.bullets = [];
-                  this.gunPickedUpInLevel = false;
-                  for (const e of this.entities) {
-                    if (e.variant === 'mystery') e.isUsed = false;
-                  }
+                  this.resetPlaySession();
                 }
               }
             }
@@ -12335,12 +13194,7 @@ class SidehopApp {
                     this.showToast('💥 Pistol Powerup');
                   }
                   if (this.player.hearts <= 0) {
-                    this.player.respawn();
-                    this.bullets = [];
-                    this.gunPickedUpInLevel = false;
-                    for (const e of this.entities) {
-                      if (e.variant === 'mystery') e.isUsed = false;
-                    }
+                    this.resetPlaySession();
                   }
                 }
               }
@@ -12407,12 +13261,7 @@ class SidehopApp {
       // 3. Fall out of world
       if (this.player.y > 1000) {
         sounds.playHurt();
-        this.player.respawn();
-        this.bullets = [];
-        this.gunPickedUpInLevel = false;
-        for (const e of this.entities) {
-          if (e.variant === 'mystery') e.isUsed = false;
-        }
+        this.resetPlaySession();
       }
 
       // Camera follow in Play Mode

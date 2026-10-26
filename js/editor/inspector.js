@@ -36,7 +36,7 @@ export class Inspector {
 
     // General Information Card
     const infoCard = document.createElement('div');
-    infoCard.style.cssText = 'background: #F8FAFC; border: 2px solid #1E293B; border-radius: 8px; padding: 8px 12px; margin-bottom: 12px; font-size: 12px; font-weight: 700; display: flex; flex-direction: column; gap: 3px;';
+    infoCard.className = 'inspector-info-card';
     infoCard.innerHTML = `
       <div>Component: ${ent.type.toUpperCase()}${ent.variant ? ` (${ent.variant})` : ''}</div>
       <div>Position: X: ${Math.round(ent.x)}px, Y: ${Math.round(ent.y)}px</div>
@@ -100,6 +100,44 @@ export class Inspector {
         ent.hasDoubleJump = val;
       });
     } else if (ent.type === 'crate' || ent.type === 'block') {
+      const shapeOptions = [
+        { value: 'square', label: '■ Full Square Block' },
+        { value: 'slope_up', label: '◢ Slope Up (45° Incline ↗)' },
+        { value: 'slope_down', label: '◣ Slope Down (45° Decline ↘)' }
+      ];
+      const currentShape = ent.isSlope ? (ent.slopeDirection === 'up' ? 'slope_up' : 'slope_down') : 'square';
+      this.addSelect('Block Shape', currentShape, shapeOptions, (shape) => {
+        const mat = ent.effectiveMaterial || 'solid';
+        if (shape === 'square') {
+          ent.setVariant(mat === 'stone' ? 'stone' : mat === 'ice' ? 'ice' : 'solid');
+        } else if (shape === 'slope_up') {
+          ent.setVariant(mat === 'stone' ? 'stone_slope_up' : mat === 'ice' ? 'ice_slope_up' : 'slope_up');
+        } else if (shape === 'slope_down') {
+          ent.setVariant(mat === 'stone' ? 'stone_slope_down' : mat === 'ice' ? 'ice_slope_down' : 'slope_down');
+        }
+      });
+
+      const materialOptions = [
+        { value: 'solid', label: '🟩 Ground Turf' },
+        { value: 'stone', label: '🪨 Castle Stone' },
+        { value: 'ice', label: '🧊 Slippery Ice' },
+        { value: 'cloud', label: '☁️ Soft Cloud' },
+        { value: 'semisolid', label: '🪵 Wood Platform' }
+      ];
+      const currentMat = ent.effectiveMaterial || 'solid';
+      this.addSelect('Surface Material', currentMat, materialOptions, (mat) => {
+        ent.material = mat;
+        if (ent.isSlope) {
+          if (ent.slopeDirection === 'up') {
+            ent.setVariant(mat === 'stone' ? 'stone_slope_up' : mat === 'ice' ? 'ice_slope_up' : 'slope_up');
+          } else {
+            ent.setVariant(mat === 'stone' ? 'stone_slope_down' : mat === 'ice' ? 'ice_slope_down' : 'slope_down');
+          }
+        } else {
+          ent.setVariant(mat);
+        }
+      });
+
       this.addSlider('Bounciness', ent.bounciness || 0, 0, 1.2, 0.05, (val) => ent.bounciness = val);
       this.addSlider('Friction', ent.friction || 0.8, 0.05, 1.0, 0.05, (val) => ent.friction = val);
       this.addToggle('One-Way Platform', !!ent.isOneWay, (val) => ent.isOneWay = val);
@@ -194,9 +232,11 @@ export class Inspector {
     select.className = 'neo-select';
     options.forEach(opt => {
       const o = document.createElement('option');
-      o.value = opt;
-      o.textContent = opt.charAt(0).toUpperCase() + opt.slice(1);
-      if (opt === currentVal) o.selected = true;
+      const val = typeof opt === 'object' && opt !== null ? opt.value : opt;
+      const text = typeof opt === 'object' && opt !== null ? opt.label : (String(opt).charAt(0).toUpperCase() + String(opt).slice(1));
+      o.value = val;
+      o.textContent = text;
+      if (val === currentVal) o.selected = true;
       select.appendChild(o);
     });
 

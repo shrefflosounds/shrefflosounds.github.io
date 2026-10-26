@@ -189,7 +189,6 @@ export const STARTER_WORLD_ENTITIES = [
   { type: 'crate', variant: 'mega', x: 3600, y: 400, width: 80, height: 80 },
   { type: 'collectible', variant: 'coin', x: 3624, y: 340, width: 32, height: 32 },
   { type: 'crate', variant: 'pipe', x: 3900, y: 400, width: 40, height: 80 },
-  { type: 'collectible', variant: 'coin', x: 3864, y: 350, width: 32, height: 32 },
   { type: 'enemy', variant: 'spiky', x: 3780, y: 440, width: 40, height: 40, speed: 75, patrolRange: 40, stompable: false },
   { type: 'springboard', variant: 'mega', x: 3960, y: 440, width: 40, height: 40, launchForce: 1040 },
   { type: 'hazard', x: 4000, y: 480, width: 40, height: 40 },
@@ -202,10 +201,10 @@ export const STARTER_WORLD_ENTITIES = [
   { type: 'crate', variant: 'stone', x: 4120, y: 520, width: 40, height: 40 },
   { type: 'hazard', x: 4160, y: 480, width: 40, height: 40 },
   { type: 'crate', variant: 'stone', x: 4160, y: 520, width: 40, height: 40 },
-  { type: 'crate', variant: 'slope_up', x: 4200, y: 440, width: 40, height: 40 },
+  { type: 'crate', variant: 'stone_slope_up', x: 4200, y: 440, width: 40, height: 40 },
   { type: 'crate', variant: 'stone', x: 4200, y: 480, width: 40, height: 40 },
   { type: 'crate', variant: 'stone', x: 4200, y: 520, width: 40, height: 40 },
-  { type: 'crate', variant: 'slope_up', x: 4240, y: 400, width: 40, height: 40 },
+  { type: 'crate', variant: 'stone_slope_up', x: 4240, y: 400, width: 40, height: 40 },
   { type: 'crate', variant: 'stone', x: 4240, y: 440, width: 40, height: 40 },
   { type: 'crate', variant: 'stone', x: 4240, y: 480, width: 40, height: 40 },
   { type: 'crate', variant: 'stone', x: 4240, y: 520, width: 40, height: 40 },
@@ -233,11 +232,11 @@ export const STARTER_WORLD_ENTITIES = [
   { type: 'crate', variant: 'stone', x: 5280, y: 480, width: 40, height: 40 },
   { type: 'crate', variant: 'stone', x: 5280, y: 520, width: 40, height: 40 },
   { type: 'enemy', variant: 'walker', x: 5140, y: 360, width: 40, height: 40, speed: 75, patrolRange: 50, stompable: true },
-  { type: 'crate', variant: 'slope_down', x: 5320, y: 400, width: 40, height: 40 },
+  { type: 'crate', variant: 'stone_slope_down', x: 5320, y: 400, width: 40, height: 40 },
   { type: 'crate', variant: 'stone', x: 5320, y: 440, width: 40, height: 40 },
   { type: 'crate', variant: 'stone', x: 5320, y: 480, width: 40, height: 40 },
   { type: 'crate', variant: 'stone', x: 5320, y: 520, width: 40, height: 40 },
-  { type: 'crate', variant: 'slope_down', x: 5360, y: 440, width: 40, height: 40 },
+  { type: 'crate', variant: 'stone_slope_down', x: 5360, y: 440, width: 40, height: 40 },
   { type: 'crate', variant: 'stone', x: 5360, y: 480, width: 40, height: 40 },
   { type: 'crate', variant: 'stone', x: 5360, y: 520, width: 40, height: 40 },
   { type: 'crate', variant: 'solid', x: 5400, y: 480, width: 40, height: 40 },
@@ -341,7 +340,6 @@ export const STARTER_WORLD_ENTITIES = [
   { type: 'crate', variant: 'stone', x: 8360, y: 520, width: 40, height: 40 },
   { type: 'crate', variant: 'mega', x: 7920, y: 400, width: 80, height: 80 },
   { type: 'crate', variant: 'pipe', x: 8880, y: 400, width: 40, height: 80 },
-  { type: 'crate', variant: 'mystery', x: 8800, y: 80, width: 40, height: 40, content: 'heart' },
   { type: 'enemy', variant: 'spiky', x: 8190, y: 440, width: 40, height: 40, speed: 75, patrolRange: 50, stompable: false },
   { type: 'springboard', variant: 'mega', x: 8340, y: 440, width: 40, height: 40, launchForce: 1040 },
   { type: 'hazard', x: 8400, y: 480, width: 40, height: 40 },
@@ -381,7 +379,7 @@ export const STARTER_WORLD_ENTITIES = [
   { type: 'crate', variant: 'stone', x: 8800, y: 360, width: 40, height: 40 },
   { type: 'crate', variant: 'stone', x: 8800, y: 320, width: 40, height: 40 },
   { type: 'crate', variant: 'stone', x: 8800, y: 280, width: 40, height: 40 },
-  { type: 'collectible', variant: 'star', x: 8804, y: 230, width: 32, height: 32 },
+  { type: 'collectible', variant: 'star', x: 8804, y: 110, width: 32, height: 32 },
   { type: 'crate', variant: 'stone', x: 8840, y: 480, width: 40, height: 40 },
   { type: 'crate', variant: 'stone', x: 8840, y: 520, width: 40, height: 40 },
   { type: 'crate', variant: 'stone', x: 8880, y: 480, width: 40, height: 40 },
@@ -402,51 +400,13 @@ export const STARTER_WORLD_ENTITIES = [
   { type: 'crate', variant: 'stone', x: 9160, y: 520, width: 40, height: 40 },
   { type: 'crate', variant: 'stone', x: 9200, y: 480, width: 40, height: 40 },
   { type: 'crate', variant: 'stone', x: 9200, y: 520, width: 40, height: 40 },
-  { type: 'goal', x: 9060, y: 400, width: 48, height: 80 },
-  { type: 'collectible', variant: 'star', x: 9068, y: 330, width: 32, height: 32 },
+  { type: 'goal', x: 9180, y: 400, width: 48, height: 80 },
   { type: 'crate', variant: 'cloud', x: 2280, y: 200, width: 40, height: 40 },
-  { type: 'collectible', variant: 'pistol', x: 244, y: 284, width: 32, height: 32 },
-  { type: 'collectible', variant: 'pistol', x: 244, y: 284, width: 32, height: 32 },
-  { type: 'collectible', variant: 'ammo', x: 1804, y: 304, width: 32, height: 32 },
   { type: 'springboard', variant: 'mega', x: 1560, y: 200, width: 40, height: 40, launchForce: 1040 },
-  { type: 'collectible', variant: 'pistol', x: 244, y: 284, width: 32, height: 32 },
-  { type: 'collectible', variant: 'ammo', x: 1804, y: 304, width: 32, height: 32 },
-  { type: 'collectible', variant: 'ammo', x: 244, y: 284, width: 32, height: 32 },
-  { type: 'collectible', variant: 'ammo', x: 244, y: 284, width: 32, height: 32 },
-  { type: 'collectible', variant: 'ammo', x: 1804, y: 304, width: 32, height: 32 },
-  { type: 'collectible', variant: 'pistol', x: 244, y: 284, width: 32, height: 32 },
-  { type: 'collectible', variant: 'heart', x: 3484, y: 304, width: 32, height: 32 },
-  { type: 'collectible', variant: 'pistol', x: 244, y: 284, width: 32, height: 32 },
-  { type: 'collectible', variant: 'heart', x: 3444, y: 264, width: 32, height: 32 },
-  { type: 'collectible', variant: 'ammo', x: 4284, y: 164, width: 32, height: 32 },
-  { type: 'collectible', variant: 'pistol', x: 244, y: 284, width: 32, height: 32 },
-  { type: 'collectible', variant: 'heart', x: 3444, y: 264, width: 32, height: 32 },
-  { type: 'collectible', variant: 'ammo', x: 4284, y: 204, width: 32, height: 32 },
-  { type: 'collectible', variant: 'pistol', x: 244, y: 284, width: 32, height: 32 },
-  { type: 'collectible', variant: 'ammo', x: 4284, y: 204, width: 32, height: 32 },
   { type: 'crate', variant: 'mystery', x: 5760, y: 200, width: 40, height: 40, content: 'heart' },
   { type: 'springboard', variant: 'spring', x: 7520, y: 240, width: 40, height: 40, launchForce: 840 },
-  { type: 'collectible', variant: 'pistol', x: 244, y: 284, width: 32, height: 32 },
-  { type: 'collectible', variant: 'heart', x: 3444, y: 264, width: 32, height: 32 },
-  { type: 'collectible', variant: 'ammo', x: 4284, y: 204, width: 32, height: 32 },
-  { type: 'collectible', variant: 'heart', x: 5804, y: 164, width: 32, height: 32 },
-  { type: 'collectible', variant: 'heart', x: 5764, y: 164, width: 32, height: 32 },
-  { type: 'collectible', variant: 'ammo', x: 6164, y: 264, width: 32, height: 32 },
-  { type: 'collectible', variant: 'pistol', x: 244, y: 284, width: 32, height: 32 },
-  { type: 'collectible', variant: 'heart', x: 3444, y: 264, width: 32, height: 32 },
-  { type: 'collectible', variant: 'pistol', x: 4284, y: 204, width: 32, height: 32 },
-  { type: 'collectible', variant: 'heart', x: 5804, y: 164, width: 32, height: 32 },
-  { type: 'collectible', variant: 'heart', x: 5764, y: 164, width: 32, height: 32 },
-  { type: 'collectible', variant: 'ammo', x: 6164, y: 264, width: 32, height: 32 },
-  { type: 'collectible', variant: 'ammo', x: 244, y: 284, width: 32, height: 32 },
-  { type: 'collectible', variant: 'heart', x: 3444, y: 264, width: 32, height: 32 },
-  { type: 'collectible', variant: 'heart', x: 5804, y: 164, width: 32, height: 32 },
-  { type: 'collectible', variant: 'heart', x: 5764, y: 164, width: 32, height: 32 },
   { type: 'crate', variant: 'slab', x: 7360, y: 120, width: 40, height: 20 },
   { type: 'crate', variant: 'slab', x: 7400, y: 120, width: 40, height: 20 },
-  { type: 'collectible', variant: 'pistol', x: 244, y: 284, width: 32, height: 32 },
-  { type: 'collectible', variant: 'heart', x: 3444, y: 264, width: 32, height: 32 },
-  { type: 'collectible', variant: 'ammo', x: 4284, y: 204, width: 32, height: 32 },
 ];
 
 export class LevelStorage {
@@ -478,6 +438,7 @@ export class LevelStorage {
     return {
       type: ent.type,
       variant: ent.variant,
+      material: ent.material || null,
       content: ent.content || null,
       x: ent.x,
       y: ent.y,
@@ -503,6 +464,7 @@ export class LevelStorage {
       case 'crate':
       case 'block':
         ent = new SolidBlock(d.x, d.y, d.width, d.height, d.variant || 'solid', d.content || null);
+        if (d.material) ent.material = d.material;
         if (d.bounciness !== undefined) ent.bounciness = d.bounciness;
         if (d.friction !== undefined) ent.friction = d.friction;
         if (d.content) ent.content = d.content;
@@ -593,6 +555,10 @@ export class LevelStorage {
   static autoSave(player, entities, background) {
     // Never overwrite user's work while built-in interactive demo is running
     if (typeof window !== 'undefined' && window.sidehop && window.sidehop.isDemoActive) {
+      return;
+    }
+    // Never overwrite clean level design while active playtest simulation is running
+    if (typeof window !== 'undefined' && window.sidehop && window.sidehop.mode === 'play') {
       return;
     }
     try {

@@ -54,14 +54,18 @@ export class PhysicsEngine {
   }
 
   resolveHorizontalCollisions(entity, solids, prevX) {
+    const isSlope = (s) => s && (s.isSlope || s.variant?.includes('slope'));
+    const isSlopeUp = (s) => s && (s.slopeDirection === 'up' || s.variant?.includes('slope_up'));
+    const isSlopeDown = (s) => s && (s.slopeDirection === 'down' || s.variant?.includes('slope_down'));
+
     for (const solid of solids) {
       if (!solid.active) continue;
       // Skip one-way platforms and angled sloped surfaces horizontally
-      if (solid.isOneWay || solid.variant === 'cloud' || solid.variant === 'semisolid' || solid.variant === 'slope_up' || solid.variant === 'slope_down') continue;
+      if (solid.isOneWay || solid.variant === 'cloud' || solid.variant === 'semisolid' || isSlope(solid)) continue;
 
       // Skip solid blocks that are covered underneath any slope
       const isUnderSlope = solids.some(s =>
-        s.active && (s.variant === 'slope_up' || s.variant === 'slope_down') &&
+        s.active && isSlope(s) &&
         Math.abs(s.x - solid.x) < 2 &&
         solid.y >= s.y + s.height - 2
       );
@@ -79,7 +83,7 @@ export class PhysicsEngine {
 
           // Check if left face is the top junction of an adjoining slope_up
           const connectedSlopeUp = solids.some(s =>
-            s.active && s.variant === 'slope_up' &&
+            s.active && isSlopeUp(s) &&
             Math.abs((s.x + s.width) - solid.x) <= 2 &&
             Math.abs(s.y - solid.y) <= 2
           );
@@ -94,7 +98,7 @@ export class PhysicsEngine {
 
           // Check if right face is the top junction of an adjoining slope_down
           const connectedSlopeDown = solids.some(s =>
-            s.active && s.variant === 'slope_down' &&
+            s.active && isSlopeDown(s) &&
             Math.abs(s.x - (solid.x + solid.width)) <= 2 &&
             Math.abs(s.y - solid.y) <= 2
           );
@@ -108,16 +112,19 @@ export class PhysicsEngine {
   }
 
   resolveVerticalCollisions(entity, solids) {
+    const isSlope = (s) => s && (s.isSlope || s.variant?.includes('slope'));
+    const isSlopeUp = (s) => s && (s.slopeDirection === 'up' || s.variant?.includes('slope_up'));
+
     for (const solid of solids) {
       if (!solid.active) continue;
 
-      // 1. Handle Walkable Slopes / Slants (slope_up and slope_down)
-      if (solid.variant === 'slope_up' || solid.variant === 'slope_down') {
+      // 1. Handle Walkable Slopes / Slants (slope_up and slope_down across all materials)
+      if (isSlope(solid)) {
         if (entity.x + entity.width > solid.x && entity.x < solid.x + solid.width) {
           const px = Math.max(solid.x, Math.min(solid.x + solid.width, entity.x + entity.width / 2));
           const relX = (px - solid.x) / solid.width;
 
-          const surfaceY = solid.variant === 'slope_up'
+          const surfaceY = isSlopeUp(solid)
             ? solid.y + (1 - relX) * solid.height
             : solid.y + relX * solid.height;
 
@@ -202,7 +209,7 @@ export class PhysicsEngine {
     if (!entity.grounded && entity.vy >= 0) {
       for (const solid of solids) {
         if (!solid.active) continue;
-        if (solid.variant === 'slope_up' || solid.variant === 'slope_down') continue;
+        if (solid.isSlope || solid.variant?.includes('slope')) continue;
         const onTop = Math.abs((entity.y + entity.height) - solid.y) <= 1.5;
         const horizAligned = (entity.x + entity.width > solid.x + 2) && (entity.x < solid.x + solid.width - 2);
         if (onTop && horizAligned) {
