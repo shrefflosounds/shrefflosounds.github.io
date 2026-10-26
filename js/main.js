@@ -1,17 +1,17 @@
 // Sidehop Master Application Coordinator — Enhanced Custom Backgrounds, Asset Library & Undo/Redo
 
-import { Player, Bullet, SolidBlock, Collectible } from './engine/entities.js?v=20261025_03';
-import { PhysicsEngine } from './engine/physics.js?v=20261025_03';
-import { Camera } from './engine/camera.js?v=20261025_03';
-import { GridEditor } from './editor/grid.js?v=20261025_03';
-import { ArtStudio } from './editor/paint.js?v=20261025_03';
-import { Inspector } from './editor/inspector.js?v=20261025_03';
-import { VideoRecorder } from './recorder/recorder.js?v=20261025_03';
-import { LevelStorage } from './storage/storage.js?v=20261025_03';
-import { HistoryManager } from './editor/history.js?v=20261025_03';
-import { sounds } from './audio/sound.js?v=20261025_03';
-import { SidehopFile } from './storage/sidehop-format.js?v=20261025_03';
-import { SidehopDemo } from './editor/demo.js?v=20261025_03';
+import { Player, Bullet, SolidBlock, Collectible } from './engine/entities.js?v=20261026_03';
+import { PhysicsEngine } from './engine/physics.js?v=20261026_03';
+import { Camera } from './engine/camera.js?v=20261026_03';
+import { GridEditor } from './editor/grid.js?v=20261026_03';
+import { ArtStudio } from './editor/paint.js?v=20261026_03';
+import { Inspector } from './editor/inspector.js?v=20261026_03';
+import { VideoRecorder } from './recorder/recorder.js?v=20261026_03';
+import { LevelStorage } from './storage/storage.js?v=20261026_03';
+import { HistoryManager } from './editor/history.js?v=20261026_03';
+import { sounds } from './audio/sound.js?v=20261026_03';
+import { SidehopFile } from './storage/sidehop-format.js?v=20261026_03';
+import { SidehopDemo } from './editor/demo.js?v=20261026_03';
 
 class SidehopApp {
   constructor() {
