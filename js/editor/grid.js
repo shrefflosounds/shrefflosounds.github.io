@@ -597,8 +597,44 @@ export class GridEditor {
       ctx.strokeStyle = '#00E5FF';
       ctx.lineWidth = 2;
       ctx.setLineDash([4, 4]);
-      ctx.fillRect(0, 0, gw, gh);
-      ctx.strokeRect(0, 0, gw, gh);
+
+      const v = this.selectedPaletteVariant || '';
+      if (v.includes('slope_ceil_up')) {
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.lineTo(gw, 0);
+        ctx.lineTo(0, gh);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+      } else if (v.includes('slope_ceil_down')) {
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.lineTo(gw, 0);
+        ctx.lineTo(gw, gh);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+      } else if (v.includes('slope_up')) {
+        ctx.beginPath();
+        ctx.moveTo(0, gh);
+        ctx.lineTo(gw, 0);
+        ctx.lineTo(gw, gh);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+      } else if (v.includes('slope_down')) {
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.lineTo(gw, gh);
+        ctx.lineTo(0, gh);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+      } else {
+        ctx.fillRect(0, 0, gw, gh);
+        ctx.strokeRect(0, 0, gw, gh);
+      }
       ctx.restore();
     } else if (this.currentTool === 'erase') {
       const ghostScreen = this.camera.worldToScreen(this.hoverGrid.x, this.hoverGrid.y);

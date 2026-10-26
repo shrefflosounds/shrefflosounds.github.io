@@ -103,9 +103,11 @@ export class Inspector {
       const shapeOptions = [
         { value: 'square', label: '■ Full Square Block' },
         { value: 'slope_up', label: '◢ Slope Up (45° Incline ↗)' },
-        { value: 'slope_down', label: '◣ Slope Down (45° Decline ↘)' }
+        { value: 'slope_down', label: '◣ Slope Down (45° Decline ↘)' },
+        { value: 'slope_ceil_up', label: '◤ Inverted Slope Up (45° ↗)' },
+        { value: 'slope_ceil_down', label: '◥ Inverted Slope Down (45° ↘)' }
       ];
-      const currentShape = ent.isSlope ? (ent.slopeDirection === 'up' ? 'slope_up' : 'slope_down') : 'square';
+      const currentShape = ent.isSlope ? (`slope_${ent.slopeDirection}`) : 'square';
       this.addSelect('Block Shape', currentShape, shapeOptions, (shape) => {
         const mat = ent.effectiveMaterial || 'solid';
         if (shape === 'square') {
@@ -114,6 +116,10 @@ export class Inspector {
           ent.setVariant(mat === 'stone' ? 'stone_slope_up' : mat === 'ice' ? 'ice_slope_up' : 'slope_up');
         } else if (shape === 'slope_down') {
           ent.setVariant(mat === 'stone' ? 'stone_slope_down' : mat === 'ice' ? 'ice_slope_down' : 'slope_down');
+        } else if (shape === 'slope_ceil_up') {
+          ent.setVariant(mat === 'stone' ? 'stone_slope_ceil_up' : mat === 'ice' ? 'ice_slope_ceil_up' : 'slope_ceil_up');
+        } else if (shape === 'slope_ceil_down') {
+          ent.setVariant(mat === 'stone' ? 'stone_slope_ceil_down' : mat === 'ice' ? 'ice_slope_ceil_down' : 'slope_ceil_down');
         }
       });
 
@@ -128,10 +134,15 @@ export class Inspector {
       this.addSelect('Surface Material', currentMat, materialOptions, (mat) => {
         ent.material = mat;
         if (ent.isSlope) {
-          if (ent.slopeDirection === 'up') {
+          const dir = ent.slopeDirection;
+          if (dir === 'up') {
             ent.setVariant(mat === 'stone' ? 'stone_slope_up' : mat === 'ice' ? 'ice_slope_up' : 'slope_up');
-          } else {
+          } else if (dir === 'down') {
             ent.setVariant(mat === 'stone' ? 'stone_slope_down' : mat === 'ice' ? 'ice_slope_down' : 'slope_down');
+          } else if (dir === 'ceil_up') {
+            ent.setVariant(mat === 'stone' ? 'stone_slope_ceil_up' : mat === 'ice' ? 'ice_slope_ceil_up' : 'slope_ceil_up');
+          } else if (dir === 'ceil_down') {
+            ent.setVariant(mat === 'stone' ? 'stone_slope_ceil_down' : mat === 'ice' ? 'ice_slope_ceil_down' : 'slope_ceil_down');
           }
         } else {
           ent.setVariant(mat);

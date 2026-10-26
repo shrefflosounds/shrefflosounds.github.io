@@ -73,6 +73,7 @@ class SidehopApp {
 
     // Component Flyout State & Stored Type Selections
     this.activeFlyoutItem = null;
+    this.activeFlyoutSubmenu = { block: 'turf' };
     this.activeComponentVariants = {
       block: 'solid',
       springboard: 'spring',
@@ -2051,29 +2052,57 @@ class SidehopApp {
     });
   }
 
-  // Definitions of Mario Maker-style component types / variants
+  // Definitions of Mario Maker-style component types / variants with intuitive submenus
   getVariantDefs() {
+    const turfVariants = [
+      { id: 'solid', icon: '🟩', name: 'Solid Ground', desc: 'Standard solid block platform', shortName: 'Solid' },
+      { id: 'slope_up', icon: '◢', name: 'Turf Slope Up (45°)', desc: 'Walkable turf incline hill slant ↗', shortName: 'Slope Up' },
+      { id: 'slope_down', icon: '◣', name: 'Turf Slope Down (45°)', desc: 'Walkable turf decline hill slant ↘', shortName: 'Slope Down' },
+      { id: 'slope_ceil_up', icon: '◤', name: 'Turf Inverted Slope Up (45°)', desc: 'Upside-down slant / smooth underside ↗', shortName: 'Ceil Up' },
+      { id: 'slope_ceil_down', icon: '◥', name: 'Turf Inverted Slope Down (45°)', desc: 'Upside-down slant / smooth underside ↘', shortName: 'Ceil Down' }
+    ];
+
+    const stoneVariants = [
+      { id: 'stone', icon: '🪨', name: 'Stone Block', desc: 'Chiseled fortress stone masonry', shortName: 'Stone' },
+      { id: 'stone_slope_up', icon: '🪨◢', name: 'Stone Slope Up (45°)', desc: 'Chiseled stone incline slant ↗', shortName: 'Stone Up' },
+      { id: 'stone_slope_down', icon: '🪨◣', name: 'Stone Slope Down (45°)', desc: 'Chiseled stone decline slant ↘', shortName: 'Stone Down' },
+      { id: 'stone_slope_ceil_up', icon: '🪨◤', name: 'Stone Inverted Slope Up (45°)', desc: 'Chiseled stone ceiling slant ↗', shortName: 'Stone Ceil Up' },
+      { id: 'stone_slope_ceil_down', icon: '🪨◥', name: 'Stone Inverted Slope Down (45°)', desc: 'Chiseled stone ceiling slant ↘', shortName: 'Stone Ceil Down' }
+    ];
+
+    const iceVariants = [
+      { id: 'ice', icon: '🧊', name: 'Sliding Block', desc: 'Low-friction slippery ice surface', shortName: 'Ice' },
+      { id: 'ice_slope_up', icon: '🧊◢', name: 'Ice Slope Up (45°)', desc: 'Low-friction ice incline slant ↗', shortName: 'Ice Up' },
+      { id: 'ice_slope_down', icon: '🧊◣', name: 'Ice Slope Down (45°)', desc: 'Low-friction ice decline slant ↘', shortName: 'Ice Down' },
+      { id: 'ice_slope_ceil_up', icon: '🧊◤', name: 'Ice Inverted Slope Up (45°)', desc: 'Low-friction ice ceiling slant ↗', shortName: 'Ice Ceil Up' },
+      { id: 'ice_slope_ceil_down', icon: '🧊◥', name: 'Ice Inverted Slope Down (45°)', desc: 'Low-friction ice ceiling slant ↘', shortName: 'Ice Ceil Down' }
+    ];
+
+    const specialVariants = [
+      { id: 'semisolid', icon: '🪵', name: 'Jump-thru Platform', desc: 'Jump through from below, stand on top', shortName: 'Semi-Solid' },
+      { id: 'donut', icon: '🍩', name: 'Donut Drop', desc: 'Drops and falls when stood upon', shortName: 'Donut Lift' },
+      { id: 'note', icon: '🎵', name: 'Note Block', desc: 'Super bouncy musical trampoline block', shortName: 'Note Block' },
+      { id: 'mystery', icon: '❓', name: 'Mystery Block', desc: 'Breakable surprise block [?]', shortName: 'Mystery' },
+      { id: 'cloud', icon: '☁️', name: 'Cloud Platform', desc: 'Soft floating cloud block', shortName: 'Cloud' },
+      { id: 'slab', icon: '🪨', name: 'Half-Block (40x20)', desc: 'Half-height stepping stone block', shortName: 'Half Slab' },
+      { id: 'mega', icon: '❇️', name: 'Mega Block (80x80)', desc: 'Giant 2x2 fortress block', shortName: 'Mega Block' },
+      { id: 'pipe', icon: '♻️', name: 'Warp Pipe (40x80)', desc: 'Tall iconic 2-tile pipe column', shortName: 'Pipe' }
+    ];
+
     return {
       block: {
         title: 'BLOCK & SLOPE TYPES',
+        submenus: [
+          { id: 'turf', name: 'Ground', icon: '🟩', variants: turfVariants },
+          { id: 'stone', name: 'Stone', icon: '🪨', variants: stoneVariants },
+          { id: 'ice', name: 'Ice', icon: '🧊', variants: iceVariants },
+          { id: 'special', name: 'Special', icon: '✨', variants: specialVariants }
+        ],
         variants: [
-          { id: 'solid', icon: '🟩', name: 'Solid Ground', desc: 'Standard solid block platform', shortName: 'Solid' },
-          { id: 'slope_up', icon: '◢', name: 'Turf Slope Up (45°)', desc: 'Walkable turf incline hill slant', shortName: 'Slope Up' },
-          { id: 'slope_down', icon: '◣', name: 'Turf Slope Down (45°)', desc: 'Walkable turf decline hill slant', shortName: 'Slope Down' },
-          { id: 'stone', icon: '🪨', name: 'Stone Block', desc: 'Chiseled fortress stone masonry', shortName: 'Stone' },
-          { id: 'stone_slope_up', icon: '🪨◢', name: 'Stone Slope Up (45°)', desc: 'Chiseled stone incline slant', shortName: 'Stone Slope Up' },
-          { id: 'stone_slope_down', icon: '🪨◣', name: 'Stone Slope Down (45°)', desc: 'Chiseled stone decline slant', shortName: 'Stone Slope Down' },
-          { id: 'ice', icon: '🧊', name: 'Sliding Block', desc: 'Low-friction slippery surface', shortName: 'Ice' },
-          { id: 'ice_slope_up', icon: '🧊◢', name: 'Ice Slope Up (45°)', desc: 'Low-friction ice incline slant', shortName: 'Ice Slope Up' },
-          { id: 'ice_slope_down', icon: '🧊◣', name: 'Ice Slope Down (45°)', desc: 'Low-friction ice decline slant', shortName: 'Ice Slope Down' },
-          { id: 'semisolid', icon: '🪵', name: 'Jump-thru Platform', desc: 'Jump through from below, stand on top', shortName: 'Semi-Solid' },
-          { id: 'slab', icon: '🪨', name: 'Half-Block (40x20)', desc: 'Half-height stepping stone block', shortName: 'Half Slab' },
-          { id: 'mega', icon: '❇️', name: 'Mega Block (80x80)', desc: 'Giant 2x2 fortress block', shortName: 'Mega Block' },
-          { id: 'pipe', icon: '♻️', name: 'Warp Pipe (40x80)', desc: 'Tall iconic 2-tile pipe column', shortName: 'Pipe' },
-          { id: 'donut', icon: '🍩', name: 'Donut Drop', desc: 'Drops and falls when stood upon', shortName: 'Donut Lift' },
-          { id: 'note', icon: '🎵', name: 'Note Block', desc: 'Super bouncy musical trampoline block', shortName: 'Note Block' },
-          { id: 'mystery', icon: '❓', name: 'Mystery Block', desc: 'Breakable surprise block [?]', shortName: 'Mystery' },
-          { id: 'cloud', icon: '☁️', name: 'Cloud', desc: 'Soft floating cloud block', shortName: 'Cloud' }
+          ...turfVariants,
+          ...stoneVariants,
+          ...iceVariants,
+          ...specialVariants
         ]
       },
       springboard: {
@@ -2108,6 +2137,7 @@ class SidehopApp {
   openComponentFlyout(item, anchorEl) {
     const flyout = document.getElementById('component-flyout-menu');
     const titleEl = document.getElementById('flyout-title');
+    const submenusBar = document.getElementById('flyout-submenus-bar');
     const optionsList = document.getElementById('flyout-options-list');
     if (!flyout || !titleEl || !optionsList) return;
 
@@ -2122,34 +2152,72 @@ class SidehopApp {
 
     this.activeFlyoutItem = item;
     titleEl.textContent = defs.title;
-    optionsList.innerHTML = '';
-
     const currentVariant = this.activeComponentVariants[item] || defs.variants[0].id;
 
-    defs.variants.forEach(v => {
-      const btn = document.createElement('button');
-      btn.className = `flyout-option-btn ${currentVariant === v.id ? 'active' : ''}`;
-      btn.innerHTML = `
-        <span class="flyout-option-icon">${v.icon}</span>
-        <div class="flyout-option-text">
-          <span class="flyout-option-name">${v.name}</span>
-          <span class="flyout-option-desc">${v.desc}</span>
-        </div>
-      `;
-      btn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        this.selectComponentVariant(item, v.id, v.icon, v.shortName);
+    const renderOptionsForList = (variantList) => {
+      optionsList.innerHTML = '';
+      variantList.forEach(v => {
+        const btn = document.createElement('button');
+        btn.className = `flyout-option-btn ${this.activeComponentVariants[item] === v.id ? 'active' : ''}`;
+        btn.innerHTML = `
+          <span class="flyout-option-icon">${v.icon}</span>
+          <div class="flyout-option-text">
+            <span class="flyout-option-name">${v.name}</span>
+            <span class="flyout-option-desc">${v.desc}</span>
+          </div>
+        `;
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          this.selectComponentVariant(item, v.id, v.icon, v.shortName);
+        });
+        optionsList.appendChild(btn);
       });
-      optionsList.appendChild(btn);
-    });
+      optionsList.scrollTop = 0;
+    };
+
+    if (defs.submenus && defs.submenus.length > 0) {
+      if (submenusBar) {
+        submenusBar.style.display = 'flex';
+        submenusBar.innerHTML = '';
+
+        // Auto-detect which submenu contains current active variant if not explicitly set
+        let activeSubId = this.activeFlyoutSubmenu[item];
+        if (!activeSubId || !defs.submenus.some(s => s.id === activeSubId)) {
+          const found = defs.submenus.find(s => s.variants.some(v => v.id === currentVariant));
+          activeSubId = found ? found.id : defs.submenus[0].id;
+          this.activeFlyoutSubmenu[item] = activeSubId;
+        }
+
+        defs.submenus.forEach(sub => {
+          const tabBtn = document.createElement('button');
+          tabBtn.className = `flyout-tab-btn ${sub.id === activeSubId ? 'active' : ''}`;
+          tabBtn.innerHTML = `<span>${sub.icon}</span><span>${sub.name}</span>`;
+          tabBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            this.activeFlyoutSubmenu[item] = sub.id;
+            submenusBar.querySelectorAll('.flyout-tab-btn').forEach(tb => tb.classList.remove('active'));
+            tabBtn.classList.add('active');
+            renderOptionsForList(sub.variants);
+            sounds.playClick();
+          });
+          submenusBar.appendChild(tabBtn);
+        });
+
+        const currentSub = defs.submenus.find(s => s.id === activeSubId) || defs.submenus[0];
+        renderOptionsForList(currentSub.variants);
+      }
+    } else {
+      if (submenusBar) {
+        submenusBar.style.display = 'none';
+        submenusBar.innerHTML = '';
+      }
+      renderOptionsForList(defs.variants);
+    }
 
     // Mark active state on triangle button
     document.querySelectorAll('.palette-triangle-btn').forEach(tb => {
       tb.classList.toggle('active', tb.getAttribute('data-triangle') === item);
     });
-
-    // Reset scroll to top
-    optionsList.scrollTop = 0;
 
     // Show flyout to position and constrain
     flyout.style.display = 'flex';
@@ -2196,6 +2264,13 @@ class SidehopApp {
   selectComponentVariant(item, variantId, icon, shortName) {
     this.activeComponentVariants[item] = variantId;
     this.editor.setPaletteItem(item, variantId);
+
+    // Keep active submenu synced to chosen variant
+    const defs = this.getVariantDefs()[item];
+    if (defs?.submenus) {
+      const match = defs.submenus.find(s => s.variants.some(v => v.id === variantId));
+      if (match) this.activeFlyoutSubmenu[item] = match.id;
+    }
 
     // Update palette button label and icon
     const iconEl = document.getElementById(`palette-icon-${item}`);

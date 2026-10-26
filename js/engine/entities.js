@@ -431,15 +431,24 @@ export class SolidBlock extends Entity {
 
   get isSlope() {
     return this.variant === 'slope_up' || this.variant === 'slope_down' ||
+           this.variant === 'slope_ceil_up' || this.variant === 'slope_ceil_down' ||
            this.variant === 'stone_slope_up' || this.variant === 'stone_slope_down' ||
+           this.variant === 'stone_slope_ceil_up' || this.variant === 'stone_slope_ceil_down' ||
            this.variant === 'ice_slope_up' || this.variant === 'ice_slope_down' ||
+           this.variant === 'ice_slope_ceil_up' || this.variant === 'ice_slope_ceil_down' ||
            this.variant.includes('slope');
   }
 
   get slopeDirection() {
+    if (this.variant.includes('slope_ceil_up')) return 'ceil_up';
+    if (this.variant.includes('slope_ceil_down')) return 'ceil_down';
     if (this.variant.includes('slope_up')) return 'up';
     if (this.variant.includes('slope_down')) return 'down';
     return null;
+  }
+
+  get isCeilingSlope() {
+    return this.slopeDirection === 'ceil_up' || this.slopeDirection === 'ceil_down';
   }
 
   get effectiveMaterial() {
@@ -473,11 +482,12 @@ export class SolidBlock extends Entity {
 
   setVariant(variant) {
     this.variant = variant;
-    if (variant === 'stone_slope_up' || variant === 'stone_slope_down' || variant === 'stone') this.material = 'stone';
-    else if (variant === 'ice_slope_up' || variant === 'ice_slope_down' || variant === 'ice') this.material = 'ice';
+    if (variant.startsWith('stone_') || variant === 'stone') this.material = 'stone';
+    else if (variant.startsWith('ice_') || variant === 'ice') this.material = 'ice';
+    else if (variant.startsWith('cloud_') || variant === 'cloud') this.material = 'cloud';
     else if (variant === 'solid') this.material = 'solid';
 
-    this.friction = (variant === 'ice' || variant === 'ice_slope_up' || variant === 'ice_slope_down') ? 0.12 : 1.0;
+    this.friction = (variant === 'ice' || variant.includes('ice_slope')) ? 0.12 : 1.0;
     this.isOneWay = (variant === 'cloud' || variant === 'semisolid');
     this.bounciness = variant === 'note' ? 0.95 : 0.0;
 
@@ -485,7 +495,7 @@ export class SolidBlock extends Entity {
     else if (variant === 'slab') { this.width = 40; this.height = 20; }
     else if (variant === 'pipe') { this.width = 40; this.height = 80; }
     else if (this.width !== 40 || this.height !== 40) {
-      if (['solid', 'slope_up', 'slope_down', 'stone_slope_up', 'stone_slope_down', 'ice_slope_up', 'ice_slope_down', 'semisolid', 'donut', 'note', 'mystery', 'ice', 'cloud', 'stone'].includes(variant)) {
+      if (!['mega', 'slab', 'pipe'].includes(variant)) {
         this.width = 40;
         this.height = 40;
       }
@@ -584,38 +594,39 @@ export class SolidBlock extends Entity {
       return otherMat !== 'stone' && otherMat !== 'ice';
     };
 
-    const hasTop = Boolean(topEnt && topEnt !== this && isSolidOpaque(topEnt));
-    const hasBottom = Boolean(bottomEnt && bottomEnt !== this && isSolidOpaque(bottomEnt));
+    // Top & Bottom neighbor connections
+    const hasTop = Boolean(topEnt && topEnt !== this && matchesMat(topEnt) && (myDir === 'ceil_up' || myDir === 'ceil_down' || !isSlope));
+    const hasBottom = Boolean(bottomEnt && bottomEnt !== this && matchesMat(bottomEnt) && (myDir === 'up' || myDir === 'down' || !isSlope));
 
     // Left neighbor connection:
-    // 1. If this is a slope_down, it connects to leftEnt if leftEnt is opaque and matches material
-    // 2. If this is a slope_up, left face is open/exposed (height=0 at x=0)
-    // 3. If this is a square block, connects to leftEnt if leftEnt matches material and is either a square block or slope_up!
+    // 1. If this is a slope_down or ceil_up, left face is full height (40px)
+    // 2. If this is a slope_up or ceil_down, left face tapers to a point
+    // 3. If this is a square block, connects to leftEnt if leftEnt is square, slope_up, or ceil_down
     let hasLeft = false;
     if (leftEnt && leftEnt !== this && matchesMat(leftEnt)) {
       if (isSlope) {
-        if (myDir === 'down') {
+        if (myDir === 'down' || myDir === 'ceil_up') {
           hasLeft = true;
         }
       } else {
-        if (!leftEnt.isSlope || leftEnt.slopeDirection === 'up') {
+        if (!leftEnt.isSlope || leftEnt.slopeDirection === 'up' || leftEnt.slopeDirection === 'ceil_down') {
           hasLeft = true;
         }
       }
     }
 
     // Right neighbor connection:
-    // 1. If this is a slope_up, it connects to rightEnt if rightEnt is opaque and matches material
-    // 2. If this is a slope_down, right face is open/exposed (height=0 at x=40)
-    // 3. If this is a square block, connects to rightEnt if rightEnt matches material and is either a square block or slope_down!
+    // 1. If this is a slope_up or ceil_down, right face is full height (40px)
+    // 2. If this is a slope_down or ceil_up, right face tapers to a point
+    // 3. If this is a square block, connects to rightEnt if rightEnt is square, slope_down, or ceil_up
     let hasRight = false;
     if (rightEnt && rightEnt !== this && matchesMat(rightEnt)) {
       if (isSlope) {
-        if (myDir === 'up') {
+        if (myDir === 'up' || myDir === 'ceil_down') {
           hasRight = true;
         }
       } else {
-        if (!rightEnt.isSlope || rightEnt.slopeDirection === 'down') {
+        if (!rightEnt.isSlope || rightEnt.slopeDirection === 'down' || rightEnt.slopeDirection === 'ceil_up') {
           hasRight = true;
         }
       }
@@ -767,6 +778,26 @@ export class SolidBlock extends Entity {
             ctx.fillStyle = pal.dirtBase;
             ctx.fill();
             ctx.clip();
+          } else if (this.isSlope && this.slopeDirection === 'ceil_up') {
+            // 45° Inverted Incline Triangle Clipping (Top-Left)
+            ctx.beginPath();
+            ctx.moveTo(0, 0);
+            ctx.lineTo(this.width, 0);
+            ctx.lineTo(0, this.height);
+            ctx.closePath();
+            ctx.fillStyle = pal.dirtBase;
+            ctx.fill();
+            ctx.clip();
+          } else if (this.isSlope && this.slopeDirection === 'ceil_down') {
+            // 45° Inverted Decline Triangle Clipping (Top-Right)
+            ctx.beginPath();
+            ctx.moveTo(0, 0);
+            ctx.lineTo(this.width, 0);
+            ctx.lineTo(this.width, this.height);
+            ctx.closePath();
+            ctx.fillStyle = pal.dirtBase;
+            ctx.fill();
+            ctx.clip();
           } else {
             // Square & rectangular blocks: retain solid square block shape
             ctx.fillStyle = pal.dirtBase; // Themed block base backing
@@ -809,6 +840,20 @@ export class SolidBlock extends Entity {
             ctx.moveTo(0, 0);
             ctx.lineTo(this.width, this.height);
             ctx.lineTo(0, this.height);
+            ctx.closePath();
+            ctx.stroke();
+          } else if (this.isSlope && this.slopeDirection === 'ceil_up') {
+            ctx.beginPath();
+            ctx.moveTo(0, 0);
+            ctx.lineTo(this.width, 0);
+            ctx.lineTo(0, this.height);
+            ctx.closePath();
+            ctx.stroke();
+          } else if (this.isSlope && this.slopeDirection === 'ceil_down') {
+            ctx.beginPath();
+            ctx.moveTo(0, 0);
+            ctx.lineTo(this.width, 0);
+            ctx.lineTo(this.width, this.height);
             ctx.closePath();
             ctx.stroke();
           } else {
@@ -1213,6 +1258,368 @@ export class SolidBlock extends Entity {
           }
           if (!hasBottom) {
             ctx.moveTo(0, this.height);
+            ctx.lineTo(this.width, this.height);
+          }
+          ctx.stroke();
+        }
+      }
+
+      // 3. SLANT CEILING UP (45° Inverted Incline ◤ - smooth underside for slope_up)
+      else if (this.isSlope && this.slopeDirection === 'ceil_up') {
+        const { hasTop, hasBottom, hasLeft, hasRight } = this.getNeighbors();
+        const mat = this.effectiveMaterial;
+
+        if (mat === 'stone') {
+          // Castle Stone Inverted Slope Up
+          ctx.beginPath();
+          ctx.moveTo(0, 0);
+          ctx.lineTo(this.width + (hasRight ? 0.5 : 0), 0);
+          ctx.lineTo(0, this.height + (hasBottom ? 0.5 : 0));
+          ctx.closePath();
+          ctx.fillStyle = '#9E9E9E';
+          ctx.fill();
+
+          // Underside chiseled highlight
+          ctx.strokeStyle = '#EEEEEE';
+          ctx.lineWidth = 2.5;
+          ctx.beginPath();
+          ctx.moveTo(0, this.height);
+          ctx.lineTo(this.width, 0);
+          ctx.stroke();
+
+          ctx.strokeStyle = '#616161';
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          if (!hasTop) {
+            ctx.moveTo(0, 2);
+            ctx.lineTo(this.width, 2);
+          }
+          if (!hasLeft) {
+            ctx.moveTo(2, 0);
+            ctx.lineTo(2, this.height);
+          }
+          ctx.stroke();
+
+          // Central carving bevel
+          ctx.strokeStyle = 'rgba(18, 18, 18, 0.35)';
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.moveTo(8, 8);
+          ctx.lineTo(this.width - 14, 8);
+          ctx.lineTo(8, this.height - 14);
+          ctx.closePath();
+          ctx.stroke();
+
+          // Outlines on exposed faces
+          ctx.strokeStyle = '#121212';
+          ctx.lineWidth = 3;
+          ctx.lineCap = 'square';
+          ctx.beginPath();
+          ctx.moveTo(0, this.height);
+          ctx.lineTo(this.width, 0);
+          if (!hasTop) {
+            ctx.moveTo(0, 0);
+            ctx.lineTo(this.width, 0);
+          }
+          if (!hasLeft) {
+            ctx.moveTo(0, 0);
+            ctx.lineTo(0, this.height);
+          }
+          ctx.stroke();
+        } else if (mat === 'ice') {
+          // Slippery Ice Inverted Slope Up (seamless underside for slope_up)
+          ctx.beginPath();
+          ctx.moveTo(0, 0);
+          ctx.lineTo(this.width + (hasRight ? 0.5 : 0), 0);
+          ctx.lineTo(0, this.height + (hasBottom ? 0.5 : 0));
+          ctx.closePath();
+          ctx.fillStyle = '#B2EBF2'; // Matching Ice Block base
+          ctx.fill();
+
+          // Underside Glossy Sheen Band:
+          // Follows the 45° diagonal underside from (0, this.height) to (this.width, 0)
+          ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+          ctx.beginPath();
+          ctx.moveTo(0, this.height - 8);
+          ctx.lineTo(this.width - 8, 0);
+          ctx.lineTo(this.width, 0);
+          ctx.lineTo(0, this.height);
+          ctx.closePath();
+          ctx.fill();
+
+          // Underside edge white specular line
+          ctx.strokeStyle = '#FFFFFF';
+          ctx.lineWidth = 2.5;
+          ctx.beginPath();
+          ctx.moveTo(0, this.height);
+          ctx.lineTo(this.width, 0);
+          ctx.stroke();
+
+          // Crystalline facet chevron matching Ice Block cyan style
+          ctx.strokeStyle = 'rgba(0, 184, 212, 0.7)';
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.moveTo(8, 10);
+          ctx.lineTo(18, 16);
+          ctx.lineTo(24, 6);
+          ctx.stroke();
+
+          // Outlines ONLY on exposed faces!
+          ctx.strokeStyle = '#121212';
+          ctx.lineWidth = 3;
+          ctx.lineCap = 'square';
+          ctx.beginPath();
+          ctx.moveTo(0, this.height);
+          ctx.lineTo(this.width, 0);
+          if (!hasTop) {
+            ctx.moveTo(0, 0);
+            ctx.lineTo(this.width, 0);
+          }
+          if (!hasLeft) {
+            ctx.moveTo(0, 0);
+            ctx.lineTo(0, this.height);
+          }
+          ctx.stroke();
+        } else {
+          // Themed Dirt Fill
+          ctx.beginPath();
+          ctx.moveTo(0, 0);
+          ctx.lineTo(this.width + (hasRight ? 0.5 : 0), 0);
+          ctx.lineTo(0, this.height + (hasBottom ? 0.5 : 0));
+          ctx.closePath();
+          ctx.fillStyle = pal.dirtBase;
+          ctx.fill();
+
+          // Dirt specks inside top-left triangle
+          ctx.fillStyle = pal.speckDark;
+          ctx.fillRect(8, 10, 4, 3);
+          ctx.fillRect(16, 6, 3, 4);
+          ctx.fillStyle = pal.speckLight;
+          ctx.fillRect(12, 18, 4, 3);
+          ctx.fillStyle = pal.speckMid;
+          ctx.fillRect(6, 24, 4, 3);
+
+          // Turf cap ONLY if top is exposed (!hasTop)
+          if (!hasTop) {
+            ctx.beginPath();
+            ctx.moveTo(0, 0);
+            ctx.lineTo(this.width, 0);
+            ctx.lineTo(this.width, 6);
+            ctx.lineTo(0, 8);
+            ctx.closePath();
+            ctx.fillStyle = pal.turfMain;
+            ctx.fill();
+
+            ctx.strokeStyle = pal.turfHighlight;
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(0, 0);
+            ctx.lineTo(this.width, 0);
+            ctx.stroke();
+          }
+
+          // Underside shadow band along diagonal
+          ctx.strokeStyle = pal.turfShadow;
+          ctx.lineWidth = 2.5;
+          ctx.beginPath();
+          ctx.moveTo(0, this.height);
+          ctx.lineTo(this.width, 0);
+          ctx.stroke();
+
+          // Outlines on exposed faces
+          ctx.strokeStyle = '#121212';
+          ctx.lineWidth = 3;
+          ctx.lineCap = 'square';
+          ctx.beginPath();
+          ctx.moveTo(0, this.height);
+          ctx.lineTo(this.width, 0);
+          if (!hasTop) {
+            ctx.moveTo(0, 0);
+            ctx.lineTo(this.width, 0);
+          }
+          if (!hasLeft) {
+            ctx.moveTo(0, 0);
+            ctx.lineTo(0, this.height);
+          }
+          ctx.stroke();
+        }
+      }
+
+      // 4. SLANT CEILING DOWN (45° Inverted Decline ◥ - smooth underside for slope_down)
+      else if (this.isSlope && this.slopeDirection === 'ceil_down') {
+        const { hasTop, hasBottom, hasLeft, hasRight } = this.getNeighbors();
+        const mat = this.effectiveMaterial;
+
+        if (mat === 'stone') {
+          // Castle Stone Inverted Slope Down
+          ctx.beginPath();
+          ctx.moveTo(0, 0);
+          ctx.lineTo(this.width + (hasLeft ? 0.5 : 0), 0);
+          ctx.lineTo(this.width + (hasLeft ? 0.5 : 0), this.height + (hasBottom ? 0.5 : 0));
+          ctx.closePath();
+          ctx.fillStyle = '#9E9E9E';
+          ctx.fill();
+
+          // Underside chiseled highlight
+          ctx.strokeStyle = '#EEEEEE';
+          ctx.lineWidth = 2.5;
+          ctx.beginPath();
+          ctx.moveTo(0, 0);
+          ctx.lineTo(this.width, this.height);
+          ctx.stroke();
+
+          ctx.strokeStyle = '#616161';
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          if (!hasTop) {
+            ctx.moveTo(0, 2);
+            ctx.lineTo(this.width, 2);
+          }
+          if (!hasRight) {
+            ctx.moveTo(this.width - 2, 0);
+            ctx.lineTo(this.width - 2, this.height);
+          }
+          ctx.stroke();
+
+          // Central carving bevel
+          ctx.strokeStyle = 'rgba(18, 18, 18, 0.35)';
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.moveTo(this.width - 8, 8);
+          ctx.lineTo(14, 8);
+          ctx.lineTo(this.width - 8, this.height - 14);
+          ctx.closePath();
+          ctx.stroke();
+
+          // Outlines on exposed faces
+          ctx.strokeStyle = '#121212';
+          ctx.lineWidth = 3;
+          ctx.lineCap = 'square';
+          ctx.beginPath();
+          ctx.moveTo(0, 0);
+          ctx.lineTo(this.width, this.height);
+          if (!hasTop) {
+            ctx.moveTo(0, 0);
+            ctx.lineTo(this.width, 0);
+          }
+          if (!hasRight) {
+            ctx.moveTo(this.width, 0);
+            ctx.lineTo(this.width, this.height);
+          }
+          ctx.stroke();
+        } else if (mat === 'ice') {
+          // Slippery Ice Inverted Slope Down (seamless underside for slope_down)
+          ctx.beginPath();
+          ctx.moveTo(0, 0);
+          ctx.lineTo(this.width + (hasLeft ? 0.5 : 0), 0);
+          ctx.lineTo(this.width + (hasLeft ? 0.5 : 0), this.height + (hasBottom ? 0.5 : 0));
+          ctx.closePath();
+          ctx.fillStyle = '#B2EBF2'; // Matching Ice Block base
+          ctx.fill();
+
+          // Underside Glossy Sheen Band:
+          // Follows the 45° diagonal underside from (0, 0) to (this.width, this.height)
+          ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+          ctx.beginPath();
+          ctx.moveTo(0, 0);
+          ctx.lineTo(8, 0);
+          ctx.lineTo(this.width, this.height - 8);
+          ctx.lineTo(this.width, this.height);
+          ctx.closePath();
+          ctx.fill();
+
+          // Underside edge white specular line
+          ctx.strokeStyle = '#FFFFFF';
+          ctx.lineWidth = 2.5;
+          ctx.beginPath();
+          ctx.moveTo(0, 0);
+          ctx.lineTo(this.width, this.height);
+          ctx.stroke();
+
+          // Crystalline facet chevron matching Ice Block cyan style
+          ctx.strokeStyle = 'rgba(0, 184, 212, 0.7)';
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.moveTo(this.width - 8, 10);
+          ctx.lineTo(this.width - 18, 16);
+          ctx.lineTo(this.width - 24, 6);
+          ctx.stroke();
+
+          // Outlines ONLY on exposed faces!
+          ctx.strokeStyle = '#121212';
+          ctx.lineWidth = 3;
+          ctx.lineCap = 'square';
+          ctx.beginPath();
+          ctx.moveTo(0, 0);
+          ctx.lineTo(this.width, this.height);
+          if (!hasTop) {
+            ctx.moveTo(0, 0);
+            ctx.lineTo(this.width, 0);
+          }
+          if (!hasRight) {
+            ctx.moveTo(this.width, 0);
+            ctx.lineTo(this.width, this.height);
+          }
+          ctx.stroke();
+        } else {
+          // Themed Dirt Fill
+          ctx.beginPath();
+          ctx.moveTo(0, 0);
+          ctx.lineTo(this.width + (hasLeft ? 0.5 : 0), 0);
+          ctx.lineTo(this.width + (hasLeft ? 0.5 : 0), this.height + (hasBottom ? 0.5 : 0));
+          ctx.closePath();
+          ctx.fillStyle = pal.dirtBase;
+          ctx.fill();
+
+          // Dirt specks inside top-right triangle
+          ctx.fillStyle = pal.speckDark;
+          ctx.fillRect(this.width - 12, 10, 4, 3);
+          ctx.fillRect(this.width - 19, 6, 3, 4);
+          ctx.fillStyle = pal.speckLight;
+          ctx.fillRect(this.width - 16, 18, 4, 3);
+          ctx.fillStyle = pal.speckMid;
+          ctx.fillRect(this.width - 10, 24, 4, 3);
+
+          // Turf cap ONLY if top is exposed (!hasTop)
+          if (!hasTop) {
+            ctx.beginPath();
+            ctx.moveTo(0, 0);
+            ctx.lineTo(this.width, 0);
+            ctx.lineTo(this.width, 8);
+            ctx.lineTo(0, 6);
+            ctx.closePath();
+            ctx.fillStyle = pal.turfMain;
+            ctx.fill();
+
+            ctx.strokeStyle = pal.turfHighlight;
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(0, 0);
+            ctx.lineTo(this.width, 0);
+            ctx.stroke();
+          }
+
+          // Underside shadow band along diagonal
+          ctx.strokeStyle = pal.turfShadow;
+          ctx.lineWidth = 2.5;
+          ctx.beginPath();
+          ctx.moveTo(0, 0);
+          ctx.lineTo(this.width, this.height);
+          ctx.stroke();
+
+          // Outlines on exposed faces
+          ctx.strokeStyle = '#121212';
+          ctx.lineWidth = 3;
+          ctx.lineCap = 'square';
+          ctx.beginPath();
+          ctx.moveTo(0, 0);
+          ctx.lineTo(this.width, this.height);
+          if (!hasTop) {
+            ctx.moveTo(0, 0);
+            ctx.lineTo(this.width, 0);
+          }
+          if (!hasRight) {
+            ctx.moveTo(this.width, 0);
             ctx.lineTo(this.width, this.height);
           }
           ctx.stroke();

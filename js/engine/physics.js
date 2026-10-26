@@ -114,34 +114,90 @@ export class PhysicsEngine {
   resolveVerticalCollisions(entity, solids) {
     const isSlope = (s) => s && (s.isSlope || s.variant?.includes('slope'));
     const isSlopeUp = (s) => s && (s.slopeDirection === 'up' || s.variant?.includes('slope_up'));
+    const isSlopeDown = (s) => s && (s.slopeDirection === 'down' || s.variant?.includes('slope_down'));
+    const isCeilSlopeUp = (s) => s && (s.slopeDirection === 'ceil_up' || s.variant?.includes('slope_ceil_up'));
+    const isCeilSlopeDown = (s) => s && (s.slopeDirection === 'ceil_down' || s.variant?.includes('slope_ceil_down'));
+    const isCeilSlope = (s) => isCeilSlopeUp(s) || isCeilSlopeDown(s);
+    const isGroundSlope = (s) => isSlope(s) && !isCeilSlope(s);
 
+    // 1. Handle Walkable Ground Slopes (slope_up and slope_down across all materials)
+    // Find all active ground slopes overlapping entity horizontally
+    const overlappingGroundSlopes = solids.filter(s =>
+      s.active && isGroundSlope(s) &&
+      entity.x + entity.width > s.x && entity.x < s.x + s.width
+    );
+
+    if (overlappingGroundSlopes.length > 0) {
+      const footX = entity.x + entity.width / 2;
+      // Primary slope is the one directly containing footX
+      let primarySlope = overlappingGroundSlopes.find(s => footX >= s.x && footX <= s.x + s.width);
+      if (!primarySlope) {
+        // If center is slightly outside due to multi-tile bounding, pick the closest one to center
+        let minDist = Infinity;
+        for (const s of overlappingGroundSlopes) {
+          const dist = Math.min(Math.abs(footX - s.x), Math.abs(footX - (s.x + s.width)));
+          if (dist < minDist) {
+            minDist = dist;
+            primarySlope = s;
+          }
+        }
+      }
+
+      if (primarySlope) {
+        const px = Math.max(primarySlope.x, Math.min(primarySlope.x + primarySlope.width, footX));
+        const relX = (px - primarySlope.x) / primarySlope.width;
+        const surfaceY = isSlopeUp(primarySlope)
+          ? primarySlope.y + (1 - relX) * primarySlope.height
+          : primarySlope.y + relX * primarySlope.height;
+
+        const footY = entity.y + entity.height;
+        const snapDownTol = (entity.grounded || entity.standingOnSolid) ? 36 : 16;
+        // Allow stepping up smoothly along rising slope structures without bounding-box rejection
+        const maxStepUp = (entity.grounded || entity.standingOnSolid) ? (primarySlope.height + 16) : 28;
+
+        if (footY >= surfaceY - snapDownTol && footY <= surfaceY + maxStepUp && entity.vy >= -60) {
+          entity.y = surfaceY - entity.height;
+          entity.vy = 0;
+          entity.grounded = true;
+          entity.standingOnSolid = primarySlope;
+        }
+      }
+    }
+
+    // 1b. Handle Inverted / Ceiling Slopes (slope_ceil_up and slope_ceil_down)
     for (const solid of solids) {
-      if (!solid.active) continue;
+      if (!solid.active || !isCeilSlope(solid)) continue;
 
-      // 1. Handle Walkable Slopes / Slants (slope_up and slope_down across all materials)
-      if (isSlope(solid)) {
-        if (entity.x + entity.width > solid.x && entity.x < solid.x + solid.width) {
-          const px = Math.max(solid.x, Math.min(solid.x + solid.width, entity.x + entity.width / 2));
-          const relX = (px - solid.x) / solid.width;
+      if (entity.x + entity.width > solid.x && entity.x < solid.x + solid.width) {
+        const probeX = Math.max(solid.x, Math.min(solid.x + solid.width, entity.x + entity.width / 2));
+        const relX = (probeX - solid.x) / solid.width;
+        // Diagonal underside ceiling height at probeX
+        const ceilY = isCeilSlopeUp(solid)
+          ? solid.y + (1 - relX) * solid.height
+          : solid.y + relX * solid.height;
 
-          const surfaceY = isSlopeUp(solid)
-            ? solid.y + (1 - relX) * solid.height
-            : solid.y + relX * solid.height;
-
-          const footY = entity.y + entity.height;
-          // Downward snapping tolerance: snap down by up to 32px to track downhill runs smoothly without airborne bouncing
-          const snapDownTol = (entity.grounded || entity.standingOnSolid) ? 32 : 16;
-
-          // Catch player anytime feet are near or descending onto slope surface (and not actively jumping upward)
-          if (footY >= surfaceY - snapDownTol && footY <= solid.y + solid.height + 4 && entity.vy >= -60) {
-            entity.y = surfaceY - entity.height;
+        // Bonking head on diagonal underside from below
+        if (entity.vy < 0 && entity.y <= ceilY && entity.y + entity.height > ceilY) {
+          entity.y = ceilY;
+          entity.vy = 0;
+        }
+        // Standing on flat top if exposed
+        else if (entity.vy >= 0 && (entity.y + entity.height) >= solid.y - 12 && (entity.y + entity.height) <= solid.y + 12) {
+          const hasBlockAbove = solids.some(s => s.active && s !== solid && Math.abs(s.x - solid.x) < 2 && Math.abs((s.y + s.height) - solid.y) < 2);
+          if (!hasBlockAbove) {
+            entity.y = solid.y - entity.height;
             entity.vy = 0;
             entity.grounded = true;
             entity.standingOnSolid = solid;
           }
         }
-        continue;
       }
+    }
+
+    for (const solid of solids) {
+      if (!solid.active) continue;
+      // Slopes (ground and ceiling) are already resolved above
+      if (isSlope(solid)) continue;
 
       // 2. Handle One-Way Platforms (Cloud Platforms & Semi-Solid Boardwalks)
       if (solid.isOneWay || solid.variant === 'cloud' || solid.variant === 'semisolid') {
