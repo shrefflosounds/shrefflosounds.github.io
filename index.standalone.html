@@ -3969,6 +3969,7 @@ class Player extends Entity {
     // Movement Tuning
     this.coyoteTimer = 0;
     this.jumpBufferTimer = 0;
+    this.isJumping = false;
     this.isDead = false;
     this.respawnTimer = 0;
     this.spawnX = x;
@@ -4099,10 +4100,15 @@ class Player extends Entity {
       this.jumpKeyHeld = true;
     } else {
       this.jumpKeyHeld = false;
-      // Variable jump height cut
-      if (this.vy < -150) {
+      // Variable jump height cut (only cuts active player jumps upon releasing jump key)
+      if (this.isJumping && this.vy < -150) {
         this.vy *= 0.55;
+        this.isJumping = false;
       }
+    }
+
+    if (this.grounded || this.vy >= 0) {
+      this.isJumping = false;
     }
 
     if (this.jumpBufferTimer > 0) {
@@ -4111,6 +4117,7 @@ class Player extends Entity {
         // Ground Jump
         this.vy = -this.jumpForce;
         this.grounded = false;
+        this.isJumping = true;
         this.coyoteTimer = 0;
         this.jumpBufferTimer = 0;
         sounds.playJump();
@@ -4118,6 +4125,7 @@ class Player extends Entity {
         // Double Jump
         this.vy = -this.jumpForce * 0.9;
         this.hasDoubleJump = false;
+        this.isJumping = true;
         this.jumpBufferTimer = 0;
         sounds.playBounce();
       }
@@ -5925,6 +5933,8 @@ class GoalFlag extends Entity {
   }
 }
 
+// Export aliases
+
 
 // ── js/recorder/recorder.js ──
 // Sidehop Video Recorder & Highlight Replay Engine
@@ -6832,7 +6842,7 @@ class LevelStorage {
 
     const scriptTag = `<script id="sidehop-embedded-level" type="application/json">
 ${payload}
-</script>`;
+<` + `/script>`;
 
     let resultHtml = htmlTemplate.replace(/<title>.*?<\/title>/i, `<title>${title} — Sidehop Game</title>`);
 
@@ -11553,6 +11563,7 @@ class SidehopApp {
               this.player.vy = -boost;
               this.player.y = ent.y - this.player.height - 2;
               this.player.grounded = false;
+              this.player.isJumping = false;
               this.player.standingOnSolid = null;
               this.player.coyoteTimer = 0;
               ent.trigger();
@@ -12051,10 +12062,17 @@ function initMobileCheck() {
 }
 
 // Start Sidehop!
-window.addEventListener('DOMContentLoaded', () => {
+function startApp() {
+  if (window.sidehop) return;
   initMobileCheck();
   window.sidehop = new SidehopApp();
-});
+}
+
+if (document.readyState === 'loading') {
+  window.addEventListener('DOMContentLoaded', startApp);
+} else {
+  startApp();
+}
 
 
 </script>

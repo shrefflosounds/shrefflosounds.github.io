@@ -1,6 +1,6 @@
 // Sidehop Master Application Coordinator — Enhanced Custom Backgrounds, Asset Library & Undo/Redo
 
-import { Player, Bullet, SolidBlock, Collectible, Springboard, SpikeHazard, Enemy, MovingPlatform, GoalPole } from './engine/entities.js';
+import { Player, Bullet, SolidBlock, Collectible } from './engine/entities.js';
 import { PhysicsEngine } from './engine/physics.js?v=2';
 import { Camera } from './engine/camera.js';
 import { GridEditor } from './editor/grid.js';
@@ -2720,6 +2720,7 @@ class SidehopApp {
               this.player.vy = -boost;
               this.player.y = ent.y - this.player.height - 2;
               this.player.grounded = false;
+              this.player.isJumping = false;
               this.player.standingOnSolid = null;
               this.player.coyoteTimer = 0;
               ent.trigger();
@@ -3218,8 +3219,15 @@ function initMobileCheck() {
 }
 
 // Start Sidehop!
-window.addEventListener('DOMContentLoaded', () => {
+function startApp() {
+  if (window.sidehop) return;
   initMobileCheck();
   window.sidehop = new SidehopApp();
-});
+}
+
+if (document.readyState === 'loading') {
+  window.addEventListener('DOMContentLoaded', startApp);
+} else {
+  startApp();
+}
 

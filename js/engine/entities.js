@@ -69,6 +69,7 @@ export class Player extends Entity {
     // Movement Tuning
     this.coyoteTimer = 0;
     this.jumpBufferTimer = 0;
+    this.isJumping = false;
     this.isDead = false;
     this.respawnTimer = 0;
     this.spawnX = x;
@@ -199,10 +200,15 @@ export class Player extends Entity {
       this.jumpKeyHeld = true;
     } else {
       this.jumpKeyHeld = false;
-      // Variable jump height cut
-      if (this.vy < -150) {
+      // Variable jump height cut (only cuts active player jumps upon releasing jump key)
+      if (this.isJumping && this.vy < -150) {
         this.vy *= 0.55;
+        this.isJumping = false;
       }
+    }
+
+    if (this.grounded || this.vy >= 0) {
+      this.isJumping = false;
     }
 
     if (this.jumpBufferTimer > 0) {
@@ -211,6 +217,7 @@ export class Player extends Entity {
         // Ground Jump
         this.vy = -this.jumpForce;
         this.grounded = false;
+        this.isJumping = true;
         this.coyoteTimer = 0;
         this.jumpBufferTimer = 0;
         sounds.playJump();
@@ -218,6 +225,7 @@ export class Player extends Entity {
         // Double Jump
         this.vy = -this.jumpForce * 0.9;
         this.hasDoubleJump = false;
+        this.isJumping = true;
         this.jumpBufferTimer = 0;
         sounds.playBounce();
       }
@@ -2024,3 +2032,6 @@ export class GoalFlag extends Entity {
     ctx.restore();
   }
 }
+
+// Export aliases
+export { HazardSpikes as SpikeHazard, EnemyWalker as Enemy, GoalFlag as GoalPole };

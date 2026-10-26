@@ -231,7 +231,7 @@ export class LevelStorage {
       level: data
     });
 
-    const scriptTag = `<script id="sidehop-embedded-level" type="application/json">\n${payload}\n</script>`;
+    const scriptTag = `<script id="sidehop-embedded-level" type="application/json">\n${payload}\n<` + `/script>`;
 
     let resultHtml = htmlTemplate.replace(/<title>.*?<\/title>/i, `<title>${title} — Sidehop Game</title>`);
 
