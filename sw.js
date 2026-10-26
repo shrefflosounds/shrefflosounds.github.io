@@ -1,52 +1,29 @@
-const APP_ID = "sidehop";
-const CACHE = APP_ID + "-prod";
-const FILES = [
-  "./",
-  "./index.html",
-  "./manifest.webmanifest",
-  "./icon.svg",
-  "./icon-180.png",
-  "./icon-192.png",
-  "./icon-512.png",
-  "./icon-512-maskable.png",
-  "./og.png",
-  "./assets/logo.png",
-  "./css/style.css",
-  "./js/main.js",
-  "./js/storage/sidehop-format.js",
-  "./js/storage/storage.js",
-  "./js/audio/sound.js",
-  "./js/recorder/recorder.js",
-  "./js/engine/entities.js",
-  "./js/engine/camera.js",
-  "./js/engine/physics.js",
-  "./js/editor/inspector.js",
-  "./js/editor/paint.js",
-  "./js/editor/grid.js",
-  "./js/editor/history.js",
-  "./js/editor/demo.js"
-];
+// Sidehop Cache Purger & Service Worker Uninstaller
+// Immediately unregisters service workers and purges all cached assets
 
-self.addEventListener("install", e => {
-  // cache: "reload" skips the browser's HTTP cache, so a release never installs a stale index.html
-  e.waitUntil(caches.open(CACHE).then(c =>
-    c.addAll(FILES.map(f => new Request(f, { cache: "reload" })))));
-  if (!self.registration.active) self.skipWaiting();
+self.addEventListener('install', e => {
+  self.skipWaiting();
 });
 
-self.addEventListener("activate", e => {
-  // Delete only THIS app's old caches
-  e.waitUntil(caches.keys().then(keys => Promise.all(keys
-    .filter(k => k.startsWith(APP_ID + "-") && k !== CACHE)
-    .map(k => caches.delete(k)))).then(() => self.clients.claim()));
+self.addEventListener('activate', e => {
+  e.waitUntil(
+    caches.keys()
+      .then(keys => Promise.all(keys.map(k => caches.delete(k))))
+      .then(() => self.registration.unregister())
+      .then(() => self.clients.matchAll({ type: 'window' }))
+      .then(clients => {
+        for (const client of clients) {
+          if (client.navigate) client.navigate(client.url);
+        }
+      })
+  );
 });
 
-self.addEventListener("message", e => {
-  if (e.data === "SKIP_WAITING") self.skipWaiting();
+self.addEventListener('message', e => {
+  if (e.data === 'SKIP_WAITING') self.skipWaiting();
 });
 
-self.addEventListener("fetch", e => {
-  if (e.request.method !== "GET") return;
-  e.respondWith(caches.match(e.request, { ignoreSearch: true })
-    .then(hit => hit || fetch(e.request)));
+self.addEventListener('fetch', e => {
+  // Always fetch live directly from network, never cache
+  e.respondWith(fetch(e.request));
 });

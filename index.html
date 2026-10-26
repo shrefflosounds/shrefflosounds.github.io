@@ -841,14 +841,20 @@
       repo: "https://github.com/shrefflosounds/sidehop"
     };
 
-    // Service Worker lifecycle
-    const SW_ON = "serviceWorker" in navigator && !["localhost", "127.0.0.1"].includes(location.hostname);
-    if (SW_ON) {
-      const hadController = !!navigator.serviceWorker.controller;
-      navigator.serviceWorker.register("sw.js");
-      navigator.serviceWorker.addEventListener("controllerchange", () => {
-        if (hadController) location.reload();
-      });
+    // Purge any stale service workers & caches immediately
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.getRegistrations().then(regs => {
+        for (const reg of regs) {
+          reg.unregister();
+        }
+      }).catch(() => {});
+    }
+    if ('caches' in window) {
+      caches.keys().then(keys => {
+        for (const key of keys) {
+          caches.delete(key);
+        }
+      }).catch(() => {});
     }
 
     // Control Ringing Utility

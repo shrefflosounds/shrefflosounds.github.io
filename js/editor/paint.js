@@ -312,7 +312,9 @@ export class ArtStudio {
     const reader = new FileReader();
     reader.onload = (e) => {
       const img = new Image();
-      img.src = e.target.result;
+      img.onerror = () => {
+        console.warn('Failed to load image file');
+      };
       img.onload = () => {
         this.clearCanvas();
         // For square blocks, ensure the square shape is filled and preserved without distortion
@@ -337,6 +339,7 @@ export class ArtStudio {
         }
         sounds.playPaintSquish();
       };
+      img.src = e.target.result;
     };
     reader.readAsDataURL(file);
   }

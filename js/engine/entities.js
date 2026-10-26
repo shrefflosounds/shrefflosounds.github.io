@@ -2,17 +2,27 @@
 
 import { sounds } from '../audio/sound.js';
 
-// Polyfill Canvas roundRect for older Safari / browsers
-if (typeof CanvasRenderingContext2D !== 'undefined' && !CanvasRenderingContext2D.prototype.roundRect) {
+// Safe Canvas roundRect polyfill / wrapper for Safari / WebKit and older browsers
+if (typeof CanvasRenderingContext2D !== 'undefined') {
+  const nativeRoundRect = CanvasRenderingContext2D.prototype.roundRect;
   CanvasRenderingContext2D.prototype.roundRect = function(x, y, w, h, radii) {
-    const r = Math.min(Math.abs(w) / 2, Math.abs(h) / 2, Array.isArray(radii) ? (radii[0] || 0) : (radii || 0));
+    const width = Math.max(0, w || 0);
+    const height = Math.max(0, h || 0);
+    const rVal = Array.isArray(radii) ? (radii[0] || 0) : (typeof radii === 'number' ? radii : 0);
+    const r = Math.min(width / 2, height / 2, Math.max(0, rVal));
+
+    if (nativeRoundRect) {
+      try {
+        return nativeRoundRect.call(this, x, y, width, height, r);
+      } catch (_) {}
+    }
     this.moveTo(x + r, y);
-    this.lineTo(x + w - r, y);
-    this.quadraticCurveTo(x + w, y, x + w, y + r);
-    this.lineTo(x + w, y + h - r);
-    this.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
-    this.lineTo(x + r, y + h);
-    this.quadraticCurveTo(x, y + h, x, y + h - r);
+    this.lineTo(x + width - r, y);
+    this.quadraticCurveTo(x + width, y, x + width, y + r);
+    this.lineTo(x + width, y + height - r);
+    this.quadraticCurveTo(x + width, y + height, x + width - r, y + height);
+    this.lineTo(x + r, y + height);
+    this.quadraticCurveTo(x, y + height, x, y + height - r);
     this.lineTo(x, y + r);
     this.quadraticCurveTo(x, y, x + r, y);
     return this;
@@ -602,80 +612,86 @@ export class SolidBlock extends Entity {
     if (this.customImageElement && this.customImageElement.complete && this.customImageElement.naturalWidth > 0 && this.customImageElement.naturalHeight > 0) {
       try {
         ctx.save();
-        const pal = SolidBlock.getThemePalette();
+        try {
+          const pal = SolidBlock.getThemePalette();
 
-        if (this.variant === 'slope_up') {
-          // 45° Incline Triangle Clipping
-          ctx.beginPath();
-          ctx.moveTo(0, this.height);
-          ctx.lineTo(this.width, 0);
-          ctx.lineTo(this.width, this.height);
-          ctx.closePath();
-          ctx.fillStyle = pal.dirtBase;
-          ctx.fill();
-          ctx.clip();
-        } else if (this.variant === 'slope_down') {
-          // 45° Decline Triangle Clipping
-          ctx.beginPath();
-          ctx.moveTo(0, 0);
-          ctx.lineTo(this.width, this.height);
-          ctx.lineTo(0, this.height);
-          ctx.closePath();
-          ctx.fillStyle = pal.dirtBase;
-          ctx.fill();
-          ctx.clip();
-        } else {
-          // Square & rectangular blocks: retain solid square block shape
-          ctx.fillStyle = pal.dirtBase; // Themed block base backing
-          ctx.fillRect(0, 0, this.width, this.height);
+          if (this.variant === 'slope_up') {
+            // 45° Incline Triangle Clipping
+            ctx.beginPath();
+            ctx.moveTo(0, this.height);
+            ctx.lineTo(this.width, 0);
+            ctx.lineTo(this.width, this.height);
+            ctx.closePath();
+            ctx.fillStyle = pal.dirtBase;
+            ctx.fill();
+            ctx.clip();
+          } else if (this.variant === 'slope_down') {
+            // 45° Decline Triangle Clipping
+            ctx.beginPath();
+            ctx.moveTo(0, 0);
+            ctx.lineTo(this.width, this.height);
+            ctx.lineTo(0, this.height);
+            ctx.closePath();
+            ctx.fillStyle = pal.dirtBase;
+            ctx.fill();
+            ctx.clip();
+          } else {
+            // Square & rectangular blocks: retain solid square block shape
+            ctx.fillStyle = pal.dirtBase; // Themed block base backing
+            ctx.fillRect(0, 0, this.width, this.height);
 
-          ctx.beginPath();
-          ctx.rect(0, 0, this.width, this.height);
-          ctx.clip();
+            ctx.beginPath();
+            ctx.rect(0, 0, this.width, this.height);
+            ctx.clip();
+          }
+
+          // Draw custom visual using Aspect-Ratio Preserving Cover Mode
+          const img = this.customImageElement;
+          const imgW = img.naturalWidth || this.width;
+          const imgH = img.naturalHeight || this.height;
+          const scale = (imgW > 0 && imgH > 0) ? Math.max(this.width / imgW, this.height / imgH) : 1;
+          const dw = imgW * scale;
+          const dh = imgH * scale;
+          const dx = (this.width - dw) / 2;
+          const dy = (this.height - dh) / 2;
+
+          ctx.drawImage(img, dx, dy, dw, dh);
+        } finally {
+          ctx.restore();
         }
-
-        // Draw custom visual using Aspect-Ratio Preserving Cover Mode
-        const img = this.customImageElement;
-        const imgW = img.naturalWidth || this.width;
-        const imgH = img.naturalHeight || this.height;
-        const scale = (imgW > 0 && imgH > 0) ? Math.max(this.width / imgW, this.height / imgH) : 1;
-        const dw = imgW * scale;
-        const dh = imgH * scale;
-        const dx = (this.width - dw) / 2;
-        const dy = (this.height - dh) / 2;
-
-        ctx.drawImage(img, dx, dy, dw, dh);
-        ctx.restore();
 
         // Outer neo-brutalist border and bevel so the block retains its physical block appearance
         ctx.save();
-        ctx.strokeStyle = '#121212';
-        ctx.lineWidth = 3;
-        if (this.variant === 'slope_up') {
-          ctx.beginPath();
-          ctx.moveTo(0, this.height);
-          ctx.lineTo(this.width, 0);
-          ctx.lineTo(this.width, this.height);
-          ctx.closePath();
-          ctx.stroke();
-        } else if (this.variant === 'slope_down') {
-          ctx.beginPath();
-          ctx.moveTo(0, 0);
-          ctx.lineTo(this.width, this.height);
-          ctx.lineTo(0, this.height);
-          ctx.closePath();
-          ctx.stroke();
-        } else {
-          ctx.strokeRect(0, 0, this.width, this.height);
+        try {
+          ctx.strokeStyle = '#121212';
+          ctx.lineWidth = 3;
+          if (this.variant === 'slope_up') {
+            ctx.beginPath();
+            ctx.moveTo(0, this.height);
+            ctx.lineTo(this.width, 0);
+            ctx.lineTo(this.width, this.height);
+            ctx.closePath();
+            ctx.stroke();
+          } else if (this.variant === 'slope_down') {
+            ctx.beginPath();
+            ctx.moveTo(0, 0);
+            ctx.lineTo(this.width, this.height);
+            ctx.lineTo(0, this.height);
+            ctx.closePath();
+            ctx.stroke();
+          } else {
+            ctx.strokeRect(0, 0, this.width, this.height);
 
-          // Subtle top bevel highlight for 3D physical block depth
-          ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
-          ctx.fillRect(2, 2, this.width - 4, 3);
-          // Subtle bottom bevel shadow
-          ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
-          ctx.fillRect(2, this.height - 5, this.width - 4, 3);
+            // Subtle top bevel highlight for 3D physical block depth
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+            ctx.fillRect(2, 2, this.width - 4, 3);
+            // Subtle bottom bevel shadow
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
+            ctx.fillRect(2, this.height - 5, this.width - 4, 3);
+          }
+        } finally {
+          ctx.restore();
         }
-        ctx.restore();
         return;
       } catch (err) {
         console.warn('SolidBlock custom image render failed:', err);
@@ -1844,7 +1860,7 @@ export class Collectible extends Entity {
     if (this.emerging) {
       this.y += this.emergeVy * dt;
       this.emergeVy += 400 * dt;
-      if (this.y <= this.targetY) {
+      if (this.y <= this.targetY || this.emergeVy >= 0) {
         this.y = this.targetY;
         this.emerging = false;
         this.emergeVy = 0;
