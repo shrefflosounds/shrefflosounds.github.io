@@ -99,9 +99,39 @@ body[data-theme="night"] .theme-card {
   color: #F8FAFC;
 }
 
+body[data-theme="night"] .theme-name {
+  color: #FFFFFF !important;
+}
+
 body[data-theme="night"] .about-credit-desc,
 body[data-theme="night"] .theme-sub {
-  color: #94A3B8;
+  color: #CBD5E1 !important;
+}
+
+body[data-theme="night"] .palette-item {
+  background-color: #1E293B;
+  color: #FFFFFF !important;
+  border-color: #475569;
+}
+
+body[data-theme="night"] .palette-item .palette-name,
+body[data-theme="night"] .palette-item span {
+  color: #FFFFFF !important;
+}
+
+body[data-theme="night"] .drawer-tips {
+  background-color: #161F30;
+  border-color: #475569;
+  color: #FFFFFF !important;
+}
+
+body[data-theme="night"] .drawer-tips summary {
+  color: #FFFFFF !important;
+}
+
+body[data-theme="night"] .drawer-tips-content {
+  color: #E2E8F0 !important;
+  border-top-color: #475569;
 }
 
 /* 3. CHROME THEME (Metallic Cyber) */
@@ -151,13 +181,13 @@ body[data-theme="jungle"] {
   --accent-mint: #2D6A4F;
 }
 
-/* 6. NEON OVER BLACK THEME (High Contrast Cyber Synth) */
+/* 6. NEON OVER BLACK THEME (High Contrast Deep Black & Neon) */
 body[data-theme="neon"] {
   --theme-name: "neon";
-  --bg-cream: #050508;
-  --bg-panel: #0E0E18;
-  --header-bg: #0A0A12;
-  --ink-black: #F8FAFC;
+  --bg-cream: #030305;
+  --bg-panel: #0A0A12;
+  --header-bg: #050508;
+  --ink-black: #FFFFFF;
   --border-color: #00E5FF;
   --shadow-color: #FF007F;
   --border-thick: 2px solid #00E5FF;
@@ -170,13 +200,13 @@ body[data-theme="neon"] {
 }
 
 body[data-theme="neon"] .neo-btn {
-  background-color: #141424;
-  color: #F8FAFC;
+  background-color: #10101C;
+  color: #FFFFFF;
   border-color: #00E5FF;
 }
 
 body[data-theme="neon"] .neo-btn:hover {
-  background-color: #202038;
+  background-color: #1A1A2E;
 }
 
 body[data-theme="neon"] .tool-drawer,
@@ -185,14 +215,44 @@ body[data-theme="neon"] .neo-dialog,
 body[data-theme="neon"] .about-credit-card,
 body[data-theme="neon"] .about-tab-btn,
 body[data-theme="neon"] .theme-card {
-  background-color: #0E0E18;
-  color: #F8FAFC;
+  background-color: #0A0A12;
+  color: #FFFFFF;
   border-color: #00E5FF;
+}
+
+body[data-theme="neon"] .theme-name {
+  color: #FFFFFF !important;
 }
 
 body[data-theme="neon"] .about-credit-desc,
 body[data-theme="neon"] .theme-sub {
-  color: #94A3B8;
+  color: #CBD5E1 !important;
+}
+
+body[data-theme="neon"] .palette-item {
+  background-color: #0E0E1A;
+  color: #FFFFFF !important;
+  border-color: #00E5FF;
+}
+
+body[data-theme="neon"] .palette-item .palette-name,
+body[data-theme="neon"] .palette-item span {
+  color: #FFFFFF !important;
+}
+
+body[data-theme="neon"] .drawer-tips {
+  background-color: #0A0A12;
+  border-color: #00E5FF;
+  color: #FFFFFF !important;
+}
+
+body[data-theme="neon"] .drawer-tips summary {
+  color: #FFFFFF !important;
+}
+
+body[data-theme="neon"] .drawer-tips-content {
+  color: #E2E8F0 !important;
+  border-top-color: #00E5FF;
 }
 
 /* 7. ATLANTIS UNDERWATER THEME (Deep Ocean Light) */
@@ -234,9 +294,39 @@ body[data-theme="atlantis"] .theme-card {
   border-color: #38BDF8;
 }
 
+body[data-theme="atlantis"] .theme-name {
+  color: #FFFFFF !important;
+}
+
 body[data-theme="atlantis"] .about-credit-desc,
 body[data-theme="atlantis"] .theme-sub {
-  color: #7DD3FC;
+  color: #BAE6FD !important;
+}
+
+body[data-theme="atlantis"] .palette-item {
+  background-color: #07233B;
+  color: #FFFFFF !important;
+  border-color: #38BDF8;
+}
+
+body[data-theme="atlantis"] .palette-item .palette-name,
+body[data-theme="atlantis"] .palette-item span {
+  color: #FFFFFF !important;
+}
+
+body[data-theme="atlantis"] .drawer-tips {
+  background-color: #072B47;
+  border-color: #38BDF8;
+  color: #FFFFFF !important;
+}
+
+body[data-theme="atlantis"] .drawer-tips summary {
+  color: #FFFFFF !important;
+}
+
+body[data-theme="atlantis"] .drawer-tips-content {
+  color: #E2E8F0 !important;
+  border-top-color: #38BDF8;
 }
 
 /* 8. MIXED MEDIA THEME (Paper Collage & Warm Art) */
@@ -396,17 +486,72 @@ body {
 
 .neo-btn-accent {
   background-color: var(--accent-sky);
-  color: #0F172A;
+  color: #050508 !important;
+  font-weight: 800;
 }
 
 .neo-btn-cyan {
-  background-color: #0EA5E9;
-  color: #FFF;
+  background-color: var(--accent-sky);
+  color: #050508 !important;
+  font-weight: 800;
 }
 
 .neo-btn-pink {
   background-color: var(--accent-rose);
-  color: #FFF;
+  color: #FFFFFF !important;
+  font-weight: 800;
+}
+
+/* Ensure bright colored buttons always have high-contrast pitch-black text */
+.neo-btn-primary,
+.neo-btn.neo-btn-primary,
+.neo-btn-accent,
+.neo-btn.neo-btn-accent,
+.neo-btn-cyan,
+.neo-btn.neo-btn-cyan,
+body[data-theme="night"] .neo-btn.neo-btn-accent,
+body[data-theme="night"] .neo-btn.neo-btn-primary,
+body[data-theme="night"] .neo-btn.neo-btn-cyan,
+body[data-theme="neon"] .neo-btn.neo-btn-accent,
+body[data-theme="neon"] .neo-btn.neo-btn-primary,
+body[data-theme="neon"] .neo-btn.neo-btn-cyan,
+body[data-theme="atlantis"] .neo-btn.neo-btn-accent,
+body[data-theme="atlantis"] .neo-btn.neo-btn-primary,
+body[data-theme="atlantis"] .neo-btn.neo-btn-cyan {
+  color: #050508 !important;
+  font-weight: 800;
+}
+
+.neo-btn.neo-btn-accent span,
+.neo-btn.neo-btn-primary span,
+.neo-btn.neo-btn-cyan span,
+body[data-theme="night"] .neo-btn.neo-btn-accent span,
+body[data-theme="night"] .neo-btn.neo-btn-primary span,
+body[data-theme="night"] .neo-btn.neo-btn-cyan span,
+body[data-theme="neon"] .neo-btn.neo-btn-accent span,
+body[data-theme="neon"] .neo-btn.neo-btn-primary span,
+body[data-theme="neon"] .neo-btn.neo-btn-cyan span,
+body[data-theme="atlantis"] .neo-btn.neo-btn-accent span,
+body[data-theme="atlantis"] .neo-btn.neo-btn-primary span,
+body[data-theme="atlantis"] .neo-btn.neo-btn-cyan span {
+  color: #050508 !important;
+  font-weight: 800;
+}
+
+/* Disabled buttons in dark themes remain cleanly legible */
+body[data-theme="night"] .neo-btn:disabled,
+body[data-theme="neon"] .neo-btn:disabled,
+body[data-theme="atlantis"] .neo-btn:disabled {
+  opacity: 0.65 !important;
+  color: #94A3B8 !important;
+  background-color: #141A28 !important;
+  border-color: #334155 !important;
+}
+
+body[data-theme="night"] .neo-btn:disabled span,
+body[data-theme="neon"] .neo-btn:disabled span,
+body[data-theme="atlantis"] .neo-btn:disabled span {
+  color: #94A3B8 !important;
 }
 
 /* WORKBENCH LAYOUT */
@@ -527,6 +672,7 @@ body {
   border-radius: 8px;
   border: 2px solid var(--ink-black);
   background-color: var(--bg-cream);
+  color: var(--ink-black);
   box-shadow: 2px 2px 0 var(--ink-black);
   cursor: pointer;
   transition: all 0.1s ease;
@@ -536,15 +682,22 @@ body {
   min-height: 38px;
 }
 
+.palette-item .palette-name,
+.palette-item span {
+  color: inherit;
+}
+
 .palette-item:hover {
   transform: scale(1.04);
   background-color: var(--canary-yellow);
+  color: #000000 !important;
 }
 
 .palette-item.active {
   background-color: var(--cyber-cyan);
   box-shadow: 1px 1px 0 var(--ink-black);
   transform: translate(1px, 1px);
+  color: #000000 !important;
 }
 
 .palette-icon {
@@ -961,7 +1114,7 @@ body {
 
 .drawer-tips {
   font-size: 10.5px;
-  color: #444;
+  color: var(--ink-black);
   margin-top: auto;
   line-height: 1.4;
   background: var(--bg-cream);
@@ -991,9 +1144,10 @@ body {
 .drawer-tips-content {
   margin-top: 5px;
   padding-top: 4px;
-  border-top: 1px dashed #CCC;
+  border-top: 1px dashed var(--border-color);
   font-size: 10px;
   line-height: 1.4;
+  color: inherit;
 }
 
 /* MODALS (Art Studio, Inspector, Video Preview) */
@@ -2413,7 +2567,7 @@ body[data-theme="night"] .about-colophon-sub {
           <button id="action-copy-btn" class="neo-btn" style="padding: 6px 12px; font-size: 13px;" title="Copy to clipboard (⌘C)">
             <span>📋 Copy</span>
           </button>
-          <button id="action-paint-btn" class="neo-btn neo-btn-pink" style="padding: 6px 12px; font-size: 13px;" title="Paint custom art or import decal/GIF in Kid Pix Art Studio">
+          <button id="action-paint-btn" class="neo-btn neo-btn-pink" style="padding: 6px 12px; font-size: 13px;" title="Paint custom art or import photo/GIF in Art Studio">
             <span>🎨 Paint / Decal</span>
           </button>
           <button id="action-tune-btn" class="neo-btn neo-btn-accent" style="padding: 6px 12px; font-size: 13px;" title="Tune parameters &amp; physics in Inspector">
@@ -2776,7 +2930,7 @@ body[data-theme="night"] .about-colophon-sub {
             <span class="about-credit-role">Art Studio &amp; Tactile Feel</span>
           </div>
           <p class="about-credit-desc">
-            Created by Craig Hickman. The guiding spirit behind Sidehop's Kid Pix Art Studio: chunky tactile toolbars, wacky stamps, squishy audio feedback, and the philosophy that creating things should be messy, joyful, and hilarious.
+            Created by Craig Hickman. The guiding spirit behind Sidehop's Art Studio: chunky tactile toolbars, wacky stamps, squishy audio feedback, and the philosophy that creating things should be messy, joyful, and hilarious.
           </p>
         </div>
         <div class="about-credit-card">
@@ -2886,7 +3040,7 @@ body[data-theme="night"] .about-colophon-sub {
             <span class="about-credit-role">Visual Design System</span>
           </div>
           <p class="about-credit-desc">
-            Refined high-contrast ink borders (#1E293B), tactile compressed drop shadows, and eye-friendly themed palettes (Grass Plains, Snowy Peaks, Night Horizon, Chrome Future, 8-Bit Arcade, and Jungle Canopy).
+            Refined high-contrast ink borders (#1E293B), tactile compressed drop shadows, and eye-friendly themed palettes (Meadows, Tundra, Nightlife, Chrome, 8-Bit, Jungle, Neon over Black, Atlantis Underwater, and Mixed Media).
           </p>
         </div>
         <div class="about-credit-card">
@@ -2940,7 +3094,7 @@ body[data-theme="night"] .about-colophon-sub {
       <button id="theme-close-btn" class="neo-dialog-close" title="Close Themes">&times;</button>
     </div>
     <div class="neo-dialog-body">
-      <p style="font-size: 13px; margin-bottom: 14px; color: var(--text-color, #444);">
+      <p style="font-size: 13px; margin-bottom: 14px; color: var(--ink-black);">
         Select a theme to transform the workbench UI, level background atmosphere, and block styles:
       </p>
       <div class="theme-grid">
@@ -2948,50 +3102,50 @@ body[data-theme="night"] .about-colophon-sub {
           <div class="theme-preview" style="background: linear-gradient(180deg, #A0E0FF, #D6F2FF);">
             <span class="theme-emoji">🌿</span>
           </div>
-          <div class="theme-name">Grass Plains</div>
+          <div class="theme-name">Meadows</div>
           <div class="theme-sub">Lush green turf, sunlit skies &amp; rolling hills</div>
         </div>
         <div class="theme-card" data-theme="snowy">
           <div class="theme-preview" style="background: linear-gradient(180deg, #D4E8F8, #EDF5FC);">
             <span class="theme-emoji">❄️</span>
           </div>
-          <div class="theme-name">Snowy Peaks</div>
-          <div class="theme-sub">Frosty drifts, falling snowflakes &amp; icicle spikes</div>
+          <div class="theme-name">Tundra</div>
+          <div class="theme-sub">Frosty drifts, falling snowflakes &amp; ice blocks</div>
         </div>
         <div class="theme-card" data-theme="night">
           <div class="theme-preview" style="background: linear-gradient(180deg, #0A0F24, #1B284F);">
             <span class="theme-emoji">🌙</span>
           </div>
-          <div class="theme-name">Night Horizon</div>
-          <div class="theme-sub">Midnight sky, stars, moon &amp; glowing crystal turf</div>
+          <div class="theme-name">Nightlife</div>
+          <div class="theme-sub">Midnight sky, stars, moon &amp; glowing turf</div>
         </div>
         <div class="theme-card" data-theme="chrome">
           <div class="theme-preview" style="background: linear-gradient(180deg, #2B3340, #546274);">
             <span class="theme-emoji">⚙️</span>
           </div>
-          <div class="theme-name">Chrome Future</div>
-          <div class="theme-sub">Brushed steel, synth grid, rivets &amp; cyber vibes</div>
+          <div class="theme-name">Chrome</div>
+          <div class="theme-sub">Brushed steel, metallic blocks &amp; clean reflections</div>
         </div>
         <div class="theme-card" data-theme="8-bit">
           <div class="theme-preview" style="background: linear-gradient(180deg, #5C94FC, #94B0FE);">
             <span class="theme-emoji">🕹️</span>
           </div>
-          <div class="theme-name">8-Bit Arcade</div>
-          <div class="theme-sub">Retro nes-blue skies, pixelated clouds &amp; stepped turf</div>
+          <div class="theme-name">8-Bit</div>
+          <div class="theme-sub">Retro blue skies, pixelated clouds &amp; stepped turf</div>
         </div>
         <div class="theme-card" data-theme="jungle">
           <div class="theme-preview" style="background: linear-gradient(180deg, #1A4D2E, #2D6A4F);">
             <span class="theme-emoji">🌴</span>
           </div>
-          <div class="theme-name">Jungle Canopy</div>
+          <div class="theme-name">Jungle</div>
           <div class="theme-sub">Tropical mist, hanging vines &amp; mossy ancient stone</div>
         </div>
         <div class="theme-card" data-theme="neon">
-          <div class="theme-preview" style="background: linear-gradient(180deg, #050508, #18092B);">
-            <span class="theme-emoji">🌆</span>
+          <div class="theme-preview" style="background: linear-gradient(180deg, #030305, #140520);">
+            <span class="theme-emoji">⚡</span>
           </div>
           <div class="theme-name">Neon over Black</div>
-          <div class="theme-sub">High contrast dark grid, laser cyber vibes</div>
+          <div class="theme-sub">Vibrant neon highlights over pure deep black</div>
         </div>
         <div class="theme-card" data-theme="atlantis">
           <div class="theme-preview" style="background: linear-gradient(180deg, #075985, #082F49);">
@@ -4624,6 +4778,42 @@ class SolidBlock extends Entity {
           turfShadow: '#081C15',
           speckAccent: '#FF6B6B'
         };
+      case 'neon':
+        return {
+          theme: 'neon',
+          dirtBase: '#08080E',
+          speckDark: '#020204',
+          speckLight: '#00E5FF',
+          speckMid: '#FF007F',
+          turfMain: '#00E5FF',
+          turfHighlight: '#80F2FF',
+          turfShadow: '#007A8A',
+          speckAccent: '#00FF66'
+        };
+      case 'atlantis':
+        return {
+          theme: 'atlantis',
+          dirtBase: '#05233A',
+          speckDark: '#02121E',
+          speckLight: '#38BDF8',
+          speckMid: '#0284C7',
+          turfMain: '#0284C7',
+          turfHighlight: '#38BDF8',
+          turfShadow: '#03456B',
+          speckAccent: '#2DD4BF'
+        };
+      case 'mixed':
+        return {
+          theme: 'mixed',
+          dirtBase: '#E5D5B8',
+          speckDark: '#C7B28E',
+          speckLight: '#FFFDF5',
+          speckMid: '#D6BF96',
+          turfMain: '#F59E0B',
+          turfHighlight: '#FBBF24',
+          turfShadow: '#B45309',
+          speckAccent: '#E11D48'
+        };
       case 'grass':
       default:
         return {
@@ -5258,6 +5448,25 @@ class SolidBlock extends Entity {
           ctx.fillStyle = pal.speckAccent;
           ctx.fillRect(12 + speckShift, 18, 2.5, 2.5);
           ctx.fillRect(26 - speckShift, 12, 2.5, 2.5);
+        } else if (pal.theme === 'neon') {
+          // Vibrant glowing neon accents
+          ctx.fillStyle = '#00E5FF';
+          ctx.fillRect(4, this.height - 4, 3, 2);
+          ctx.fillRect(this.width - 7, this.height - 4, 3, 2);
+          ctx.fillStyle = '#FF007F';
+          ctx.fillRect(16, 20, 2.5, 2.5);
+        } else if (pal.theme === 'atlantis') {
+          // Deep aquatic coral speckles
+          ctx.fillStyle = '#38BDF8';
+          ctx.fillRect(4, 18, 3, 2);
+          ctx.fillStyle = '#2DD4BF';
+          ctx.fillRect(this.width - 7, 24, 3, 2);
+        } else if (pal.theme === 'mixed') {
+          // Newsprint / collage flecks
+          ctx.fillStyle = '#F59E0B';
+          ctx.fillRect(6, 16, 4, 2);
+          ctx.fillStyle = '#E11D48';
+          ctx.fillRect(this.width - 8, 22, 3, 2);
         }
 
         // LUSH THEMED SURFACE CAP (ONLY ON EXPOSED TOP LAYER!)
@@ -5297,6 +5506,26 @@ class SolidBlock extends Entity {
             // Little jungle flower dots
             ctx.fillStyle = '#FF6B6B';
             ctx.fillRect(19, 17, 2, 2);
+          } else if (pal.theme === 'neon') {
+            // Crisp electric neon edge
+            ctx.fillStyle = '#00E5FF';
+            ctx.fillRect(0, 0, grassW, 3);
+            ctx.fillStyle = 'rgba(0, 229, 255, 0.4)';
+            ctx.fillRect(0, 3, grassW, 4);
+          } else if (pal.theme === 'atlantis') {
+            // Bioluminescent aquatic rim
+            ctx.fillStyle = '#38BDF8';
+            ctx.fillRect(0, 0, grassW, 3);
+            ctx.fillStyle = '#2DD4BF';
+            ctx.fillRect(8, 8, 3, 3);
+            ctx.fillRect(24, 8, 3, 4);
+          } else if (pal.theme === 'mixed') {
+            // Textured paper torn edge
+            ctx.fillStyle = '#F59E0B';
+            ctx.fillRect(0, 0, grassW, 4);
+            ctx.fillStyle = '#E11D48';
+            ctx.fillRect(10, 7, 3, 3);
+            ctx.fillRect(26, 7, 3, 2);
           } else {
             // Drooping blades / fringe into dirt
             ctx.fillStyle = pal.turfMain;
@@ -5494,6 +5723,9 @@ class HazardSpikes extends Entity {
         else if (theme === 'chrome') spikeFill = '#E2E8F0'; // Metallic chrome
         else if (theme === '8-bit') spikeFill = '#D82800'; // Retro arcade red
         else if (theme === 'jungle') spikeFill = '#B45309'; // Bamboo thorn
+        else if (theme === 'neon') spikeFill = '#FF007F'; // Electric neon pink
+        else if (theme === 'atlantis') spikeFill = '#06B6D4'; // Aquatic cyan
+        else if (theme === 'mixed') spikeFill = '#F43F5E'; // Collage rose
 
         ctx.fillStyle = spikeFill;
         ctx.strokeStyle = '#121212';
@@ -9737,17 +9969,17 @@ class SidehopApp {
       'chrome': '⚙️',
       '8-bit': '🕹️',
       'jungle': '🌴',
-      'neon': '🌆',
+      'neon': '⚡',
       'atlantis': '🌊',
       'mixed': '🎨'
     };
     const themeDisplayNames = {
-      'grass': 'Grass Plains',
-      'snowy': 'Snowy Peaks',
-      'night': 'Night Horizon',
-      'chrome': 'Chrome Future',
-      '8-bit': '8-Bit Arcade',
-      'jungle': 'Jungle Canopy',
+      'grass': 'Meadows',
+      'snowy': 'Tundra',
+      'night': 'Nightlife',
+      'chrome': 'Chrome',
+      '8-bit': '8-Bit',
+      'jungle': 'Jungle',
       'neon': 'Neon over Black',
       'atlantis': 'Atlantis Underwater',
       'mixed': 'Mixed Media'
@@ -10054,13 +10286,7 @@ class SidehopApp {
       this.drawParallaxHills(w, h);
       return;
     } else if (bgTheme === 'neon' || theme === 'neon') {
-      const grad = this.ctx.createLinearGradient(0, 0, 0, h);
-      grad.addColorStop(0, '#0A0014');
-      grad.addColorStop(0.5, '#19002E');
-      grad.addColorStop(1, '#3B0066');
-      this.ctx.fillStyle = grad;
-      this.ctx.fillRect(0, 0, w, h);
-      this.drawChromeGrid(w, h);
+      this.drawNeonBackground(w, h);
       return;
     }
 
@@ -10257,48 +10483,90 @@ class SidehopApp {
     this.ctx.save();
     const horizon = h * 0.62;
 
-    // Distant cyber skyline
-    this.ctx.fillStyle = '#1A2130';
-    const bldOff = (this.camera.x * 0.06) % 600;
-    for (let x = -100; x < w + 200; x += 45) {
-      const bh = 40 + ((x * 37) % 70);
-      this.ctx.fillRect(x - bldOff, horizon - bh, 36, bh);
-      // Red/cyan beacon dot
-      this.ctx.fillStyle = (x % 90 === 0) ? '#00E5FF' : '#FF3366';
-      this.ctx.fillRect(x - bldOff + 16, horizon - bh - 2, 3, 3);
-      this.ctx.fillStyle = '#1A2130';
+    // Clean brushed metallic background plates
+    const bldOff = (this.camera.x * 0.05) % 400;
+    this.ctx.fillStyle = 'rgba(255, 255, 255, 0.04)';
+    for (let x = -200; x < w + 400; x += 80) {
+      this.ctx.fillRect(x - bldOff, 0, 78, horizon);
     }
 
-    // Horizon neon glow line
-    this.ctx.strokeStyle = '#38BDF8';
+    // Horizon metallic sheen line
+    this.ctx.strokeStyle = '#94A3B8';
     this.ctx.lineWidth = 2;
     this.ctx.beginPath();
     this.ctx.moveTo(0, horizon);
     this.ctx.lineTo(w, horizon);
     this.ctx.stroke();
 
-    // Perspective floor grid lines
+    // Perspective floor lines (clean metallic floor)
     const numFloorLines = 14;
     for (let i = 1; i <= numFloorLines; i++) {
       const t = Math.pow(i / numFloorLines, 2);
       const y = horizon + t * (h - horizon);
-      this.ctx.strokeStyle = `rgba(56, 189, 248, ${0.15 + t * 0.35})`;
-      this.ctx.lineWidth = 1 + t * 1.5;
+      this.ctx.strokeStyle = `rgba(148, 163, 184, ${0.12 + t * 0.28})`;
+      this.ctx.lineWidth = 1 + t * 1.2;
       this.ctx.beginPath();
       this.ctx.moveTo(0, y);
       this.ctx.lineTo(w, y);
       this.ctx.stroke();
     }
 
-    // Vertical vanishing lines
-    const centerX = w * 0.5 - (this.camera.x * 0.1) % 40;
-    this.ctx.strokeStyle = 'rgba(56, 189, 248, 0.22)';
-    this.ctx.lineWidth = 1.2;
-    for (let x = -w * 0.5; x <= w * 1.5; x += 60) {
+    this.ctx.restore();
+  }
+
+  drawNeonBackground(w, h) {
+    this.ctx.save();
+
+    // Pure deep black background void
+    this.ctx.fillStyle = '#030305';
+    this.ctx.fillRect(0, 0, w, h);
+
+    const horizon = h * 0.65;
+
+    // Subtle ambient glowing horizontal light bar at horizon
+    const glowGrad = this.ctx.createLinearGradient(0, horizon - 25, 0, horizon + 25);
+    glowGrad.addColorStop(0, 'rgba(0, 229, 255, 0)');
+    glowGrad.addColorStop(0.5, 'rgba(0, 229, 255, 0.22)');
+    glowGrad.addColorStop(0.7, 'rgba(255, 0, 127, 0.18)');
+    glowGrad.addColorStop(1, 'rgba(255, 0, 127, 0)');
+    this.ctx.fillStyle = glowGrad;
+    this.ctx.fillRect(0, horizon - 25, w, 50);
+
+    // Crisp neon laser horizon line
+    const lineGrad = this.ctx.createLinearGradient(0, 0, w, 0);
+    lineGrad.addColorStop(0, '#00E5FF');
+    lineGrad.addColorStop(0.5, '#FF007F');
+    lineGrad.addColorStop(1, '#00FF66');
+    this.ctx.strokeStyle = lineGrad;
+    this.ctx.lineWidth = 1.5;
+    this.ctx.beginPath();
+    this.ctx.moveTo(0, horizon);
+    this.ctx.lineTo(w, horizon);
+    this.ctx.stroke();
+
+    // Floating vibrant neon stardust particles (smooth camera parallax)
+    const neonColors = ['#00E5FF', '#FF007F', '#00FF66', '#FFE600'];
+    const pOffX = (this.camera.x * 0.08);
+    for (let i = 0; i < 48; i++) {
+      const seedX = (i * 137.5) % 1200;
+      const seedY = (i * 73.1) % (h * 0.9);
+      const px = ((seedX - pOffX) % w + w) % w;
+      const py = seedY;
+      const size = 1.5 + (i % 3);
+      const color = neonColors[i % neonColors.length];
+
+      // Soft outer glow
+      this.ctx.fillStyle = color;
+      this.ctx.globalAlpha = 0.25;
       this.ctx.beginPath();
-      this.ctx.moveTo(centerX, horizon);
-      this.ctx.lineTo(x, h);
-      this.ctx.stroke();
+      this.ctx.arc(px, py, size * 2.2, 0, Math.PI * 2);
+      this.ctx.fill();
+
+      // Bright sharp core
+      this.ctx.globalAlpha = 0.9;
+      this.ctx.beginPath();
+      this.ctx.arc(px, py, size * 0.7, 0, Math.PI * 2);
+      this.ctx.fill();
     }
 
     this.ctx.restore();

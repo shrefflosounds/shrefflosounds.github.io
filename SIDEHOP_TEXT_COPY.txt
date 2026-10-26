@@ -417,23 +417,32 @@ Description:
 Select a theme to transform the workbench UI, level background atmosphere, and block styles:
 
 Theme Cards:
-1. 🌿 Grass Plains
+1. 🌿 Meadows
    Lush green turf, sunlit skies & rolling hills
 
-2. ❄️ Snowy Peaks
-   Frosty drifts, falling snowflakes & icicle spikes
+2. ❄️ Tundra
+   Frosty drifts, falling snowflakes & ice blocks
 
-3. 🌙 Night Horizon
-   Midnight sky, stars, moon & glowing crystal turf
+3. 🌙 Nightlife
+   Midnight sky, stars, moon & glowing turf
 
-4. ⚙️ Chrome Future
-   Brushed steel, synth grid, rivets & cyber vibes
+4. ⚙️ Chrome
+   Brushed steel, metallic blocks & clean reflections
 
-5. 🕹️ 8-Bit Arcade
-   Retro nes-blue skies, pixelated clouds & stepped turf
+5. 🕹️ 8-Bit
+   Retro blue skies, pixelated clouds & stepped turf
 
-6. 🌴 Jungle Canopy
+6. 🌴 Jungle
    Tropical mist, hanging vines & mossy ancient stone
+
+7. ⚡ Neon over Black
+   Vibrant neon highlights over pure deep black
+
+8. 🌊 Atlantis Underwater
+   Deep sea ocean floor, coral & aquatic light
+
+9. 🎨 Mixed Media
+   Collage textures, newsprint & vibrant pastels
 
 
 ────────────────────────────────────────────────────────────────────────────────
@@ -640,7 +649,7 @@ Design Cards:
 
 3. Neo-Brutalist Toy Workbench
    Role: Visual Design System
-   Description: Refined high-contrast ink borders (#1E293B), tactile compressed drop shadows, and eye-friendly themed palettes (Grass Plains, Snowy Peaks, Night Horizon, Chrome Future, 8-Bit Arcade, and Jungle Canopy).
+   Description: Refined high-contrast ink borders (#1E293B), tactile compressed drop shadows, and eye-friendly themed palettes (Meadows, Tundra, Nightlife, Chrome, 8-Bit, Jungle, Neon over Black, Atlantis Underwater, and Mixed Media).
 
 4. Unicode & SVG Glyphs
    Role: Unicode Consortium • CC0

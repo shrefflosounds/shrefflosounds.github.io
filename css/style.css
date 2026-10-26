@@ -84,9 +84,39 @@ body[data-theme="night"] .theme-card {
   color: #F8FAFC;
 }
 
+body[data-theme="night"] .theme-name {
+  color: #FFFFFF !important;
+}
+
 body[data-theme="night"] .about-credit-desc,
 body[data-theme="night"] .theme-sub {
-  color: #94A3B8;
+  color: #CBD5E1 !important;
+}
+
+body[data-theme="night"] .palette-item {
+  background-color: #1E293B;
+  color: #FFFFFF !important;
+  border-color: #475569;
+}
+
+body[data-theme="night"] .palette-item .palette-name,
+body[data-theme="night"] .palette-item span {
+  color: #FFFFFF !important;
+}
+
+body[data-theme="night"] .drawer-tips {
+  background-color: #161F30;
+  border-color: #475569;
+  color: #FFFFFF !important;
+}
+
+body[data-theme="night"] .drawer-tips summary {
+  color: #FFFFFF !important;
+}
+
+body[data-theme="night"] .drawer-tips-content {
+  color: #E2E8F0 !important;
+  border-top-color: #475569;
 }
 
 /* 3. CHROME THEME (Metallic Cyber) */
@@ -136,13 +166,13 @@ body[data-theme="jungle"] {
   --accent-mint: #2D6A4F;
 }
 
-/* 6. NEON OVER BLACK THEME (High Contrast Cyber Synth) */
+/* 6. NEON OVER BLACK THEME (High Contrast Deep Black & Neon) */
 body[data-theme="neon"] {
   --theme-name: "neon";
-  --bg-cream: #050508;
-  --bg-panel: #0E0E18;
-  --header-bg: #0A0A12;
-  --ink-black: #F8FAFC;
+  --bg-cream: #030305;
+  --bg-panel: #0A0A12;
+  --header-bg: #050508;
+  --ink-black: #FFFFFF;
   --border-color: #00E5FF;
   --shadow-color: #FF007F;
   --border-thick: 2px solid #00E5FF;
@@ -155,13 +185,13 @@ body[data-theme="neon"] {
 }
 
 body[data-theme="neon"] .neo-btn {
-  background-color: #141424;
-  color: #F8FAFC;
+  background-color: #10101C;
+  color: #FFFFFF;
   border-color: #00E5FF;
 }
 
 body[data-theme="neon"] .neo-btn:hover {
-  background-color: #202038;
+  background-color: #1A1A2E;
 }
 
 body[data-theme="neon"] .tool-drawer,
@@ -170,14 +200,44 @@ body[data-theme="neon"] .neo-dialog,
 body[data-theme="neon"] .about-credit-card,
 body[data-theme="neon"] .about-tab-btn,
 body[data-theme="neon"] .theme-card {
-  background-color: #0E0E18;
-  color: #F8FAFC;
+  background-color: #0A0A12;
+  color: #FFFFFF;
   border-color: #00E5FF;
+}
+
+body[data-theme="neon"] .theme-name {
+  color: #FFFFFF !important;
 }
 
 body[data-theme="neon"] .about-credit-desc,
 body[data-theme="neon"] .theme-sub {
-  color: #94A3B8;
+  color: #CBD5E1 !important;
+}
+
+body[data-theme="neon"] .palette-item {
+  background-color: #0E0E1A;
+  color: #FFFFFF !important;
+  border-color: #00E5FF;
+}
+
+body[data-theme="neon"] .palette-item .palette-name,
+body[data-theme="neon"] .palette-item span {
+  color: #FFFFFF !important;
+}
+
+body[data-theme="neon"] .drawer-tips {
+  background-color: #0A0A12;
+  border-color: #00E5FF;
+  color: #FFFFFF !important;
+}
+
+body[data-theme="neon"] .drawer-tips summary {
+  color: #FFFFFF !important;
+}
+
+body[data-theme="neon"] .drawer-tips-content {
+  color: #E2E8F0 !important;
+  border-top-color: #00E5FF;
 }
 
 /* 7. ATLANTIS UNDERWATER THEME (Deep Ocean Light) */
@@ -219,9 +279,39 @@ body[data-theme="atlantis"] .theme-card {
   border-color: #38BDF8;
 }
 
+body[data-theme="atlantis"] .theme-name {
+  color: #FFFFFF !important;
+}
+
 body[data-theme="atlantis"] .about-credit-desc,
 body[data-theme="atlantis"] .theme-sub {
-  color: #7DD3FC;
+  color: #BAE6FD !important;
+}
+
+body[data-theme="atlantis"] .palette-item {
+  background-color: #07233B;
+  color: #FFFFFF !important;
+  border-color: #38BDF8;
+}
+
+body[data-theme="atlantis"] .palette-item .palette-name,
+body[data-theme="atlantis"] .palette-item span {
+  color: #FFFFFF !important;
+}
+
+body[data-theme="atlantis"] .drawer-tips {
+  background-color: #072B47;
+  border-color: #38BDF8;
+  color: #FFFFFF !important;
+}
+
+body[data-theme="atlantis"] .drawer-tips summary {
+  color: #FFFFFF !important;
+}
+
+body[data-theme="atlantis"] .drawer-tips-content {
+  color: #E2E8F0 !important;
+  border-top-color: #38BDF8;
 }
 
 /* 8. MIXED MEDIA THEME (Paper Collage & Warm Art) */
@@ -381,17 +471,72 @@ body {
 
 .neo-btn-accent {
   background-color: var(--accent-sky);
-  color: #0F172A;
+  color: #050508 !important;
+  font-weight: 800;
 }
 
 .neo-btn-cyan {
-  background-color: #0EA5E9;
-  color: #FFF;
+  background-color: var(--accent-sky);
+  color: #050508 !important;
+  font-weight: 800;
 }
 
 .neo-btn-pink {
   background-color: var(--accent-rose);
-  color: #FFF;
+  color: #FFFFFF !important;
+  font-weight: 800;
+}
+
+/* Ensure bright colored buttons always have high-contrast pitch-black text */
+.neo-btn-primary,
+.neo-btn.neo-btn-primary,
+.neo-btn-accent,
+.neo-btn.neo-btn-accent,
+.neo-btn-cyan,
+.neo-btn.neo-btn-cyan,
+body[data-theme="night"] .neo-btn.neo-btn-accent,
+body[data-theme="night"] .neo-btn.neo-btn-primary,
+body[data-theme="night"] .neo-btn.neo-btn-cyan,
+body[data-theme="neon"] .neo-btn.neo-btn-accent,
+body[data-theme="neon"] .neo-btn.neo-btn-primary,
+body[data-theme="neon"] .neo-btn.neo-btn-cyan,
+body[data-theme="atlantis"] .neo-btn.neo-btn-accent,
+body[data-theme="atlantis"] .neo-btn.neo-btn-primary,
+body[data-theme="atlantis"] .neo-btn.neo-btn-cyan {
+  color: #050508 !important;
+  font-weight: 800;
+}
+
+.neo-btn.neo-btn-accent span,
+.neo-btn.neo-btn-primary span,
+.neo-btn.neo-btn-cyan span,
+body[data-theme="night"] .neo-btn.neo-btn-accent span,
+body[data-theme="night"] .neo-btn.neo-btn-primary span,
+body[data-theme="night"] .neo-btn.neo-btn-cyan span,
+body[data-theme="neon"] .neo-btn.neo-btn-accent span,
+body[data-theme="neon"] .neo-btn.neo-btn-primary span,
+body[data-theme="neon"] .neo-btn.neo-btn-cyan span,
+body[data-theme="atlantis"] .neo-btn.neo-btn-accent span,
+body[data-theme="atlantis"] .neo-btn.neo-btn-primary span,
+body[data-theme="atlantis"] .neo-btn.neo-btn-cyan span {
+  color: #050508 !important;
+  font-weight: 800;
+}
+
+/* Disabled buttons in dark themes remain cleanly legible */
+body[data-theme="night"] .neo-btn:disabled,
+body[data-theme="neon"] .neo-btn:disabled,
+body[data-theme="atlantis"] .neo-btn:disabled {
+  opacity: 0.65 !important;
+  color: #94A3B8 !important;
+  background-color: #141A28 !important;
+  border-color: #334155 !important;
+}
+
+body[data-theme="night"] .neo-btn:disabled span,
+body[data-theme="neon"] .neo-btn:disabled span,
+body[data-theme="atlantis"] .neo-btn:disabled span {
+  color: #94A3B8 !important;
 }
 
 /* WORKBENCH LAYOUT */
@@ -512,6 +657,7 @@ body {
   border-radius: 8px;
   border: 2px solid var(--ink-black);
   background-color: var(--bg-cream);
+  color: var(--ink-black);
   box-shadow: 2px 2px 0 var(--ink-black);
   cursor: pointer;
   transition: all 0.1s ease;
@@ -521,15 +667,22 @@ body {
   min-height: 38px;
 }
 
+.palette-item .palette-name,
+.palette-item span {
+  color: inherit;
+}
+
 .palette-item:hover {
   transform: scale(1.04);
   background-color: var(--canary-yellow);
+  color: #000000 !important;
 }
 
 .palette-item.active {
   background-color: var(--cyber-cyan);
   box-shadow: 1px 1px 0 var(--ink-black);
   transform: translate(1px, 1px);
+  color: #000000 !important;
 }
 
 .palette-icon {
@@ -946,7 +1099,7 @@ body {
 
 .drawer-tips {
   font-size: 10.5px;
-  color: #444;
+  color: var(--ink-black);
   margin-top: auto;
   line-height: 1.4;
   background: var(--bg-cream);
@@ -976,9 +1129,10 @@ body {
 .drawer-tips-content {
   margin-top: 5px;
   padding-top: 4px;
-  border-top: 1px dashed #CCC;
+  border-top: 1px dashed var(--border-color);
   font-size: 10px;
   line-height: 1.4;
+  color: inherit;
 }
 
 /* MODALS (Art Studio, Inspector, Video Preview) */

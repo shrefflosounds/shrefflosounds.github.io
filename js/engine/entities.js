@@ -591,6 +591,42 @@ export class SolidBlock extends Entity {
           turfShadow: '#081C15',
           speckAccent: '#FF6B6B'
         };
+      case 'neon':
+        return {
+          theme: 'neon',
+          dirtBase: '#08080E',
+          speckDark: '#020204',
+          speckLight: '#00E5FF',
+          speckMid: '#FF007F',
+          turfMain: '#00E5FF',
+          turfHighlight: '#80F2FF',
+          turfShadow: '#007A8A',
+          speckAccent: '#00FF66'
+        };
+      case 'atlantis':
+        return {
+          theme: 'atlantis',
+          dirtBase: '#05233A',
+          speckDark: '#02121E',
+          speckLight: '#38BDF8',
+          speckMid: '#0284C7',
+          turfMain: '#0284C7',
+          turfHighlight: '#38BDF8',
+          turfShadow: '#03456B',
+          speckAccent: '#2DD4BF'
+        };
+      case 'mixed':
+        return {
+          theme: 'mixed',
+          dirtBase: '#E5D5B8',
+          speckDark: '#C7B28E',
+          speckLight: '#FFFDF5',
+          speckMid: '#D6BF96',
+          turfMain: '#F59E0B',
+          turfHighlight: '#FBBF24',
+          turfShadow: '#B45309',
+          speckAccent: '#E11D48'
+        };
       case 'grass':
       default:
         return {
@@ -1225,6 +1261,25 @@ export class SolidBlock extends Entity {
           ctx.fillStyle = pal.speckAccent;
           ctx.fillRect(12 + speckShift, 18, 2.5, 2.5);
           ctx.fillRect(26 - speckShift, 12, 2.5, 2.5);
+        } else if (pal.theme === 'neon') {
+          // Vibrant glowing neon accents
+          ctx.fillStyle = '#00E5FF';
+          ctx.fillRect(4, this.height - 4, 3, 2);
+          ctx.fillRect(this.width - 7, this.height - 4, 3, 2);
+          ctx.fillStyle = '#FF007F';
+          ctx.fillRect(16, 20, 2.5, 2.5);
+        } else if (pal.theme === 'atlantis') {
+          // Deep aquatic coral speckles
+          ctx.fillStyle = '#38BDF8';
+          ctx.fillRect(4, 18, 3, 2);
+          ctx.fillStyle = '#2DD4BF';
+          ctx.fillRect(this.width - 7, 24, 3, 2);
+        } else if (pal.theme === 'mixed') {
+          // Newsprint / collage flecks
+          ctx.fillStyle = '#F59E0B';
+          ctx.fillRect(6, 16, 4, 2);
+          ctx.fillStyle = '#E11D48';
+          ctx.fillRect(this.width - 8, 22, 3, 2);
         }
 
         // LUSH THEMED SURFACE CAP (ONLY ON EXPOSED TOP LAYER!)
@@ -1264,6 +1319,26 @@ export class SolidBlock extends Entity {
             // Little jungle flower dots
             ctx.fillStyle = '#FF6B6B';
             ctx.fillRect(19, 17, 2, 2);
+          } else if (pal.theme === 'neon') {
+            // Crisp electric neon edge
+            ctx.fillStyle = '#00E5FF';
+            ctx.fillRect(0, 0, grassW, 3);
+            ctx.fillStyle = 'rgba(0, 229, 255, 0.4)';
+            ctx.fillRect(0, 3, grassW, 4);
+          } else if (pal.theme === 'atlantis') {
+            // Bioluminescent aquatic rim
+            ctx.fillStyle = '#38BDF8';
+            ctx.fillRect(0, 0, grassW, 3);
+            ctx.fillStyle = '#2DD4BF';
+            ctx.fillRect(8, 8, 3, 3);
+            ctx.fillRect(24, 8, 3, 4);
+          } else if (pal.theme === 'mixed') {
+            // Textured paper torn edge
+            ctx.fillStyle = '#F59E0B';
+            ctx.fillRect(0, 0, grassW, 4);
+            ctx.fillStyle = '#E11D48';
+            ctx.fillRect(10, 7, 3, 3);
+            ctx.fillRect(26, 7, 3, 2);
           } else {
             // Drooping blades / fringe into dirt
             ctx.fillStyle = pal.turfMain;
@@ -1461,6 +1536,9 @@ export class HazardSpikes extends Entity {
         else if (theme === 'chrome') spikeFill = '#E2E8F0'; // Metallic chrome
         else if (theme === '8-bit') spikeFill = '#D82800'; // Retro arcade red
         else if (theme === 'jungle') spikeFill = '#B45309'; // Bamboo thorn
+        else if (theme === 'neon') spikeFill = '#FF007F'; // Electric neon pink
+        else if (theme === 'atlantis') spikeFill = '#06B6D4'; // Aquatic cyan
+        else if (theme === 'mixed') spikeFill = '#F43F5E'; // Collage rose
 
         ctx.fillStyle = spikeFill;
         ctx.strokeStyle = '#121212';

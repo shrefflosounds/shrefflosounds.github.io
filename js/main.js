@@ -608,17 +608,17 @@ class SidehopApp {
       'chrome': '⚙️',
       '8-bit': '🕹️',
       'jungle': '🌴',
-      'neon': '🌆',
+      'neon': '⚡',
       'atlantis': '🌊',
       'mixed': '🎨'
     };
     const themeDisplayNames = {
-      'grass': 'Grass Plains',
-      'snowy': 'Snowy Peaks',
-      'night': 'Night Horizon',
-      'chrome': 'Chrome Future',
-      '8-bit': '8-Bit Arcade',
-      'jungle': 'Jungle Canopy',
+      'grass': 'Meadows',
+      'snowy': 'Tundra',
+      'night': 'Nightlife',
+      'chrome': 'Chrome',
+      '8-bit': '8-Bit',
+      'jungle': 'Jungle',
       'neon': 'Neon over Black',
       'atlantis': 'Atlantis Underwater',
       'mixed': 'Mixed Media'
@@ -925,13 +925,7 @@ class SidehopApp {
       this.drawParallaxHills(w, h);
       return;
     } else if (bgTheme === 'neon' || theme === 'neon') {
-      const grad = this.ctx.createLinearGradient(0, 0, 0, h);
-      grad.addColorStop(0, '#0A0014');
-      grad.addColorStop(0.5, '#19002E');
-      grad.addColorStop(1, '#3B0066');
-      this.ctx.fillStyle = grad;
-      this.ctx.fillRect(0, 0, w, h);
-      this.drawChromeGrid(w, h);
+      this.drawNeonBackground(w, h);
       return;
     }
 
@@ -1128,48 +1122,90 @@ class SidehopApp {
     this.ctx.save();
     const horizon = h * 0.62;
 
-    // Distant cyber skyline
-    this.ctx.fillStyle = '#1A2130';
-    const bldOff = (this.camera.x * 0.06) % 600;
-    for (let x = -100; x < w + 200; x += 45) {
-      const bh = 40 + ((x * 37) % 70);
-      this.ctx.fillRect(x - bldOff, horizon - bh, 36, bh);
-      // Red/cyan beacon dot
-      this.ctx.fillStyle = (x % 90 === 0) ? '#00E5FF' : '#FF3366';
-      this.ctx.fillRect(x - bldOff + 16, horizon - bh - 2, 3, 3);
-      this.ctx.fillStyle = '#1A2130';
+    // Clean brushed metallic background plates
+    const bldOff = (this.camera.x * 0.05) % 400;
+    this.ctx.fillStyle = 'rgba(255, 255, 255, 0.04)';
+    for (let x = -200; x < w + 400; x += 80) {
+      this.ctx.fillRect(x - bldOff, 0, 78, horizon);
     }
 
-    // Horizon neon glow line
-    this.ctx.strokeStyle = '#38BDF8';
+    // Horizon metallic sheen line
+    this.ctx.strokeStyle = '#94A3B8';
     this.ctx.lineWidth = 2;
     this.ctx.beginPath();
     this.ctx.moveTo(0, horizon);
     this.ctx.lineTo(w, horizon);
     this.ctx.stroke();
 
-    // Perspective floor grid lines
+    // Perspective floor lines (clean metallic floor)
     const numFloorLines = 14;
     for (let i = 1; i <= numFloorLines; i++) {
       const t = Math.pow(i / numFloorLines, 2);
       const y = horizon + t * (h - horizon);
-      this.ctx.strokeStyle = `rgba(56, 189, 248, ${0.15 + t * 0.35})`;
-      this.ctx.lineWidth = 1 + t * 1.5;
+      this.ctx.strokeStyle = `rgba(148, 163, 184, ${0.12 + t * 0.28})`;
+      this.ctx.lineWidth = 1 + t * 1.2;
       this.ctx.beginPath();
       this.ctx.moveTo(0, y);
       this.ctx.lineTo(w, y);
       this.ctx.stroke();
     }
 
-    // Vertical vanishing lines
-    const centerX = w * 0.5 - (this.camera.x * 0.1) % 40;
-    this.ctx.strokeStyle = 'rgba(56, 189, 248, 0.22)';
-    this.ctx.lineWidth = 1.2;
-    for (let x = -w * 0.5; x <= w * 1.5; x += 60) {
+    this.ctx.restore();
+  }
+
+  drawNeonBackground(w, h) {
+    this.ctx.save();
+
+    // Pure deep black background void
+    this.ctx.fillStyle = '#030305';
+    this.ctx.fillRect(0, 0, w, h);
+
+    const horizon = h * 0.65;
+
+    // Subtle ambient glowing horizontal light bar at horizon
+    const glowGrad = this.ctx.createLinearGradient(0, horizon - 25, 0, horizon + 25);
+    glowGrad.addColorStop(0, 'rgba(0, 229, 255, 0)');
+    glowGrad.addColorStop(0.5, 'rgba(0, 229, 255, 0.22)');
+    glowGrad.addColorStop(0.7, 'rgba(255, 0, 127, 0.18)');
+    glowGrad.addColorStop(1, 'rgba(255, 0, 127, 0)');
+    this.ctx.fillStyle = glowGrad;
+    this.ctx.fillRect(0, horizon - 25, w, 50);
+
+    // Crisp neon laser horizon line
+    const lineGrad = this.ctx.createLinearGradient(0, 0, w, 0);
+    lineGrad.addColorStop(0, '#00E5FF');
+    lineGrad.addColorStop(0.5, '#FF007F');
+    lineGrad.addColorStop(1, '#00FF66');
+    this.ctx.strokeStyle = lineGrad;
+    this.ctx.lineWidth = 1.5;
+    this.ctx.beginPath();
+    this.ctx.moveTo(0, horizon);
+    this.ctx.lineTo(w, horizon);
+    this.ctx.stroke();
+
+    // Floating vibrant neon stardust particles (smooth camera parallax)
+    const neonColors = ['#00E5FF', '#FF007F', '#00FF66', '#FFE600'];
+    const pOffX = (this.camera.x * 0.08);
+    for (let i = 0; i < 48; i++) {
+      const seedX = (i * 137.5) % 1200;
+      const seedY = (i * 73.1) % (h * 0.9);
+      const px = ((seedX - pOffX) % w + w) % w;
+      const py = seedY;
+      const size = 1.5 + (i % 3);
+      const color = neonColors[i % neonColors.length];
+
+      // Soft outer glow
+      this.ctx.fillStyle = color;
+      this.ctx.globalAlpha = 0.25;
       this.ctx.beginPath();
-      this.ctx.moveTo(centerX, horizon);
-      this.ctx.lineTo(x, h);
-      this.ctx.stroke();
+      this.ctx.arc(px, py, size * 2.2, 0, Math.PI * 2);
+      this.ctx.fill();
+
+      // Bright sharp core
+      this.ctx.globalAlpha = 0.9;
+      this.ctx.beginPath();
+      this.ctx.arc(px, py, size * 0.7, 0, Math.PI * 2);
+      this.ctx.fill();
     }
 
     this.ctx.restore();
