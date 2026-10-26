@@ -1,17 +1,17 @@
 // Sidehop Master Application Coordinator — Enhanced Custom Backgrounds, Asset Library & Undo/Redo
 
-import { Player, Bullet, SolidBlock, Collectible } from './engine/entities.js?v=20261026_03';
-import { PhysicsEngine } from './engine/physics.js?v=20261026_03';
-import { Camera } from './engine/camera.js?v=20261026_03';
-import { GridEditor } from './editor/grid.js?v=20261026_03';
-import { ArtStudio } from './editor/paint.js?v=20261026_03';
-import { Inspector } from './editor/inspector.js?v=20261026_03';
-import { VideoRecorder } from './recorder/recorder.js?v=20261026_03';
-import { LevelStorage } from './storage/storage.js?v=20261026_03';
-import { HistoryManager } from './editor/history.js?v=20261026_03';
-import { sounds } from './audio/sound.js?v=20261026_03';
-import { SidehopFile } from './storage/sidehop-format.js?v=20261026_03';
-import { SidehopDemo } from './editor/demo.js?v=20261026_03';
+import { Player, Bullet, SolidBlock, Collectible } from './engine/entities.js?v=20261026_04';
+import { PhysicsEngine } from './engine/physics.js?v=20261026_04';
+import { Camera } from './engine/camera.js?v=20261026_04';
+import { GridEditor } from './editor/grid.js?v=20261026_04';
+import { ArtStudio } from './editor/paint.js?v=20261026_04';
+import { Inspector } from './editor/inspector.js?v=20261026_04';
+import { VideoRecorder } from './recorder/recorder.js?v=20261026_04';
+import { LevelStorage } from './storage/storage.js?v=20261026_04';
+import { HistoryManager } from './editor/history.js?v=20261026_04';
+import { sounds } from './audio/sound.js?v=20261026_04';
+import { SidehopFile } from './storage/sidehop-format.js?v=20261026_04';
+import { SidehopDemo } from './editor/demo.js?v=20261026_04';
 
 class SidehopApp {
   constructor() {
@@ -302,6 +302,7 @@ class SidehopApp {
       this.editor.selectedEntities = newGroup;
       this.updateActionCard(this.editor.selectedEntity);
       sounds.playLand();
+      SolidBlock.updateTerrainMap(this.entities);
       LevelStorage.autoSave(this.player, this.entities, this.background);
       this.showToast(`📋 Pasted ${newGroup.length} components`);
       return;
@@ -327,6 +328,7 @@ class SidehopApp {
     this.updateActionCard(newEnt);
 
     sounds.playLand();
+    SolidBlock.updateTerrainMap(this.entities);
     LevelStorage.autoSave(this.player, this.entities, this.background);
 
     const name = newEnt.variant ? `${newEnt.variant} ${newEnt.type}` : newEnt.type;
@@ -387,6 +389,7 @@ class SidehopApp {
     this.updateActionCard(newEnt);
 
     sounds.playLand();
+    SolidBlock.updateTerrainMap(this.entities);
     LevelStorage.autoSave(this.player, this.entities, this.background);
 
     const name = newEnt.variant ? `${newEnt.variant} ${newEnt.type}` : newEnt.type;
@@ -2616,6 +2619,7 @@ class SidehopApp {
     };
 
     this.editor.onEntityMoved = () => {
+      SolidBlock.updateTerrainMap(this.entities);
       LevelStorage.autoSave(this.player, this.entities, this.background);
       if (this.editor.selectedEntity) {
         this.updateActionCard(this.editor.selectedEntity);
@@ -3322,14 +3326,9 @@ class SidehopApp {
           else if (ent.type === 'hazard') {
             if (this.physics.checkOverlap(this.player, ent)) {
               const knockDir = (this.player.x + this.player.width / 2 < ent.x + ent.width / 2) ? -1 : 1;
-              const hadPistol = this.player.hasPistol;
               if (this.player.takeDamage(1, knockDir)) {
                 sounds.playHurt();
                 this.spawnHurtParticles(this.player.x + this.player.width / 2, this.player.y + this.player.height / 2);
-                if (hadPistol) {
-                  this.spawnPistolLostParticles(this.player.x + this.player.width / 2, this.player.y + this.player.height / 2);
-                  this.showToast('💥 Pistol Powerup');
-                }
                 if (this.player.hearts <= 0) {
                   this.resetPlaySession();
                 }
@@ -3353,16 +3352,11 @@ class SidehopApp {
                 this.player.y = ent.y - this.player.height - 2;
                 this.score += (ent.variant === 'winged' ? 150 : 100);
               } else {
-                // Hurt player on collision (depletes 1 heart with i-frames & knockback, loses gun powerup)
+                // Hurt player on collision (depletes 1 heart with i-frames & knockback)
                 const knockDir = (this.player.x + this.player.width / 2 < ent.x + ent.width / 2) ? -1 : 1;
-                const hadPistol = this.player.hasPistol;
                 if (this.player.takeDamage(1, knockDir)) {
                   sounds.playHurt();
                   this.spawnHurtParticles(this.player.x + this.player.width / 2, this.player.y + this.player.height / 2);
-                  if (hadPistol) {
-                    this.spawnPistolLostParticles(this.player.x + this.player.width / 2, this.player.y + this.player.height / 2);
-                    this.showToast('💥 Pistol Powerup');
-                  }
                   if (this.player.hearts <= 0) {
                     this.resetPlaySession();
                   }

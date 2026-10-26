@@ -173,9 +173,7 @@ export class Player extends Entity {
     this.hearts = Math.max(0, this.hearts - amount);
     this.invulnerableTimer = 1.35; // 1.35s of invincibility
 
-    // Lose gun powerup when hurt (like Fire Flower in Mario)
-    this.hasPistol = false;
-    this.ammo = 0;
+    // Player retains gun powerup and ammo when taking damage per user request
 
     // Apply arcade knockback bounce
     this.vy = -340;
@@ -463,6 +461,7 @@ export class SolidBlock extends Entity {
       const col = Math.round(this.x / 40);
       const row = Math.round(this.y / 40);
       const bottomEnt = SolidBlock.terrainMap.get(`${col},${row + 1}`);
+      const topEnt = SolidBlock.terrainMap.get(`${col},${row - 1}`);
       const rightEnt = SolidBlock.terrainMap.get(`${col + 1},${row}`);
       const leftEnt = SolidBlock.terrainMap.get(`${col - 1},${row}`);
 
@@ -474,7 +473,7 @@ export class SolidBlock extends Entity {
         return null;
       };
 
-      const mat = checkMat(bottomEnt) || checkMat(rightEnt) || checkMat(leftEnt);
+      const mat = checkMat(bottomEnt) || checkMat(topEnt) || checkMat(rightEnt) || checkMat(leftEnt);
       if (mat) return mat;
     }
     return 'solid';
@@ -500,6 +499,7 @@ export class SolidBlock extends Entity {
         this.height = 40;
       }
     }
+    SolidBlock.terrainMapDirty = true;
   }
 
   bump(entity = null) {
@@ -563,9 +563,10 @@ export class SolidBlock extends Entity {
   }
 
   getNeighbors() {
-    if (!SolidBlock.terrainMapActive || SolidBlock.terrainMap.size === 0) {
-      if (typeof window !== 'undefined' && window.sidehop && window.sidehop.entities) {
-        SolidBlock.updateTerrainMap(window.sidehop.entities);
+    const app = (typeof window !== 'undefined' && window.sidehop);
+    if (!SolidBlock.terrainMapActive || SolidBlock.terrainMapDirty || SolidBlock.terrainMap.size === 0) {
+      if (app && app.entities) {
+        SolidBlock.updateTerrainMap(app.entities);
       }
     }
     const col = Math.round(this.x / 40);
@@ -594,43 +595,33 @@ export class SolidBlock extends Entity {
       return otherMat !== 'stone' && otherMat !== 'ice';
     };
 
-    // Top & Bottom neighbor connections
-    const hasTop = Boolean(topEnt && topEnt !== this && matchesMat(topEnt) && (myDir === 'ceil_up' || myDir === 'ceil_down' || !isSlope));
-    const hasBottom = Boolean(bottomEnt && bottomEnt !== this && matchesMat(bottomEnt) && (myDir === 'up' || myDir === 'down' || !isSlope));
+    // 1. Top face (along y = 0, width = 40):
+    //    Present on: square blocks, slope_ceil_up, and slope_ceil_down.
+    //    Touches neighbor's bottom face on: square blocks, slope_up, and slope_down.
+    const myHasTopFace = (!isSlope || myDir === 'ceil_up' || myDir === 'ceil_down');
+    const topHasBottomFace = Boolean(topEnt && (!topEnt.isSlope || topEnt.slopeDirection === 'up' || topEnt.slopeDirection === 'down'));
+    const hasTop = Boolean(myHasTopFace && topHasBottomFace && matchesMat(topEnt));
 
-    // Left neighbor connection:
-    // 1. If this is a slope_down or ceil_up, left face is full height (40px)
-    // 2. If this is a slope_up or ceil_down, left face tapers to a point
-    // 3. If this is a square block, connects to leftEnt if leftEnt is square, slope_up, or ceil_down
-    let hasLeft = false;
-    if (leftEnt && leftEnt !== this && matchesMat(leftEnt)) {
-      if (isSlope) {
-        if (myDir === 'down' || myDir === 'ceil_up') {
-          hasLeft = true;
-        }
-      } else {
-        if (!leftEnt.isSlope || leftEnt.slopeDirection === 'up' || leftEnt.slopeDirection === 'ceil_down') {
-          hasLeft = true;
-        }
-      }
-    }
+    // 2. Bottom face (along y = 40, width = 40):
+    //    Present on: square blocks, slope_up, and slope_down.
+    //    Touches neighbor's top face on: square blocks, slope_ceil_up, and slope_ceil_down.
+    const myHasBottomFace = (!isSlope || myDir === 'up' || myDir === 'down');
+    const bottomHasTopFace = Boolean(bottomEnt && (!bottomEnt.isSlope || bottomEnt.slopeDirection === 'ceil_up' || bottomEnt.slopeDirection === 'ceil_down'));
+    const hasBottom = Boolean(myHasBottomFace && bottomHasTopFace && matchesMat(bottomEnt));
 
-    // Right neighbor connection:
-    // 1. If this is a slope_up or ceil_down, right face is full height (40px)
-    // 2. If this is a slope_down or ceil_up, right face tapers to a point
-    // 3. If this is a square block, connects to rightEnt if rightEnt is square, slope_down, or ceil_up
-    let hasRight = false;
-    if (rightEnt && rightEnt !== this && matchesMat(rightEnt)) {
-      if (isSlope) {
-        if (myDir === 'up' || myDir === 'ceil_down') {
-          hasRight = true;
-        }
-      } else {
-        if (!rightEnt.isSlope || rightEnt.slopeDirection === 'down' || rightEnt.slopeDirection === 'ceil_up') {
-          hasRight = true;
-        }
-      }
-    }
+    // 3. Left face (along x = 0, height = 40):
+    //    Present on: square blocks, slope_down, and slope_ceil_up.
+    //    Touches neighbor's right face on: square blocks, slope_up, and slope_ceil_down.
+    const myHasLeftFace = (!isSlope || myDir === 'down' || myDir === 'ceil_up');
+    const leftHasRightFace = Boolean(leftEnt && (!leftEnt.isSlope || leftEnt.slopeDirection === 'up' || leftEnt.slopeDirection === 'ceil_down'));
+    const hasLeft = Boolean(myHasLeftFace && leftHasRightFace && matchesMat(leftEnt));
+
+    // 4. Right face (along x = 40, height = 40):
+    //    Present on: square blocks, slope_up, and slope_ceil_down.
+    //    Touches neighbor's left face on: square blocks, slope_down, and slope_ceil_up.
+    const myHasRightFace = (!isSlope || myDir === 'up' || myDir === 'ceil_down');
+    const rightHasLeftFace = Boolean(rightEnt && (!rightEnt.isSlope || rightEnt.slopeDirection === 'down' || rightEnt.slopeDirection === 'ceil_up'));
+    const hasRight = Boolean(myHasRightFace && rightHasLeftFace && matchesMat(rightEnt));
 
     return { hasTop, hasBottom, hasLeft, hasRight, topEnt, bottomEnt, leftEnt, rightEnt };
   }
@@ -949,10 +940,14 @@ export class SolidBlock extends Entity {
           ctx.stroke();
         } else if (mat === 'ice') {
           // Slippery Ice Slope Up (seamlessly blends with adjacent Ice Blocks)
+          const xRight = this.width + (hasRight ? 0.5 : 0);
+          const yBottom = this.height + (hasBottom ? 0.5 : 0);
+
           ctx.beginPath();
           ctx.moveTo(0, this.height);
-          ctx.lineTo(this.width + (hasRight ? 0.5 : 0), this.height + (hasBottom ? 0.5 : 0));
-          ctx.lineTo(this.width + (hasRight ? 0.5 : 0), 0);
+          ctx.lineTo(xRight, 0);
+          ctx.lineTo(xRight, yBottom);
+          ctx.lineTo(0, yBottom);
           ctx.closePath();
           ctx.fillStyle = '#B2EBF2'; // Matching Ice Block base
           ctx.fill();
@@ -961,9 +956,9 @@ export class SolidBlock extends Entity {
           // Rises up along the 45° incline and meets right neighbor at (this.width, 0..8)
           ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
           ctx.beginPath();
-          ctx.moveTo(0, this.height - 2);
-          ctx.lineTo(this.width, 2);
-          ctx.lineTo(this.width, 10);
+          ctx.moveTo(0, this.height);
+          ctx.lineTo(this.width, 0);
+          ctx.lineTo(this.width, 8);
           ctx.lineTo(6, this.height);
           ctx.closePath();
           ctx.fill();
@@ -1078,13 +1073,17 @@ export class SolidBlock extends Entity {
       else if (this.isSlope && this.slopeDirection === 'down') {
         const { hasTop, hasBottom, hasLeft, hasRight } = this.getNeighbors();
         const mat = this.effectiveMaterial;
+        const xLeft = hasLeft ? -0.5 : 0;
+        const yBottom = this.height + (hasBottom ? 0.5 : 0);
 
         if (mat === 'stone') {
           // Castle Stone Slope Down
           ctx.beginPath();
           ctx.moveTo(0, 0);
-          ctx.lineTo(0, this.height + (hasBottom ? 0.5 : 0));
-          ctx.lineTo(this.width + (hasLeft ? 0.5 : 0), this.height + (hasBottom ? 0.5 : 0));
+          ctx.lineTo(xLeft, 0);
+          ctx.lineTo(xLeft, yBottom);
+          ctx.lineTo(this.width, yBottom);
+          ctx.lineTo(this.width, this.height);
           ctx.closePath();
           ctx.fillStyle = '#9E9E9E';
           ctx.fill();
@@ -1140,8 +1139,10 @@ export class SolidBlock extends Entity {
           // Slippery Ice Slope Down (seamlessly blends with adjacent Ice Blocks)
           ctx.beginPath();
           ctx.moveTo(0, 0);
-          ctx.lineTo(0, this.height + (hasBottom ? 0.5 : 0));
-          ctx.lineTo(this.width + (hasLeft ? 0.5 : 0), this.height + (hasBottom ? 0.5 : 0));
+          ctx.lineTo(xLeft, 0);
+          ctx.lineTo(xLeft, yBottom);
+          ctx.lineTo(this.width, yBottom);
+          ctx.lineTo(this.width, this.height);
           ctx.closePath();
           ctx.fillStyle = '#B2EBF2'; // Matching Ice Block base
           ctx.fill();
@@ -1151,10 +1152,10 @@ export class SolidBlock extends Entity {
           // and flows smoothly down along the 45° incline to (this.width, this.height)
           ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
           ctx.beginPath();
-          ctx.moveTo(0, 2);
+          ctx.moveTo(0, 0);
           ctx.lineTo(this.width, this.height);
           ctx.lineTo(this.width - 6, this.height);
-          ctx.lineTo(0, 10);
+          ctx.lineTo(0, 8);
           ctx.closePath();
           ctx.fill();
 
@@ -1195,8 +1196,10 @@ export class SolidBlock extends Entity {
           // Base Dirt Fill
           ctx.beginPath();
           ctx.moveTo(0, 0);
-          ctx.lineTo(0, this.height + (hasBottom ? 0.5 : 0));
-          ctx.lineTo(this.width + (hasLeft ? 0.5 : 0), this.height + (hasBottom ? 0.5 : 0));
+          ctx.lineTo(xLeft, 0);
+          ctx.lineTo(xLeft, yBottom);
+          ctx.lineTo(this.width, yBottom);
+          ctx.lineTo(this.width, this.height);
           ctx.closePath();
           ctx.fillStyle = pal.dirtBase;
           ctx.fill();
@@ -1268,13 +1271,17 @@ export class SolidBlock extends Entity {
       else if (this.isSlope && this.slopeDirection === 'ceil_up') {
         const { hasTop, hasBottom, hasLeft, hasRight } = this.getNeighbors();
         const mat = this.effectiveMaterial;
+        const xLeft = hasLeft ? -0.5 : 0;
+        const yTop = hasTop ? -0.5 : 0;
 
         if (mat === 'stone') {
           // Castle Stone Inverted Slope Up
           ctx.beginPath();
-          ctx.moveTo(0, 0);
-          ctx.lineTo(this.width + (hasRight ? 0.5 : 0), 0);
-          ctx.lineTo(0, this.height + (hasBottom ? 0.5 : 0));
+          ctx.moveTo(0, this.height);
+          ctx.lineTo(xLeft, this.height);
+          ctx.lineTo(xLeft, yTop);
+          ctx.lineTo(this.width, yTop);
+          ctx.lineTo(this.width, 0);
           ctx.closePath();
           ctx.fillStyle = '#9E9E9E';
           ctx.fill();
@@ -1329,9 +1336,11 @@ export class SolidBlock extends Entity {
         } else if (mat === 'ice') {
           // Slippery Ice Inverted Slope Up (seamless underside for slope_up)
           ctx.beginPath();
-          ctx.moveTo(0, 0);
-          ctx.lineTo(this.width + (hasRight ? 0.5 : 0), 0);
-          ctx.lineTo(0, this.height + (hasBottom ? 0.5 : 0));
+          ctx.moveTo(0, this.height);
+          ctx.lineTo(xLeft, this.height);
+          ctx.lineTo(xLeft, yTop);
+          ctx.lineTo(this.width, yTop);
+          ctx.lineTo(this.width, 0);
           ctx.closePath();
           ctx.fillStyle = '#B2EBF2'; // Matching Ice Block base
           ctx.fill();
@@ -1340,10 +1349,10 @@ export class SolidBlock extends Entity {
           // Follows the 45° diagonal underside from (0, this.height) to (this.width, 0)
           ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
           ctx.beginPath();
-          ctx.moveTo(0, this.height - 8);
-          ctx.lineTo(this.width - 8, 0);
+          ctx.moveTo(0, this.height);
           ctx.lineTo(this.width, 0);
-          ctx.lineTo(0, this.height);
+          ctx.lineTo(this.width - 8, 0);
+          ctx.lineTo(0, this.height - 8);
           ctx.closePath();
           ctx.fill();
 
@@ -1383,9 +1392,11 @@ export class SolidBlock extends Entity {
         } else {
           // Themed Dirt Fill
           ctx.beginPath();
-          ctx.moveTo(0, 0);
-          ctx.lineTo(this.width + (hasRight ? 0.5 : 0), 0);
-          ctx.lineTo(0, this.height + (hasBottom ? 0.5 : 0));
+          ctx.moveTo(0, this.height);
+          ctx.lineTo(xLeft, this.height);
+          ctx.lineTo(xLeft, yTop);
+          ctx.lineTo(this.width, yTop);
+          ctx.lineTo(this.width, 0);
           ctx.closePath();
           ctx.fillStyle = pal.dirtBase;
           ctx.fill();
@@ -1449,13 +1460,17 @@ export class SolidBlock extends Entity {
       else if (this.isSlope && this.slopeDirection === 'ceil_down') {
         const { hasTop, hasBottom, hasLeft, hasRight } = this.getNeighbors();
         const mat = this.effectiveMaterial;
+        const xRight = this.width + (hasRight ? 0.5 : 0);
+        const yTop = hasTop ? -0.5 : 0;
 
         if (mat === 'stone') {
           // Castle Stone Inverted Slope Down
           ctx.beginPath();
           ctx.moveTo(0, 0);
-          ctx.lineTo(this.width + (hasLeft ? 0.5 : 0), 0);
-          ctx.lineTo(this.width + (hasLeft ? 0.5 : 0), this.height + (hasBottom ? 0.5 : 0));
+          ctx.lineTo(0, yTop);
+          ctx.lineTo(xRight, yTop);
+          ctx.lineTo(xRight, this.height);
+          ctx.lineTo(this.width, this.height);
           ctx.closePath();
           ctx.fillStyle = '#9E9E9E';
           ctx.fill();
@@ -1511,8 +1526,10 @@ export class SolidBlock extends Entity {
           // Slippery Ice Inverted Slope Down (seamless underside for slope_down)
           ctx.beginPath();
           ctx.moveTo(0, 0);
-          ctx.lineTo(this.width + (hasLeft ? 0.5 : 0), 0);
-          ctx.lineTo(this.width + (hasLeft ? 0.5 : 0), this.height + (hasBottom ? 0.5 : 0));
+          ctx.lineTo(0, yTop);
+          ctx.lineTo(xRight, yTop);
+          ctx.lineTo(xRight, this.height);
+          ctx.lineTo(this.width, this.height);
           ctx.closePath();
           ctx.fillStyle = '#B2EBF2'; // Matching Ice Block base
           ctx.fill();
@@ -1565,8 +1582,10 @@ export class SolidBlock extends Entity {
           // Themed Dirt Fill
           ctx.beginPath();
           ctx.moveTo(0, 0);
-          ctx.lineTo(this.width + (hasLeft ? 0.5 : 0), 0);
-          ctx.lineTo(this.width + (hasLeft ? 0.5 : 0), this.height + (hasBottom ? 0.5 : 0));
+          ctx.lineTo(0, yTop);
+          ctx.lineTo(xRight, yTop);
+          ctx.lineTo(xRight, this.height);
+          ctx.lineTo(this.width, this.height);
           ctx.closePath();
           ctx.fillStyle = pal.dirtBase;
           ctx.fill();
@@ -1803,10 +1822,12 @@ export class SolidBlock extends Entity {
         const { hasTop, hasBottom, hasLeft, hasRight, rightEnt, bottomEnt } = this.getNeighbors();
 
         // Base fill with seamless 0.5px overlap on connecting edges
-        const fillW = this.width + (hasRight ? 0.5 : 0);
-        const fillH = this.height + (hasBottom ? 0.5 : 0);
+        const xStart = hasLeft ? -0.5 : 0;
+        const yStart = hasTop ? -0.5 : 0;
+        const fillW = this.width + (hasRight ? 0.5 : 0) - xStart;
+        const fillH = this.height + (hasBottom ? 0.5 : 0) - yStart;
         ctx.fillStyle = '#9E9E9E';
-        ctx.fillRect(0, 0, fillW, fillH);
+        ctx.fillRect(xStart, yStart, fillW, fillH);
 
         // Chiseled highlights on top & left
         ctx.strokeStyle = '#EEEEEE';
@@ -1936,10 +1957,12 @@ export class SolidBlock extends Entity {
         const { hasTop, hasBottom, hasLeft, hasRight, rightEnt, bottomEnt } = this.getNeighbors();
 
         // Base fill with seamless 0.5px overlap on connecting edges
-        const fillW = this.width + (hasRight ? 0.5 : 0);
-        const fillH = this.height + (hasBottom ? 0.5 : 0);
+        const xStart = hasLeft ? -0.5 : 0;
+        const yStart = hasTop ? -0.5 : 0;
+        const fillW = this.width + (hasRight ? 0.5 : 0) - xStart;
+        const fillH = this.height + (hasBottom ? 0.5 : 0) - yStart;
         ctx.fillStyle = '#B2EBF2';
-        ctx.fillRect(0, 0, fillW, fillH);
+        ctx.fillRect(xStart, yStart, fillW, fillH);
 
         // Top glossy ice sheen if not covered from above
         if (!hasTop) {
@@ -2002,10 +2025,12 @@ export class SolidBlock extends Entity {
         const { hasTop, hasBottom, hasLeft, hasRight } = this.getNeighbors();
 
         // Base Dirt / Stone Fill (with seamless 0.5px overlap on connecting edges)
-        const fillW = this.width + (hasRight ? 0.5 : 0);
-        const fillH = this.height + (hasBottom ? 0.5 : 0);
+        const xStart = hasLeft ? -0.5 : 0;
+        const yStart = hasTop ? -0.5 : 0;
+        const fillW = this.width + (hasRight ? 0.5 : 0) - xStart;
+        const fillH = this.height + (hasBottom ? 0.5 : 0) - yStart;
         ctx.fillStyle = pal.dirtBase;
-        ctx.fillRect(0, 0, fillW, fillH);
+        ctx.fillRect(xStart, yStart, fillW, fillH);
 
         // Deterministic organic specks
         const col = Math.round(this.x / 40);
@@ -2211,6 +2236,7 @@ export class SolidBlock extends Entity {
 // Terrain Spatial Autotiling Map Cache
 SolidBlock.terrainMap = new Map();
 SolidBlock.terrainMapActive = false;
+SolidBlock.terrainMapDirty = false;
 SolidBlock.updateTerrainMap = function(entities) {
   if (!entities) return;
   SolidBlock.terrainMap.clear();
@@ -2230,6 +2256,7 @@ SolidBlock.updateTerrainMap = function(entities) {
     }
   }
   SolidBlock.terrainMapActive = true;
+  SolidBlock.terrainMapDirty = false;
 };
 
 // Backward-compatible alias

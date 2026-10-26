@@ -1,6 +1,6 @@
 // Sidehop Snap-to-Grid Level Editor & Enhanced Interaction System
 
-import { CrateBlock, Springboard, HazardSpikes, EnemyWalker, MovingPlatform, Collectible, GoalFlag } from '../engine/entities.js?v=20261025_03';
+import { CrateBlock, SolidBlock, Springboard, HazardSpikes, EnemyWalker, MovingPlatform, Collectible, GoalFlag } from '../engine/entities.js?v=20261026_04';
 import { sounds } from '../audio/sound.js';
 
 export class GridEditor {
@@ -515,6 +515,7 @@ export class GridEditor {
 
     if (newEnt) {
       entities.push(newEnt);
+      if (SolidBlock.updateTerrainMap) SolidBlock.updateTerrainMap(entities);
       sounds.playLand();
       if (this.onEntityMoved) this.onEntityMoved();
       if (this.onHistorySnapshotNeeded) this.onHistorySnapshotNeeded();
@@ -534,6 +535,7 @@ export class GridEditor {
 
     if (idx !== -1) {
       entities.splice(idx, 1);
+      if (SolidBlock.updateTerrainMap) SolidBlock.updateTerrainMap(entities);
       sounds.playPaintSquish();
       if (this.selectedEntity === entities[idx]) {
         this.selectedEntity = null;

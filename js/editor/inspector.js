@@ -1,6 +1,7 @@
 // Sidehop Component Inspector — Real-Time Parameter Tuning
 
 import { sounds } from '../audio/sound.js';
+import { SolidBlock } from '../engine/entities.js?v=20261026_04';
 
 export class Inspector {
   constructor(panelElement) {
@@ -121,6 +122,9 @@ export class Inspector {
         } else if (shape === 'slope_ceil_down') {
           ent.setVariant(mat === 'stone' ? 'stone_slope_ceil_down' : mat === 'ice' ? 'ice_slope_ceil_down' : 'slope_ceil_down');
         }
+        if (typeof window !== 'undefined' && window.sidehop?.entities) {
+          SolidBlock.updateTerrainMap(window.sidehop.entities);
+        }
       });
 
       const materialOptions = [
@@ -146,6 +150,9 @@ export class Inspector {
           }
         } else {
           ent.setVariant(mat);
+        }
+        if (typeof window !== 'undefined' && window.sidehop?.entities) {
+          SolidBlock.updateTerrainMap(window.sidehop.entities);
         }
       });
 
