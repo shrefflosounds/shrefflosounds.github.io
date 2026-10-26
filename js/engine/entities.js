@@ -2,6 +2,23 @@
 
 import { sounds } from '../audio/sound.js';
 
+// Polyfill Canvas roundRect for older Safari / browsers
+if (typeof CanvasRenderingContext2D !== 'undefined' && !CanvasRenderingContext2D.prototype.roundRect) {
+  CanvasRenderingContext2D.prototype.roundRect = function(x, y, w, h, radii) {
+    const r = Math.min(Math.abs(w) / 2, Math.abs(h) / 2, Array.isArray(radii) ? (radii[0] || 0) : (radii || 0));
+    this.moveTo(x + r, y);
+    this.lineTo(x + w - r, y);
+    this.quadraticCurveTo(x + w, y, x + w, y + r);
+    this.lineTo(x + w, y + h - r);
+    this.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+    this.lineTo(x + r, y + h);
+    this.quadraticCurveTo(x, y + h, x, y + h - r);
+    this.lineTo(x, y + r);
+    this.quadraticCurveTo(x, y, x + r, y);
+    return this;
+  };
+}
+
 export class Entity {
   constructor(id, type, x, y, width, height) {
     this.id = id || ('ent_' + Math.random().toString(36).substr(2, 9));
@@ -30,11 +47,15 @@ export class Entity {
 
   // Draw custom image or fallback
   renderCustomOrFallback(ctx, fallbackDrawFn) {
-    if (this.customImageElement && this.customImageElement.complete) {
-      ctx.drawImage(this.customImageElement, 0, 0, this.width, this.height);
-    } else {
-      fallbackDrawFn();
+    if (this.customImageElement && this.customImageElement.complete && this.customImageElement.naturalWidth > 0 && this.customImageElement.naturalHeight > 0) {
+      try {
+        ctx.drawImage(this.customImageElement, 0, 0, this.width, this.height);
+        return;
+      } catch (err) {
+        console.warn('Entity custom image draw failed:', err);
+      }
     }
+    fallbackDrawFn();
   }
 }
 
@@ -251,111 +272,114 @@ export class Player extends Entity {
 
   draw(ctx) {
     ctx.save();
-
-    // Flicker visibility during invulnerability frames
-    if (this.invulnerableTimer > 0) {
-      const isFlicker = Math.floor(this.invulnerableTimer * 18) % 2 === 0;
-      if (isFlicker) {
-        ctx.globalAlpha = 0.35;
+    try {
+      // Flicker visibility during invulnerability frames
+      if (this.invulnerableTimer > 0) {
+        const isFlicker = Math.floor(this.invulnerableTimer * 18) % 2 === 0;
+        if (isFlicker) {
+          ctx.globalAlpha = 0.35;
+        }
       }
-    }
 
-    // Center transformation on character's bottom-center for squash-and-stretch
-    const centerX = this.x + this.width / 2;
-    const bottomY = this.y + this.height;
+      // Center transformation on character's bottom-center for squash-and-stretch
+      const centerX = this.x + this.width / 2;
+      const bottomY = this.y + this.height;
 
-    ctx.translate(centerX, bottomY);
-    ctx.scale(this.facing * this.deformation.scaleX, this.deformation.scaleY);
-    ctx.rotate(this.facing * this.deformation.rotation);
-    ctx.translate(-this.width / 2, -this.height);
+      ctx.translate(centerX, bottomY);
+      ctx.scale(this.facing * this.deformation.scaleX, this.deformation.scaleY);
+      ctx.rotate(this.facing * this.deformation.rotation);
+      ctx.translate(-this.width / 2, -this.height);
 
-    this.renderCustomOrFallback(ctx, () => {
-      // Default Sidehop Playful Mascot
-      // Body (electric cyan rounded rectangle with neo-brutalist border)
-      ctx.fillStyle = '#00E5FF';
-      ctx.strokeStyle = '#121212';
-      ctx.lineWidth = 3;
-
-      ctx.beginPath();
-      ctx.roundRect(4, 8, this.width - 8, this.height - 14, 10);
-      ctx.fill();
-      ctx.stroke();
-
-      // Big Goofy Eyes
-      ctx.fillStyle = '#FFFFFF';
-      ctx.beginPath();
-      ctx.arc(16, 18, 6, 0, Math.PI * 2);
-      ctx.arc(28, 18, 6, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.stroke();
-
-      // Pupils (looking forward)
-      ctx.fillStyle = '#121212';
-      ctx.beginPath();
-      ctx.arc(18, 18, 3, 0, Math.PI * 2);
-      ctx.arc(30, 18, 3, 0, Math.PI * 2);
-      ctx.fill();
-
-      // Cheerful Smile
-      ctx.beginPath();
-      ctx.arc(22, 26, 6, 0.2, Math.PI - 0.2);
-      ctx.stroke();
-
-      // Chunky Sneakers
-      ctx.fillStyle = '#FF3388';
-      ctx.beginPath();
-      ctx.roundRect(4, this.height - 8, 14, 8, 4);
-      ctx.roundRect(22, this.height - 8, 14, 8, 4);
-      ctx.fill();
-      ctx.stroke();
-
-      // Equipped Pistol (Kid Pix / Neo-brutalist sidearm)
-      if (this.hasPistol) {
-        const recoilX = this.recoilTimer > 0 ? -4 : 0;
-        ctx.save();
-        ctx.translate(26 + recoilX, 22);
-
-        // Slide & Barrel
-        ctx.fillStyle = '#222222';
+      this.renderCustomOrFallback(ctx, () => {
+        // Default Sidehop Playful Mascot
+        // Body (electric cyan rounded rectangle with neo-brutalist border)
+        ctx.fillStyle = '#00E5FF';
         ctx.strokeStyle = '#121212';
-        ctx.lineWidth = 2;
+        ctx.lineWidth = 3;
+
         ctx.beginPath();
-        ctx.roundRect(0, -6, 16, 7, 2);
+        ctx.roundRect(4, 8, this.width - 8, this.height - 14, 10);
         ctx.fill();
         ctx.stroke();
 
-        // Grip / Handle
+        // Big Goofy Eyes
+        ctx.fillStyle = '#FFFFFF';
         ctx.beginPath();
-        ctx.roundRect(-2, 0, 6, 9, 2);
+        ctx.arc(16, 18, 6, 0, Math.PI * 2);
+        ctx.arc(28, 18, 6, 0, Math.PI * 2);
         ctx.fill();
         ctx.stroke();
 
-        // Neon orange slide accent
-        ctx.fillStyle = '#FF6D00';
-        ctx.fillRect(4, -5, 8, 2);
+        // Pupils (looking forward)
+        ctx.fillStyle = '#121212';
+        ctx.beginPath();
+        ctx.arc(18, 18, 3, 0, Math.PI * 2);
+        ctx.arc(30, 18, 3, 0, Math.PI * 2);
+        ctx.fill();
 
-        // Muzzle flash when firing
-        if (this.recoilTimer > 0.08) {
-          ctx.fillStyle = '#FFEE58';
-          ctx.strokeStyle = '#FF3D00';
-          ctx.lineWidth = 1.5;
+        // Cheerful Smile
+        ctx.beginPath();
+        ctx.arc(22, 26, 6, 0.2, Math.PI - 0.2);
+        ctx.stroke();
+
+        // Chunky Sneakers
+        ctx.fillStyle = '#FF3388';
+        ctx.beginPath();
+        ctx.roundRect(4, this.height - 8, 14, 8, 4);
+        ctx.roundRect(22, this.height - 8, 14, 8, 4);
+        ctx.fill();
+        ctx.stroke();
+
+        // Equipped Pistol (Kid Pix / Neo-brutalist sidearm)
+        if (this.hasPistol) {
+          const recoilX = this.recoilTimer > 0 ? -4 : 0;
+          ctx.save();
+          ctx.translate(26 + recoilX, 22);
+
+          // Slide & Barrel
+          ctx.fillStyle = '#222222';
+          ctx.strokeStyle = '#121212';
+          ctx.lineWidth = 2;
           ctx.beginPath();
-          ctx.moveTo(16, -2.5);
-          ctx.lineTo(24, -6);
-          ctx.lineTo(20, -2.5);
-          ctx.lineTo(26, -2.5);
-          ctx.lineTo(20, 0);
-          ctx.lineTo(24, 2);
-          ctx.closePath();
+          ctx.roundRect(0, -6, 16, 7, 2);
           ctx.fill();
           ctx.stroke();
+
+          // Grip / Handle
+          ctx.beginPath();
+          ctx.roundRect(-2, 0, 6, 9, 2);
+          ctx.fill();
+          ctx.stroke();
+
+          // Neon orange slide accent
+          ctx.fillStyle = '#FF6D00';
+          ctx.fillRect(4, -5, 8, 2);
+
+          // Muzzle flash when firing
+          if (this.recoilTimer > 0.08) {
+            ctx.fillStyle = '#FFEE58';
+            ctx.strokeStyle = '#FF3D00';
+            ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            ctx.moveTo(16, -2.5);
+            ctx.lineTo(24, -6);
+            ctx.lineTo(20, -2.5);
+            ctx.lineTo(26, -2.5);
+            ctx.lineTo(20, 0);
+            ctx.lineTo(24, 2);
+            ctx.closePath();
+            ctx.fill();
+            ctx.stroke();
+          }
+
+          ctx.restore();
         }
-
-        ctx.restore();
-      }
-    });
-
-    ctx.restore();
+      });
+    } catch (err) {
+      console.warn('Player draw error:', err);
+    } finally {
+      ctx.restore();
+    }
   }
 }
 
@@ -575,93 +599,97 @@ export class SolidBlock extends Entity {
 
   // Ensure square block assets remain in their physical block shape when an image or GIF is applied
   renderCustomOrFallback(ctx, fallbackDrawFn) {
-    if (this.customImageElement && this.customImageElement.complete) {
-      ctx.save();
-      const pal = SolidBlock.getThemePalette();
+    if (this.customImageElement && this.customImageElement.complete && this.customImageElement.naturalWidth > 0 && this.customImageElement.naturalHeight > 0) {
+      try {
+        ctx.save();
+        const pal = SolidBlock.getThemePalette();
 
-      if (this.variant === 'slope_up') {
-        // 45° Incline Triangle Clipping
-        ctx.beginPath();
-        ctx.moveTo(0, this.height);
-        ctx.lineTo(this.width, 0);
-        ctx.lineTo(this.width, this.height);
-        ctx.closePath();
-        ctx.fillStyle = pal.dirtBase;
-        ctx.fill();
-        ctx.clip();
-      } else if (this.variant === 'slope_down') {
-        // 45° Decline Triangle Clipping
-        ctx.beginPath();
-        ctx.moveTo(0, 0);
-        ctx.lineTo(this.width, this.height);
-        ctx.lineTo(0, this.height);
-        ctx.closePath();
-        ctx.fillStyle = pal.dirtBase;
-        ctx.fill();
-        ctx.clip();
-      } else {
-        // Square & rectangular blocks: retain solid square block shape
-        ctx.fillStyle = pal.dirtBase; // Themed block base backing
-        ctx.fillRect(0, 0, this.width, this.height);
+        if (this.variant === 'slope_up') {
+          // 45° Incline Triangle Clipping
+          ctx.beginPath();
+          ctx.moveTo(0, this.height);
+          ctx.lineTo(this.width, 0);
+          ctx.lineTo(this.width, this.height);
+          ctx.closePath();
+          ctx.fillStyle = pal.dirtBase;
+          ctx.fill();
+          ctx.clip();
+        } else if (this.variant === 'slope_down') {
+          // 45° Decline Triangle Clipping
+          ctx.beginPath();
+          ctx.moveTo(0, 0);
+          ctx.lineTo(this.width, this.height);
+          ctx.lineTo(0, this.height);
+          ctx.closePath();
+          ctx.fillStyle = pal.dirtBase;
+          ctx.fill();
+          ctx.clip();
+        } else {
+          // Square & rectangular blocks: retain solid square block shape
+          ctx.fillStyle = pal.dirtBase; // Themed block base backing
+          ctx.fillRect(0, 0, this.width, this.height);
 
-        ctx.beginPath();
-        ctx.rect(0, 0, this.width, this.height);
-        ctx.clip();
+          ctx.beginPath();
+          ctx.rect(0, 0, this.width, this.height);
+          ctx.clip();
+        }
+
+        // Draw custom visual using Aspect-Ratio Preserving Cover Mode
+        const img = this.customImageElement;
+        const imgW = img.naturalWidth || this.width;
+        const imgH = img.naturalHeight || this.height;
+        const scale = (imgW > 0 && imgH > 0) ? Math.max(this.width / imgW, this.height / imgH) : 1;
+        const dw = imgW * scale;
+        const dh = imgH * scale;
+        const dx = (this.width - dw) / 2;
+        const dy = (this.height - dh) / 2;
+
+        ctx.drawImage(img, dx, dy, dw, dh);
+        ctx.restore();
+
+        // Outer neo-brutalist border and bevel so the block retains its physical block appearance
+        ctx.save();
+        ctx.strokeStyle = '#121212';
+        ctx.lineWidth = 3;
+        if (this.variant === 'slope_up') {
+          ctx.beginPath();
+          ctx.moveTo(0, this.height);
+          ctx.lineTo(this.width, 0);
+          ctx.lineTo(this.width, this.height);
+          ctx.closePath();
+          ctx.stroke();
+        } else if (this.variant === 'slope_down') {
+          ctx.beginPath();
+          ctx.moveTo(0, 0);
+          ctx.lineTo(this.width, this.height);
+          ctx.lineTo(0, this.height);
+          ctx.closePath();
+          ctx.stroke();
+        } else {
+          ctx.strokeRect(0, 0, this.width, this.height);
+
+          // Subtle top bevel highlight for 3D physical block depth
+          ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+          ctx.fillRect(2, 2, this.width - 4, 3);
+          // Subtle bottom bevel shadow
+          ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
+          ctx.fillRect(2, this.height - 5, this.width - 4, 3);
+        }
+        ctx.restore();
+        return;
+      } catch (err) {
+        console.warn('SolidBlock custom image render failed:', err);
       }
-
-      // Draw custom visual using Aspect-Ratio Preserving Cover Mode
-      // Centers the image and scales it so it completely fills the block shape without spilling or distorting!
-      const img = this.customImageElement;
-      const imgW = img.naturalWidth || img.width || this.width;
-      const imgH = img.naturalHeight || img.height || this.height;
-      const scale = Math.max(this.width / imgW, this.height / imgH);
-      const dw = imgW * scale;
-      const dh = imgH * scale;
-      const dx = (this.width - dw) / 2;
-      const dy = (this.height - dh) / 2;
-
-      ctx.drawImage(img, dx, dy, dw, dh);
-      ctx.restore();
-
-      // Outer neo-brutalist border and bevel so the block retains its physical block appearance
-      ctx.save();
-      ctx.strokeStyle = '#121212';
-      ctx.lineWidth = 3;
-      if (this.variant === 'slope_up') {
-        ctx.beginPath();
-        ctx.moveTo(0, this.height);
-        ctx.lineTo(this.width, 0);
-        ctx.lineTo(this.width, this.height);
-        ctx.closePath();
-        ctx.stroke();
-      } else if (this.variant === 'slope_down') {
-        ctx.beginPath();
-        ctx.moveTo(0, 0);
-        ctx.lineTo(this.width, this.height);
-        ctx.lineTo(0, this.height);
-        ctx.closePath();
-        ctx.stroke();
-      } else {
-        ctx.strokeRect(0, 0, this.width, this.height);
-
-        // Subtle top bevel highlight for 3D physical block depth
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
-        ctx.fillRect(2, 2, this.width - 4, 3);
-        // Subtle bottom bevel shadow
-        ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
-        ctx.fillRect(2, this.height - 5, this.width - 4, 3);
-      }
-      ctx.restore();
-    } else {
-      fallbackDrawFn();
     }
+    fallbackDrawFn();
   }
 
   draw(ctx) {
     ctx.save();
-    ctx.translate(this.x + (this.shakeOffsetX || 0), this.y + (this.bumpOffsetY || 0));
+    try {
+      ctx.translate(this.x + (this.shakeOffsetX || 0), this.y + (this.bumpOffsetY || 0));
 
-    this.renderCustomOrFallback(ctx, () => {
+      this.renderCustomOrFallback(ctx, () => {
       const pal = SolidBlock.getThemePalette();
 
       // 1. SLANT UP (45° Incline /)
@@ -1276,8 +1304,11 @@ export class SolidBlock extends Entity {
         ctx.stroke();
       }
     });
-
-    ctx.restore();
+    } catch (err) {
+      console.warn('SolidBlock draw error:', err);
+    } finally {
+      ctx.restore();
+    }
   }
 }
 
@@ -1336,54 +1367,62 @@ export class Springboard extends Entity {
 
   draw(ctx) {
     ctx.save();
-    ctx.translate(this.x, this.y);
+    try {
+      ctx.translate(this.x, this.y);
 
-    const isCompressed = this.compressTimer > 0.05;
+      const isCompressed = this.compressTimer > 0.05;
 
-    if (this.customImageElement && this.customImageElement.complete) {
-      if (isCompressed) {
-        // Dynamic squish animation for custom decal on bounce!
-        const squashY = this.height * 0.35;
-        ctx.drawImage(this.customImageElement, -this.width * 0.05, squashY, this.width * 1.1, this.height * 0.65);
+      if (this.customImageElement && this.customImageElement.complete && this.customImageElement.naturalWidth > 0 && this.customImageElement.naturalHeight > 0) {
+        try {
+          if (isCompressed) {
+            // Dynamic squish animation for custom decal on bounce!
+            const squashY = this.height * 0.35;
+            ctx.drawImage(this.customImageElement, -this.width * 0.05, squashY, this.width * 1.1, this.height * 0.65);
+          } else {
+            ctx.drawImage(this.customImageElement, 0, 0, this.width, this.height);
+          }
+        } catch (drawErr) {
+          console.warn('Springboard custom decal draw error:', drawErr);
+        }
       } else {
-        ctx.drawImage(this.customImageElement, 0, 0, this.width, this.height);
-      }
-    } else {
-      const springHeight = isCompressed ? this.height * 0.42 : this.height * 0.85;
-      const offsetY = this.height - springHeight;
+        const springHeight = isCompressed ? this.height * 0.42 : this.height * 0.85;
+        const offsetY = this.height - springHeight;
 
-      // Base plate
-      ctx.fillStyle = '#121212';
-      ctx.fillRect(2, this.height - 8, this.width - 4, 8);
-
-      // Coil
-      ctx.strokeStyle = this.variant === 'mega' ? '#00E5FF' : '#FF3388';
-      ctx.lineWidth = this.variant === 'mega' ? 5 : 4;
-      ctx.beginPath();
-      ctx.moveTo(8, this.height - 8);
-      ctx.lineTo(this.width - 8, this.height - springHeight / 2);
-      ctx.lineTo(8, offsetY + 6);
-      ctx.stroke();
-
-      // Bouncy Top Cap
-      ctx.fillStyle = this.variant === 'mega' ? '#FFE600' : '#00E676';
-      ctx.strokeStyle = '#121212';
-      ctx.lineWidth = 3;
-      ctx.beginPath();
-      ctx.roundRect(2, offsetY, this.width - 4, 10, 4);
-      ctx.fill();
-      ctx.stroke();
-
-      if (this.variant === 'mega') {
-        // Star badge on mega trampoline cap
+        // Base plate
         ctx.fillStyle = '#121212';
-        ctx.beginPath();
-        ctx.arc(this.width / 2, offsetY + 5, 2.5, 0, Math.PI * 2);
-        ctx.fill();
-      }
-    }
+        ctx.fillRect(2, this.height - 8, this.width - 4, 8);
 
-    ctx.restore();
+        // Coil
+        ctx.strokeStyle = this.variant === 'mega' ? '#00E5FF' : '#FF3388';
+        ctx.lineWidth = this.variant === 'mega' ? 5 : 4;
+        ctx.beginPath();
+        ctx.moveTo(8, this.height - 8);
+        ctx.lineTo(this.width - 8, this.height - springHeight / 2);
+        ctx.lineTo(8, offsetY + 6);
+        ctx.stroke();
+
+        // Bouncy Top Cap
+        ctx.fillStyle = this.variant === 'mega' ? '#FFE600' : '#00E676';
+        ctx.strokeStyle = '#121212';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.roundRect(2, offsetY, this.width - 4, 10, 4);
+        ctx.fill();
+        ctx.stroke();
+
+        if (this.variant === 'mega') {
+          // Star badge on mega trampoline cap
+          ctx.fillStyle = '#121212';
+          ctx.beginPath();
+          ctx.arc(this.width / 2, offsetY + 5, 2.5, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+    } catch (err) {
+      console.warn('Springboard draw error:', err);
+    } finally {
+      ctx.restore();
+    }
   }
 }
 
@@ -1395,46 +1434,50 @@ export class HazardSpikes extends Entity {
 
   draw(ctx) {
     ctx.save();
-    ctx.translate(this.x, this.y);
+    try {
+      ctx.translate(this.x, this.y);
 
-    this.renderCustomOrFallback(ctx, () => {
-      const theme = (typeof window !== 'undefined' && window.sidehop?.currentTheme) || 'grass';
-      let spikeFill = '#EF4444';
-      if (theme === 'snowy') spikeFill = '#93C5FD'; // Icicle blue
-      else if (theme === 'night') spikeFill = '#A855F7'; // Amethyst crystal
-      else if (theme === 'chrome') spikeFill = '#E2E8F0'; // Metallic chrome
-      else if (theme === '8-bit') spikeFill = '#D82800'; // Retro arcade red
-      else if (theme === 'jungle') spikeFill = '#B45309'; // Bamboo thorn
+      this.renderCustomOrFallback(ctx, () => {
+        const theme = (typeof window !== 'undefined' && window.sidehop?.currentTheme) || 'grass';
+        let spikeFill = '#EF4444';
+        if (theme === 'snowy') spikeFill = '#93C5FD'; // Icicle blue
+        else if (theme === 'night') spikeFill = '#A855F7'; // Amethyst crystal
+        else if (theme === 'chrome') spikeFill = '#E2E8F0'; // Metallic chrome
+        else if (theme === '8-bit') spikeFill = '#D82800'; // Retro arcade red
+        else if (theme === 'jungle') spikeFill = '#B45309'; // Bamboo thorn
 
-      ctx.fillStyle = spikeFill;
-      ctx.strokeStyle = '#121212';
-      ctx.lineWidth = 3;
+        ctx.fillStyle = spikeFill;
+        ctx.strokeStyle = '#121212';
+        ctx.lineWidth = 3;
 
-      const numSpikes = 3;
-      const spikeW = this.width / numSpikes;
+        const numSpikes = 3;
+        const spikeW = this.width / numSpikes;
 
-      ctx.beginPath();
-      ctx.moveTo(0, this.height);
-      for (let i = 0; i < numSpikes; i++) {
-        ctx.lineTo(i * spikeW + spikeW / 2, 4);
-        ctx.lineTo((i + 1) * spikeW, this.height);
-      }
-      ctx.closePath();
-      ctx.fill();
-      ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(0, this.height);
+        for (let i = 0; i < numSpikes; i++) {
+          ctx.lineTo(i * spikeW + spikeW / 2, 4);
+          ctx.lineTo((i + 1) * spikeW, this.height);
+        }
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
 
-      // Gleam highlight down left edge of each spike
-      ctx.strokeStyle = 'rgba(255, 255, 255, 0.6)';
-      ctx.lineWidth = 1.5;
-      ctx.beginPath();
-      for (let i = 0; i < numSpikes; i++) {
-        ctx.moveTo(i * spikeW + 2, this.height - 2);
-        ctx.lineTo(i * spikeW + spikeW / 2, 7);
-      }
-      ctx.stroke();
-    });
-
-    ctx.restore();
+        // Gleam highlight down left edge of each spike
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.6)';
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        for (let i = 0; i < numSpikes; i++) {
+          ctx.moveTo(i * spikeW + 2, this.height - 2);
+          ctx.lineTo(i * spikeW + spikeW / 2, 7);
+        }
+        ctx.stroke();
+      });
+    } catch (err) {
+      console.warn('HazardSpikes draw error:', err);
+    } finally {
+      ctx.restore();
+    }
   }
 }
 
@@ -1512,7 +1555,8 @@ export class EnemyWalker extends Entity {
   draw(ctx) {
     if (!this.active) return;
     ctx.save();
-    ctx.translate(this.x + this.width / 2, this.y + this.height + (this.hopOffset || 0));
+    try {
+      ctx.translate(this.x + this.width / 2, this.y + this.height + (this.hopOffset || 0));
     
     if (this.isSquashed) {
       ctx.scale(1.4, 0.2);
@@ -1638,8 +1682,11 @@ export class EnemyWalker extends Entity {
         ctx.stroke();
       }
     });
-
-    ctx.restore();
+    } catch (err) {
+      console.warn('EnemyWalker draw error:', err);
+    } finally {
+      ctx.restore();
+    }
   }
 }
 
@@ -1678,26 +1725,30 @@ export class MovingPlatform extends Entity {
 
   draw(ctx) {
     ctx.save();
-    ctx.translate(this.x, this.y);
+    try {
+      ctx.translate(this.x, this.y);
 
-    this.renderCustomOrFallback(ctx, () => {
-      ctx.fillStyle = '#00E5FF';
-      ctx.strokeStyle = '#121212';
-      ctx.lineWidth = 3;
+      this.renderCustomOrFallback(ctx, () => {
+        ctx.fillStyle = '#00E5FF';
+        ctx.strokeStyle = '#121212';
+        ctx.lineWidth = 3;
 
-      ctx.beginPath();
-      ctx.roundRect(0, 0, this.width, this.height, 6);
-      ctx.fill();
-      ctx.stroke();
+        ctx.beginPath();
+        ctx.roundRect(0, 0, this.width, this.height, 6);
+        ctx.fill();
+        ctx.stroke();
 
-      // Platform grip lines
-      ctx.fillStyle = '#121212';
-      for (let i = 12; i < this.width - 10; i += 16) {
-        ctx.fillRect(i, 4, 3, this.height - 8);
-      }
-    });
-
-    ctx.restore();
+        // Platform grip lines
+        ctx.fillStyle = '#121212';
+        for (let i = 12; i < this.width - 10; i += 16) {
+          ctx.fillRect(i, 4, 3, this.height - 8);
+        }
+      });
+    } catch (err) {
+      console.warn('MovingPlatform draw error:', err);
+    } finally {
+      ctx.restore();
+    }
   }
 }
 
@@ -1736,25 +1787,29 @@ export class Bullet extends Entity {
   draw(ctx) {
     if (!this.active) return;
     ctx.save();
-    ctx.translate(this.x + this.width / 2, this.y + this.height / 2);
-    ctx.scale(this.dir, 1);
+    try {
+      ctx.translate(this.x + this.width / 2, this.y + this.height / 2);
+      ctx.scale(this.dir, 1);
 
-    // Glowing Neon Yellow energy slug
-    ctx.fillStyle = '#FFEE58';
-    ctx.strokeStyle = '#121212';
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.roundRect(-8, -4, 16, 8, 4);
-    ctx.fill();
-    ctx.stroke();
+      // Glowing Neon Yellow energy slug
+      ctx.fillStyle = '#FFEE58';
+      ctx.strokeStyle = '#121212';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.roundRect(-8, -4, 16, 8, 4);
+      ctx.fill();
+      ctx.stroke();
 
-    // Hot White energy core
-    ctx.fillStyle = '#FFFFFF';
-    ctx.beginPath();
-    ctx.roundRect(-4, -2, 8, 4, 2);
-    ctx.fill();
-
-    ctx.restore();
+      // Hot White energy core
+      ctx.fillStyle = '#FFFFFF';
+      ctx.beginPath();
+      ctx.roundRect(-4, -2, 8, 4, 2);
+      ctx.fill();
+    } catch (err) {
+      console.warn('Bullet draw error:', err);
+    } finally {
+      ctx.restore();
+    }
   }
 }
 
@@ -1810,8 +1865,9 @@ export class Collectible extends Entity {
   draw(ctx) {
     if (!this.active) return;
     ctx.save();
-    const bobOffset = Math.sin(this.bobTimer) * 4;
-    ctx.translate(this.x, this.y + bobOffset);
+    try {
+      const bobOffset = Math.sin(this.bobTimer) * 4;
+      ctx.translate(this.x, this.y + bobOffset);
 
     this.renderCustomOrFallback(ctx, () => {
       const isAmmoRefill = this.variant === 'ammo' ||
@@ -1983,8 +2039,11 @@ export class Collectible extends Entity {
         ctx.stroke();
       }
     });
-
-    ctx.restore();
+    } catch (err) {
+      console.warn('Collectible draw error:', err);
+    } finally {
+      ctx.restore();
+    }
   }
 }
 
@@ -2002,9 +2061,10 @@ export class GoalFlag extends Entity {
 
   draw(ctx) {
     ctx.save();
-    ctx.translate(this.x, this.y);
+    try {
+      ctx.translate(this.x, this.y);
 
-    this.renderCustomOrFallback(ctx, () => {
+      this.renderCustomOrFallback(ctx, () => {
       // Flagpole
       ctx.strokeStyle = '#121212';
       ctx.lineWidth = 4;
@@ -2028,10 +2088,30 @@ export class GoalFlag extends Entity {
       ctx.fillStyle = '#121212';
       ctx.fillRect(0, this.height - 8, 16, 8);
     });
-
-    ctx.restore();
+    } catch (err) {
+      console.warn('GoalFlag draw error:', err);
+    } finally {
+      ctx.restore();
+    }
   }
 }
 
 // Export aliases
 export { HazardSpikes as SpikeHazard, EnemyWalker as Enemy, GoalFlag as GoalPole };
+
+if (typeof window !== 'undefined') {
+  window.Entity = Entity;
+  window.Player = Player;
+  window.SolidBlock = SolidBlock;
+  window.CrateBlock = SolidBlock;
+  window.Springboard = Springboard;
+  window.HazardSpikes = HazardSpikes;
+  window.SpikeHazard = HazardSpikes;
+  window.EnemyWalker = EnemyWalker;
+  window.Enemy = EnemyWalker;
+  window.MovingPlatform = MovingPlatform;
+  window.Bullet = Bullet;
+  window.Collectible = Collectible;
+  window.GoalFlag = GoalFlag;
+  window.GoalPole = GoalFlag;
+}

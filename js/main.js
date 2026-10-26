@@ -1,17 +1,17 @@
 // Sidehop Master Application Coordinator — Enhanced Custom Backgrounds, Asset Library & Undo/Redo
 
-import { Player, Bullet, SolidBlock, Collectible } from './engine/entities.js';
-import { PhysicsEngine } from './engine/physics.js?v=2';
-import { Camera } from './engine/camera.js';
-import { GridEditor } from './editor/grid.js';
-import { ArtStudio } from './editor/paint.js';
-import { Inspector } from './editor/inspector.js';
-import { VideoRecorder } from './recorder/recorder.js';
-import { LevelStorage } from './storage/storage.js';
-import { HistoryManager } from './editor/history.js';
-import { sounds } from './audio/sound.js';
-import { SidehopFile } from './storage/sidehop-format.js';
-import { SidehopDemo } from './editor/demo.js';
+import { Player, Bullet, SolidBlock, Collectible } from './engine/entities.js?v=20261025_03';
+import { PhysicsEngine } from './engine/physics.js?v=20261025_03';
+import { Camera } from './engine/camera.js?v=20261025_03';
+import { GridEditor } from './editor/grid.js?v=20261025_03';
+import { ArtStudio } from './editor/paint.js?v=20261025_03';
+import { Inspector } from './editor/inspector.js?v=20261025_03';
+import { VideoRecorder } from './recorder/recorder.js?v=20261025_03';
+import { LevelStorage } from './storage/storage.js?v=20261025_03';
+import { HistoryManager } from './editor/history.js?v=20261025_03';
+import { sounds } from './audio/sound.js?v=20261025_03';
+import { SidehopFile } from './storage/sidehop-format.js?v=20261025_03';
+import { SidehopDemo } from './editor/demo.js?v=20261025_03';
 
 class SidehopApp {
   constructor() {
@@ -2701,77 +2701,40 @@ class SidehopApp {
       // 2. Check Entity Interactions
       for (const ent of this.entities) {
         if (!ent.active) continue;
+        try {
 
-        // Springs / Trampolines (Standard & Mega)
-        if (ent.type === 'springboard') {
-          ent.update(dt);
-          const playerBottom = this.player.y + this.player.height;
-          const hOverlap = (this.player.x + this.player.width > ent.x + 3) && (this.player.x < ent.x + ent.width - 3);
-          const vOnTop = (playerBottom >= ent.y - 6) && (this.player.y < ent.y + ent.height * 0.7);
-          const isOverlapping = this.physics.checkOverlap(this.player, ent);
+          // Springs / Trampolines (Standard & Mega)
+          if (ent.type === 'springboard') {
+            ent.update(dt);
+            const playerBottom = this.player.y + this.player.height;
+            const hOverlap = (this.player.x + this.player.width > ent.x + 3) && (this.player.x < ent.x + ent.width - 3);
+            const vOnTop = (playerBottom >= ent.y - 6) && (this.player.y < ent.y + ent.height * 0.7);
+            const isOverlapping = this.physics.checkOverlap(this.player, ent);
 
-          if (hOverlap && (isOverlapping || vOnTop)) {
-            // Trigger if player is above/on top of spring, and spring isn't currently in bounce lockout
-            if (this.player.y < ent.y + ent.height * 0.6 && (ent.compressTimer <= 0.08 || this.player.vy >= 0)) {
-              const isHoldingJump = !!(this.keys['Space'] || this.keys['ArrowUp'] || this.keys['KeyW']);
-              const jumpMult = isHoldingJump ? 1.25 : 1.0;
-              const boost = ent.launchForce * jumpMult;
+            if (hOverlap && (isOverlapping || vOnTop)) {
+              // Trigger if player is above/on top of spring, and spring isn't currently in bounce lockout
+              if (this.player.y < ent.y + ent.height * 0.6 && (ent.compressTimer <= 0.08 || this.player.vy >= 0)) {
+                const isHoldingJump = !!(this.keys['Space'] || this.keys['ArrowUp'] || this.keys['KeyW']);
+                const jumpMult = isHoldingJump ? 1.25 : 1.0;
+                const boost = ent.launchForce * jumpMult;
 
-              this.player.vy = -boost;
-              this.player.y = ent.y - this.player.height - 2;
-              this.player.grounded = false;
-              this.player.isJumping = false;
-              this.player.standingOnSolid = null;
-              this.player.coyoteTimer = 0;
-              ent.trigger();
+                this.player.vy = -boost;
+                this.player.y = ent.y - this.player.height - 2;
+                this.player.grounded = false;
+                this.player.isJumping = false;
+                this.player.standingOnSolid = null;
+                this.player.coyoteTimer = 0;
+                ent.trigger();
 
-              this.player.stretchFactor = 0.38;
-              this.player.stretchTime = 0.25;
-            }
-          }
-        }
-
-        // Hazards (Spikes / Pits)
-        else if (ent.type === 'hazard') {
-          if (this.physics.checkOverlap(this.player, ent)) {
-            const knockDir = (this.player.x + this.player.width / 2 < ent.x + ent.width / 2) ? -1 : 1;
-            const hadPistol = this.player.hasPistol;
-            if (this.player.takeDamage(1, knockDir)) {
-              sounds.playHurt();
-              this.spawnHurtParticles(this.player.x + this.player.width / 2, this.player.y + this.player.height / 2);
-              if (hadPistol) {
-                this.spawnPistolLostParticles(this.player.x + this.player.width / 2, this.player.y + this.player.height / 2);
-                this.showToast('💥 Lost Pistol Powerup!');
-              }
-              if (this.player.hearts <= 0) {
-                this.player.respawn();
-                this.bullets = [];
-                this.gunPickedUpInLevel = false;
-                for (const e of this.entities) {
-                  if (e.variant === 'mystery') e.isUsed = false;
-                }
+                this.player.stretchFactor = 0.38;
+                this.player.stretchTime = 0.25;
               }
             }
           }
-        }
 
-        // Enemies (Walker, Winged Hopper, Armored Spiky)
-        else if (ent.type === 'enemy') {
-          ent.update(dt, solids);
-          // If dying or inactive, skip player collision check so rebounding doesn't trigger damage
-          if (!ent.active || ent.isSquashed) continue;
-
-          if (this.physics.checkOverlap(this.player, ent)) {
-            const isFalling = this.player.vy > 0;
-            const isAbove = (this.player.y + this.player.height - 10 <= ent.y + ent.height * 0.7);
-
-            if (ent.stompable && isFalling && isAbove) {
-              ent.stomp();
-              this.player.vy = -500;
-              this.player.y = ent.y - this.player.height - 2;
-              this.score += (ent.variant === 'winged' ? 150 : 100);
-            } else {
-              // Hurt player on collision (depletes 1 heart with i-frames & knockback, loses gun powerup)
+          // Hazards (Spikes / Pits)
+          else if (ent.type === 'hazard') {
+            if (this.physics.checkOverlap(this.player, ent)) {
               const knockDir = (this.player.x + this.player.width / 2 < ent.x + ent.width / 2) ? -1 : 1;
               const hadPistol = this.player.hasPistol;
               if (this.player.takeDamage(1, knockDir)) {
@@ -2792,59 +2755,100 @@ class SidehopApp {
               }
             }
           }
-        }
 
-        // Moving Platforms
-        else if (ent.type === 'moving_platform') {
-          ent.update(dt);
-          if (
-            this.player.grounded &&
-            this.player.y + this.player.height >= ent.y - 2 &&
-            this.player.y + this.player.height <= ent.y + 10 &&
-            this.player.x + this.player.width > ent.x &&
-            this.player.x < ent.x + ent.width
-          ) {
-            this.player.x += ent.dx;
-            this.player.y += ent.dy;
-          }
-        }
+          // Enemies (Walker, Winged Hopper, Armored Spiky)
+          else if (ent.type === 'enemy') {
+            ent.update(dt, solids);
+            // If dying or inactive, skip player collision check so rebounding doesn't trigger damage
+            if (!ent.active || ent.isSquashed) continue;
 
-        // Collectibles (Coin, Star Gem, Heart, Pistol Powerup, Ammunition)
-        else if (ent.type === 'collectible') {
-          ent.update(dt);
-          if (this.physics.checkOverlap(this.player, ent)) {
-            ent.collect();
-            const isAmmo = (ent.variant === 'ammo' || (ent.variant === 'pistol' && this.gunPickedUpInLevel));
-            if (ent.variant === 'pistol' && !this.gunPickedUpInLevel) {
-              this.player.hasPistol = true;
-              this.player.ammo = (this.player.ammo || 0) + 15;
-              this.gunPickedUpInLevel = true;
-              this.score += 300;
-              this.showToast('🔫 Pistol Acquired! (+15 Ammo) [F/X to Shoot]');
-            } else if (isAmmo) {
-              this.player.hasPistol = true;
-              this.player.ammo = (this.player.ammo || 0) + 15;
-              this.gunPickedUpInLevel = true;
-              this.score += 200;
-              this.showToast('📦 Ammo Reloaded! (+15 Rounds) [F/X to Shoot]');
-            } else if (ent.variant === 'heart') {
-              this.player.hearts = Math.min(this.player.maxHearts, this.player.hearts + 1);
-              this.score += 200;
-              this.showToast('❤️ +1 Heart!');
-            } else if (ent.variant === 'star') {
-              this.score += 500;
-            } else {
-              this.score += 100;
+            if (this.physics.checkOverlap(this.player, ent)) {
+              const isFalling = this.player.vy > 0;
+              const isAbove = (this.player.y + this.player.height - 10 <= ent.y + ent.height * 0.7);
+
+              if (ent.stompable && isFalling && isAbove) {
+                ent.stomp();
+                this.player.vy = -500;
+                this.player.y = ent.y - this.player.height - 2;
+                this.score += (ent.variant === 'winged' ? 150 : 100);
+              } else {
+                // Hurt player on collision (depletes 1 heart with i-frames & knockback, loses gun powerup)
+                const knockDir = (this.player.x + this.player.width / 2 < ent.x + ent.width / 2) ? -1 : 1;
+                const hadPistol = this.player.hasPistol;
+                if (this.player.takeDamage(1, knockDir)) {
+                  sounds.playHurt();
+                  this.spawnHurtParticles(this.player.x + this.player.width / 2, this.player.y + this.player.height / 2);
+                  if (hadPistol) {
+                    this.spawnPistolLostParticles(this.player.x + this.player.width / 2, this.player.y + this.player.height / 2);
+                    this.showToast('💥 Lost Pistol Powerup!');
+                  }
+                  if (this.player.hearts <= 0) {
+                    this.player.respawn();
+                    this.bullets = [];
+                    this.gunPickedUpInLevel = false;
+                    for (const e of this.entities) {
+                      if (e.variant === 'mystery') e.isUsed = false;
+                    }
+                  }
+                }
+              }
             }
           }
-        }
 
-        // Goal Flag / Victory
-        else if (ent.type === 'goal') {
-          ent.update(dt);
-          if (this.physics.checkOverlap(this.player, ent)) {
-            this.triggerVictory();
+          // Moving Platforms
+          else if (ent.type === 'moving_platform') {
+            ent.update(dt);
+            if (
+              this.player.grounded &&
+              this.player.y + this.player.height >= ent.y - 2 &&
+              this.player.y + this.player.height <= ent.y + 10 &&
+              this.player.x + this.player.width > ent.x &&
+              this.player.x < ent.x + ent.width
+            ) {
+              this.player.x += ent.dx;
+              this.player.y += ent.dy;
+            }
           }
+
+          // Collectibles (Coin, Star Gem, Heart, Pistol Powerup, Ammunition)
+          else if (ent.type === 'collectible') {
+            ent.update(dt);
+            if (this.physics.checkOverlap(this.player, ent)) {
+              ent.collect();
+              const isAmmo = (ent.variant === 'ammo' || (ent.variant === 'pistol' && this.gunPickedUpInLevel));
+              if (ent.variant === 'pistol' && !this.gunPickedUpInLevel) {
+                this.player.hasPistol = true;
+                this.player.ammo = (this.player.ammo || 0) + 15;
+                this.gunPickedUpInLevel = true;
+                this.score += 300;
+                this.showToast('🔫 Pistol Acquired! (+15 Ammo) [F/X to Shoot]');
+              } else if (isAmmo) {
+                this.player.hasPistol = true;
+                this.player.ammo = (this.player.ammo || 0) + 15;
+                this.gunPickedUpInLevel = true;
+                this.score += 200;
+                this.showToast('📦 Ammo Reloaded! (+15 Rounds) [F/X to Shoot]');
+              } else if (ent.variant === 'heart') {
+                this.player.hearts = Math.min(this.player.maxHearts, this.player.hearts + 1);
+                this.score += 200;
+                this.showToast('❤️ +1 Heart!');
+              } else if (ent.variant === 'star') {
+                this.score += 500;
+              } else {
+                this.score += 100;
+              }
+            }
+          }
+
+          // Goal Flag / Victory
+          else if (ent.type === 'goal') {
+            ent.update(dt);
+            if (this.physics.checkOverlap(this.player, ent)) {
+              this.triggerVictory();
+            }
+          }
+        } catch (entErr) {
+          console.error('Entity interaction error:', ent?.type, entErr);
         }
       }
 
@@ -2978,21 +2982,35 @@ class SidehopApp {
 
     // 2. Draw World Entities
     this.ctx.save();
-    this.ctx.translate(-this.camera.x, -this.camera.y);
+    try {
+      this.ctx.translate(-this.camera.x, -this.camera.y);
 
-    for (const ent of this.entities) {
-      ent.draw(this.ctx);
-    }
-
-    if (this.bullets && this.bullets.length > 0) {
-      for (const b of this.bullets) {
-        b.draw(this.ctx);
+      for (const ent of this.entities) {
+        try {
+          ent.draw(this.ctx);
+        } catch (entErr) {
+          console.warn('Entity draw error in render loop:', entErr);
+        }
       }
+
+      if (this.bullets && this.bullets.length > 0) {
+        for (const b of this.bullets) {
+          try {
+            b.draw(this.ctx);
+          } catch (bErr) {
+            console.warn('Bullet draw error in render loop:', bErr);
+          }
+        }
+      }
+
+      try {
+        this.player.draw(this.ctx);
+      } catch (pErr) {
+        console.warn('Player draw error in render loop:', pErr);
+      }
+    } finally {
+      this.ctx.restore();
     }
-
-    this.player.draw(this.ctx);
-
-    this.ctx.restore();
 
     // 3. In Edit Mode, draw grid lines and hover ghost
     if (this.mode === 'edit') {
@@ -3169,9 +3187,14 @@ class SidehopApp {
 
     try {
       this.update(dt);
+    } catch (updateErr) {
+      console.error('gameLoop update error:', updateErr);
+    }
+
+    try {
       this.render();
-    } catch (err) {
-      console.error('gameLoop update/render error:', err);
+    } catch (renderErr) {
+      console.error('gameLoop render error:', renderErr);
     }
 
     requestAnimationFrame((t) => this.gameLoop(t));
