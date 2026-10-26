@@ -6899,6 +6899,418 @@ class ArtStudio {
 
 
 const LEVEL_STORAGE_KEY = 'sidehop_saved_level_v6';
+const STARTER_WORLD_ENTITIES = [
+  { type: 'crate', variant: 'solid', x: 0, y: 480, width: 40, height: 40 },
+  { type: 'crate', variant: 'solid', x: 0, y: 520, width: 40, height: 40 },
+  { type: 'crate', variant: 'solid', x: 40, y: 480, width: 40, height: 40 },
+  { type: 'crate', variant: 'solid', x: 40, y: 520, width: 40, height: 40 },
+  { type: 'crate', variant: 'solid', x: 80, y: 480, width: 40, height: 40 },
+  { type: 'crate', variant: 'solid', x: 80, y: 520, width: 40, height: 40 },
+  { type: 'crate', variant: 'solid', x: 120, y: 480, width: 40, height: 40 },
+  { type: 'crate', variant: 'solid', x: 120, y: 520, width: 40, height: 40 },
+  { type: 'crate', variant: 'solid', x: 160, y: 480, width: 40, height: 40 },
+  { type: 'crate', variant: 'solid', x: 160, y: 520, width: 40, height: 40 },
+  { type: 'crate', variant: 'solid', x: 200, y: 480, width: 40, height: 40 },
+  { type: 'crate', variant: 'solid', x: 200, y: 520, width: 40, height: 40 },
+  { type: 'crate', variant: 'solid', x: 240, y: 480, width: 40, height: 40 },
+  { type: 'crate', variant: 'solid', x: 240, y: 520, width: 40, height: 40 },
+  { type: 'crate', variant: 'solid', x: 280, y: 480, width: 40, height: 40 },
+  { type: 'crate', variant: 'solid', x: 280, y: 520, width: 40, height: 40 },
+  { type: 'crate', variant: 'solid', x: 320, y: 480, width: 40, height: 40 },
+  { type: 'crate', variant: 'solid', x: 320, y: 520, width: 40, height: 40 },
+  { type: 'crate', variant: 'solid', x: 360, y: 480, width: 40, height: 40 },
+  { type: 'crate', variant: 'solid', x: 360, y: 520, width: 40, height: 40 },
+  { type: 'crate', variant: 'solid', x: 400, y: 480, width: 40, height: 40 },
+  { type: 'crate', variant: 'solid', x: 400, y: 520, width: 40, height: 40 },
+  { type: 'crate', variant: 'solid', x: 440, y: 480, width: 40, height: 40 },
+  { type: 'crate', variant: 'solid', x: 440, y: 520, width: 40, height: 40 },
+  { type: 'crate', variant: 'solid', x: 200, y: 320, width: 40, height: 40 },
+  { type: 'crate', variant: 'mystery', x: 240, y: 320, width: 40, height: 40, content: 'powerup' },
+  { type: 'crate', variant: 'solid', x: 280, y: 320, width: 40, height: 40 },
+  { type: 'crate', variant: 'mystery', x: 320, y: 320, width: 40, height: 40, content: 'coin' },
+  { type: 'crate', variant: 'solid', x: 360, y: 320, width: 40, height: 40 },
+  { type: 'collectible', variant: 'coin', x: 244, y: 430, width: 32, height: 32 },
+  { type: 'collectible', variant: 'coin', x: 324, y: 430, width: 32, height: 32 },
+  { type: 'enemy', variant: 'walker', x: 312, y: 440, width: 40, height: 40, speed: 75, patrolRange: 90, stompable: true },
+  { type: 'crate', variant: 'slope_up', x: 480, y: 440, width: 40, height: 40 },
+  { type: 'crate', variant: 'solid', x: 480, y: 480, width: 40, height: 40 },
+  { type: 'crate', variant: 'solid', x: 480, y: 520, width: 40, height: 40 },
+  { type: 'crate', variant: 'solid', x: 520, y: 440, width: 40, height: 40 },
+  { type: 'crate', variant: 'solid', x: 520, y: 480, width: 40, height: 40 },
+  { type: 'crate', variant: 'solid', x: 520, y: 520, width: 40, height: 40 },
+  { type: 'crate', variant: 'solid', x: 560, y: 440, width: 40, height: 40 },
+  { type: 'crate', variant: 'solid', x: 560, y: 480, width: 40, height: 40 },
+  { type: 'crate', variant: 'solid', x: 560, y: 520, width: 40, height: 40 },
+  { type: 'crate', variant: 'solid', x: 600, y: 440, width: 40, height: 40 },
+  { type: 'crate', variant: 'solid', x: 600, y: 480, width: 40, height: 40 },
+  { type: 'crate', variant: 'solid', x: 600, y: 520, width: 40, height: 40 },
+  { type: 'crate', variant: 'solid', x: 640, y: 440, width: 40, height: 40 },
+  { type: 'crate', variant: 'solid', x: 640, y: 480, width: 40, height: 40 },
+  { type: 'crate', variant: 'solid', x: 640, y: 520, width: 40, height: 40 },
+  { type: 'crate', variant: 'solid', x: 680, y: 440, width: 40, height: 40 },
+  { type: 'crate', variant: 'solid', x: 680, y: 480, width: 40, height: 40 },
+  { type: 'crate', variant: 'solid', x: 680, y: 520, width: 40, height: 40 },
+  { type: 'crate', variant: 'solid', x: 720, y: 440, width: 40, height: 40 },
+  { type: 'crate', variant: 'solid', x: 720, y: 480, width: 40, height: 40 },
+  { type: 'crate', variant: 'solid', x: 720, y: 520, width: 40, height: 40 },
+  { type: 'crate', variant: 'solid', x: 760, y: 440, width: 40, height: 40 },
+  { type: 'crate', variant: 'solid', x: 760, y: 480, width: 40, height: 40 },
+  { type: 'crate', variant: 'solid', x: 760, y: 520, width: 40, height: 40 },
+  { type: 'crate', variant: 'mystery', x: 560, y: 320, width: 40, height: 40, content: 'heart' },
+  { type: 'crate', variant: 'pipe', x: 640, y: 360, width: 40, height: 80 },
+  { type: 'collectible', variant: 'coin', x: 644, y: 310, width: 32, height: 32 },
+  { type: 'enemy', variant: 'winged', x: 665, y: 240, width: 40, height: 40, speed: 75, patrolRange: 60, stompable: true },
+  { type: 'crate', variant: 'slope_down', x: 800, y: 440, width: 40, height: 40 },
+  { type: 'crate', variant: 'solid', x: 800, y: 480, width: 40, height: 40 },
+  { type: 'crate', variant: 'solid', x: 800, y: 520, width: 40, height: 40 },
+  { type: 'crate', variant: 'solid', x: 840, y: 480, width: 40, height: 40 },
+  { type: 'crate', variant: 'solid', x: 840, y: 520, width: 40, height: 40 },
+  { type: 'crate', variant: 'solid', x: 880, y: 480, width: 40, height: 40 },
+  { type: 'crate', variant: 'solid', x: 880, y: 520, width: 40, height: 40 },
+  { type: 'crate', variant: 'solid', x: 920, y: 480, width: 40, height: 40 },
+  { type: 'crate', variant: 'solid', x: 920, y: 520, width: 40, height: 40 },
+  { type: 'crate', variant: 'solid', x: 960, y: 480, width: 40, height: 40 },
+  { type: 'crate', variant: 'solid', x: 960, y: 520, width: 40, height: 40 },
+  { type: 'hazard', x: 1040, y: 480, width: 40, height: 40 },
+  { type: 'crate', variant: 'solid', x: 1040, y: 520, width: 40, height: 40 },
+  { type: 'hazard', x: 1080, y: 480, width: 40, height: 40 },
+  { type: 'crate', variant: 'solid', x: 1080, y: 520, width: 40, height: 40 },
+  { type: 'hazard', x: 1120, y: 480, width: 40, height: 40 },
+  { type: 'crate', variant: 'solid', x: 1120, y: 520, width: 40, height: 40 },
+  { type: 'hazard', x: 1160, y: 480, width: 40, height: 40 },
+  { type: 'crate', variant: 'solid', x: 1160, y: 520, width: 40, height: 40 },
+  { type: 'hazard', x: 1200, y: 480, width: 40, height: 40 },
+  { type: 'crate', variant: 'solid', x: 1200, y: 520, width: 40, height: 40 },
+  { type: 'hazard', x: 1240, y: 480, width: 40, height: 40 },
+  { type: 'crate', variant: 'solid', x: 1240, y: 520, width: 40, height: 40 },
+  { type: 'crate', variant: 'note', x: 1000, y: 440, width: 40, height: 40, bounciness: 0.95 },
+  { type: 'crate', variant: 'slab', x: 1140, y: 420, width: 40, height: 20 },
+  { type: 'collectible', variant: 'coin', x: 1144, y: 370, width: 32, height: 32 },
+  { type: 'crate', variant: 'cloud', x: 1080, y: 220, width: 40, height: 40 },
+  { type: 'crate', variant: 'cloud', x: 1120, y: 220, width: 40, height: 40 },
+  { type: 'crate', variant: 'cloud', x: 1160, y: 220, width: 40, height: 40 },
+  { type: 'crate', variant: 'cloud', x: 1200, y: 220, width: 40, height: 40 },
+  { type: 'crate', variant: 'cloud', x: 1240, y: 220, width: 40, height: 40 },
+  { type: 'crate', variant: 'cloud', x: 1280, y: 220, width: 40, height: 40 },
+  { type: 'collectible', variant: 'star', x: 1160, y: 170, width: 32, height: 32 },
+  { type: 'crate', variant: 'solid', x: 1280, y: 480, width: 40, height: 40 },
+  { type: 'crate', variant: 'solid', x: 1280, y: 520, width: 40, height: 40 },
+  { type: 'crate', variant: 'solid', x: 1320, y: 480, width: 40, height: 40 },
+  { type: 'crate', variant: 'solid', x: 1320, y: 520, width: 40, height: 40 },
+  { type: 'crate', variant: 'solid', x: 1360, y: 480, width: 40, height: 40 },
+  { type: 'crate', variant: 'solid', x: 1360, y: 520, width: 40, height: 40 },
+  { type: 'crate', variant: 'solid', x: 1400, y: 480, width: 40, height: 40 },
+  { type: 'crate', variant: 'solid', x: 1400, y: 520, width: 40, height: 40 },
+  { type: 'crate', variant: 'solid', x: 1440, y: 480, width: 40, height: 40 },
+  { type: 'crate', variant: 'solid', x: 1440, y: 520, width: 40, height: 40 },
+  { type: 'crate', variant: 'solid', x: 1480, y: 480, width: 40, height: 40 },
+  { type: 'crate', variant: 'solid', x: 1480, y: 520, width: 40, height: 40 },
+  { type: 'enemy', variant: 'walker', x: 1316, y: 440, width: 40, height: 40, speed: 75, patrolRange: 70, stompable: true },
+  { type: 'crate', variant: 'donut', x: 1520, y: 480, width: 40, height: 40 },
+  { type: 'collectible', variant: 'coin', x: 1524, y: 430, width: 32, height: 32 },
+  { type: 'crate', variant: 'donut', x: 1560, y: 480, width: 40, height: 40 },
+  { type: 'collectible', variant: 'coin', x: 1564, y: 430, width: 32, height: 32 },
+  { type: 'crate', variant: 'stone', x: 1600, y: 480, width: 40, height: 40 },
+  { type: 'crate', variant: 'stone', x: 1600, y: 520, width: 40, height: 40 },
+  { type: 'crate', variant: 'donut', x: 1640, y: 480, width: 40, height: 40 },
+  { type: 'collectible', variant: 'coin', x: 1644, y: 430, width: 32, height: 32 },
+  { type: 'crate', variant: 'donut', x: 1680, y: 480, width: 40, height: 40 },
+  { type: 'collectible', variant: 'coin', x: 1684, y: 430, width: 32, height: 32 },
+  { type: 'crate', variant: 'ice', x: 1720, y: 480, width: 40, height: 40, friction: 0.12 },
+  { type: 'crate', variant: 'solid', x: 1720, y: 520, width: 40, height: 40 },
+  { type: 'crate', variant: 'ice', x: 1760, y: 480, width: 40, height: 40, friction: 0.12 },
+  { type: 'crate', variant: 'solid', x: 1760, y: 520, width: 40, height: 40 },
+  { type: 'crate', variant: 'ice', x: 1800, y: 480, width: 40, height: 40, friction: 0.12 },
+  { type: 'crate', variant: 'solid', x: 1800, y: 520, width: 40, height: 40 },
+  { type: 'crate', variant: 'ice', x: 1840, y: 480, width: 40, height: 40, friction: 0.12 },
+  { type: 'crate', variant: 'solid', x: 1840, y: 520, width: 40, height: 40 },
+  { type: 'crate', variant: 'ice', x: 1880, y: 480, width: 40, height: 40, friction: 0.12 },
+  { type: 'crate', variant: 'solid', x: 1880, y: 520, width: 40, height: 40 },
+  { type: 'crate', variant: 'ice', x: 1920, y: 480, width: 40, height: 40, friction: 0.12 },
+  { type: 'crate', variant: 'solid', x: 1920, y: 520, width: 40, height: 40 },
+  { type: 'crate', variant: 'ice', x: 1960, y: 480, width: 40, height: 40, friction: 0.12 },
+  { type: 'crate', variant: 'solid', x: 1960, y: 520, width: 40, height: 40 },
+  { type: 'crate', variant: 'ice', x: 2000, y: 480, width: 40, height: 40, friction: 0.12 },
+  { type: 'crate', variant: 'solid', x: 2000, y: 520, width: 40, height: 40 },
+  { type: 'crate', variant: 'ice', x: 2040, y: 480, width: 40, height: 40, friction: 0.12 },
+  { type: 'crate', variant: 'solid', x: 2040, y: 520, width: 40, height: 40 },
+  { type: 'crate', variant: 'ice', x: 2080, y: 480, width: 40, height: 40, friction: 0.12 },
+  { type: 'crate', variant: 'solid', x: 2080, y: 520, width: 40, height: 40 },
+  { type: 'crate', variant: 'ice', x: 2120, y: 480, width: 40, height: 40, friction: 0.12 },
+  { type: 'crate', variant: 'solid', x: 2120, y: 520, width: 40, height: 40 },
+  { type: 'enemy', variant: 'spiky', x: 1836, y: 440, width: 40, height: 40, speed: 75, patrolRange: 70, stompable: false },
+  { type: 'crate', variant: 'mystery', x: 1800, y: 340, width: 40, height: 40, content: 'powerup' },
+  { type: 'crate', variant: 'cloud', x: 2080, y: 260, width: 40, height: 40 },
+  { type: 'crate', variant: 'mystery', x: 1920, y: 340, width: 40, height: 40, content: 'coin' },
+  { type: 'moving_platform', x: 2220, y: 433, width: 80, height: 24, speed: 50, distance: 55, axis: 'vertical' },
+  { type: 'crate', variant: 'semisolid', x: 2440, y: 360, width: 40, height: 40 },
+  { type: 'crate', variant: 'semisolid', x: 2480, y: 360, width: 40, height: 40 },
+  { type: 'crate', variant: 'semisolid', x: 2520, y: 360, width: 40, height: 40 },
+  { type: 'collectible', variant: 'star', x: 2484, y: 310, width: 32, height: 32 },
+  { type: 'enemy', variant: 'winged', x: 2464, y: 280, width: 40, height: 40, speed: 75, patrolRange: 50, stompable: true },
+  { type: 'moving_platform', x: 2799, y: 500, width: 80, height: 24, speed: 60, distance: 70, axis: 'horizontal' },
+  { type: 'crate', variant: 'stone', x: 2860, y: 560, width: 40, height: 40 },
+  { type: 'crate', variant: 'stone', x: 2860, y: 600, width: 40, height: 40 },
+  { type: 'crate', variant: 'stone', x: 2900, y: 560, width: 40, height: 40 },
+  { type: 'crate', variant: 'stone', x: 2900, y: 600, width: 40, height: 40 },
+  { type: 'crate', variant: 'stone', x: 2940, y: 560, width: 40, height: 40 },
+  { type: 'crate', variant: 'stone', x: 2940, y: 600, width: 40, height: 40 },
+  { type: 'crate', variant: 'stone', x: 2980, y: 560, width: 40, height: 40 },
+  { type: 'crate', variant: 'stone', x: 2980, y: 600, width: 40, height: 40 },
+  { type: 'crate', variant: 'stone', x: 3000, y: 560, width: 40, height: 40 },
+  { type: 'crate', variant: 'stone', x: 3000, y: 600, width: 40, height: 40 },
+  { type: 'crate', variant: 'stone', x: 3040, y: 560, width: 40, height: 40 },
+  { type: 'crate', variant: 'stone', x: 3040, y: 600, width: 40, height: 40 },
+  { type: 'crate', variant: 'stone', x: 3080, y: 560, width: 40, height: 40 },
+  { type: 'crate', variant: 'stone', x: 3080, y: 600, width: 40, height: 40 },
+  { type: 'crate', variant: 'stone', x: 3120, y: 560, width: 40, height: 40 },
+  { type: 'crate', variant: 'stone', x: 3120, y: 600, width: 40, height: 40 },
+  { type: 'crate', variant: 'stone', x: 3160, y: 560, width: 40, height: 40 },
+  { type: 'crate', variant: 'stone', x: 3160, y: 600, width: 40, height: 40 },
+  { type: 'crate', variant: 'stone', x: 3200, y: 560, width: 40, height: 40 },
+  { type: 'crate', variant: 'stone', x: 3200, y: 600, width: 40, height: 40 },
+  { type: 'crate', variant: 'stone', x: 3240, y: 560, width: 40, height: 40 },
+  { type: 'crate', variant: 'stone', x: 3240, y: 600, width: 40, height: 40 },
+  { type: 'crate', variant: 'stone', x: 3280, y: 560, width: 40, height: 40 },
+  { type: 'crate', variant: 'stone', x: 3280, y: 600, width: 40, height: 40 },
+  { type: 'crate', variant: 'stone', x: 3320, y: 560, width: 40, height: 40 },
+  { type: 'crate', variant: 'stone', x: 3320, y: 600, width: 40, height: 40 },
+  { type: 'crate', variant: 'stone', x: 3360, y: 560, width: 40, height: 40 },
+  { type: 'crate', variant: 'stone', x: 3360, y: 600, width: 40, height: 40 },
+  { type: 'crate', variant: 'stone', x: 3400, y: 560, width: 40, height: 40 },
+  { type: 'crate', variant: 'stone', x: 3400, y: 600, width: 40, height: 40 },
+  { type: 'crate', variant: 'stone', x: 3440, y: 560, width: 40, height: 40 },
+  { type: 'crate', variant: 'stone', x: 3440, y: 600, width: 40, height: 40 },
+  { type: 'crate', variant: 'mystery', x: 2960, y: 420, width: 40, height: 40, content: 'heart' },
+  { type: 'crate', variant: 'mega', x: 3080, y: 480, width: 80, height: 80 },
+  { type: 'collectible', variant: 'coin', x: 3104, y: 420, width: 32, height: 32 },
+  { type: 'crate', variant: 'pipe', x: 3340, y: 480, width: 40, height: 80 },
+  { type: 'collectible', variant: 'coin', x: 3344, y: 430, width: 32, height: 32 },
+  { type: 'enemy', variant: 'spiky', x: 3259, y: 520, width: 40, height: 40, speed: 75, patrolRange: 40, stompable: false },
+  { type: 'springboard', variant: 'mega', x: 3440, y: 520, width: 40, height: 40, launchForce: 1040 },
+  { type: 'hazard', x: 3480, y: 560, width: 40, height: 40 },
+  { type: 'crate', variant: 'stone', x: 3480, y: 600, width: 40, height: 40 },
+  { type: 'hazard', x: 3520, y: 560, width: 40, height: 40 },
+  { type: 'crate', variant: 'stone', x: 3520, y: 600, width: 40, height: 40 },
+  { type: 'hazard', x: 3560, y: 560, width: 40, height: 40 },
+  { type: 'crate', variant: 'stone', x: 3560, y: 600, width: 40, height: 40 },
+  { type: 'hazard', x: 3600, y: 560, width: 40, height: 40 },
+  { type: 'crate', variant: 'stone', x: 3600, y: 600, width: 40, height: 40 },
+  { type: 'hazard', x: 3640, y: 560, width: 40, height: 40 },
+  { type: 'crate', variant: 'stone', x: 3640, y: 600, width: 40, height: 40 },
+  { type: 'crate', variant: 'slope_up', x: 3680, y: 520, width: 40, height: 40 },
+  { type: 'crate', variant: 'stone', x: 3680, y: 560, width: 40, height: 40 },
+  { type: 'crate', variant: 'stone', x: 3680, y: 600, width: 40, height: 40 },
+  { type: 'crate', variant: 'slope_up', x: 3720, y: 480, width: 40, height: 40 },
+  { type: 'crate', variant: 'stone', x: 3720, y: 520, width: 40, height: 40 },
+  { type: 'crate', variant: 'stone', x: 3720, y: 560, width: 40, height: 40 },
+  { type: 'crate', variant: 'stone', x: 3720, y: 600, width: 40, height: 40 },
+  { type: 'crate', variant: 'stone', x: 3760, y: 480, width: 40, height: 40 },
+  { type: 'crate', variant: 'stone', x: 3760, y: 520, width: 40, height: 40 },
+  { type: 'crate', variant: 'stone', x: 3760, y: 560, width: 40, height: 40 },
+  { type: 'crate', variant: 'stone', x: 3760, y: 600, width: 40, height: 40 },
+  { type: 'crate', variant: 'mystery', x: 3760, y: 360, width: 40, height: 40, content: 'powerup' },
+  { type: 'moving_platform', x: 4060, y: 486, width: 80, height: 24, speed: 65, distance: 60, axis: 'vertical' },
+  { type: 'enemy', variant: 'winged', x: 3881, y: 320, width: 40, height: 40, speed: 75, patrolRange: 60, stompable: true },
+  { type: 'crate', variant: 'stone', x: 4360, y: 480, width: 40, height: 40 },
+  { type: 'crate', variant: 'stone', x: 4360, y: 520, width: 40, height: 40 },
+  { type: 'crate', variant: 'stone', x: 4360, y: 560, width: 40, height: 40 },
+  { type: 'crate', variant: 'stone', x: 4360, y: 600, width: 40, height: 40 },
+  { type: 'crate', variant: 'stone', x: 4400, y: 480, width: 40, height: 40 },
+  { type: 'crate', variant: 'stone', x: 4400, y: 520, width: 40, height: 40 },
+  { type: 'crate', variant: 'stone', x: 4400, y: 560, width: 40, height: 40 },
+  { type: 'crate', variant: 'stone', x: 4400, y: 600, width: 40, height: 40 },
+  { type: 'crate', variant: 'stone', x: 4440, y: 480, width: 40, height: 40 },
+  { type: 'crate', variant: 'stone', x: 4440, y: 520, width: 40, height: 40 },
+  { type: 'crate', variant: 'stone', x: 4440, y: 560, width: 40, height: 40 },
+  { type: 'crate', variant: 'stone', x: 4440, y: 600, width: 40, height: 40 },
+  { type: 'crate', variant: 'stone', x: 4480, y: 480, width: 40, height: 40 },
+  { type: 'crate', variant: 'stone', x: 4480, y: 520, width: 40, height: 40 },
+  { type: 'crate', variant: 'stone', x: 4480, y: 560, width: 40, height: 40 },
+  { type: 'crate', variant: 'stone', x: 4480, y: 600, width: 40, height: 40 },
+  { type: 'enemy', variant: 'walker', x: 4404, y: 440, width: 40, height: 40, speed: 75, patrolRange: 50, stompable: true },
+  { type: 'crate', variant: 'slope_down', x: 4520, y: 480, width: 40, height: 40 },
+  { type: 'crate', variant: 'stone', x: 4520, y: 520, width: 40, height: 40 },
+  { type: 'crate', variant: 'stone', x: 4520, y: 560, width: 40, height: 40 },
+  { type: 'crate', variant: 'stone', x: 4520, y: 600, width: 40, height: 40 },
+  { type: 'crate', variant: 'slope_down', x: 4560, y: 520, width: 40, height: 40 },
+  { type: 'crate', variant: 'stone', x: 4560, y: 560, width: 40, height: 40 },
+  { type: 'crate', variant: 'stone', x: 4560, y: 600, width: 40, height: 40 },
+  { type: 'crate', variant: 'solid', x: 4600, y: 560, width: 40, height: 40 },
+  { type: 'crate', variant: 'solid', x: 4600, y: 600, width: 40, height: 40 },
+  { type: 'crate', variant: 'solid', x: 4640, y: 560, width: 40, height: 40 },
+  { type: 'crate', variant: 'solid', x: 4640, y: 600, width: 40, height: 40 },
+  { type: 'crate', variant: 'solid', x: 4680, y: 560, width: 40, height: 40 },
+  { type: 'crate', variant: 'solid', x: 4680, y: 600, width: 40, height: 40 },
+  { type: 'crate', variant: 'ice', x: 4720, y: 560, width: 40, height: 40, friction: 0.12 },
+  { type: 'crate', variant: 'solid', x: 4720, y: 600, width: 40, height: 40 },
+  { type: 'crate', variant: 'ice', x: 4760, y: 560, width: 40, height: 40, friction: 0.12 },
+  { type: 'crate', variant: 'solid', x: 4760, y: 600, width: 40, height: 40 },
+  { type: 'crate', variant: 'ice', x: 4800, y: 560, width: 40, height: 40, friction: 0.12 },
+  { type: 'crate', variant: 'solid', x: 4800, y: 600, width: 40, height: 40 },
+  { type: 'crate', variant: 'ice', x: 4840, y: 560, width: 40, height: 40, friction: 0.12 },
+  { type: 'crate', variant: 'solid', x: 4840, y: 600, width: 40, height: 40 },
+  { type: 'crate', variant: 'ice', x: 4880, y: 560, width: 40, height: 40, friction: 0.12 },
+  { type: 'crate', variant: 'solid', x: 4880, y: 600, width: 40, height: 40 },
+  { type: 'crate', variant: 'ice', x: 4920, y: 560, width: 40, height: 40, friction: 0.12 },
+  { type: 'crate', variant: 'solid', x: 4920, y: 600, width: 40, height: 40 },
+  { type: 'crate', variant: 'ice', x: 4960, y: 560, width: 40, height: 40, friction: 0.12 },
+  { type: 'crate', variant: 'solid', x: 4960, y: 600, width: 40, height: 40 },
+  { type: 'crate', variant: 'ice', x: 5000, y: 560, width: 40, height: 40, friction: 0.12 },
+  { type: 'crate', variant: 'solid', x: 5000, y: 600, width: 40, height: 40 },
+  { type: 'crate', variant: 'ice', x: 5040, y: 560, width: 40, height: 40, friction: 0.12 },
+  { type: 'crate', variant: 'solid', x: 5040, y: 600, width: 40, height: 40 },
+  { type: 'crate', variant: 'ice', x: 5080, y: 560, width: 40, height: 40, friction: 0.12 },
+  { type: 'crate', variant: 'solid', x: 5080, y: 600, width: 40, height: 40 },
+  { type: 'crate', variant: 'ice', x: 5120, y: 560, width: 40, height: 40, friction: 0.12 },
+  { type: 'crate', variant: 'solid', x: 5120, y: 600, width: 40, height: 40 },
+  { type: 'crate', variant: 'ice', x: 5160, y: 560, width: 40, height: 40, friction: 0.12 },
+  { type: 'crate', variant: 'solid', x: 5160, y: 600, width: 40, height: 40 },
+  { type: 'crate', variant: 'ice', x: 5200, y: 560, width: 40, height: 40, friction: 0.12 },
+  { type: 'crate', variant: 'solid', x: 5200, y: 600, width: 40, height: 40 },
+  { type: 'crate', variant: 'ice', x: 5240, y: 560, width: 40, height: 40, friction: 0.12 },
+  { type: 'crate', variant: 'solid', x: 5240, y: 600, width: 40, height: 40 },
+  { type: 'crate', variant: 'semisolid', x: 4840, y: 420, width: 40, height: 40 },
+  { type: 'crate', variant: 'semisolid', x: 4880, y: 420, width: 40, height: 40 },
+  { type: 'crate', variant: 'semisolid', x: 4920, y: 420, width: 40, height: 40 },
+  { type: 'crate', variant: 'semisolid', x: 4960, y: 420, width: 40, height: 40 },
+  { type: 'crate', variant: 'semisolid', x: 5000, y: 420, width: 40, height: 40 },
+  { type: 'crate', variant: 'semisolid', x: 5040, y: 420, width: 40, height: 40 },
+  { type: 'crate', variant: 'semisolid', x: 5080, y: 420, width: 40, height: 40 },
+  { type: 'crate', variant: 'semisolid', x: 5120, y: 420, width: 40, height: 40 },
+  { type: 'crate', variant: 'mystery', x: 4960, y: 320, width: 40, height: 40, content: 'heart' },
+  { type: 'collectible', variant: 'coin', x: 4724, y: 410, width: 32, height: 32 },
+  { type: 'enemy', variant: 'spiky', x: 4844, y: 520, width: 40, height: 40, speed: 55, patrolRange: 60, stompable: false },
+  { type: 'enemy', variant: 'spiky', x: 5053, y: 520, width: 40, height: 40, speed: 60, patrolRange: 60, stompable: false },
+  { type: 'crate', variant: 'mystery', x: 5360, y: 380, width: 40, height: 40, content: 'powerup' },
+  { type: 'crate', variant: 'solid', x: 5280, y: 560, width: 40, height: 40 },
+  { type: 'crate', variant: 'solid', x: 5280, y: 600, width: 40, height: 40 },
+  { type: 'crate', variant: 'solid', x: 5320, y: 560, width: 40, height: 40 },
+  { type: 'crate', variant: 'solid', x: 5320, y: 600, width: 40, height: 40 },
+  { type: 'crate', variant: 'solid', x: 5360, y: 560, width: 40, height: 40 },
+  { type: 'crate', variant: 'solid', x: 5360, y: 600, width: 40, height: 40 },
+  { type: 'crate', variant: 'solid', x: 5400, y: 560, width: 40, height: 40 },
+  { type: 'crate', variant: 'solid', x: 5400, y: 600, width: 40, height: 40 },
+  { type: 'crate', variant: 'solid', x: 5440, y: 560, width: 40, height: 40 },
+  { type: 'crate', variant: 'solid', x: 5440, y: 600, width: 40, height: 40 },
+  { type: 'crate', variant: 'solid', x: 5480, y: 560, width: 40, height: 40 },
+  { type: 'crate', variant: 'solid', x: 5480, y: 600, width: 40, height: 40 },
+  { type: 'enemy', variant: 'walker', x: 5316, y: 520, width: 40, height: 40, speed: 75, patrolRange: 70, stompable: true },
+  { type: 'crate', variant: 'cloud', x: 5560, y: 480, width: 40, height: 40 },
+  { type: 'crate', variant: 'cloud', x: 5600, y: 480, width: 40, height: 40 },
+  { type: 'crate', variant: 'cloud', x: 5640, y: 480, width: 40, height: 40 },
+  { type: 'crate', variant: 'cloud', x: 5680, y: 480, width: 40, height: 40 },
+  { type: 'crate', variant: 'cloud', x: 5720, y: 480, width: 40, height: 40 },
+  { type: 'collectible', variant: 'coin', x: 5604, y: 430, width: 32, height: 32 },
+  { type: 'collectible', variant: 'coin', x: 5684, y: 430, width: 32, height: 32 },
+  { type: 'crate', variant: 'note', x: 5720, y: 440, width: 40, height: 40, bounciness: 0.95 },
+  { type: 'crate', variant: 'cloud', x: 5680, y: 300, width: 40, height: 40 },
+  { type: 'crate', variant: 'cloud', x: 5720, y: 300, width: 40, height: 40 },
+  { type: 'crate', variant: 'cloud', x: 5760, y: 300, width: 40, height: 40 },
+  { type: 'crate', variant: 'cloud', x: 5800, y: 300, width: 40, height: 40 },
+  { type: 'crate', variant: 'cloud', x: 5840, y: 300, width: 40, height: 40 },
+  { type: 'collectible', variant: 'star', x: 5524, y: 250, width: 32, height: 32 },
+  { type: 'moving_platform', x: 6106, y: 460, width: 80, height: 24, speed: 70, distance: 80, axis: 'horizontal' },
+  { type: 'enemy', variant: 'winged', x: 6021, y: 200, width: 40, height: 40, speed: 75, patrolRange: 60, stompable: true },
+  { type: 'crate', variant: 'cloud', x: 6420, y: 460, width: 40, height: 40 },
+  { type: 'crate', variant: 'cloud', x: 6460, y: 460, width: 40, height: 40 },
+  { type: 'crate', variant: 'cloud', x: 6500, y: 460, width: 40, height: 40 },
+  { type: 'crate', variant: 'cloud', x: 6540, y: 460, width: 40, height: 40 },
+  { type: 'crate', variant: 'cloud', x: 6580, y: 460, width: 40, height: 40 },
+  { type: 'crate', variant: 'mystery', x: 6500, y: 340, width: 40, height: 40, content: 'powerup' },
+  { type: 'collectible', variant: 'coin', x: 6464, y: 410, width: 32, height: 32 },
+  { type: 'crate', variant: 'donut', x: 6860, y: 500, width: 40, height: 40 },
+  { type: 'crate', variant: 'stone', x: 7120, y: 560, width: 40, height: 40 },
+  { type: 'crate', variant: 'stone', x: 7120, y: 600, width: 40, height: 40 },
+  { type: 'crate', variant: 'stone', x: 7160, y: 560, width: 40, height: 40 },
+  { type: 'crate', variant: 'stone', x: 7160, y: 600, width: 40, height: 40 },
+  { type: 'crate', variant: 'stone', x: 7200, y: 560, width: 40, height: 40 },
+  { type: 'crate', variant: 'stone', x: 7200, y: 600, width: 40, height: 40 },
+  { type: 'crate', variant: 'stone', x: 7240, y: 560, width: 40, height: 40 },
+  { type: 'crate', variant: 'stone', x: 7240, y: 600, width: 40, height: 40 },
+  { type: 'crate', variant: 'stone', x: 7280, y: 560, width: 40, height: 40 },
+  { type: 'crate', variant: 'stone', x: 7280, y: 600, width: 40, height: 40 },
+  { type: 'crate', variant: 'stone', x: 7320, y: 560, width: 40, height: 40 },
+  { type: 'crate', variant: 'stone', x: 7320, y: 600, width: 40, height: 40 },
+  { type: 'crate', variant: 'stone', x: 7360, y: 560, width: 40, height: 40 },
+  { type: 'crate', variant: 'stone', x: 7360, y: 600, width: 40, height: 40 },
+  { type: 'crate', variant: 'stone', x: 7400, y: 560, width: 40, height: 40 },
+  { type: 'crate', variant: 'stone', x: 7400, y: 600, width: 40, height: 40 },
+  { type: 'crate', variant: 'stone', x: 7440, y: 560, width: 40, height: 40 },
+  { type: 'crate', variant: 'stone', x: 7440, y: 600, width: 40, height: 40 },
+  { type: 'crate', variant: 'stone', x: 7480, y: 560, width: 40, height: 40 },
+  { type: 'crate', variant: 'stone', x: 7480, y: 600, width: 40, height: 40 },
+  { type: 'crate', variant: 'stone', x: 7520, y: 560, width: 40, height: 40 },
+  { type: 'crate', variant: 'stone', x: 7520, y: 600, width: 40, height: 40 },
+  { type: 'crate', variant: 'stone', x: 7560, y: 560, width: 40, height: 40 },
+  { type: 'crate', variant: 'stone', x: 7560, y: 600, width: 40, height: 40 },
+  { type: 'crate', variant: 'mega', x: 7120, y: 480, width: 80, height: 80 },
+  { type: 'crate', variant: 'pipe', x: 8080, y: 480, width: 40, height: 80 },
+  { type: 'crate', variant: 'mystery', x: 8000, y: 160, width: 40, height: 40, content: 'heart' },
+  { type: 'enemy', variant: 'spiky', x: 7424, y: 520, width: 40, height: 40, speed: 75, patrolRange: 50, stompable: false },
+  { type: 'springboard', variant: 'mega', x: 7540, y: 520, width: 40, height: 40, launchForce: 1040 },
+  { type: 'hazard', x: 7600, y: 560, width: 40, height: 40 },
+  { type: 'crate', variant: 'stone', x: 7600, y: 600, width: 40, height: 40 },
+  { type: 'hazard', x: 7640, y: 560, width: 40, height: 40 },
+  { type: 'crate', variant: 'stone', x: 7640, y: 600, width: 40, height: 40 },
+  { type: 'hazard', x: 7680, y: 560, width: 40, height: 40 },
+  { type: 'crate', variant: 'stone', x: 7680, y: 600, width: 40, height: 40 },
+  { type: 'hazard', x: 7720, y: 560, width: 40, height: 40 },
+  { type: 'crate', variant: 'stone', x: 7720, y: 600, width: 40, height: 40 },
+  { type: 'hazard', x: 7760, y: 560, width: 40, height: 40 },
+  { type: 'crate', variant: 'stone', x: 7760, y: 600, width: 40, height: 40 },
+  { type: 'crate', variant: 'stone', x: 7800, y: 560, width: 40, height: 40 },
+  { type: 'crate', variant: 'stone', x: 7800, y: 600, width: 40, height: 40 },
+  { type: 'crate', variant: 'stone', x: 7840, y: 560, width: 40, height: 40 },
+  { type: 'crate', variant: 'stone', x: 7840, y: 600, width: 40, height: 40 },
+  { type: 'crate', variant: 'stone', x: 7880, y: 560, width: 40, height: 40 },
+  { type: 'crate', variant: 'stone', x: 7880, y: 600, width: 40, height: 40 },
+  { type: 'crate', variant: 'stone', x: 7920, y: 560, width: 40, height: 40 },
+  { type: 'crate', variant: 'stone', x: 7920, y: 600, width: 40, height: 40 },
+  { type: 'crate', variant: 'stone', x: 7960, y: 560, width: 40, height: 40 },
+  { type: 'crate', variant: 'stone', x: 7960, y: 600, width: 40, height: 40 },
+  { type: 'crate', variant: 'stone', x: 8000, y: 560, width: 40, height: 40 },
+  { type: 'crate', variant: 'stone', x: 8000, y: 600, width: 40, height: 40 },
+  { type: 'crate', variant: 'stone', x: 7840, y: 520, width: 40, height: 40 },
+  { type: 'crate', variant: 'stone', x: 7880, y: 520, width: 40, height: 40 },
+  { type: 'crate', variant: 'stone', x: 7880, y: 480, width: 40, height: 40 },
+  { type: 'crate', variant: 'stone', x: 7920, y: 520, width: 40, height: 40 },
+  { type: 'crate', variant: 'stone', x: 7920, y: 480, width: 40, height: 40 },
+  { type: 'crate', variant: 'stone', x: 7920, y: 440, width: 40, height: 40 },
+  { type: 'crate', variant: 'stone', x: 7960, y: 520, width: 40, height: 40 },
+  { type: 'crate', variant: 'stone', x: 7960, y: 480, width: 40, height: 40 },
+  { type: 'crate', variant: 'stone', x: 7960, y: 440, width: 40, height: 40 },
+  { type: 'crate', variant: 'stone', x: 7960, y: 400, width: 40, height: 40 },
+  { type: 'crate', variant: 'stone', x: 8000, y: 520, width: 40, height: 40 },
+  { type: 'crate', variant: 'stone', x: 8000, y: 480, width: 40, height: 40 },
+  { type: 'crate', variant: 'stone', x: 8000, y: 440, width: 40, height: 40 },
+  { type: 'crate', variant: 'stone', x: 8000, y: 400, width: 40, height: 40 },
+  { type: 'crate', variant: 'stone', x: 8000, y: 360, width: 40, height: 40 },
+  { type: 'collectible', variant: 'star', x: 8004, y: 310, width: 32, height: 32 },
+  { type: 'crate', variant: 'stone', x: 8040, y: 560, width: 40, height: 40 },
+  { type: 'crate', variant: 'stone', x: 8040, y: 600, width: 40, height: 40 },
+  { type: 'crate', variant: 'stone', x: 8080, y: 560, width: 40, height: 40 },
+  { type: 'crate', variant: 'stone', x: 8080, y: 600, width: 40, height: 40 },
+  { type: 'crate', variant: 'stone', x: 8120, y: 560, width: 40, height: 40 },
+  { type: 'crate', variant: 'stone', x: 8120, y: 600, width: 40, height: 40 },
+  { type: 'crate', variant: 'stone', x: 8160, y: 560, width: 40, height: 40 },
+  { type: 'crate', variant: 'stone', x: 8160, y: 600, width: 40, height: 40 },
+  { type: 'crate', variant: 'stone', x: 8200, y: 560, width: 40, height: 40 },
+  { type: 'crate', variant: 'stone', x: 8200, y: 600, width: 40, height: 40 },
+  { type: 'crate', variant: 'stone', x: 8240, y: 560, width: 40, height: 40 },
+  { type: 'crate', variant: 'stone', x: 8240, y: 600, width: 40, height: 40 },
+  { type: 'crate', variant: 'stone', x: 8280, y: 560, width: 40, height: 40 },
+  { type: 'crate', variant: 'stone', x: 8280, y: 600, width: 40, height: 40 },
+  { type: 'crate', variant: 'stone', x: 8320, y: 560, width: 40, height: 40 },
+  { type: 'crate', variant: 'stone', x: 8320, y: 600, width: 40, height: 40 },
+  { type: 'crate', variant: 'stone', x: 8360, y: 560, width: 40, height: 40 },
+  { type: 'crate', variant: 'stone', x: 8360, y: 600, width: 40, height: 40 },
+  { type: 'crate', variant: 'stone', x: 8400, y: 560, width: 40, height: 40 },
+  { type: 'crate', variant: 'stone', x: 8400, y: 600, width: 40, height: 40 },
+  { type: 'goal', x: 8260, y: 480, width: 48, height: 80 },
+  { type: 'collectible', variant: 'star', x: 8268, y: 410, width: 32, height: 32 },
+  { type: 'crate', variant: 'cloud', x: 2280, y: 200, width: 40, height: 40 },
+];
 class LevelStorage {
   // Serialize active level to JSON-compatible object
   static serialize(player, entities, background = { theme: 'sky', customImage: null }) {
@@ -7202,431 +7614,9 @@ ${payload}
     reader.readAsText(file);
   }
 
-  // Default Preset 1: World 1-1 "Sidehop Meadow (Grand Expanded Edition)"
+  // Default Preset: Starter World (Cleaned layout)
   static getStarterWorld() {
-    const entities = [];
-    const T = 40;
-
-    // Helper: Add double-layer solid ground strip
-    const addGround = (startX, endX, topY = 480, variant = 'solid') => {
-      for (let x = startX; x < endX; x += T) {
-        entities.push(new SolidBlock(x, topY, T, T, variant));
-        entities.push(new SolidBlock(x, topY + T, T, T, variant));
-      }
-    };
-
-    // -------------------------------------------------------------
-    // SECTION 1: TUTORIAL RUNWAY & MYSTERY BLOCKS (x: 0 -> 480)
-    // -------------------------------------------------------------
-    addGround(0, 480, 480, 'solid');
-
-    // Overhead Mario-style Mystery & Solid Blocks
-    entities.push(new SolidBlock(200, 320, T, T, 'solid'));
-    // Question block [?] containing the Pistol Gun Powerup!
-    entities.push(new SolidBlock(240, 320, T, T, 'mystery', 'powerup'));
-    entities.push(new SolidBlock(280, 320, T, T, 'solid'));
-    // Question block [?] containing Coin!
-    entities.push(new SolidBlock(320, 320, T, T, 'mystery', 'coin'));
-    entities.push(new SolidBlock(360, 320, T, T, 'solid'));
-
-    // Coins under and above blocks
-    entities.push(new Collectible(244, 430, 32, 32, 'coin'));
-    entities.push(new Collectible(324, 430, 32, 32, 'coin'));
-
-    // Patrolling Walker (Shoot with Gun or Stomp!)
-    const enemy1 = new EnemyWalker(380, 440, T, T, 'walker');
-    enemy1.patrolRange = 90;
-    entities.push(enemy1);
-
-    // -------------------------------------------------------------
-    // SECTION 2: SMOOTH SLOPES & WARP PIPE PLATEAU (x: 480 -> 1000)
-    // -------------------------------------------------------------
-    // Incline hill slant (surface rises smoothly from 480 to 440)
-    entities.push(new SolidBlock(480, 440, T, T, 'slope_up'));
-    entities.push(new SolidBlock(480, 480, T, T, 'solid'));
-    entities.push(new SolidBlock(480, 520, T, T, 'solid'));
-
-    // Elevated Plateau (y: 440)
-    for (let x = 520; x < 800; x += T) {
-      entities.push(new SolidBlock(x, 440, T, T, 'solid'));
-      entities.push(new SolidBlock(x, 480, T, T, 'solid'));
-      entities.push(new SolidBlock(x, 520, T, T, 'solid'));
-    }
-
-    // Mystery Block with Heart on the plateau!
-    entities.push(new SolidBlock(560, 320, T, T, 'mystery', 'heart'));
-
-    // Iconic Tall Warp Pipe (40x80) on the plateau
-    entities.push(new SolidBlock(640, 360, 40, 80, 'pipe'));
-    entities.push(new Collectible(644, 310, 32, 32, 'coin'));
-
-    // Flyer on the elevated ground
-    const enemy2 = new EnemyWalker(720, 400, T, T, 'winged');
-    enemy2.patrolRange = 60;
-    entities.push(enemy2);
-
-    // Decline hill slant (surface descends smoothly from 440 to 480)
-    entities.push(new SolidBlock(800, 440, T, T, 'slope_down'));
-    entities.push(new SolidBlock(800, 480, T, T, 'solid'));
-    entities.push(new SolidBlock(800, 520, T, T, 'solid'));
-
-    // Valley ground
-    addGround(840, 1000, 480, 'solid');
-    entities.push(new Collectible(884, 430, 32, 32, 'coin'));
-    entities.push(new Collectible(944, 430, 32, 32, 'coin'));
-
-    // -------------------------------------------------------------
-    // SECTION 3: NOTE BLOCK, HALF SLABS & SKY CLOUD ISLAND (x: 1000 -> 1520)
-    // -------------------------------------------------------------
-    // Spike Pit with solid foundation floor (x: 1040 -> 1280)
-    for (let x = 1040; x < 1280; x += T) {
-      entities.push(new HazardSpikes(x, 480, T, T));
-      entities.push(new SolidBlock(x, 520, T, T, 'solid'));
-    }
-
-    // Musical Note Block super trampoline right at edge of the pit (resting on ground at 480)
-    entities.push(new SolidBlock(1000, 440, T, T, 'note'));
-
-    // Stepping Half Slabs over the hazard
-    entities.push(new SolidBlock(1100, 420, 40, 20, 'slab'));
-    entities.push(new Collectible(1104, 370, 32, 32, 'coin'));
-
-    entities.push(new SolidBlock(1200, 420, 40, 20, 'slab'));
-    entities.push(new Collectible(1204, 370, 32, 32, 'coin'));
-
-    // High Sky Cloud Island (accessible via Note Block bounce!)
-    for (let x = 1080; x <= 1280; x += T) {
-      entities.push(new SolidBlock(x, 220, T, T, 'cloud'));
-    }
-    // Secret 500-pt Star Gem on the cloud!
-    entities.push(new Collectible(1160, 170, 32, 32, 'star'));
-
-    // Landing Ground
-    addGround(1280, 1520, 480, 'solid');
-    const enemy3 = new EnemyWalker(1360, 440, T, T, 'walker');
-    enemy3.patrolRange = 70;
-    entities.push(enemy3);
-    entities.push(new Collectible(1444, 430, 32, 32, 'coin'));
-
-    // -------------------------------------------------------------
-    // SECTION 4: DONUT BRIDGE & SLIPPERY ICE CHASM (x: 1520 -> 2160)
-    // -------------------------------------------------------------
-    // Donut Lift Bridge with middle resting stone pier over chasm
-    entities.push(new SolidBlock(1520, 480, T, T, 'donut'));
-    entities.push(new Collectible(1524, 430, 32, 32, 'coin'));
-
-    entities.push(new SolidBlock(1560, 480, T, T, 'donut'));
-    entities.push(new Collectible(1564, 430, 32, 32, 'coin'));
-
-    // Solid resting stone pier
-    entities.push(new SolidBlock(1600, 480, T, T, 'stone'));
-    entities.push(new SolidBlock(1600, 520, T, T, 'stone'));
-
-    entities.push(new SolidBlock(1640, 480, T, T, 'donut'));
-    entities.push(new Collectible(1644, 430, 32, 32, 'coin'));
-
-    entities.push(new SolidBlock(1680, 480, T, T, 'donut'));
-    entities.push(new Collectible(1684, 430, 32, 32, 'coin'));
-
-    // Slippery Ice Plateau (x: 1720 -> 2160)
-    for (let x = 1720; x < 2160; x += T) {
-      entities.push(new SolidBlock(x, 480, T, T, 'ice'));
-      entities.push(new SolidBlock(x, 520, T, T, 'solid'));
-    }
-
-    // Spiker Enemy on the ice (Cannot stomp! Must shoot with gun or leap over!)
-    const enemySpiky1 = new EnemyWalker(1880, 440, T, T, 'spiky');
-    enemySpiky1.patrolRange = 70;
-    entities.push(enemySpiky1);
-
-    // Upper Bypass Route: Cloud & Mystery Block bridge (y: 340)
-    // If the player already picked up the gun, this mystery block dispenses AMMUNITION!
-    entities.push(new SolidBlock(1800, 340, T, T, 'mystery', 'powerup'));
-    entities.push(new SolidBlock(1840, 340, T, T, 'cloud'));
-    entities.push(new SolidBlock(1880, 340, T, T, 'cloud'));
-    entities.push(new SolidBlock(1920, 340, T, T, 'mystery', 'coin'));
-    entities.push(new Collectible(1844, 290, 32, 32, 'coin'));
-
-    // -------------------------------------------------------------
-    // SECTION 5: DUAL MOVING LIFTS ACROSS THE ABYSS (x: 2160 -> 2840)
-    // -------------------------------------------------------------
-    // Deep Chasm (x: 2160 -> 2840)
-    // Vertical moving elevator platform (cycles smoothly between y: 335 and 445)
-    const vertPlat = new MovingPlatform(2220, 390, 80, 24);
-    vertPlat.axis = 'vertical';
-    vertPlat.distance = 55;
-    vertPlat.speed = 50;
-    entities.push(vertPlat);
-
-    // High Semisolid Platform in the middle (jump through from below)
-    entities.push(new SolidBlock(2360, 320, T, T, 'semisolid'));
-    entities.push(new SolidBlock(2400, 320, T, T, 'semisolid'));
-    entities.push(new SolidBlock(2440, 320, T, T, 'semisolid'));
-    entities.push(new Collectible(2404, 270, 32, 32, 'star')); // Hidden Star!
-
-    // Flyer airborne over the abyss
-    const enemyWinged2 = new EnemyWalker(2400, 240, T, T, 'winged');
-    enemyWinged2.patrolRange = 50;
-    entities.push(enemyWinged2);
-
-    // Horizontal moving ferry platform (cycles smoothly between x: 2510 and 2650 at y: 420)
-    const horizPlat = new MovingPlatform(2580, 420, 80, 24);
-    horizPlat.axis = 'horizontal';
-    horizPlat.distance = 70;
-    horizPlat.speed = 60;
-    entities.push(horizPlat);
-
-    // Landing Fortress Pier (x: 2700 -> 2840)
-    for (let x = 2700; x < 2840; x += T) {
-      entities.push(new SolidBlock(x, 480, T, T, 'stone'));
-      entities.push(new SolidBlock(x, 520, T, T, 'stone'));
-    }
-
-    // -------------------------------------------------------------
-    // SECTION 6: CITADEL GATEWAY & MEGA TRAMPOLINE (x: 2840 -> 3520)
-    // -------------------------------------------------------------
-    for (let x = 2840; x < 3320; x += T) {
-      entities.push(new SolidBlock(x, 480, T, T, 'stone'));
-      entities.push(new SolidBlock(x, 520, T, T, 'stone'));
-    }
-
-    // Mystery Block with Heart (health restore)
-    entities.push(new SolidBlock(2920, 340, T, T, 'mystery', 'heart'));
-
-    // 2x2 Mega Blocks forming fortress tower
-    entities.push(new SolidBlock(3000, 400, 80, 80, 'mega'));
-    entities.push(new Collectible(3024, 340, 32, 32, 'coin'));
-
-    // Warp Pipe on fortress
-    entities.push(new SolidBlock(3140, 400, 40, 80, 'pipe'));
-    entities.push(new Collectible(3144, 350, 32, 32, 'coin'));
-
-    // Armored Guard patrolling
-    const enemySpiky2 = new EnemyWalker(3220, 440, T, T, 'spiky');
-    enemySpiky2.patrolRange = 40;
-    entities.push(enemySpiky2);
-
-    // Mega Trampoline launcher: launches player high over the moat
-    entities.push(new Springboard(3280, 440, T, T, 'mega'));
-
-    // Spiked Moat (x: 3320 -> 3520)
-    for (let x = 3320; x < 3520; x += T) {
-      entities.push(new HazardSpikes(x, 480, T, T));
-      entities.push(new SolidBlock(x, 520, T, T, 'stone'));
-    }
-
-    // -------------------------------------------------------------
-    // SECTION 7: THE TWIN PEAKS & CANYON CROSSING (x: 3520 -> 4320)
-    // -------------------------------------------------------------
-    // Peak 1 Incline (rises from 480 to 400)
-    entities.push(new SolidBlock(3520, 440, T, T, 'slope_up'));
-    entities.push(new SolidBlock(3520, 480, T, T, 'stone'));
-    entities.push(new SolidBlock(3520, 520, T, T, 'stone'));
-    entities.push(new SolidBlock(3560, 400, T, T, 'slope_up'));
-    entities.push(new SolidBlock(3560, 440, T, T, 'stone'));
-    entities.push(new SolidBlock(3560, 480, T, T, 'stone'));
-    entities.push(new SolidBlock(3560, 520, T, T, 'stone'));
-
-    // Peak 1 Crest (y: 400)
-    entities.push(new SolidBlock(3600, 400, T, T, 'stone'));
-    entities.push(new SolidBlock(3600, 440, T, T, 'stone'));
-    entities.push(new SolidBlock(3600, 480, T, T, 'stone'));
-    entities.push(new SolidBlock(3600, 520, T, T, 'stone'));
-
-    // High Mystery Block over Peak 1 (Sprouts Ammunition refill!)
-    entities.push(new SolidBlock(3600, 280, T, T, 'mystery', 'powerup'));
-
-    // Canyon Gap with Falling Donut Lifts & Moving Platform
-    entities.push(new SolidBlock(3680, 420, T, T, 'donut'));
-    entities.push(new Collectible(3684, 370, 32, 32, 'coin'));
-
-    // Fast Vertical Ferry across the canyon
-    const canyonPlat = new MovingPlatform(3780, 380, 80, 24);
-    canyonPlat.axis = 'vertical';
-    canyonPlat.distance = 60;
-    canyonPlat.speed = 65;
-    entities.push(canyonPlat);
-
-    // Flyer guarding the gap
-    const enemyWinged3 = new EnemyWalker(3780, 240, T, T, 'winged');
-    enemyWinged3.patrolRange = 60;
-    entities.push(enemyWinged3);
-
-    entities.push(new SolidBlock(3900, 420, T, T, 'donut'));
-    entities.push(new Collectible(3904, 370, 32, 32, 'coin'));
-
-    // Peak 2 Crest & Decline (x: 3960 -> 4320)
-    for (let x = 3960; x < 4120; x += T) {
-      entities.push(new SolidBlock(x, 400, T, T, 'stone'));
-      entities.push(new SolidBlock(x, 440, T, T, 'stone'));
-      entities.push(new SolidBlock(x, 480, T, T, 'stone'));
-      entities.push(new SolidBlock(x, 520, T, T, 'stone'));
-    }
-    const enemyWalker2 = new EnemyWalker(4020, 360, T, T, 'walker');
-    enemyWalker2.patrolRange = 50;
-    entities.push(enemyWalker2);
-
-    entities.push(new SolidBlock(4120, 400, T, T, 'slope_down'));
-    entities.push(new SolidBlock(4120, 440, T, T, 'stone'));
-    entities.push(new SolidBlock(4120, 480, T, T, 'stone'));
-    entities.push(new SolidBlock(4120, 520, T, T, 'stone'));
-
-    entities.push(new SolidBlock(4160, 440, T, T, 'slope_down'));
-    entities.push(new SolidBlock(4160, 480, T, T, 'stone'));
-    entities.push(new SolidBlock(4160, 520, T, T, 'stone'));
-
-    addGround(4200, 4320, 480, 'solid');
-
-    // -------------------------------------------------------------
-    // SECTION 8: GLACIAL SLOPES & SPIKY GAUNTLET (x: 4320 -> 5120)
-    // -------------------------------------------------------------
-    // Slippery ice runway with slopes
-    for (let x = 4320; x < 4880; x += T) {
-      entities.push(new SolidBlock(x, 480, T, T, 'ice'));
-      entities.push(new SolidBlock(x, 520, T, T, 'solid'));
-    }
-
-    // High Semisolid Escape Route above the ice (y: 340)
-    for (let x = 4440; x <= 4720; x += T) {
-      entities.push(new SolidBlock(x, 340, T, T, 'semisolid'));
-    }
-    // Health Heart in mystery block on the upper route!
-    entities.push(new SolidBlock(4560, 240, T, T, 'mystery', 'heart'));
-    entities.push(new Collectible(4644, 290, 32, 32, 'coin'));
-
-    // Spiky Gauntlet on the ice below (Use pistol or take upper route!)
-    const enemySpiky3 = new EnemyWalker(4460, 440, T, T, 'spiky');
-    enemySpiky3.patrolRange = 60;
-    enemySpiky3.speed = 55;
-    entities.push(enemySpiky3);
-
-    const enemySpiky4 = new EnemyWalker(4680, 440, T, T, 'spiky');
-    enemySpiky4.patrolRange = 60;
-    enemySpiky4.speed = 60;
-    entities.push(enemySpiky4);
-
-    // Mystery Block dispensing Ammunition to reload pistol!
-    entities.push(new SolidBlock(4800, 340, T, T, 'mystery', 'powerup'));
-
-    addGround(4880, 5120, 480, 'solid');
-    const enemyWalker3 = new EnemyWalker(4960, 440, T, T, 'walker');
-    enemyWalker3.patrolRange = 70;
-    entities.push(enemyWalker3);
-
-    // -------------------------------------------------------------
-    // SECTION 9: SKY ISLES & THE CLOUD EXPRESS (x: 5120 -> 5960)
-    // -------------------------------------------------------------
-    // Vast chasm with floating cloud formations & moving ferries
-    for (let x = 5160; x <= 5320; x += T) {
-      entities.push(new SolidBlock(x, 400, T, T, 'cloud'));
-    }
-    entities.push(new Collectible(5204, 350, 32, 32, 'coin'));
-    entities.push(new Collectible(5284, 350, 32, 32, 'coin'));
-
-    // High Musical Note Block for high sky access
-    entities.push(new SolidBlock(5320, 360, T, T, 'note'));
-
-    // Airborne Cloud Island (y: 220) with Star Gem!
-    for (let x = 5280; x <= 5440; x += T) {
-      entities.push(new SolidBlock(x, 220, T, T, 'cloud'));
-    }
-    entities.push(new Collectible(5364, 170, 32, 32, 'star'));
-
-    // Horizontal Cloud Express Ferry platform
-    const skyPlat = new MovingPlatform(5480, 380, 80, 24);
-    skyPlat.axis = 'horizontal';
-    skyPlat.distance = 80;
-    skyPlat.speed = 70;
-    entities.push(skyPlat);
-
-    // Flyer patrolling over the void
-    const enemyWinged4 = new EnemyWalker(5480, 240, T, T, 'winged');
-    enemyWinged4.patrolRange = 60;
-    entities.push(enemyWinged4);
-
-    // Second Cloud Island with Mystery Block [?] for Ammo
-    for (let x = 5660; x <= 5820; x += T) {
-      entities.push(new SolidBlock(x, 380, T, T, 'cloud'));
-    }
-    entities.push(new SolidBlock(5740, 260, T, T, 'mystery', 'powerup'));
-    entities.push(new Collectible(5704, 330, 32, 32, 'coin'));
-
-    // Donut stepping stones
-    entities.push(new SolidBlock(5860, 420, T, T, 'donut'));
-    entities.push(new SolidBlock(5900, 420, T, T, 'donut'));
-
-    // -------------------------------------------------------------
-    // SECTION 10: FORTRESS OF SPIKES & FINAL MOAT (x: 5960 -> 6640)
-    // -------------------------------------------------------------
-    // Castle Base
-    for (let x = 5960; x < 6440; x += T) {
-      entities.push(new SolidBlock(x, 480, T, T, 'stone'));
-      entities.push(new SolidBlock(x, 520, T, T, 'stone'));
-    }
-
-    // Fortress Watchtower with Mega Block and Pipe
-    entities.push(new SolidBlock(6080, 400, 80, 80, 'mega'));
-    entities.push(new SolidBlock(6200, 360, 40, 80, 'pipe'));
-
-    // Final Health Heart & Coin Mystery Blocks
-    entities.push(new SolidBlock(6080, 280, T, T, 'mystery', 'heart'));
-    entities.push(new SolidBlock(6120, 280, T, T, 'mystery', 'coin'));
-
-    // Patrolling Spiker and Walker
-    const enemySpiky5 = new EnemyWalker(6280, 440, T, T, 'spiky');
-    enemySpiky5.patrolRange = 50;
-    entities.push(enemySpiky5);
-
-    // Final Mega Trampoline launching over the deep spiked moat!
-    entities.push(new Springboard(6380, 440, T, T, 'mega'));
-
-    // Giant Spiked Moat
-    for (let x = 6440; x < 6640; x += T) {
-      entities.push(new HazardSpikes(x, 480, T, T));
-      entities.push(new SolidBlock(x, 520, T, T, 'stone'));
-    }
-
-    // -------------------------------------------------------------
-    // SECTION 11: GRAND PYRAMID STAIRCASE & GOAL FLAG (x: 6640 -> 7300)
-    // -------------------------------------------------------------
-    // Ascending Staircase Base
-    addGround(6640, 6880, 480, 'stone');
-
-    // Column 1 (Height: 1 block, y: 440)
-    entities.push(new SolidBlock(6680, 440, T, T, 'stone'));
-
-    // Column 2 (Height: 2 blocks, y: 400)
-    entities.push(new SolidBlock(6720, 440, T, T, 'stone'));
-    entities.push(new SolidBlock(6720, 400, T, T, 'stone'));
-
-    // Column 3 (Height: 3 blocks, y: 360)
-    entities.push(new SolidBlock(6760, 440, T, T, 'stone'));
-    entities.push(new SolidBlock(6760, 400, T, T, 'stone'));
-    entities.push(new SolidBlock(6760, 360, T, T, 'stone'));
-
-    // Column 4 (Height: 4 blocks, y: 320)
-    entities.push(new SolidBlock(6800, 440, T, T, 'stone'));
-    entities.push(new SolidBlock(6800, 400, T, T, 'stone'));
-    entities.push(new SolidBlock(6800, 360, T, T, 'stone'));
-    entities.push(new SolidBlock(6800, 320, T, T, 'stone'));
-
-    // Column 5 (Apex / Height: 5 blocks, y: 280)
-    entities.push(new SolidBlock(6840, 440, T, T, 'stone'));
-    entities.push(new SolidBlock(6840, 400, T, T, 'stone'));
-    entities.push(new SolidBlock(6840, 360, T, T, 'stone'));
-    entities.push(new SolidBlock(6840, 320, T, T, 'stone'));
-    entities.push(new SolidBlock(6840, 280, T, T, 'stone'));
-    // Glowing Star Gem right above the peak!
-    entities.push(new Collectible(6844, 230, 32, 32, 'star'));
-
-    // Victory Courtyard Floor
-    addGround(6880, 7280, 480, 'stone');
-
-    // Triumphal Goal Finish Line Flag!
-    entities.push(new GoalFlag(7100, 400, 48, 80));
-    // High Star above the flag
-    entities.push(new Collectible(7108, 330, 32, 32, 'star'));
-
+    const entities = STARTER_WORLD_ENTITIES.map(d => LevelStorage.createEntityFromData(d)).filter(Boolean);
     return {
       background: { theme: 'sky', customImage: null },
       playerSpawn: { x: 80, y: 400 },
@@ -7638,6 +7628,11 @@ ${payload}
   static getPresetCrateChallenge() {
     return this.getStarterWorld();
   }
+}
+
+if (typeof window !== 'undefined') {
+  window.LevelStorage = LevelStorage;
+  window.STARTER_WORLD_ENTITIES = STARTER_WORLD_ENTITIES;
 }
 
 
