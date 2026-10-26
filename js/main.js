@@ -1,6 +1,6 @@
 // Sidehop Master Application Coordinator — Enhanced Custom Backgrounds, Asset Library & Undo/Redo
 
-import { Player, Bullet, SolidBlock } from './engine/entities.js';
+import { Player, Bullet, SolidBlock, Collectible, Springboard, SpikeHazard, Enemy, MovingPlatform, GoalPole } from './engine/entities.js';
 import { PhysicsEngine } from './engine/physics.js?v=2';
 import { Camera } from './engine/camera.js';
 import { GridEditor } from './editor/grid.js';
@@ -1441,60 +1441,68 @@ class SidehopApp {
 
   // --- Mario-Style Mystery Question Block [?] Hit Handler ---
   handleMysteryBlockHit(block) {
-    let kind = block.content || 'auto';
+    try {
+      let kind = block.content || 'auto';
 
-    if (kind === 'auto') {
-      // Mario-style item selection:
-      if (this.player.hearts < (this.player.maxHearts || 4) && Math.random() < 0.45) {
-        kind = 'heart';
-      } else if (!this.player.hasPistol || this.player.ammo <= 5) {
-        kind = 'powerup';
-      } else {
-        const roll = Math.random();
-        if (roll < 0.4) kind = 'coin';
-        else if (roll < 0.7) kind = 'powerup';
-        else kind = 'heart';
+      if (kind === 'auto') {
+        // Mario-style item selection:
+        if (this.player.hearts < (this.player.maxHearts || 4) && Math.random() < 0.45) {
+          kind = 'heart';
+        } else if (!this.player.hasPistol || this.player.ammo <= 5) {
+          kind = 'powerup';
+        } else {
+          const roll = Math.random();
+          if (roll < 0.4) kind = 'coin';
+          else if (roll < 0.7) kind = 'powerup';
+          else kind = 'heart';
+        }
       }
-    }
 
-    // Resolve powerup: Gun vs. Ammunition
-    // After picking up gun for first time, refills appear as ammunition!
-    let variant = 'coin';
-    if (kind === 'powerup' || kind === 'gun' || kind === 'pistol' || kind === 'ammo') {
-      variant = this.gunPickedUpInLevel ? 'ammo' : 'pistol';
-    } else if (kind === 'heart') {
-      variant = 'heart';
-    } else if (kind === 'star') {
-      variant = 'star';
-    } else {
-      variant = 'coin';
-    }
+      // Resolve powerup: Gun vs. Ammunition
+      // After picking up gun for first time, refills appear as ammunition!
+      let variant = 'coin';
+      if (kind === 'powerup' || kind === 'gun' || kind === 'pistol' || kind === 'ammo') {
+        variant = this.gunPickedUpInLevel ? 'ammo' : 'pistol';
+      } else if (kind === 'heart') {
+        variant = 'heart';
+      } else if (kind === 'star') {
+        variant = 'star';
+      } else {
+        variant = 'coin';
+      }
 
-    if (variant === 'coin') {
-      // Mario pop-up coin
-      sounds.playCollect();
-      this.score += 100;
-      this.spawnCoinBounceParticle(block.x + block.width / 2, block.y);
-      this.showToast('🪙 +100 PTS!');
-    } else {
-      // Health Heart, Pistol Gun, or Ammunition Box emerges from top of block
-      const itemW = 32;
-      const itemH = 32;
-      const itemX = block.x + (block.width - itemW) / 2;
-      const targetY = block.y - itemH - 4;
-      const item = new Collectible(itemX, block.y, itemW, itemH, variant);
-      item.targetY = targetY;
-      item.emerging = true;
-      item.emergeVy = -190;
-      sounds.playGunPickup();
-      this.entities.push(item);
+      if (variant === 'coin') {
+        // Mario pop-up coin
+        sounds.playCollect();
+        this.score += 100;
+        this.spawnCoinBounceParticle(block.x + block.width / 2, block.y);
+        this.showToast('🪙 +100 PTS!');
+      } else {
+        // Health Heart, Pistol Gun, or Ammunition Box emerges from top of block
+        const itemW = 32;
+        const itemH = 32;
+        const itemX = block.x + (block.width - itemW) / 2;
+        const targetY = block.y - itemH - 4;
+        const item = new Collectible(itemX, block.y, itemW, itemH, variant);
+        item.targetY = targetY;
+        item.emerging = true;
+        item.emergeVy = -190;
+        sounds.playGunPickup();
+        this.entities.push(item);
 
-      const label = variant === 'pistol'
-        ? '🔫 Gun Powerup!'
-        : variant === 'ammo'
-          ? '📦 Ammunition Box!'
-          : '❤️ Health Heart!';
-      this.showToast(`✨ ${label}`);
+        const label = variant === 'pistol'
+          ? '🔫 Gun Powerup!'
+          : variant === 'ammo'
+            ? '📦 Ammunition Box!'
+            : '❤️ Health Heart!';
+        this.showToast(`✨ ${label}`);
+      }
+    } catch (err) {
+      console.error('handleMysteryBlockHit error:', err);
+      try {
+        sounds.playCollect();
+        this.score += 100;
+      } catch (e) {}
     }
   }
 
@@ -2913,6 +2921,7 @@ class SidehopApp {
       this.confetti.push({
         x: this.canvas.width / 2 + (Math.random() - 0.5) * 200,
         y: this.canvas.height / 2,
+        isScreen: true,
         vx: (Math.random() - 0.5) * 16,
         vy: -Math.random() * 12 - 4,
         size: Math.random() * 8 + 6,
@@ -2994,12 +3003,14 @@ class SidehopApp {
       this.drawPlayHUD();
     }
 
-    // 5. Draw Confetti
+    // 5. Draw Confetti & Particle Effects
     if (this.confetti.length > 0) {
       this.ctx.save();
       for (const p of this.confetti) {
         this.ctx.save();
-        this.ctx.translate(p.x, p.y);
+        const drawX = p.isScreen ? p.x : (p.x - this.camera.x);
+        const drawY = p.isScreen ? p.y : (p.y - this.camera.y);
+        this.ctx.translate(drawX, drawY);
         this.ctx.rotate(p.rotation);
         this.ctx.fillStyle = p.color;
         this.ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size);

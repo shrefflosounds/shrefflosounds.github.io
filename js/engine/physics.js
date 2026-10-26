@@ -188,7 +188,11 @@ export class PhysicsEngine {
 
           // Trigger Mystery Block [?] bump when bonked from below
           if (solid.bump && !solid.isUsed) {
-            solid.bump();
+            try {
+              solid.bump();
+            } catch (bumpErr) {
+              console.error('solid.bump error:', bumpErr);
+            }
           }
         }
       }

@@ -404,13 +404,17 @@ export class SolidBlock extends Entity {
     this.bumpTimer = 0.22;
     if (this.variant === 'mystery') {
       this.isUsed = true;
-      if (typeof window !== 'undefined' && window.sidehop && window.sidehop.handleMysteryBlockHit) {
-        window.sidehop.handleMysteryBlockHit(this);
-      } else {
-        sounds.playCollect();
-        if (typeof window !== 'undefined' && window.sidehop) {
-          window.sidehop.score += 100;
+      try {
+        if (typeof window !== 'undefined' && window.sidehop && window.sidehop.handleMysteryBlockHit) {
+          window.sidehop.handleMysteryBlockHit(this);
+        } else {
+          sounds.playCollect();
+          if (typeof window !== 'undefined' && window.sidehop) {
+            window.sidehop.score += 100;
+          }
         }
+      } catch (err) {
+        console.error('Mystery block bump error:', err);
       }
     } else if (this.variant === 'note') {
       sounds.playBounce();
@@ -1776,8 +1780,8 @@ export class Collectible extends Entity {
     this.bobTimer += dt * 4;
     if (this.emerging) {
       this.y += this.emergeVy * dt;
-      this.emergeVy += 520 * dt;
-      if (this.y >= this.targetY) {
+      this.emergeVy += 400 * dt;
+      if (this.y <= this.targetY) {
         this.y = this.targetY;
         this.emerging = false;
         this.emergeVy = 0;

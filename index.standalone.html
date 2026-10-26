@@ -3810,7 +3810,11 @@ class PhysicsEngine {
 
           // Trigger Mystery Block [?] bump when bonked from below
           if (solid.bump && !solid.isUsed) {
-            solid.bump();
+            try {
+              solid.bump();
+            } catch (bumpErr) {
+              console.error('solid.bump error:', bumpErr);
+            }
           }
         }
       }
@@ -4300,13 +4304,17 @@ class SolidBlock extends Entity {
     this.bumpTimer = 0.22;
     if (this.variant === 'mystery') {
       this.isUsed = true;
-      if (typeof window !== 'undefined' && window.sidehop && window.sidehop.handleMysteryBlockHit) {
-        window.sidehop.handleMysteryBlockHit(this);
-      } else {
-        sounds.playCollect();
-        if (typeof window !== 'undefined' && window.sidehop) {
-          window.sidehop.score += 100;
+      try {
+        if (typeof window !== 'undefined' && window.sidehop && window.sidehop.handleMysteryBlockHit) {
+          window.sidehop.handleMysteryBlockHit(this);
+        } else {
+          sounds.playCollect();
+          if (typeof window !== 'undefined' && window.sidehop) {
+            window.sidehop.score += 100;
+          }
         }
+      } catch (err) {
+        console.error('Mystery block bump error:', err);
       }
     } else if (this.variant === 'note') {
       sounds.playBounce();
@@ -5672,8 +5680,8 @@ class Collectible extends Entity {
     this.bobTimer += dt * 4;
     if (this.emerging) {
       this.y += this.emergeVy * dt;
-      this.emergeVy += 520 * dt;
-      if (this.y >= this.targetY) {
+      this.emergeVy += 400 * dt;
+      if (this.y <= this.targetY) {
         this.y = this.targetY;
         this.emerging = false;
         this.emergeVy = 0;
@@ -10266,60 +10274,68 @@ class SidehopApp {
 
   // --- Mario-Style Mystery Question Block [?] Hit Handler ---
   handleMysteryBlockHit(block) {
-    let kind = block.content || 'auto';
+    try {
+      let kind = block.content || 'auto';
 
-    if (kind === 'auto') {
-      // Mario-style item selection:
-      if (this.player.hearts < (this.player.maxHearts || 4) && Math.random() < 0.45) {
-        kind = 'heart';
-      } else if (!this.player.hasPistol || this.player.ammo <= 5) {
-        kind = 'powerup';
-      } else {
-        const roll = Math.random();
-        if (roll < 0.4) kind = 'coin';
-        else if (roll < 0.7) kind = 'powerup';
-        else kind = 'heart';
+      if (kind === 'auto') {
+        // Mario-style item selection:
+        if (this.player.hearts < (this.player.maxHearts || 4) && Math.random() < 0.45) {
+          kind = 'heart';
+        } else if (!this.player.hasPistol || this.player.ammo <= 5) {
+          kind = 'powerup';
+        } else {
+          const roll = Math.random();
+          if (roll < 0.4) kind = 'coin';
+          else if (roll < 0.7) kind = 'powerup';
+          else kind = 'heart';
+        }
       }
-    }
 
-    // Resolve powerup: Gun vs. Ammunition
-    // After picking up gun for first time, refills appear as ammunition!
-    let variant = 'coin';
-    if (kind === 'powerup' || kind === 'gun' || kind === 'pistol' || kind === 'ammo') {
-      variant = this.gunPickedUpInLevel ? 'ammo' : 'pistol';
-    } else if (kind === 'heart') {
-      variant = 'heart';
-    } else if (kind === 'star') {
-      variant = 'star';
-    } else {
-      variant = 'coin';
-    }
+      // Resolve powerup: Gun vs. Ammunition
+      // After picking up gun for first time, refills appear as ammunition!
+      let variant = 'coin';
+      if (kind === 'powerup' || kind === 'gun' || kind === 'pistol' || kind === 'ammo') {
+        variant = this.gunPickedUpInLevel ? 'ammo' : 'pistol';
+      } else if (kind === 'heart') {
+        variant = 'heart';
+      } else if (kind === 'star') {
+        variant = 'star';
+      } else {
+        variant = 'coin';
+      }
 
-    if (variant === 'coin') {
-      // Mario pop-up coin
-      sounds.playCollect();
-      this.score += 100;
-      this.spawnCoinBounceParticle(block.x + block.width / 2, block.y);
-      this.showToast('🪙 +100 PTS!');
-    } else {
-      // Health Heart, Pistol Gun, or Ammunition Box emerges from top of block
-      const itemW = 32;
-      const itemH = 32;
-      const itemX = block.x + (block.width - itemW) / 2;
-      const targetY = block.y - itemH - 4;
-      const item = new Collectible(itemX, block.y, itemW, itemH, variant);
-      item.targetY = targetY;
-      item.emerging = true;
-      item.emergeVy = -190;
-      sounds.playGunPickup();
-      this.entities.push(item);
+      if (variant === 'coin') {
+        // Mario pop-up coin
+        sounds.playCollect();
+        this.score += 100;
+        this.spawnCoinBounceParticle(block.x + block.width / 2, block.y);
+        this.showToast('🪙 +100 PTS!');
+      } else {
+        // Health Heart, Pistol Gun, or Ammunition Box emerges from top of block
+        const itemW = 32;
+        const itemH = 32;
+        const itemX = block.x + (block.width - itemW) / 2;
+        const targetY = block.y - itemH - 4;
+        const item = new Collectible(itemX, block.y, itemW, itemH, variant);
+        item.targetY = targetY;
+        item.emerging = true;
+        item.emergeVy = -190;
+        sounds.playGunPickup();
+        this.entities.push(item);
 
-      const label = variant === 'pistol'
-        ? '🔫 Gun Powerup!'
-        : variant === 'ammo'
-          ? '📦 Ammunition Box!'
-          : '❤️ Health Heart!';
-      this.showToast(`✨ ${label}`);
+        const label = variant === 'pistol'
+          ? '🔫 Gun Powerup!'
+          : variant === 'ammo'
+            ? '📦 Ammunition Box!'
+            : '❤️ Health Heart!';
+        this.showToast(`✨ ${label}`);
+      }
+    } catch (err) {
+      console.error('handleMysteryBlockHit error:', err);
+      try {
+        sounds.playCollect();
+        this.score += 100;
+      } catch (e) {}
     }
   }
 
@@ -11738,6 +11754,7 @@ class SidehopApp {
       this.confetti.push({
         x: this.canvas.width / 2 + (Math.random() - 0.5) * 200,
         y: this.canvas.height / 2,
+        isScreen: true,
         vx: (Math.random() - 0.5) * 16,
         vy: -Math.random() * 12 - 4,
         size: Math.random() * 8 + 6,
@@ -11819,12 +11836,14 @@ class SidehopApp {
       this.drawPlayHUD();
     }
 
-    // 5. Draw Confetti
+    // 5. Draw Confetti & Particle Effects
     if (this.confetti.length > 0) {
       this.ctx.save();
       for (const p of this.confetti) {
         this.ctx.save();
-        this.ctx.translate(p.x, p.y);
+        const drawX = p.isScreen ? p.x : (p.x - this.camera.x);
+        const drawY = p.isScreen ? p.y : (p.y - this.camera.y);
+        this.ctx.translate(drawX, drawY);
         this.ctx.rotate(p.rotation);
         this.ctx.fillStyle = p.color;
         this.ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size);
