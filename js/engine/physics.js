@@ -31,10 +31,12 @@ export class PhysicsEngine {
     this.resolveHorizontalCollisions(entity, solids, prevX);
 
     // 2. Vertical Movement & Collision
+    const prevY = entity.y;
     const prevVy = entity.vy;
     entity.y += entity.vy * dt;
     entity.grounded = false;
-    this.resolveVerticalCollisions(entity, solids);
+    entity.standingOnSolid = null;
+    this.resolveVerticalCollisions(entity, solids, prevY, dt);
 
     // Landing detection for procedural squash:
     // Only trigger landing squash if entity was genuinely airborne and landed with significant downward velocity (> 180 px/s)
@@ -111,7 +113,7 @@ export class PhysicsEngine {
     }
   }
 
-  resolveVerticalCollisions(entity, solids) {
+  resolveVerticalCollisions(entity, solids, prevY, dt) {
     const isSlope = (s) => s && (s.isSlope || s.variant?.includes('slope'));
     const isSlopeUp = (s) => s && (s.slopeDirection === 'up' || s.variant?.includes('slope_up'));
     const isSlopeDown = (s) => s && (s.slopeDirection === 'down' || s.variant?.includes('slope_down'));
@@ -199,11 +201,20 @@ export class PhysicsEngine {
       // Slopes (ground and ceiling) are already resolved above
       if (isSlope(solid)) continue;
 
+      // Skip solid blocks that are covered underneath any slope
+      const isUnderSlope = solids.some(s =>
+        s.active && isSlope(s) &&
+        Math.abs(s.x - solid.x) < 2 &&
+        solid.y >= s.y + s.height - 2
+      );
+      if (isUnderSlope) continue;
+
       // 2. Handle One-Way Platforms (Cloud Platforms & Semi-Solid Boardwalks)
       if (solid.isOneWay || solid.variant === 'cloud' || solid.variant === 'semisolid') {
         if (entity.vy > 0 && this.checkOverlap(entity, solid)) {
           // Only land if entity was previously at or above top edge
-          if (entity.y + entity.height - (entity.vy * 0.035) <= solid.y + 12) {
+          const prevFootY = prevY !== undefined ? (prevY + entity.height) : (entity.y + entity.height - (entity.vy * (dt || 0.016)));
+          if (prevFootY <= solid.y + 12) {
             entity.y = solid.y - entity.height;
             entity.vy = 0;
             entity.grounded = true;
@@ -215,46 +226,82 @@ export class PhysicsEngine {
 
       if (this.checkOverlap(entity, solid)) {
         if (entity.vy > 0) {
-          // Landing on top of solid
-          entity.y = solid.y - entity.height;
-          entity.standingOnSolid = solid;
+          // Landing on top of solid:
+          // Ensure entity entered from above the solid's top surface
+          const prevFootY = prevY !== undefined ? (prevY + entity.height) : (entity.y + entity.height - (entity.vy * (dt || 0.016)));
+          const maxStepDown = Math.max(16, (entity.vy * (dt || 0.016)) + 6);
+          if (prevFootY <= solid.y + maxStepDown) {
+            entity.y = solid.y - entity.height;
+            entity.standingOnSolid = solid;
 
-          // Note Block super bounce (♪)
-          if (solid.variant === 'note') {
-            entity.vy = -860;
-            entity.grounded = false;
-            if (solid.bump) solid.bump();
-          }
-          // Donut Lift trigger
-          else if (solid.variant === 'donut') {
-            if (solid.shakeTimer === 0 && !solid.isDropping) {
-              solid.shakeTimer = 0.01;
+            // Note Block super bounce (♪)
+            if (solid.variant === 'note') {
+              entity.vy = -860;
+              entity.grounded = false;
+              if (solid.bump) solid.bump();
             }
-            entity.vy = 0;
-            entity.grounded = true;
-          }
-          // Apply surface bounciness if configured
-          else if (solid.bounciness && solid.bounciness > 0.05) {
-            entity.vy = -entity.vy * solid.bounciness;
-            if (Math.abs(entity.vy) < 80) {
+            // Donut Lift trigger
+            else if (solid.variant === 'donut') {
+              if (solid.shakeTimer === 0 && !solid.isDropping) {
+                solid.shakeTimer = 0.01;
+              }
               entity.vy = 0;
               entity.grounded = true;
             }
-          } else {
-            entity.vy = 0;
-            entity.grounded = true;
+            // Apply surface bounciness if configured
+            else if (solid.bounciness && solid.bounciness > 0.05) {
+              entity.vy = -entity.vy * solid.bounciness;
+              if (Math.abs(entity.vy) < 80) {
+                entity.vy = 0;
+                entity.grounded = true;
+              }
+            } else {
+              entity.vy = 0;
+              entity.grounded = true;
+            }
           }
         } else if (entity.vy < 0) {
           // Bonking head on bottom of solid
-          entity.y = solid.y + solid.height;
-          entity.vy = 0;
+          // 1. Verify this is not a plateau block connected to an adjacent slope on the side the entity is approaching from
+          const connectedSlopeUp = solids.some(s =>
+            s.active && isSlopeUp(s) &&
+            Math.abs((s.x + s.width) - solid.x) <= 2 &&
+            Math.abs(s.y - solid.y) <= 2
+          );
+          const connectedSlopeDown = solids.some(s =>
+            s.active && isSlopeDown(s) &&
+            Math.abs(s.x - (solid.x + solid.width)) <= 2 &&
+            Math.abs(s.y - solid.y) <= 2
+          );
 
-          // Trigger Mystery Block [?] bump when bonked from below
-          if (solid.bump && !solid.isUsed) {
-            try {
-              solid.bump();
-            } catch (bumpErr) {
-              console.error('solid.bump error:', bumpErr);
+          const footX = entity.x + entity.width / 2;
+          const isApproachingFromSlopeUp = connectedSlopeUp && footX <= solid.x + 8;
+          const isApproachingFromSlopeDown = connectedSlopeDown && footX >= solid.x + solid.width - 8;
+
+          // 2. Verify entity's head actually struck the bottom edge from underneath
+          const solidBottom = solid.y + solid.height;
+          const prevHeadY = prevY !== undefined ? prevY : (entity.y - (entity.vy * (dt || 0.016)));
+          const maxStepUp = Math.max(16, Math.abs(entity.vy * (dt || 0.016)) + 6);
+
+          // Head must have been at/below bottom of solid before the step and feet cannot be near top of solid
+          const struckFromBelow = (prevHeadY >= solidBottom - maxStepUp) &&
+                                  (entity.y >= solid.y - 4) &&
+                                  (entity.y + entity.height > solid.y + 12);
+
+          // Entity must have meaningful horizontal overlap under the block (not just grazing vertical side)
+          const horizAligned = (entity.x + entity.width > solid.x + 4) && (entity.x < solid.x + solid.width - 4);
+
+          if (struckFromBelow && horizAligned && !isApproachingFromSlopeUp && !isApproachingFromSlopeDown) {
+            entity.y = solidBottom;
+            entity.vy = 0;
+
+            // Trigger Mystery Block [?] bump when bonked from below
+            if (solid.bump && !solid.isUsed) {
+              try {
+                solid.bump();
+              } catch (bumpErr) {
+                console.error('solid.bump error:', bumpErr);
+              }
             }
           }
         }

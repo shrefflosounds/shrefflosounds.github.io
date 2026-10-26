@@ -1,6 +1,6 @@
 // Sidehop Level Persistence & Preset Levels Engine
 
-import { SolidBlock, Springboard, HazardSpikes, EnemyWalker, MovingPlatform, Collectible, GoalFlag } from '../engine/entities.js?v=20261026_04';
+import { SolidBlock, Springboard, HazardSpikes, EnemyWalker, MovingPlatform, Collectible, GoalFlag } from '../engine/entities.js?v=20261026_05';
 import { SidehopFile } from './sidehop-format.js';
 
 const LEVEL_STORAGE_KEY = 'sidehop_saved_level_v6';
@@ -544,9 +544,6 @@ export class LevelStorage {
     const bg = data.background || { theme: 'sky', customImage: null };
     if (data.theme) {
       bg.worldTheme = data.theme;
-      if (typeof window !== 'undefined' && window.sidehop && window.sidehop.setTheme) {
-        window.sidehop.setTheme(data.theme);
-      }
     }
     return bg;
   }

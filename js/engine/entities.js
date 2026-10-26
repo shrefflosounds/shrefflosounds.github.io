@@ -246,6 +246,7 @@ export class Player extends Entity {
         // Ground Jump
         this.vy = -this.jumpForce;
         this.grounded = false;
+        this.standingOnSolid = null;
         this.isJumping = true;
         this.coyoteTimer = 0;
         this.jumpBufferTimer = 0;
@@ -254,6 +255,7 @@ export class Player extends Entity {
         // Double Jump
         this.vy = -this.jumpForce * 0.9;
         this.hasDoubleJump = false;
+        this.standingOnSolid = null;
         this.isJumping = true;
         this.jumpBufferTimer = 0;
         sounds.playBounce();

@@ -1,17 +1,17 @@
 // Sidehop Master Application Coordinator — Enhanced Custom Backgrounds, Asset Library & Undo/Redo
 
-import { Player, Bullet, SolidBlock, Collectible } from './engine/entities.js?v=20261026_04';
-import { PhysicsEngine } from './engine/physics.js?v=20261026_04';
-import { Camera } from './engine/camera.js?v=20261026_04';
-import { GridEditor } from './editor/grid.js?v=20261026_04';
-import { ArtStudio } from './editor/paint.js?v=20261026_04';
-import { Inspector } from './editor/inspector.js?v=20261026_04';
-import { VideoRecorder } from './recorder/recorder.js?v=20261026_04';
-import { LevelStorage } from './storage/storage.js?v=20261026_04';
-import { HistoryManager } from './editor/history.js?v=20261026_04';
-import { sounds } from './audio/sound.js?v=20261026_04';
-import { SidehopFile } from './storage/sidehop-format.js?v=20261026_04';
-import { SidehopDemo } from './editor/demo.js?v=20261026_04';
+import { Player, Bullet, SolidBlock, Collectible } from './engine/entities.js?v=20261026_05';
+import { PhysicsEngine } from './engine/physics.js?v=20261026_05';
+import { Camera } from './engine/camera.js?v=20261026_05';
+import { GridEditor } from './editor/grid.js?v=20261026_05';
+import { ArtStudio } from './editor/paint.js?v=20261026_05';
+import { Inspector } from './editor/inspector.js?v=20261026_05';
+import { VideoRecorder } from './recorder/recorder.js?v=20261026_05';
+import { LevelStorage } from './storage/storage.js?v=20261026_05';
+import { HistoryManager } from './editor/history.js?v=20261026_05';
+import { sounds } from './audio/sound.js?v=20261026_05';
+import { SidehopFile } from './storage/sidehop-format.js?v=20261026_05';
+import { SidehopDemo } from './editor/demo.js?v=20261026_05';
 
 class SidehopApp {
   constructor() {
@@ -37,7 +37,15 @@ class SidehopApp {
     };
 
     // World & UI Theme State
-    this.currentTheme = 'grass'; // 'grass', 'snowy', 'night', 'chrome', '8-bit', 'jungle'
+    const validThemes = ['grass', 'snowy', 'night', 'chrome', '8-bit', 'jungle', 'neon', 'atlantis', 'mixed'];
+    let initialTheme = 'grass';
+    try {
+      const savedTheme = localStorage.getItem('sidehop_theme');
+      if (savedTheme && validThemes.includes(savedTheme)) {
+        initialTheme = savedTheme;
+      }
+    } catch (e) {}
+    this.currentTheme = initialTheme;
     window.__SIDEHOP_THEME__ = this.currentTheme;
 
     // Snowflakes particle cache for snowy theme
@@ -120,6 +128,7 @@ class SidehopApp {
     this.updateCanvasDimensions();
     this.initLevel();
     this.bindUI();
+    this.setTheme(this.currentTheme, false);
     this.bindEvents();
     this.initFrameResize();
     this.initDragAndDrop();
@@ -601,12 +610,16 @@ class SidehopApp {
     return { minLeft, minTop, maxRight, maxBottom, availW: maxRight - minLeft, availH: maxBottom - minTop };
   }
 
-  setTheme(themeName) {
+  setTheme(themeName, isUserAction = false) {
     const validThemes = ['grass', 'snowy', 'night', 'chrome', '8-bit', 'jungle', 'neon', 'atlantis', 'mixed'];
     if (!validThemes.includes(themeName)) themeName = 'grass';
     this.currentTheme = themeName;
     window.__SIDEHOP_THEME__ = themeName;
     document.body.setAttribute('data-theme', themeName);
+
+    try {
+      localStorage.setItem('sidehop_theme', themeName);
+    } catch (e) {}
 
     // Update active state in theme-modal cards
     document.querySelectorAll('.theme-card').forEach(card => {
@@ -654,7 +667,9 @@ class SidehopApp {
 
     // Save with level
     LevelStorage.autoSave(this.player, this.entities, this.background);
-    this.showToast(`🎨 Theme: ${themeToastNames[themeName] || themeDisplayNames[themeName] || themeName}`);
+    if (isUserAction) {
+      this.showToast(`🎨 Theme: ${themeToastNames[themeName] || themeDisplayNames[themeName] || themeName}`);
+    }
   }
 
   initStageFrame() {
@@ -2325,7 +2340,7 @@ class SidehopApp {
       card.addEventListener('click', () => {
         const selectedTheme = card.dataset.theme;
         if (selectedTheme) {
-          this.setTheme(selectedTheme);
+          this.setTheme(selectedTheme, true);
           sounds.playLand();
           if (themeModal) themeModal.close();
         }
