@@ -400,8 +400,12 @@ export class GridEditor {
 
       for (const item of this.groupDragOffsets) {
         const ent = item.entity;
-        const targetX = item.origX + deltaX;
-        const targetY = item.origY + deltaY;
+        // Snap to grid increments (40px, or 20px for slab heights)
+        const isSlab = ent.variant === 'slab';
+        const targetX = Math.round((item.origX + deltaX) / this.tileSize) * this.tileSize;
+        const targetY = isSlab
+          ? Math.round((item.origY + deltaY) / 20) * 20
+          : Math.round((item.origY + deltaY) / this.tileSize) * this.tileSize;
 
         if (ent.type === 'player') {
           player.setSpawn(targetX, targetY);
@@ -452,27 +456,43 @@ export class GridEditor {
   }
 
   placeAt(x, y, entities, player) {
-    // Avoid duplicate stacking in exact same grid coordinate
-    const existing = entities.find(ent => ent.x === x && ent.y === y && ent.type !== 'player');
+    if (this.selectedPaletteItem === 'player') {
+      player.setSpawn(x, y);
+      sounds.playClick();
+      if (this.onHistorySnapshotNeeded) this.onHistorySnapshotNeeded();
+      return;
+    }
+
+    let w = this.tileSize;
+    let h = this.tileSize;
+    if (this.selectedPaletteItem === 'block' || this.selectedPaletteItem === 'crate') {
+      if (this.selectedPaletteVariant === 'mega') { w = 80; h = 80; }
+      else if (this.selectedPaletteVariant === 'slab') { w = 40; h = 20; }
+      else if (this.selectedPaletteVariant === 'pipe') { w = 40; h = 80; }
+    } else if (this.selectedPaletteItem === 'moving_platform') {
+      w = this.tileSize * 2; h = 24;
+    } else if (this.selectedPaletteItem === 'goal') {
+      w = 48; h = 80;
+    }
+
+    // Avoid duplicate stacking or overlapping in the target footprint
+    const existing = entities.find(ent => {
+      if (ent.type === 'player') return false;
+      return (
+        x < ent.x + ent.width &&
+        x + w > ent.x &&
+        y < ent.y + ent.height &&
+        y + h > ent.y
+      );
+    });
     if (existing) return;
 
     let newEnt = null;
     switch (this.selectedPaletteItem) {
-      case 'player':
-        player.setSpawn(x, y);
-        sounds.playClick();
-        if (this.onHistorySnapshotNeeded) this.onHistorySnapshotNeeded();
-        return;
       case 'block':
-      case 'crate': {
-        let w = this.tileSize;
-        let h = this.tileSize;
-        if (this.selectedPaletteVariant === 'mega') { w = 80; h = 80; }
-        else if (this.selectedPaletteVariant === 'slab') { w = 40; h = 20; }
-        else if (this.selectedPaletteVariant === 'pipe') { w = 40; h = 80; }
+      case 'crate':
         newEnt = new CrateBlock(x, y, w, h, this.selectedPaletteVariant || 'solid');
         break;
-      }
       case 'springboard':
         newEnt = new Springboard(x, y, this.tileSize, this.tileSize, this.selectedPaletteVariant || 'spring');
         break;

@@ -5013,10 +5013,55 @@ class SolidBlock extends Entity {
     const leftEnt = SolidBlock.terrainMap.get(`${col - 1},${row}`);
     const rightEnt = SolidBlock.terrainMap.get(`${col + 1},${row}`);
 
+    const myMat = this.effectiveMaterial;
+    const isSlope = this.isSlope;
+    const myDir = this.slopeDirection;
+
+    const matchesMat = (ent) => {
+      if (!ent || !isSolidOpaque(ent)) return false;
+      const otherMat = ent.effectiveMaterial;
+      if (myMat === 'stone') return otherMat === 'stone';
+      if (myMat === 'ice') return otherMat === 'ice';
+      // For general terrain/dirt/ground: matches other general terrain
+      return otherMat !== 'stone' && otherMat !== 'ice';
+    };
+
     const hasTop = Boolean(topEnt && topEnt !== this && isSolidOpaque(topEnt));
     const hasBottom = Boolean(bottomEnt && bottomEnt !== this && isSolidOpaque(bottomEnt));
-    const hasLeft = Boolean(leftEnt && leftEnt !== this && (leftEnt.variant === 'solid' || leftEnt.variant === 'slope_up'));
-    const hasRight = Boolean(rightEnt && rightEnt !== this && (rightEnt.variant === 'solid' || rightEnt.variant === 'slope_down'));
+
+    // Left neighbor connection:
+    // 1. If this is a slope_down, it connects to leftEnt if leftEnt is opaque and matches material
+    // 2. If this is a slope_up, left face is open/exposed (height=0 at x=0)
+    // 3. If this is a square block, connects to leftEnt if leftEnt matches material and is either a square block or slope_up!
+    let hasLeft = false;
+    if (leftEnt && leftEnt !== this && matchesMat(leftEnt)) {
+      if (isSlope) {
+        if (myDir === 'down') {
+          hasLeft = true;
+        }
+      } else {
+        if (!leftEnt.isSlope || leftEnt.slopeDirection === 'up') {
+          hasLeft = true;
+        }
+      }
+    }
+
+    // Right neighbor connection:
+    // 1. If this is a slope_up, it connects to rightEnt if rightEnt is opaque and matches material
+    // 2. If this is a slope_down, right face is open/exposed (height=0 at x=40)
+    // 3. If this is a square block, connects to rightEnt if rightEnt matches material and is either a square block or slope_down!
+    let hasRight = false;
+    if (rightEnt && rightEnt !== this && matchesMat(rightEnt)) {
+      if (isSlope) {
+        if (myDir === 'up') {
+          hasRight = true;
+        }
+      } else {
+        if (!rightEnt.isSlope || rightEnt.slopeDirection === 'down') {
+          hasRight = true;
+        }
+      }
+    }
 
     return { hasTop, hasBottom, hasLeft, hasRight, topEnt, bottomEnt, leftEnt, rightEnt };
   }
@@ -5239,13 +5284,7 @@ class SolidBlock extends Entity {
 
       // 1. SLANT UP (45° Incline /)
       if (this.isSlope && this.slopeDirection === 'up') {
-        const col = Math.round(this.x / 40);
-        const row = Math.round(this.y / 40);
-        const bottomEnt = SolidBlock.terrainMap.get(`${col},${row + 1}`);
-        const rightEnt = SolidBlock.terrainMap.get(`${col + 1},${row}`);
-        const isSolidOpaque = (ent) => ent && ent.active && ent.variant !== 'cloud' && ent.variant !== 'semisolid';
-        const hasBottom = Boolean(bottomEnt && isSolidOpaque(bottomEnt));
-        const hasRight = Boolean(rightEnt && isSolidOpaque(rightEnt));
+        const { hasTop, hasBottom, hasLeft, hasRight } = this.getNeighbors();
         const mat = this.effectiveMaterial;
 
         if (mat === 'stone') {
@@ -5274,24 +5313,25 @@ class SolidBlock extends Entity {
             ctx.lineTo(this.width, this.height);
           }
           if (!hasBottom) {
-            ctx.moveTo(0, this.height);
-            ctx.lineTo(this.width, this.height);
+            ctx.moveTo(0, this.height - 2);
+            ctx.lineTo(this.width, this.height - 2);
           }
           ctx.stroke();
 
-          // Central carving bevel
+          // Central carving bevel matching stone block's inner cross/square
           ctx.strokeStyle = 'rgba(18, 18, 18, 0.35)';
           ctx.lineWidth = 2;
           ctx.beginPath();
-          ctx.moveTo(14, this.height - 8);
-          ctx.lineTo(this.width - 8, 14);
-          ctx.lineTo(this.width - 8, this.height - 8);
+          ctx.moveTo(12, this.height - 6);
+          ctx.lineTo(this.width - 10, 16);
+          ctx.lineTo(this.width - 10, this.height - 6);
           ctx.closePath();
           ctx.stroke();
 
-          // Outer outlines
+          // Outer outlines ONLY on exposed faces
           ctx.strokeStyle = '#121212';
           ctx.lineWidth = 3;
+          ctx.lineCap = 'square';
           ctx.beginPath();
           ctx.moveTo(0, this.height);
           ctx.lineTo(this.width, 0);
@@ -5305,36 +5345,47 @@ class SolidBlock extends Entity {
           }
           ctx.stroke();
         } else if (mat === 'ice') {
-          // Slippery Ice Slope Up
+          // Slippery Ice Slope Up (seamlessly blends with adjacent Ice Blocks)
           ctx.beginPath();
           ctx.moveTo(0, this.height);
           ctx.lineTo(this.width + (hasRight ? 0.5 : 0), this.height + (hasBottom ? 0.5 : 0));
           ctx.lineTo(this.width + (hasRight ? 0.5 : 0), 0);
           ctx.closePath();
-          const iceGrad = ctx.createLinearGradient(0, this.height, this.width, 0);
-          iceGrad.addColorStop(0, '#B2EBF2');
-          iceGrad.addColorStop(1, '#E0F7FA');
-          ctx.fillStyle = iceGrad;
+          ctx.fillStyle = '#B2EBF2'; // Matching Ice Block base
           ctx.fill();
 
+          // Angled Top Glossy Sheen Band:
+          // Rises up along the 45° incline and meets right neighbor at (this.width, 0..8)
+          ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+          ctx.beginPath();
+          ctx.moveTo(0, this.height - 2);
+          ctx.lineTo(this.width, 2);
+          ctx.lineTo(this.width, 10);
+          ctx.lineTo(6, this.height);
+          ctx.closePath();
+          ctx.fill();
+
+          // Top edge white specular line
           ctx.strokeStyle = '#FFFFFF';
-          ctx.lineWidth = 3;
+          ctx.lineWidth = 2.5;
           ctx.beginPath();
           ctx.moveTo(0, this.height);
           ctx.lineTo(this.width, 0);
           ctx.stroke();
 
-          ctx.strokeStyle = 'rgba(0, 150, 136, 0.35)';
-          ctx.lineWidth = 1.5;
+          // Crystalline facet chevron matching Ice Block's cyan style
+          ctx.strokeStyle = 'rgba(0, 184, 212, 0.7)';
+          ctx.lineWidth = 2;
           ctx.beginPath();
-          ctx.moveTo(14, this.height - 8);
-          ctx.lineTo(this.width - 8, 14);
-          ctx.lineTo(this.width - 8, this.height - 8);
-          ctx.closePath();
+          ctx.moveTo(14, this.height - 4);
+          ctx.lineTo(this.width - 18, this.height / 2 + 2);
+          ctx.lineTo(this.width - 10, this.height - 10);
           ctx.stroke();
 
+          // Outlines ONLY on exposed faces!
           ctx.strokeStyle = '#121212';
           ctx.lineWidth = 3;
+          ctx.lineCap = 'square';
           ctx.beginPath();
           ctx.moveTo(0, this.height);
           ctx.lineTo(this.width, 0);
@@ -5366,12 +5417,13 @@ class SolidBlock extends Entity {
           ctx.fillStyle = pal.speckMid;
           ctx.fillRect(32, 28, 4, 3);
 
-          // Theme-specific turf / band along angled hypotenuse
+          // Theme-specific turf / band along angled hypotenuse:
+          // Ends at (this.width, 0) spanning y=0 to y=8 at x=this.width (matching solid block's 8px turf cap!)
           ctx.beginPath();
           ctx.moveTo(0, this.height);
-          ctx.lineTo(this.width + (hasRight ? 0.5 : 0), 0);
-          ctx.lineTo(this.width + (hasRight ? 0.5 : 0), 10);
-          ctx.lineTo(10, this.height);
+          ctx.lineTo(this.width, 0);
+          ctx.lineTo(this.width, 8);
+          ctx.lineTo(6, this.height);
           ctx.closePath();
           ctx.fillStyle = pal.turfMain;
           ctx.fill();
@@ -5381,15 +5433,15 @@ class SolidBlock extends Entity {
           ctx.lineWidth = 2.5;
           ctx.beginPath();
           ctx.moveTo(0, this.height);
-          ctx.lineTo(this.width + (hasRight ? 0.5 : 0), 0);
+          ctx.lineTo(this.width, 0);
           ctx.stroke();
 
           // Turf underside shadow edge
           ctx.strokeStyle = pal.turfShadow;
           ctx.lineWidth = 2;
           ctx.beginPath();
-          ctx.moveTo(10, this.height);
-          ctx.lineTo(this.width + (hasRight ? 0.5 : 0), 10);
+          ctx.moveTo(6, this.height);
+          ctx.lineTo(this.width, 8);
           ctx.stroke();
 
           // Turf fringe droplets into dirt
@@ -5403,10 +5455,10 @@ class SolidBlock extends Entity {
           // Outlines (only exposed faces)
           ctx.strokeStyle = '#121212';
           ctx.lineWidth = 3;
+          ctx.lineCap = 'square';
           ctx.beginPath();
           ctx.moveTo(0, this.height);
           ctx.lineTo(this.width, 0);
-
           if (!hasRight) {
             ctx.moveTo(this.width, 0);
             ctx.lineTo(this.width, this.height);
@@ -5421,13 +5473,7 @@ class SolidBlock extends Entity {
 
       // 2. SLANT DOWN (45° Decline \)
       else if (this.isSlope && this.slopeDirection === 'down') {
-        const col = Math.round(this.x / 40);
-        const row = Math.round(this.y / 40);
-        const bottomEnt = SolidBlock.terrainMap.get(`${col},${row + 1}`);
-        const leftEnt = SolidBlock.terrainMap.get(`${col - 1},${row}`);
-        const isSolidOpaque = (ent) => ent && ent.active && ent.variant !== 'cloud' && ent.variant !== 'semisolid';
-        const hasBottom = Boolean(bottomEnt && isSolidOpaque(bottomEnt));
-        const hasLeft = Boolean(leftEnt && isSolidOpaque(leftEnt));
+        const { hasTop, hasBottom, hasLeft, hasRight } = this.getNeighbors();
         const mat = this.effectiveMaterial;
 
         if (mat === 'stone') {
@@ -5440,6 +5486,7 @@ class SolidBlock extends Entity {
           ctx.fillStyle = '#9E9E9E';
           ctx.fill();
 
+          // Chiseled bevel highlight along hypotenuse (meets top highlight of left stone block at 0,0)
           ctx.strokeStyle = '#EEEEEE';
           ctx.lineWidth = 2.5;
           ctx.beginPath();
@@ -5455,22 +5502,25 @@ class SolidBlock extends Entity {
             ctx.lineTo(0, this.height);
           }
           if (!hasBottom) {
-            ctx.moveTo(0, this.height);
-            ctx.lineTo(this.width, this.height);
+            ctx.moveTo(0, this.height - 2);
+            ctx.lineTo(this.width, this.height - 2);
           }
           ctx.stroke();
 
+          // Central carving bevel matching stone block's inner cross/square
           ctx.strokeStyle = 'rgba(18, 18, 18, 0.35)';
           ctx.lineWidth = 2;
           ctx.beginPath();
-          ctx.moveTo(8, 14);
-          ctx.lineTo(this.width - 14, this.height - 8);
-          ctx.lineTo(8, this.height - 8);
+          ctx.moveTo(10, 16);
+          ctx.lineTo(this.width - 12, this.height - 6);
+          ctx.lineTo(10, this.height - 6);
           ctx.closePath();
           ctx.stroke();
 
+          // Outer outlines ONLY on exposed faces
           ctx.strokeStyle = '#121212';
           ctx.lineWidth = 3;
+          ctx.lineCap = 'square';
           ctx.beginPath();
           ctx.moveTo(0, 0);
           ctx.lineTo(this.width, this.height);
@@ -5484,36 +5534,48 @@ class SolidBlock extends Entity {
           }
           ctx.stroke();
         } else if (mat === 'ice') {
-          // Slippery Ice Slope Down
+          // Slippery Ice Slope Down (seamlessly blends with adjacent Ice Blocks)
           ctx.beginPath();
           ctx.moveTo(0, 0);
           ctx.lineTo(0, this.height + (hasBottom ? 0.5 : 0));
           ctx.lineTo(this.width + (hasLeft ? 0.5 : 0), this.height + (hasBottom ? 0.5 : 0));
           ctx.closePath();
-          const iceGrad = ctx.createLinearGradient(0, 0, this.width, this.height);
-          iceGrad.addColorStop(0, '#E0F7FA');
-          iceGrad.addColorStop(1, '#B2EBF2');
-          ctx.fillStyle = iceGrad;
+          ctx.fillStyle = '#B2EBF2'; // Matching Ice Block base
           ctx.fill();
 
+          // Angled Top Glossy Sheen Band:
+          // Starts at (0, 0) spanning y=0 to y=8 at x=0 (matching ice block's 8px gloss bar)
+          // and flows smoothly down along the 45° incline to (this.width, this.height)
+          ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+          ctx.beginPath();
+          ctx.moveTo(0, 2);
+          ctx.lineTo(this.width, this.height);
+          ctx.lineTo(this.width - 6, this.height);
+          ctx.lineTo(0, 10);
+          ctx.closePath();
+          ctx.fill();
+
+          // Top edge white specular line
           ctx.strokeStyle = '#FFFFFF';
-          ctx.lineWidth = 3;
+          ctx.lineWidth = 2.5;
           ctx.beginPath();
           ctx.moveTo(0, 0);
           ctx.lineTo(this.width, this.height);
           ctx.stroke();
 
-          ctx.strokeStyle = 'rgba(0, 150, 136, 0.35)';
-          ctx.lineWidth = 1.5;
+          // Crystalline facet chevron matching Ice Block's cyan style
+          ctx.strokeStyle = 'rgba(0, 184, 212, 0.7)';
+          ctx.lineWidth = 2;
           ctx.beginPath();
-          ctx.moveTo(8, 14);
-          ctx.lineTo(this.width - 14, this.height - 8);
-          ctx.lineTo(8, this.height - 8);
-          ctx.closePath();
+          ctx.moveTo(10, this.height - 10);
+          ctx.lineTo(18, this.height / 2 + 2);
+          ctx.lineTo(this.width - 14, this.height - 4);
           ctx.stroke();
 
+          // Outlines ONLY on exposed faces!
           ctx.strokeStyle = '#121212';
           ctx.lineWidth = 3;
+          ctx.lineCap = 'square';
           ctx.beginPath();
           ctx.moveTo(0, 0);
           ctx.lineTo(this.width, this.height);
@@ -5542,15 +5604,15 @@ class SolidBlock extends Entity {
           ctx.fillRect(4, 14, 3, 4);
           ctx.fillStyle = pal.speckLight;
           ctx.fillRect(18, 30, 4, 3);
-          ctx.fillStyle = pal.speckMid;
           ctx.fillRect(4, 28, 4, 3);
 
-          // Theme-specific turf / band along angled hypotenuse
+          // Theme-specific turf / band along angled hypotenuse:
+          // Starts at (0, 0) spanning y=0 to y=8 at x=0 (matching solid block's 8px turf cap!)
           ctx.beginPath();
           ctx.moveTo(0, 0);
           ctx.lineTo(this.width, this.height);
-          ctx.lineTo(30, this.height);
-          ctx.lineTo(0, 10);
+          ctx.lineTo(this.width - 6, this.height);
+          ctx.lineTo(0, 8);
           ctx.closePath();
           ctx.fillStyle = pal.turfMain;
           ctx.fill();
@@ -5567,21 +5629,22 @@ class SolidBlock extends Entity {
           ctx.strokeStyle = pal.turfShadow;
           ctx.lineWidth = 2;
           ctx.beginPath();
-          ctx.moveTo(0, 10);
-          ctx.lineTo(30, this.height);
+          ctx.moveTo(0, 8);
+          ctx.lineTo(this.width - 6, this.height);
           ctx.stroke();
 
           // Turf fringe droplets into dirt
           ctx.fillStyle = pal.turfMain;
-          ctx.fillRect(10, 12, 4, 3);
-          ctx.fillRect(20, 22, 4, 3);
+          ctx.fillRect(8, 12, 4, 3);
+          ctx.fillRect(18, 22, 4, 3);
           ctx.fillStyle = pal.turfShadow;
-          ctx.fillRect(10, 14, 4, 1);
-          ctx.fillRect(20, 24, 4, 1);
+          ctx.fillRect(8, 14, 4, 1);
+          ctx.fillRect(18, 24, 4, 1);
 
           // Outlines (only exposed faces)
           ctx.strokeStyle = '#121212';
           ctx.lineWidth = 3;
+          ctx.lineCap = 'square';
           ctx.beginPath();
           ctx.moveTo(0, 0);
           ctx.lineTo(this.width, this.height);
@@ -5772,30 +5835,73 @@ class SolidBlock extends Entity {
 
       // 9. CASTLE STONE BLOCK
       else if (this.variant === 'stone') {
-        ctx.fillStyle = '#9E9E9E';
-        ctx.strokeStyle = '#121212';
-        ctx.lineWidth = 3;
-        ctx.fillRect(0, 0, this.width, this.height);
-        ctx.strokeRect(0, 0, this.width, this.height);
+        const { hasTop, hasBottom, hasLeft, hasRight, rightEnt, bottomEnt } = this.getNeighbors();
 
-        // Chiseled bevel highlights and shadows
+        // Base fill with seamless 0.5px overlap on connecting edges
+        const fillW = this.width + (hasRight ? 0.5 : 0);
+        const fillH = this.height + (hasBottom ? 0.5 : 0);
+        ctx.fillStyle = '#9E9E9E';
+        ctx.fillRect(0, 0, fillW, fillH);
+
+        // Chiseled highlights on top & left
         ctx.strokeStyle = '#EEEEEE';
         ctx.lineWidth = 2;
         ctx.beginPath();
-        ctx.moveTo(3, 3); ctx.lineTo(this.width - 3, 3);
-        ctx.moveTo(3, 3); ctx.lineTo(3, this.height - 3);
+        if (!hasTop) {
+          ctx.moveTo(hasLeft ? 0 : 3, 3);
+          ctx.lineTo(hasRight ? this.width : this.width - 3, 3);
+        }
+        if (!hasLeft) {
+          ctx.moveTo(3, hasTop ? 0 : 3);
+          ctx.lineTo(3, hasBottom ? this.height : this.height - 3);
+        }
         ctx.stroke();
 
+        // Chiseled shadows on right & bottom
         ctx.strokeStyle = '#616161';
+        ctx.lineWidth = 2;
         ctx.beginPath();
-        ctx.moveTo(this.width - 3, 3); ctx.lineTo(this.width - 3, this.height - 3);
-        ctx.moveTo(3, this.height - 3); ctx.lineTo(this.width - 3, this.height - 3);
+        if (!hasRight) {
+          ctx.moveTo(this.width - 3, hasTop ? 0 : 3);
+          ctx.lineTo(this.width - 3, hasBottom ? this.height : this.height - 3);
+        }
+        if (!hasBottom) {
+          ctx.moveTo(hasLeft ? 0 : 3, this.height - 3);
+          ctx.lineTo(hasRight ? this.width : this.width - 3, this.height - 3);
+        }
         ctx.stroke();
+
+        // Subtle masonry mortar seams between adjacent stone blocks
+        if (hasRight && rightEnt && !rightEnt.isSlope) {
+          ctx.strokeStyle = 'rgba(18, 18, 18, 0.28)';
+          ctx.lineWidth = 1.5;
+          ctx.beginPath();
+          ctx.moveTo(this.width, 0); ctx.lineTo(this.width, this.height);
+          ctx.stroke();
+        }
+        if (hasBottom && bottomEnt && !bottomEnt.isSlope) {
+          ctx.strokeStyle = 'rgba(18, 18, 18, 0.28)';
+          ctx.lineWidth = 1.5;
+          ctx.beginPath();
+          ctx.moveTo(0, this.height); ctx.lineTo(this.width, this.height);
+          ctx.stroke();
+        }
 
         // Central cross carving
         ctx.strokeStyle = 'rgba(18, 18, 18, 0.35)';
         ctx.lineWidth = 2;
         ctx.strokeRect(12, 12, this.width - 24, this.height - 24);
+
+        // Outlines ONLY on exposed faces
+        ctx.strokeStyle = '#121212';
+        ctx.lineWidth = 3;
+        ctx.lineCap = 'square';
+        ctx.beginPath();
+        if (!hasTop) { ctx.moveTo(0, 0); ctx.lineTo(this.width, 0); }
+        if (!hasBottom) { ctx.moveTo(0, this.height); ctx.lineTo(this.width, this.height); }
+        if (!hasLeft) { ctx.moveTo(0, 0); ctx.lineTo(0, this.height); }
+        if (!hasRight) { ctx.moveTo(this.width, 0); ctx.lineTo(this.width, this.height); }
+        ctx.stroke();
       }
 
       // 10. MYSTERY QUESTION BLOCK [?]
@@ -5862,27 +5968,67 @@ class SolidBlock extends Entity {
 
       // 12. ICE BLOCK
       else if (this.variant === 'ice') {
+        const { hasTop, hasBottom, hasLeft, hasRight, rightEnt, bottomEnt } = this.getNeighbors();
+
+        // Base fill with seamless 0.5px overlap on connecting edges
+        const fillW = this.width + (hasRight ? 0.5 : 0);
+        const fillH = this.height + (hasBottom ? 0.5 : 0);
         ctx.fillStyle = '#B2EBF2';
-        ctx.strokeStyle = '#121212';
-        ctx.lineWidth = 3;
-        ctx.fillRect(0, 0, this.width, this.height);
-        ctx.strokeRect(0, 0, this.width, this.height);
+        ctx.fillRect(0, 0, fillW, fillH);
 
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.75)';
-        ctx.beginPath();
-        ctx.moveTo(4, 4);
-        ctx.lineTo(this.width - 4, 4);
-        ctx.lineTo(this.width - 12, 12);
-        ctx.lineTo(4, 12);
-        ctx.closePath();
-        ctx.fill();
+        // Top glossy ice sheen if not covered from above
+        if (!hasTop) {
+          ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+          ctx.beginPath();
+          const startX = hasLeft ? 0 : 4;
+          const endX = hasRight ? this.width : this.width - 4;
+          ctx.moveTo(startX, 3);
+          ctx.lineTo(endX, 3);
+          ctx.lineTo(endX - (hasRight ? 4 : 8), 11);
+          ctx.lineTo(startX + (hasLeft ? 4 : 0), 11);
+          ctx.closePath();
+          ctx.fill();
+        }
 
+        // Crystalline ice chevron motif in center
         ctx.strokeStyle = 'rgba(0, 184, 212, 0.7)';
         ctx.lineWidth = 2;
         ctx.beginPath();
         ctx.moveTo(8, this.height - 8);
         ctx.lineTo(this.width / 2, this.height / 2);
         ctx.lineTo(this.width - 8, this.height - 14);
+        ctx.stroke();
+
+        // Subtle internal ice facet seams between adjacent ice blocks
+        if (hasRight && rightEnt && !rightEnt.isSlope) {
+          ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
+          ctx.lineWidth = 1.5;
+          ctx.beginPath();
+          ctx.moveTo(this.width, 0); ctx.lineTo(this.width, this.height);
+          ctx.stroke();
+          ctx.strokeStyle = 'rgba(0, 184, 212, 0.25)';
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.moveTo(this.width - 1, 0); ctx.lineTo(this.width - 1, this.height);
+          ctx.stroke();
+        }
+        if (hasBottom && bottomEnt && !bottomEnt.isSlope) {
+          ctx.strokeStyle = 'rgba(0, 184, 212, 0.25)';
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.moveTo(0, this.height); ctx.lineTo(this.width, this.height);
+          ctx.stroke();
+        }
+
+        // Outlines ONLY on exposed faces
+        ctx.strokeStyle = '#121212';
+        ctx.lineWidth = 3;
+        ctx.lineCap = 'square';
+        ctx.beginPath();
+        if (!hasTop) { ctx.moveTo(0, 0); ctx.lineTo(this.width, 0); }
+        if (!hasBottom) { ctx.moveTo(0, this.height); ctx.lineTo(this.width, this.height); }
+        if (!hasLeft) { ctx.moveTo(0, 0); ctx.lineTo(0, this.height); }
+        if (!hasRight) { ctx.moveTo(this.width, 0); ctx.lineTo(this.width, this.height); }
         ctx.stroke();
       }
 
@@ -7710,7 +7856,7 @@ const STARTER_WORLD_ENTITIES = [
   { type: 'crate', variant: 'solid', x: 360, y: 320, width: 40, height: 40 },
   { type: 'collectible', variant: 'coin', x: 244, y: 430, width: 32, height: 32 },
   { type: 'collectible', variant: 'coin', x: 324, y: 430, width: 32, height: 32 },
-  { type: 'enemy', variant: 'walker', x: 350, y: 440, width: 40, height: 40, speed: 75, patrolRange: 90, stompable: true },
+  { type: 'enemy', variant: 'walker', x: 370, y: 440, width: 40, height: 40, speed: 75, patrolRange: 90, stompable: true },
   { type: 'crate', variant: 'slope_up', x: 480, y: 440, width: 40, height: 40 },
   { type: 'crate', variant: 'solid', x: 480, y: 480, width: 40, height: 40 },
   { type: 'crate', variant: 'solid', x: 480, y: 520, width: 40, height: 40 },
@@ -7762,15 +7908,15 @@ const STARTER_WORLD_ENTITIES = [
   { type: 'hazard', x: 1240, y: 480, width: 40, height: 40 },
   { type: 'crate', variant: 'solid', x: 1240, y: 520, width: 40, height: 40 },
   { type: 'crate', variant: 'note', x: 1000, y: 440, width: 40, height: 40, bounciness: 0.95 },
-  { type: 'crate', variant: 'slab', x: 1140, y: 420, width: 40, height: 20 },
-  { type: 'collectible', variant: 'coin', x: 1144, y: 370, width: 32, height: 32 },
-  { type: 'crate', variant: 'cloud', x: 1080, y: 220, width: 40, height: 40 },
-  { type: 'crate', variant: 'cloud', x: 1120, y: 220, width: 40, height: 40 },
-  { type: 'crate', variant: 'cloud', x: 1160, y: 220, width: 40, height: 40 },
-  { type: 'crate', variant: 'cloud', x: 1200, y: 220, width: 40, height: 40 },
-  { type: 'crate', variant: 'cloud', x: 1240, y: 220, width: 40, height: 40 },
-  { type: 'crate', variant: 'cloud', x: 1280, y: 220, width: 40, height: 40 },
-  { type: 'collectible', variant: 'star', x: 1160, y: 170, width: 32, height: 32 },
+  { type: 'crate', variant: 'slab', x: 1120, y: 420, width: 40, height: 20 },
+  { type: 'collectible', variant: 'coin', x: 1124, y: 370, width: 32, height: 32 },
+  { type: 'crate', variant: 'cloud', x: 1080, y: 200, width: 40, height: 40 },
+  { type: 'crate', variant: 'cloud', x: 1120, y: 200, width: 40, height: 40 },
+  { type: 'crate', variant: 'cloud', x: 1160, y: 200, width: 40, height: 40 },
+  { type: 'crate', variant: 'cloud', x: 1200, y: 200, width: 40, height: 40 },
+  { type: 'crate', variant: 'cloud', x: 1240, y: 200, width: 40, height: 40 },
+  { type: 'crate', variant: 'cloud', x: 1280, y: 200, width: 40, height: 40 },
+  { type: 'collectible', variant: 'star', x: 1164, y: 150, width: 32, height: 32 },
   { type: 'crate', variant: 'solid', x: 1280, y: 480, width: 40, height: 40 },
   { type: 'crate', variant: 'solid', x: 1280, y: 520, width: 40, height: 40 },
   { type: 'crate', variant: 'solid', x: 1320, y: 480, width: 40, height: 40 },
@@ -7817,23 +7963,23 @@ const STARTER_WORLD_ENTITIES = [
   { type: 'crate', variant: 'ice', x: 2120, y: 480, width: 40, height: 40, friction: 0.12 },
   { type: 'crate', variant: 'solid', x: 2120, y: 520, width: 40, height: 40 },
   { type: 'enemy', variant: 'spiky', x: 1910, y: 440, width: 40, height: 40, speed: 75, patrolRange: 70, stompable: false },
-  { type: 'crate', variant: 'mystery', x: 1800, y: 340, width: 40, height: 40, content: 'powerup' },
-  { type: 'crate', variant: 'cloud', x: 2080, y: 260, width: 40, height: 40 },
-  { type: 'crate', variant: 'mystery', x: 1920, y: 340, width: 40, height: 40, content: 'coin' },
+  { type: 'crate', variant: 'mystery', x: 1800, y: 320, width: 40, height: 40, content: 'powerup' },
+  { type: 'crate', variant: 'cloud', x: 2080, y: 240, width: 40, height: 40 },
+  { type: 'crate', variant: 'mystery', x: 1920, y: 320, width: 40, height: 40, content: 'coin' },
   { type: 'crate', variant: 'semisolid', x: 2440, y: 360, width: 40, height: 40 },
   { type: 'crate', variant: 'semisolid', x: 2480, y: 360, width: 40, height: 40 },
   { type: 'crate', variant: 'semisolid', x: 2520, y: 360, width: 40, height: 40 },
   { type: 'collectible', variant: 'star', x: 2484, y: 310, width: 32, height: 32 },
-  { type: 'enemy', variant: 'winged', x: 2460, y: 280, width: 40, height: 40, speed: 75, patrolRange: 50, stompable: true },
+  { type: 'enemy', variant: 'winged', x: 2460, y: 230, width: 40, height: 40, speed: 75, patrolRange: 50, stompable: true },
   { type: 'moving_platform', x: 2990, y: 420, width: 80, height: 24, speed: 60, distance: 70, axis: 'horizontal' },
-  { type: 'crate', variant: 'stone', x: 3380, y: 480, width: 40, height: 40 },
-  { type: 'crate', variant: 'stone', x: 3380, y: 520, width: 40, height: 40 },
-  { type: 'crate', variant: 'stone', x: 3420, y: 480, width: 40, height: 40 },
-  { type: 'crate', variant: 'stone', x: 3420, y: 520, width: 40, height: 40 },
-  { type: 'crate', variant: 'stone', x: 3460, y: 480, width: 40, height: 40 },
-  { type: 'crate', variant: 'stone', x: 3460, y: 520, width: 40, height: 40 },
-  { type: 'crate', variant: 'stone', x: 3500, y: 480, width: 40, height: 40 },
-  { type: 'crate', variant: 'stone', x: 3500, y: 520, width: 40, height: 40 },
+  { type: 'crate', variant: 'stone', x: 3360, y: 480, width: 40, height: 40 },
+  { type: 'crate', variant: 'stone', x: 3360, y: 520, width: 40, height: 40 },
+  { type: 'crate', variant: 'stone', x: 3400, y: 480, width: 40, height: 40 },
+  { type: 'crate', variant: 'stone', x: 3400, y: 520, width: 40, height: 40 },
+  { type: 'crate', variant: 'stone', x: 3440, y: 480, width: 40, height: 40 },
+  { type: 'crate', variant: 'stone', x: 3440, y: 520, width: 40, height: 40 },
+  { type: 'crate', variant: 'stone', x: 3480, y: 480, width: 40, height: 40 },
+  { type: 'crate', variant: 'stone', x: 3480, y: 520, width: 40, height: 40 },
   { type: 'crate', variant: 'stone', x: 3520, y: 480, width: 40, height: 40 },
   { type: 'crate', variant: 'stone', x: 3520, y: 520, width: 40, height: 40 },
   { type: 'crate', variant: 'stone', x: 3560, y: 480, width: 40, height: 40 },
@@ -7858,10 +8004,10 @@ const STARTER_WORLD_ENTITIES = [
   { type: 'crate', variant: 'stone', x: 3920, y: 520, width: 40, height: 40 },
   { type: 'crate', variant: 'stone', x: 3960, y: 480, width: 40, height: 40 },
   { type: 'crate', variant: 'stone', x: 3960, y: 520, width: 40, height: 40 },
-  { type: 'crate', variant: 'mystery', x: 3440, y: 300, width: 40, height: 40, content: 'heart' },
+  { type: 'crate', variant: 'mystery', x: 3440, y: 320, width: 40, height: 40, content: 'heart' },
   { type: 'crate', variant: 'mega', x: 3600, y: 400, width: 80, height: 80 },
   { type: 'collectible', variant: 'coin', x: 3624, y: 340, width: 32, height: 32 },
-  { type: 'crate', variant: 'pipe', x: 3900, y: 400, width: 40, height: 80 },
+  { type: 'crate', variant: 'pipe', x: 3880, y: 400, width: 40, height: 80 },
   { type: 'enemy', variant: 'spiky', x: 3780, y: 440, width: 40, height: 40, speed: 75, patrolRange: 40, stompable: false },
   { type: 'springboard', variant: 'mega', x: 3960, y: 440, width: 40, height: 40, launchForce: 1040 },
   { type: 'hazard', x: 4000, y: 480, width: 40, height: 40 },
@@ -7946,19 +8092,19 @@ const STARTER_WORLD_ENTITIES = [
   { type: 'crate', variant: 'solid', x: 6000, y: 520, width: 40, height: 40 },
   { type: 'crate', variant: 'ice', x: 6040, y: 480, width: 40, height: 40, friction: 0.12 },
   { type: 'crate', variant: 'solid', x: 6040, y: 520, width: 40, height: 40 },
-  { type: 'crate', variant: 'semisolid', x: 5640, y: 340, width: 40, height: 40 },
-  { type: 'crate', variant: 'semisolid', x: 5680, y: 340, width: 40, height: 40 },
-  { type: 'crate', variant: 'semisolid', x: 5720, y: 340, width: 40, height: 40 },
-  { type: 'crate', variant: 'semisolid', x: 5760, y: 340, width: 40, height: 40 },
-  { type: 'crate', variant: 'semisolid', x: 5800, y: 340, width: 40, height: 40 },
-  { type: 'crate', variant: 'semisolid', x: 5840, y: 340, width: 40, height: 40 },
-  { type: 'crate', variant: 'semisolid', x: 5880, y: 340, width: 40, height: 40 },
-  { type: 'crate', variant: 'semisolid', x: 5920, y: 340, width: 40, height: 40 },
+  { type: 'crate', variant: 'semisolid', x: 5640, y: 320, width: 40, height: 40 },
+  { type: 'crate', variant: 'semisolid', x: 5680, y: 320, width: 40, height: 40 },
+  { type: 'crate', variant: 'semisolid', x: 5720, y: 320, width: 40, height: 40 },
+  { type: 'crate', variant: 'semisolid', x: 5760, y: 320, width: 40, height: 40 },
+  { type: 'crate', variant: 'semisolid', x: 5800, y: 320, width: 40, height: 40 },
+  { type: 'crate', variant: 'semisolid', x: 5840, y: 320, width: 40, height: 40 },
+  { type: 'crate', variant: 'semisolid', x: 5880, y: 320, width: 40, height: 40 },
+  { type: 'crate', variant: 'semisolid', x: 5920, y: 320, width: 40, height: 40 },
   { type: 'crate', variant: 'mystery', x: 5800, y: 200, width: 40, height: 40, content: 'heart' },
   { type: 'collectible', variant: 'coin', x: 5524, y: 330, width: 32, height: 32 },
   { type: 'enemy', variant: 'spiky', x: 5680, y: 440, width: 40, height: 40, speed: 55, patrolRange: 60, stompable: false },
   { type: 'enemy', variant: 'spiky', x: 5980, y: 440, width: 40, height: 40, speed: 60, patrolRange: 60, stompable: false },
-  { type: 'crate', variant: 'mystery', x: 6160, y: 300, width: 40, height: 40, content: 'powerup' },
+  { type: 'crate', variant: 'mystery', x: 6160, y: 320, width: 40, height: 40, content: 'powerup' },
   { type: 'crate', variant: 'solid', x: 6080, y: 480, width: 40, height: 40 },
   { type: 'crate', variant: 'solid', x: 6080, y: 520, width: 40, height: 40 },
   { type: 'crate', variant: 'solid', x: 6120, y: 480, width: 40, height: 40 },
@@ -7979,14 +8125,14 @@ const STARTER_WORLD_ENTITIES = [
   { type: 'crate', variant: 'cloud', x: 6680, y: 280, width: 40, height: 40 },
   { type: 'collectible', variant: 'coin', x: 7244, y: -90, width: 32, height: 32 },
   { type: 'crate', variant: 'note', x: 6680, y: 240, width: 40, height: 40, bounciness: 0.95 },
-  { type: 'crate', variant: 'cloud', x: 6840, y: 100, width: 40, height: 40 },
-  { type: 'crate', variant: 'cloud', x: 6880, y: 100, width: 40, height: 40 },
-  { type: 'crate', variant: 'cloud', x: 6920, y: 100, width: 40, height: 40 },
-  { type: 'crate', variant: 'cloud', x: 6960, y: 100, width: 40, height: 40 },
-  { type: 'crate', variant: 'cloud', x: 7000, y: 100, width: 40, height: 40 },
+  { type: 'crate', variant: 'cloud', x: 6840, y: 120, width: 40, height: 40 },
+  { type: 'crate', variant: 'cloud', x: 6880, y: 120, width: 40, height: 40 },
+  { type: 'crate', variant: 'cloud', x: 6920, y: 120, width: 40, height: 40 },
+  { type: 'crate', variant: 'cloud', x: 6960, y: 120, width: 40, height: 40 },
+  { type: 'crate', variant: 'cloud', x: 7000, y: 120, width: 40, height: 40 },
   { type: 'collectible', variant: 'star', x: 6324, y: 170, width: 32, height: 32 },
   { type: 'enemy', variant: 'winged', x: 7250, y: 0, width: 40, height: 40, speed: 75, patrolRange: 60, stompable: true },
-  { type: 'crate', variant: 'donut', x: 7700, y: 340, width: 40, height: 40 },
+  { type: 'crate', variant: 'donut', x: 7720, y: 320, width: 40, height: 40 },
   { type: 'crate', variant: 'stone', x: 7920, y: 480, width: 40, height: 40 },
   { type: 'crate', variant: 'stone', x: 7920, y: 520, width: 40, height: 40 },
   { type: 'crate', variant: 'stone', x: 7960, y: 480, width: 40, height: 40 },
@@ -8811,8 +8957,12 @@ class GridEditor {
 
       for (const item of this.groupDragOffsets) {
         const ent = item.entity;
-        const targetX = item.origX + deltaX;
-        const targetY = item.origY + deltaY;
+        // Snap to grid increments (40px, or 20px for slab heights)
+        const isSlab = ent.variant === 'slab';
+        const targetX = Math.round((item.origX + deltaX) / this.tileSize) * this.tileSize;
+        const targetY = isSlab
+          ? Math.round((item.origY + deltaY) / 20) * 20
+          : Math.round((item.origY + deltaY) / this.tileSize) * this.tileSize;
 
         if (ent.type === 'player') {
           player.setSpawn(targetX, targetY);
@@ -8863,27 +9013,43 @@ class GridEditor {
   }
 
   placeAt(x, y, entities, player) {
-    // Avoid duplicate stacking in exact same grid coordinate
-    const existing = entities.find(ent => ent.x === x && ent.y === y && ent.type !== 'player');
+    if (this.selectedPaletteItem === 'player') {
+      player.setSpawn(x, y);
+      sounds.playClick();
+      if (this.onHistorySnapshotNeeded) this.onHistorySnapshotNeeded();
+      return;
+    }
+
+    let w = this.tileSize;
+    let h = this.tileSize;
+    if (this.selectedPaletteItem === 'block' || this.selectedPaletteItem === 'crate') {
+      if (this.selectedPaletteVariant === 'mega') { w = 80; h = 80; }
+      else if (this.selectedPaletteVariant === 'slab') { w = 40; h = 20; }
+      else if (this.selectedPaletteVariant === 'pipe') { w = 40; h = 80; }
+    } else if (this.selectedPaletteItem === 'moving_platform') {
+      w = this.tileSize * 2; h = 24;
+    } else if (this.selectedPaletteItem === 'goal') {
+      w = 48; h = 80;
+    }
+
+    // Avoid duplicate stacking or overlapping in the target footprint
+    const existing = entities.find(ent => {
+      if (ent.type === 'player') return false;
+      return (
+        x < ent.x + ent.width &&
+        x + w > ent.x &&
+        y < ent.y + ent.height &&
+        y + h > ent.y
+      );
+    });
     if (existing) return;
 
     let newEnt = null;
     switch (this.selectedPaletteItem) {
-      case 'player':
-        player.setSpawn(x, y);
-        sounds.playClick();
-        if (this.onHistorySnapshotNeeded) this.onHistorySnapshotNeeded();
-        return;
       case 'block':
-      case 'crate': {
-        let w = this.tileSize;
-        let h = this.tileSize;
-        if (this.selectedPaletteVariant === 'mega') { w = 80; h = 80; }
-        else if (this.selectedPaletteVariant === 'slab') { w = 40; h = 20; }
-        else if (this.selectedPaletteVariant === 'pipe') { w = 40; h = 80; }
+      case 'crate':
         newEnt = new CrateBlock(x, y, w, h, this.selectedPaletteVariant || 'solid');
         break;
-      }
       case 'springboard':
         newEnt = new Springboard(x, y, this.tileSize, this.tileSize, this.selectedPaletteVariant || 'spring');
         break;

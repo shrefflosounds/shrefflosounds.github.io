@@ -571,10 +571,55 @@ export class SolidBlock extends Entity {
     const leftEnt = SolidBlock.terrainMap.get(`${col - 1},${row}`);
     const rightEnt = SolidBlock.terrainMap.get(`${col + 1},${row}`);
 
+    const myMat = this.effectiveMaterial;
+    const isSlope = this.isSlope;
+    const myDir = this.slopeDirection;
+
+    const matchesMat = (ent) => {
+      if (!ent || !isSolidOpaque(ent)) return false;
+      const otherMat = ent.effectiveMaterial;
+      if (myMat === 'stone') return otherMat === 'stone';
+      if (myMat === 'ice') return otherMat === 'ice';
+      // For general terrain/dirt/ground: matches other general terrain
+      return otherMat !== 'stone' && otherMat !== 'ice';
+    };
+
     const hasTop = Boolean(topEnt && topEnt !== this && isSolidOpaque(topEnt));
     const hasBottom = Boolean(bottomEnt && bottomEnt !== this && isSolidOpaque(bottomEnt));
-    const hasLeft = Boolean(leftEnt && leftEnt !== this && (leftEnt.variant === 'solid' || leftEnt.variant === 'slope_up'));
-    const hasRight = Boolean(rightEnt && rightEnt !== this && (rightEnt.variant === 'solid' || rightEnt.variant === 'slope_down'));
+
+    // Left neighbor connection:
+    // 1. If this is a slope_down, it connects to leftEnt if leftEnt is opaque and matches material
+    // 2. If this is a slope_up, left face is open/exposed (height=0 at x=0)
+    // 3. If this is a square block, connects to leftEnt if leftEnt matches material and is either a square block or slope_up!
+    let hasLeft = false;
+    if (leftEnt && leftEnt !== this && matchesMat(leftEnt)) {
+      if (isSlope) {
+        if (myDir === 'down') {
+          hasLeft = true;
+        }
+      } else {
+        if (!leftEnt.isSlope || leftEnt.slopeDirection === 'up') {
+          hasLeft = true;
+        }
+      }
+    }
+
+    // Right neighbor connection:
+    // 1. If this is a slope_up, it connects to rightEnt if rightEnt is opaque and matches material
+    // 2. If this is a slope_down, right face is open/exposed (height=0 at x=40)
+    // 3. If this is a square block, connects to rightEnt if rightEnt matches material and is either a square block or slope_down!
+    let hasRight = false;
+    if (rightEnt && rightEnt !== this && matchesMat(rightEnt)) {
+      if (isSlope) {
+        if (myDir === 'up') {
+          hasRight = true;
+        }
+      } else {
+        if (!rightEnt.isSlope || rightEnt.slopeDirection === 'down') {
+          hasRight = true;
+        }
+      }
+    }
 
     return { hasTop, hasBottom, hasLeft, hasRight, topEnt, bottomEnt, leftEnt, rightEnt };
   }
@@ -797,13 +842,7 @@ export class SolidBlock extends Entity {
 
       // 1. SLANT UP (45° Incline /)
       if (this.isSlope && this.slopeDirection === 'up') {
-        const col = Math.round(this.x / 40);
-        const row = Math.round(this.y / 40);
-        const bottomEnt = SolidBlock.terrainMap.get(`${col},${row + 1}`);
-        const rightEnt = SolidBlock.terrainMap.get(`${col + 1},${row}`);
-        const isSolidOpaque = (ent) => ent && ent.active && ent.variant !== 'cloud' && ent.variant !== 'semisolid';
-        const hasBottom = Boolean(bottomEnt && isSolidOpaque(bottomEnt));
-        const hasRight = Boolean(rightEnt && isSolidOpaque(rightEnt));
+        const { hasTop, hasBottom, hasLeft, hasRight } = this.getNeighbors();
         const mat = this.effectiveMaterial;
 
         if (mat === 'stone') {
@@ -832,24 +871,25 @@ export class SolidBlock extends Entity {
             ctx.lineTo(this.width, this.height);
           }
           if (!hasBottom) {
-            ctx.moveTo(0, this.height);
-            ctx.lineTo(this.width, this.height);
+            ctx.moveTo(0, this.height - 2);
+            ctx.lineTo(this.width, this.height - 2);
           }
           ctx.stroke();
 
-          // Central carving bevel
+          // Central carving bevel matching stone block's inner cross/square
           ctx.strokeStyle = 'rgba(18, 18, 18, 0.35)';
           ctx.lineWidth = 2;
           ctx.beginPath();
-          ctx.moveTo(14, this.height - 8);
-          ctx.lineTo(this.width - 8, 14);
-          ctx.lineTo(this.width - 8, this.height - 8);
+          ctx.moveTo(12, this.height - 6);
+          ctx.lineTo(this.width - 10, 16);
+          ctx.lineTo(this.width - 10, this.height - 6);
           ctx.closePath();
           ctx.stroke();
 
-          // Outer outlines
+          // Outer outlines ONLY on exposed faces
           ctx.strokeStyle = '#121212';
           ctx.lineWidth = 3;
+          ctx.lineCap = 'square';
           ctx.beginPath();
           ctx.moveTo(0, this.height);
           ctx.lineTo(this.width, 0);
@@ -863,36 +903,47 @@ export class SolidBlock extends Entity {
           }
           ctx.stroke();
         } else if (mat === 'ice') {
-          // Slippery Ice Slope Up
+          // Slippery Ice Slope Up (seamlessly blends with adjacent Ice Blocks)
           ctx.beginPath();
           ctx.moveTo(0, this.height);
           ctx.lineTo(this.width + (hasRight ? 0.5 : 0), this.height + (hasBottom ? 0.5 : 0));
           ctx.lineTo(this.width + (hasRight ? 0.5 : 0), 0);
           ctx.closePath();
-          const iceGrad = ctx.createLinearGradient(0, this.height, this.width, 0);
-          iceGrad.addColorStop(0, '#B2EBF2');
-          iceGrad.addColorStop(1, '#E0F7FA');
-          ctx.fillStyle = iceGrad;
+          ctx.fillStyle = '#B2EBF2'; // Matching Ice Block base
           ctx.fill();
 
+          // Angled Top Glossy Sheen Band:
+          // Rises up along the 45° incline and meets right neighbor at (this.width, 0..8)
+          ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+          ctx.beginPath();
+          ctx.moveTo(0, this.height - 2);
+          ctx.lineTo(this.width, 2);
+          ctx.lineTo(this.width, 10);
+          ctx.lineTo(6, this.height);
+          ctx.closePath();
+          ctx.fill();
+
+          // Top edge white specular line
           ctx.strokeStyle = '#FFFFFF';
-          ctx.lineWidth = 3;
+          ctx.lineWidth = 2.5;
           ctx.beginPath();
           ctx.moveTo(0, this.height);
           ctx.lineTo(this.width, 0);
           ctx.stroke();
 
-          ctx.strokeStyle = 'rgba(0, 150, 136, 0.35)';
-          ctx.lineWidth = 1.5;
+          // Crystalline facet chevron matching Ice Block's cyan style
+          ctx.strokeStyle = 'rgba(0, 184, 212, 0.7)';
+          ctx.lineWidth = 2;
           ctx.beginPath();
-          ctx.moveTo(14, this.height - 8);
-          ctx.lineTo(this.width - 8, 14);
-          ctx.lineTo(this.width - 8, this.height - 8);
-          ctx.closePath();
+          ctx.moveTo(14, this.height - 4);
+          ctx.lineTo(this.width - 18, this.height / 2 + 2);
+          ctx.lineTo(this.width - 10, this.height - 10);
           ctx.stroke();
 
+          // Outlines ONLY on exposed faces!
           ctx.strokeStyle = '#121212';
           ctx.lineWidth = 3;
+          ctx.lineCap = 'square';
           ctx.beginPath();
           ctx.moveTo(0, this.height);
           ctx.lineTo(this.width, 0);
@@ -924,12 +975,13 @@ export class SolidBlock extends Entity {
           ctx.fillStyle = pal.speckMid;
           ctx.fillRect(32, 28, 4, 3);
 
-          // Theme-specific turf / band along angled hypotenuse
+          // Theme-specific turf / band along angled hypotenuse:
+          // Ends at (this.width, 0) spanning y=0 to y=8 at x=this.width (matching solid block's 8px turf cap!)
           ctx.beginPath();
           ctx.moveTo(0, this.height);
-          ctx.lineTo(this.width + (hasRight ? 0.5 : 0), 0);
-          ctx.lineTo(this.width + (hasRight ? 0.5 : 0), 10);
-          ctx.lineTo(10, this.height);
+          ctx.lineTo(this.width, 0);
+          ctx.lineTo(this.width, 8);
+          ctx.lineTo(6, this.height);
           ctx.closePath();
           ctx.fillStyle = pal.turfMain;
           ctx.fill();
@@ -939,15 +991,15 @@ export class SolidBlock extends Entity {
           ctx.lineWidth = 2.5;
           ctx.beginPath();
           ctx.moveTo(0, this.height);
-          ctx.lineTo(this.width + (hasRight ? 0.5 : 0), 0);
+          ctx.lineTo(this.width, 0);
           ctx.stroke();
 
           // Turf underside shadow edge
           ctx.strokeStyle = pal.turfShadow;
           ctx.lineWidth = 2;
           ctx.beginPath();
-          ctx.moveTo(10, this.height);
-          ctx.lineTo(this.width + (hasRight ? 0.5 : 0), 10);
+          ctx.moveTo(6, this.height);
+          ctx.lineTo(this.width, 8);
           ctx.stroke();
 
           // Turf fringe droplets into dirt
@@ -961,10 +1013,10 @@ export class SolidBlock extends Entity {
           // Outlines (only exposed faces)
           ctx.strokeStyle = '#121212';
           ctx.lineWidth = 3;
+          ctx.lineCap = 'square';
           ctx.beginPath();
           ctx.moveTo(0, this.height);
           ctx.lineTo(this.width, 0);
-
           if (!hasRight) {
             ctx.moveTo(this.width, 0);
             ctx.lineTo(this.width, this.height);
@@ -979,13 +1031,7 @@ export class SolidBlock extends Entity {
 
       // 2. SLANT DOWN (45° Decline \)
       else if (this.isSlope && this.slopeDirection === 'down') {
-        const col = Math.round(this.x / 40);
-        const row = Math.round(this.y / 40);
-        const bottomEnt = SolidBlock.terrainMap.get(`${col},${row + 1}`);
-        const leftEnt = SolidBlock.terrainMap.get(`${col - 1},${row}`);
-        const isSolidOpaque = (ent) => ent && ent.active && ent.variant !== 'cloud' && ent.variant !== 'semisolid';
-        const hasBottom = Boolean(bottomEnt && isSolidOpaque(bottomEnt));
-        const hasLeft = Boolean(leftEnt && isSolidOpaque(leftEnt));
+        const { hasTop, hasBottom, hasLeft, hasRight } = this.getNeighbors();
         const mat = this.effectiveMaterial;
 
         if (mat === 'stone') {
@@ -998,6 +1044,7 @@ export class SolidBlock extends Entity {
           ctx.fillStyle = '#9E9E9E';
           ctx.fill();
 
+          // Chiseled bevel highlight along hypotenuse (meets top highlight of left stone block at 0,0)
           ctx.strokeStyle = '#EEEEEE';
           ctx.lineWidth = 2.5;
           ctx.beginPath();
@@ -1013,22 +1060,25 @@ export class SolidBlock extends Entity {
             ctx.lineTo(0, this.height);
           }
           if (!hasBottom) {
-            ctx.moveTo(0, this.height);
-            ctx.lineTo(this.width, this.height);
+            ctx.moveTo(0, this.height - 2);
+            ctx.lineTo(this.width, this.height - 2);
           }
           ctx.stroke();
 
+          // Central carving bevel matching stone block's inner cross/square
           ctx.strokeStyle = 'rgba(18, 18, 18, 0.35)';
           ctx.lineWidth = 2;
           ctx.beginPath();
-          ctx.moveTo(8, 14);
-          ctx.lineTo(this.width - 14, this.height - 8);
-          ctx.lineTo(8, this.height - 8);
+          ctx.moveTo(10, 16);
+          ctx.lineTo(this.width - 12, this.height - 6);
+          ctx.lineTo(10, this.height - 6);
           ctx.closePath();
           ctx.stroke();
 
+          // Outer outlines ONLY on exposed faces
           ctx.strokeStyle = '#121212';
           ctx.lineWidth = 3;
+          ctx.lineCap = 'square';
           ctx.beginPath();
           ctx.moveTo(0, 0);
           ctx.lineTo(this.width, this.height);
@@ -1042,36 +1092,48 @@ export class SolidBlock extends Entity {
           }
           ctx.stroke();
         } else if (mat === 'ice') {
-          // Slippery Ice Slope Down
+          // Slippery Ice Slope Down (seamlessly blends with adjacent Ice Blocks)
           ctx.beginPath();
           ctx.moveTo(0, 0);
           ctx.lineTo(0, this.height + (hasBottom ? 0.5 : 0));
           ctx.lineTo(this.width + (hasLeft ? 0.5 : 0), this.height + (hasBottom ? 0.5 : 0));
           ctx.closePath();
-          const iceGrad = ctx.createLinearGradient(0, 0, this.width, this.height);
-          iceGrad.addColorStop(0, '#E0F7FA');
-          iceGrad.addColorStop(1, '#B2EBF2');
-          ctx.fillStyle = iceGrad;
+          ctx.fillStyle = '#B2EBF2'; // Matching Ice Block base
           ctx.fill();
 
+          // Angled Top Glossy Sheen Band:
+          // Starts at (0, 0) spanning y=0 to y=8 at x=0 (matching ice block's 8px gloss bar)
+          // and flows smoothly down along the 45° incline to (this.width, this.height)
+          ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+          ctx.beginPath();
+          ctx.moveTo(0, 2);
+          ctx.lineTo(this.width, this.height);
+          ctx.lineTo(this.width - 6, this.height);
+          ctx.lineTo(0, 10);
+          ctx.closePath();
+          ctx.fill();
+
+          // Top edge white specular line
           ctx.strokeStyle = '#FFFFFF';
-          ctx.lineWidth = 3;
+          ctx.lineWidth = 2.5;
           ctx.beginPath();
           ctx.moveTo(0, 0);
           ctx.lineTo(this.width, this.height);
           ctx.stroke();
 
-          ctx.strokeStyle = 'rgba(0, 150, 136, 0.35)';
-          ctx.lineWidth = 1.5;
+          // Crystalline facet chevron matching Ice Block's cyan style
+          ctx.strokeStyle = 'rgba(0, 184, 212, 0.7)';
+          ctx.lineWidth = 2;
           ctx.beginPath();
-          ctx.moveTo(8, 14);
-          ctx.lineTo(this.width - 14, this.height - 8);
-          ctx.lineTo(8, this.height - 8);
-          ctx.closePath();
+          ctx.moveTo(10, this.height - 10);
+          ctx.lineTo(18, this.height / 2 + 2);
+          ctx.lineTo(this.width - 14, this.height - 4);
           ctx.stroke();
 
+          // Outlines ONLY on exposed faces!
           ctx.strokeStyle = '#121212';
           ctx.lineWidth = 3;
+          ctx.lineCap = 'square';
           ctx.beginPath();
           ctx.moveTo(0, 0);
           ctx.lineTo(this.width, this.height);
@@ -1100,15 +1162,15 @@ export class SolidBlock extends Entity {
           ctx.fillRect(4, 14, 3, 4);
           ctx.fillStyle = pal.speckLight;
           ctx.fillRect(18, 30, 4, 3);
-          ctx.fillStyle = pal.speckMid;
           ctx.fillRect(4, 28, 4, 3);
 
-          // Theme-specific turf / band along angled hypotenuse
+          // Theme-specific turf / band along angled hypotenuse:
+          // Starts at (0, 0) spanning y=0 to y=8 at x=0 (matching solid block's 8px turf cap!)
           ctx.beginPath();
           ctx.moveTo(0, 0);
           ctx.lineTo(this.width, this.height);
-          ctx.lineTo(30, this.height);
-          ctx.lineTo(0, 10);
+          ctx.lineTo(this.width - 6, this.height);
+          ctx.lineTo(0, 8);
           ctx.closePath();
           ctx.fillStyle = pal.turfMain;
           ctx.fill();
@@ -1125,21 +1187,22 @@ export class SolidBlock extends Entity {
           ctx.strokeStyle = pal.turfShadow;
           ctx.lineWidth = 2;
           ctx.beginPath();
-          ctx.moveTo(0, 10);
-          ctx.lineTo(30, this.height);
+          ctx.moveTo(0, 8);
+          ctx.lineTo(this.width - 6, this.height);
           ctx.stroke();
 
           // Turf fringe droplets into dirt
           ctx.fillStyle = pal.turfMain;
-          ctx.fillRect(10, 12, 4, 3);
-          ctx.fillRect(20, 22, 4, 3);
+          ctx.fillRect(8, 12, 4, 3);
+          ctx.fillRect(18, 22, 4, 3);
           ctx.fillStyle = pal.turfShadow;
-          ctx.fillRect(10, 14, 4, 1);
-          ctx.fillRect(20, 24, 4, 1);
+          ctx.fillRect(8, 14, 4, 1);
+          ctx.fillRect(18, 24, 4, 1);
 
           // Outlines (only exposed faces)
           ctx.strokeStyle = '#121212';
           ctx.lineWidth = 3;
+          ctx.lineCap = 'square';
           ctx.beginPath();
           ctx.moveTo(0, 0);
           ctx.lineTo(this.width, this.height);
@@ -1330,30 +1393,73 @@ export class SolidBlock extends Entity {
 
       // 9. CASTLE STONE BLOCK
       else if (this.variant === 'stone') {
-        ctx.fillStyle = '#9E9E9E';
-        ctx.strokeStyle = '#121212';
-        ctx.lineWidth = 3;
-        ctx.fillRect(0, 0, this.width, this.height);
-        ctx.strokeRect(0, 0, this.width, this.height);
+        const { hasTop, hasBottom, hasLeft, hasRight, rightEnt, bottomEnt } = this.getNeighbors();
 
-        // Chiseled bevel highlights and shadows
+        // Base fill with seamless 0.5px overlap on connecting edges
+        const fillW = this.width + (hasRight ? 0.5 : 0);
+        const fillH = this.height + (hasBottom ? 0.5 : 0);
+        ctx.fillStyle = '#9E9E9E';
+        ctx.fillRect(0, 0, fillW, fillH);
+
+        // Chiseled highlights on top & left
         ctx.strokeStyle = '#EEEEEE';
         ctx.lineWidth = 2;
         ctx.beginPath();
-        ctx.moveTo(3, 3); ctx.lineTo(this.width - 3, 3);
-        ctx.moveTo(3, 3); ctx.lineTo(3, this.height - 3);
+        if (!hasTop) {
+          ctx.moveTo(hasLeft ? 0 : 3, 3);
+          ctx.lineTo(hasRight ? this.width : this.width - 3, 3);
+        }
+        if (!hasLeft) {
+          ctx.moveTo(3, hasTop ? 0 : 3);
+          ctx.lineTo(3, hasBottom ? this.height : this.height - 3);
+        }
         ctx.stroke();
 
+        // Chiseled shadows on right & bottom
         ctx.strokeStyle = '#616161';
+        ctx.lineWidth = 2;
         ctx.beginPath();
-        ctx.moveTo(this.width - 3, 3); ctx.lineTo(this.width - 3, this.height - 3);
-        ctx.moveTo(3, this.height - 3); ctx.lineTo(this.width - 3, this.height - 3);
+        if (!hasRight) {
+          ctx.moveTo(this.width - 3, hasTop ? 0 : 3);
+          ctx.lineTo(this.width - 3, hasBottom ? this.height : this.height - 3);
+        }
+        if (!hasBottom) {
+          ctx.moveTo(hasLeft ? 0 : 3, this.height - 3);
+          ctx.lineTo(hasRight ? this.width : this.width - 3, this.height - 3);
+        }
         ctx.stroke();
+
+        // Subtle masonry mortar seams between adjacent stone blocks
+        if (hasRight && rightEnt && !rightEnt.isSlope) {
+          ctx.strokeStyle = 'rgba(18, 18, 18, 0.28)';
+          ctx.lineWidth = 1.5;
+          ctx.beginPath();
+          ctx.moveTo(this.width, 0); ctx.lineTo(this.width, this.height);
+          ctx.stroke();
+        }
+        if (hasBottom && bottomEnt && !bottomEnt.isSlope) {
+          ctx.strokeStyle = 'rgba(18, 18, 18, 0.28)';
+          ctx.lineWidth = 1.5;
+          ctx.beginPath();
+          ctx.moveTo(0, this.height); ctx.lineTo(this.width, this.height);
+          ctx.stroke();
+        }
 
         // Central cross carving
         ctx.strokeStyle = 'rgba(18, 18, 18, 0.35)';
         ctx.lineWidth = 2;
         ctx.strokeRect(12, 12, this.width - 24, this.height - 24);
+
+        // Outlines ONLY on exposed faces
+        ctx.strokeStyle = '#121212';
+        ctx.lineWidth = 3;
+        ctx.lineCap = 'square';
+        ctx.beginPath();
+        if (!hasTop) { ctx.moveTo(0, 0); ctx.lineTo(this.width, 0); }
+        if (!hasBottom) { ctx.moveTo(0, this.height); ctx.lineTo(this.width, this.height); }
+        if (!hasLeft) { ctx.moveTo(0, 0); ctx.lineTo(0, this.height); }
+        if (!hasRight) { ctx.moveTo(this.width, 0); ctx.lineTo(this.width, this.height); }
+        ctx.stroke();
       }
 
       // 10. MYSTERY QUESTION BLOCK [?]
@@ -1420,27 +1526,67 @@ export class SolidBlock extends Entity {
 
       // 12. ICE BLOCK
       else if (this.variant === 'ice') {
+        const { hasTop, hasBottom, hasLeft, hasRight, rightEnt, bottomEnt } = this.getNeighbors();
+
+        // Base fill with seamless 0.5px overlap on connecting edges
+        const fillW = this.width + (hasRight ? 0.5 : 0);
+        const fillH = this.height + (hasBottom ? 0.5 : 0);
         ctx.fillStyle = '#B2EBF2';
-        ctx.strokeStyle = '#121212';
-        ctx.lineWidth = 3;
-        ctx.fillRect(0, 0, this.width, this.height);
-        ctx.strokeRect(0, 0, this.width, this.height);
+        ctx.fillRect(0, 0, fillW, fillH);
 
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.75)';
-        ctx.beginPath();
-        ctx.moveTo(4, 4);
-        ctx.lineTo(this.width - 4, 4);
-        ctx.lineTo(this.width - 12, 12);
-        ctx.lineTo(4, 12);
-        ctx.closePath();
-        ctx.fill();
+        // Top glossy ice sheen if not covered from above
+        if (!hasTop) {
+          ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+          ctx.beginPath();
+          const startX = hasLeft ? 0 : 4;
+          const endX = hasRight ? this.width : this.width - 4;
+          ctx.moveTo(startX, 3);
+          ctx.lineTo(endX, 3);
+          ctx.lineTo(endX - (hasRight ? 4 : 8), 11);
+          ctx.lineTo(startX + (hasLeft ? 4 : 0), 11);
+          ctx.closePath();
+          ctx.fill();
+        }
 
+        // Crystalline ice chevron motif in center
         ctx.strokeStyle = 'rgba(0, 184, 212, 0.7)';
         ctx.lineWidth = 2;
         ctx.beginPath();
         ctx.moveTo(8, this.height - 8);
         ctx.lineTo(this.width / 2, this.height / 2);
         ctx.lineTo(this.width - 8, this.height - 14);
+        ctx.stroke();
+
+        // Subtle internal ice facet seams between adjacent ice blocks
+        if (hasRight && rightEnt && !rightEnt.isSlope) {
+          ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
+          ctx.lineWidth = 1.5;
+          ctx.beginPath();
+          ctx.moveTo(this.width, 0); ctx.lineTo(this.width, this.height);
+          ctx.stroke();
+          ctx.strokeStyle = 'rgba(0, 184, 212, 0.25)';
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.moveTo(this.width - 1, 0); ctx.lineTo(this.width - 1, this.height);
+          ctx.stroke();
+        }
+        if (hasBottom && bottomEnt && !bottomEnt.isSlope) {
+          ctx.strokeStyle = 'rgba(0, 184, 212, 0.25)';
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.moveTo(0, this.height); ctx.lineTo(this.width, this.height);
+          ctx.stroke();
+        }
+
+        // Outlines ONLY on exposed faces
+        ctx.strokeStyle = '#121212';
+        ctx.lineWidth = 3;
+        ctx.lineCap = 'square';
+        ctx.beginPath();
+        if (!hasTop) { ctx.moveTo(0, 0); ctx.lineTo(this.width, 0); }
+        if (!hasBottom) { ctx.moveTo(0, this.height); ctx.lineTo(this.width, this.height); }
+        if (!hasLeft) { ctx.moveTo(0, 0); ctx.lineTo(0, this.height); }
+        if (!hasRight) { ctx.moveTo(this.width, 0); ctx.lineTo(this.width, this.height); }
         ctx.stroke();
       }
 
