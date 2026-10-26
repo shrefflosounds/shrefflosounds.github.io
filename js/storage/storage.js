@@ -2,7 +2,6 @@
 
 import { SolidBlock, Springboard, HazardSpikes, EnemyWalker, MovingPlatform, Collectible, GoalFlag } from '../engine/entities.js';
 import { SidehopFile } from './sidehop-format.js';
-import { PersonalAssetLibrary } from './asset-library.js';
 
 const LEVEL_STORAGE_KEY = 'sidehop_saved_level_v6';
 
@@ -274,21 +273,14 @@ export class LevelStorage {
             });
           }
         } else if (parsed.kind === 'asset') {
-          // Save to Personal Assets library
-          const saved = PersonalAssetLibrary.save(parsed.asset);
           if (callback) {
             callback({
               kind: 'asset',
-              asset: saved,
+              asset: parsed.asset,
               meta: parsed.meta
             });
           }
         } else if (parsed.kind === 'bundle') {
-          // Save all bundled assets
-          let savedAssets = [];
-          if (Array.isArray(parsed.assets)) {
-            savedAssets = parsed.assets.map(a => PersonalAssetLibrary.save(a));
-          }
           let bg = null;
           if (parsed.level) {
             bg = this.deserialize(parsed.level, player, entities);
@@ -298,7 +290,7 @@ export class LevelStorage {
               kind: 'bundle',
               background: bg,
               level: parsed.level,
-              assets: savedAssets,
+              assets: parsed.assets || [],
               meta: parsed.meta
             });
           }

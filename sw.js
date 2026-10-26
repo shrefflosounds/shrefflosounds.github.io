@@ -1,6 +1,5 @@
 const APP_ID = "sidehop";
-const VERSION = "v00000-001";
-const CACHE = APP_ID + "-" + VERSION;
+const CACHE = APP_ID + "-prod";
 const FILES = [
   "./",
   "./index.html",
@@ -24,7 +23,8 @@ const FILES = [
   "./js/editor/inspector.js",
   "./js/editor/paint.js",
   "./js/editor/grid.js",
-  "./js/editor/history.js"
+  "./js/editor/history.js",
+  "./js/editor/demo.js"
 ];
 
 self.addEventListener("install", e => {

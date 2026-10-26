@@ -1,6 +1,6 @@
 # Sidehop — Handoff Notes
 
-- **Current Version:** `v00000-001`
+- **Status:** Production Release Ready
 - **What Works:**
   - Full dual-mode 2D platformer engine (Edit Mode and Playtest Mode).
   - Procedural squash & stretch animation on custom player/entity doodles.

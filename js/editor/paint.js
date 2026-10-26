@@ -1,6 +1,5 @@
 import { sounds } from '../audio/sound.js';
 import { SidehopFile } from '../storage/sidehop-format.js';
-import { PersonalAssetLibrary } from '../storage/asset-library.js';
 
 export class ArtStudio {
   constructor(modalElement, canvasElement) {
@@ -271,25 +270,6 @@ export class ArtStudio {
     return pkg;
   }
 
-  // Save current artwork to PersonalAssetLibrary in localStorage
-  saveToLibrary(assetName) {
-    const dataUrl = this.canvas.toDataURL('image/png');
-    const category = this.getSuggestedCategory();
-    const name = assetName || (this.targetEntity ? `${this.targetEntity.type} Art` : 'Custom Asset');
-
-    const saved = PersonalAssetLibrary.save({
-      name: name,
-      category: category,
-      targetType: this.targetEntity?.type || 'all',
-      dataUrl: dataUrl,
-      width: this.canvas.width,
-      height: this.canvas.height
-    });
-
-    sounds.playCollect();
-    return saved;
-  }
-
   // Import a .sidehop or image file onto the painting canvas
   importAssetFile(file, callback) {
     if (!file) return;
@@ -299,7 +279,6 @@ export class ArtStudio {
         const parsed = SidehopFile.parse(e.target.result);
         if (parsed.kind === 'asset' && parsed.asset?.dataUrl) {
           this.loadImageFromUrl(parsed.asset.dataUrl, () => {
-            PersonalAssetLibrary.save(parsed.asset);
             if (callback) callback(parsed.asset);
           });
           return;
@@ -307,7 +286,6 @@ export class ArtStudio {
           const first = parsed.assets[0];
           if (first && first.dataUrl) {
             this.loadImageFromUrl(first.dataUrl, () => {
-              PersonalAssetLibrary.importPackage(parsed);
               if (callback) callback(first);
             });
             return;

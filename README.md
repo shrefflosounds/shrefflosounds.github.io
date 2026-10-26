@@ -54,7 +54,6 @@ Sidehop features a universal package format with the extension **`.sidehop`** (`
 
 - **Live URL:** [https://shrefflosounds.github.io/sidehop/](https://shrefflosounds.github.io/sidehop/)
 - **Author Portfolio:** [https://shrefflosounds.github.io/](https://shrefflosounds.github.io/)
-- **Current Version:** `v00000-001`
 
 ---
 
