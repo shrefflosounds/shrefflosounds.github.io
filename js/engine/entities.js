@@ -482,10 +482,90 @@ export class SolidBlock extends Entity {
     return { hasTop, hasBottom, hasLeft, hasRight, topEnt, bottomEnt, leftEnt, rightEnt };
   }
 
+  static getThemePalette() {
+    const theme = (typeof window !== 'undefined' && window.sidehop?.currentTheme) || 'grass';
+    switch (theme) {
+      case 'snowy':
+        return {
+          theme: 'snowy',
+          dirtBase: '#475569',
+          speckDark: '#1E293B',
+          speckLight: '#CBD5E1',
+          speckMid: '#64748B',
+          turfMain: '#FFFFFF',
+          turfHighlight: '#F8FAFC',
+          turfShadow: '#CBD5E1',
+          speckAccent: '#BAE6FD'
+        };
+      case 'night':
+        return {
+          theme: 'night',
+          dirtBase: '#111827',
+          speckDark: '#030712',
+          speckLight: '#818CF8',
+          speckMid: '#38BDF8',
+          turfMain: '#312E81',
+          turfHighlight: '#4338CA',
+          turfShadow: '#1E1B4B',
+          speckAccent: '#A855F7'
+        };
+      case 'chrome':
+        return {
+          theme: 'chrome',
+          dirtBase: '#64748B',
+          speckDark: '#334155',
+          speckLight: '#E2E8F0',
+          speckMid: '#94A3B8',
+          turfMain: '#F1F5F9',
+          turfHighlight: '#FFFFFF',
+          turfShadow: '#CBD5E1',
+          speckAccent: '#38BDF8'
+        };
+      case '8-bit':
+        return {
+          theme: '8-bit',
+          dirtBase: '#B85000',
+          speckDark: '#502000',
+          speckLight: '#F8B800',
+          speckMid: '#D82800',
+          turfMain: '#00A800',
+          turfHighlight: '#58F858',
+          turfShadow: '#006800',
+          speckAccent: '#FCFCFC'
+        };
+      case 'jungle':
+        return {
+          theme: 'jungle',
+          dirtBase: '#334D41',
+          speckDark: '#1B2E26',
+          speckLight: '#74C69D',
+          speckMid: '#406A57',
+          turfMain: '#1B4D3E',
+          turfHighlight: '#40916C',
+          turfShadow: '#081C15',
+          speckAccent: '#FF6B6B'
+        };
+      case 'grass':
+      default:
+        return {
+          theme: 'grass',
+          dirtBase: '#866043',
+          speckDark: '#5D4037',
+          speckLight: '#9C724E',
+          speckMid: '#6D4C41',
+          turfMain: '#558B2F',
+          turfHighlight: '#7CB342',
+          turfShadow: '#33691E',
+          speckAccent: '#558B2F'
+        };
+    }
+  }
+
   // Ensure square block assets remain in their physical block shape when an image or GIF is applied
   renderCustomOrFallback(ctx, fallbackDrawFn) {
     if (this.customImageElement && this.customImageElement.complete) {
       ctx.save();
+      const pal = SolidBlock.getThemePalette();
 
       if (this.variant === 'slope_up') {
         // 45° Incline Triangle Clipping
@@ -494,7 +574,7 @@ export class SolidBlock extends Entity {
         ctx.lineTo(this.width, 0);
         ctx.lineTo(this.width, this.height);
         ctx.closePath();
-        ctx.fillStyle = '#866043';
+        ctx.fillStyle = pal.dirtBase;
         ctx.fill();
         ctx.clip();
       } else if (this.variant === 'slope_down') {
@@ -504,12 +584,12 @@ export class SolidBlock extends Entity {
         ctx.lineTo(this.width, this.height);
         ctx.lineTo(0, this.height);
         ctx.closePath();
-        ctx.fillStyle = '#866043';
+        ctx.fillStyle = pal.dirtBase;
         ctx.fill();
         ctx.clip();
       } else {
         // Square & rectangular blocks: retain solid square block shape
-        ctx.fillStyle = '#FFE600'; // Cheerful square block base
+        ctx.fillStyle = pal.dirtBase; // Themed block base backing
         ctx.fillRect(0, 0, this.width, this.height);
 
         ctx.beginPath();
@@ -570,6 +650,8 @@ export class SolidBlock extends Entity {
     ctx.translate(this.x + (this.shakeOffsetX || 0), this.y + (this.bumpOffsetY || 0));
 
     this.renderCustomOrFallback(ctx, () => {
+      const pal = SolidBlock.getThemePalette();
+
       // 1. SLANT UP (45° Incline /)
       if (this.variant === 'slope_up') {
         const col = Math.round(this.x / 40);
@@ -586,49 +668,49 @@ export class SolidBlock extends Entity {
         ctx.lineTo(this.width + (hasRight ? 0.5 : 0), this.height + (hasBottom ? 0.5 : 0));
         ctx.lineTo(this.width + (hasRight ? 0.5 : 0), 0);
         ctx.closePath();
-        ctx.fillStyle = '#866043';
+        ctx.fillStyle = pal.dirtBase;
         ctx.fill();
 
         // Dirt specks inside lower-right half of triangle
-        ctx.fillStyle = '#5D4037';
+        ctx.fillStyle = pal.speckDark;
         ctx.fillRect(26, 26, 4, 3);
         ctx.fillRect(33, 14, 3, 4);
-        ctx.fillStyle = '#9C724E';
+        ctx.fillStyle = pal.speckLight;
         ctx.fillRect(18, 30, 4, 3);
-        ctx.fillStyle = '#6D4C41';
+        ctx.fillStyle = pal.speckMid;
         ctx.fillRect(32, 28, 4, 3);
 
-        // Lush grass band along angled hypotenuse
+        // Theme-specific turf / band along angled hypotenuse
         ctx.beginPath();
         ctx.moveTo(0, this.height);
         ctx.lineTo(this.width + (hasRight ? 0.5 : 0), 0);
         ctx.lineTo(this.width + (hasRight ? 0.5 : 0), 10);
         ctx.lineTo(10, this.height);
         ctx.closePath();
-        ctx.fillStyle = '#558B2F';
+        ctx.fillStyle = pal.turfMain;
         ctx.fill();
 
-        // Grass top highlight
-        ctx.strokeStyle = '#7CB342';
+        // Turf top highlight
+        ctx.strokeStyle = pal.turfHighlight;
         ctx.lineWidth = 2.5;
         ctx.beginPath();
         ctx.moveTo(0, this.height);
         ctx.lineTo(this.width + (hasRight ? 0.5 : 0), 0);
         ctx.stroke();
 
-        // Grass underside shadow edge
-        ctx.strokeStyle = '#33691E';
+        // Turf underside shadow edge
+        ctx.strokeStyle = pal.turfShadow;
         ctx.lineWidth = 2;
         ctx.beginPath();
         ctx.moveTo(10, this.height);
         ctx.lineTo(this.width + (hasRight ? 0.5 : 0), 10);
         ctx.stroke();
 
-        // Grass fringe droplets into dirt
-        ctx.fillStyle = '#558B2F';
+        // Turf fringe droplets into dirt
+        ctx.fillStyle = pal.turfMain;
         ctx.fillRect(16, 22, 4, 3);
         ctx.fillRect(26, 12, 4, 3);
-        ctx.fillStyle = '#33691E';
+        ctx.fillStyle = pal.turfShadow;
         ctx.fillRect(16, 24, 4, 1);
         ctx.fillRect(26, 14, 4, 1);
 
@@ -666,49 +748,49 @@ export class SolidBlock extends Entity {
         ctx.lineTo(0, this.height + (hasBottom ? 0.5 : 0));
         ctx.lineTo(this.width + (hasLeft ? 0.5 : 0), this.height + (hasBottom ? 0.5 : 0));
         ctx.closePath();
-        ctx.fillStyle = '#866043';
+        ctx.fillStyle = pal.dirtBase;
         ctx.fill();
 
         // Dirt specks inside lower-left half of triangle
-        ctx.fillStyle = '#5D4037';
+        ctx.fillStyle = pal.speckDark;
         ctx.fillRect(10, 26, 4, 3);
         ctx.fillRect(4, 14, 3, 4);
-        ctx.fillStyle = '#9C724E';
+        ctx.fillStyle = pal.speckLight;
         ctx.fillRect(18, 30, 4, 3);
-        ctx.fillStyle = '#6D4C41';
+        ctx.fillStyle = pal.speckMid;
         ctx.fillRect(4, 28, 4, 3);
 
-        // Lush grass band along angled hypotenuse
+        // Theme-specific turf / band along angled hypotenuse
         ctx.beginPath();
         ctx.moveTo(0, 0);
         ctx.lineTo(this.width, this.height);
         ctx.lineTo(30, this.height);
         ctx.lineTo(0, 10);
         ctx.closePath();
-        ctx.fillStyle = '#558B2F';
+        ctx.fillStyle = pal.turfMain;
         ctx.fill();
 
-        // Grass top highlight
-        ctx.strokeStyle = '#7CB342';
+        // Turf top highlight
+        ctx.strokeStyle = pal.turfHighlight;
         ctx.lineWidth = 2.5;
         ctx.beginPath();
         ctx.moveTo(0, 0);
         ctx.lineTo(this.width, this.height);
         ctx.stroke();
 
-        // Grass underside shadow edge
-        ctx.strokeStyle = '#33691E';
+        // Turf underside shadow edge
+        ctx.strokeStyle = pal.turfShadow;
         ctx.lineWidth = 2;
         ctx.beginPath();
         ctx.moveTo(0, 10);
         ctx.lineTo(30, this.height);
         ctx.stroke();
 
-        // Grass fringe droplets into dirt
-        ctx.fillStyle = '#558B2F';
+        // Turf fringe droplets into dirt
+        ctx.fillStyle = pal.turfMain;
         ctx.fillRect(10, 12, 4, 3);
         ctx.fillRect(20, 22, 4, 3);
-        ctx.fillStyle = '#33691E';
+        ctx.fillStyle = pal.turfShadow;
         ctx.fillRect(10, 14, 4, 1);
         ctx.fillRect(20, 24, 4, 1);
 
@@ -1018,91 +1100,141 @@ export class SolidBlock extends Entity {
         ctx.stroke();
       }
 
-      // 13. STANDARD SOLID GROUND BLOCK (Minecraft Dirt & Grass)
+      // 13. STANDARD SOLID GROUND BLOCK (Theme-Aware: Grass, Snowy, Night, Chrome, 8-Bit, Jungle)
       else {
         const { hasTop, hasBottom, hasLeft, hasRight } = this.getNeighbors();
 
-        // Base Dirt Fill (with seamless 0.5px overlap on connecting edges)
+        // Base Dirt / Stone Fill (with seamless 0.5px overlap on connecting edges)
         const fillW = this.width + (hasRight ? 0.5 : 0);
         const fillH = this.height + (hasBottom ? 0.5 : 0);
-        ctx.fillStyle = '#866043';
+        ctx.fillStyle = pal.dirtBase;
         ctx.fillRect(0, 0, fillW, fillH);
 
-        // Deterministic organic Minecraft dirt specks
+        // Deterministic organic specks
         const col = Math.round(this.x / 40);
         const row = Math.round(this.y / 40);
         const speckShift = ((col * 31) ^ (row * 17)) & 3;
 
-        // Dark brown specks (#5D4037)
-        ctx.fillStyle = '#5D4037';
+        // Dark specks
+        ctx.fillStyle = pal.speckDark;
         ctx.fillRect(6 + speckShift, 14, 4, 3);
         ctx.fillRect(24 - speckShift, 28, 4, 3);
         ctx.fillRect(14, 33, 3, 3);
         ctx.fillRect(31, 20 + speckShift, 3, 4);
 
-        // Light brown specks (#9C724E)
-        ctx.fillStyle = '#9C724E';
+        // Light specks
+        ctx.fillStyle = pal.speckLight;
         ctx.fillRect(18 - speckShift, 16, 4, 3);
         ctx.fillRect(8, 26 - speckShift, 3, 4);
         ctx.fillRect(28 + speckShift, 34, 4, 3);
 
-        // Medium brown specks (#6D4C41)
-        ctx.fillStyle = '#6D4C41';
+        // Medium specks
+        ctx.fillStyle = pal.speckMid;
         ctx.fillRect(26, 8 + speckShift, 4, 3);
         ctx.fillRect(4 + speckShift, 33, 3, 3);
         ctx.fillRect(16 + speckShift, 22, 3, 3);
 
         // Extra underground specks in upper region if covered
         if (hasTop) {
-          ctx.fillStyle = '#9C724E';
+          ctx.fillStyle = pal.speckLight;
           ctx.fillRect(8 + speckShift, 4, 4, 3);
-          ctx.fillStyle = '#5D4037';
+          ctx.fillStyle = pal.speckDark;
           ctx.fillRect(22 - speckShift, 3, 4, 3);
-          ctx.fillStyle = '#6D4C41';
+          ctx.fillStyle = pal.speckMid;
           ctx.fillRect(32, 5 + speckShift, 3, 3);
         }
 
-        // LUSH MINECRAFT GRASS (ONLY ON EXPOSED TOP LAYER!)
+        // Theme-Specific Distinctive Inlays
+        if (pal.theme === 'chrome') {
+          // Brushed metallic horizontal specular streak
+          ctx.fillStyle = 'rgba(255, 255, 255, 0.18)';
+          ctx.fillRect(2, 10, this.width - 4, 4);
+          ctx.fillStyle = 'rgba(0, 0, 0, 0.15)';
+          ctx.fillRect(2, 14, this.width - 4, 2);
+          // High-tech corner rivets
+          ctx.fillStyle = '#E2E8F0';
+          ctx.fillRect(4, 5, 2, 2);
+          ctx.fillRect(this.width - 6, 5, 2, 2);
+          ctx.fillRect(4, this.height - 7, 2, 2);
+          ctx.fillRect(this.width - 6, this.height - 7, 2, 2);
+        } else if (pal.theme === '8-bit') {
+          // Chunky 8-bit retro pixel grout lines
+          ctx.fillStyle = '#000000';
+          ctx.fillRect(0, 20, this.width, 2);
+          ctx.fillRect(20, 0, 2, 20);
+          ctx.fillRect(10, 22, 2, this.height - 22);
+          ctx.fillRect(30, 22, 2, this.height - 22);
+        } else if (pal.theme === 'night') {
+          // Glowing starlight / crystal flecks
+          ctx.fillStyle = pal.speckAccent;
+          ctx.fillRect(12 + speckShift, 18, 2.5, 2.5);
+          ctx.fillRect(26 - speckShift, 12, 2.5, 2.5);
+        }
+
+        // LUSH THEMED SURFACE CAP (ONLY ON EXPOSED TOP LAYER!)
         if (!hasTop) {
           const grassW = this.width + (hasRight ? 0.5 : 0);
 
-          // Grass main body
-          ctx.fillStyle = '#558B2F';
+          // Turf main body
+          ctx.fillStyle = pal.turfMain;
           ctx.fillRect(0, 0, grassW, 8);
 
-          // Grass top highlight
-          ctx.fillStyle = '#7CB342';
+          // Turf top highlight
+          ctx.fillStyle = pal.turfHighlight;
           ctx.fillRect(0, 0, grassW, 2.5);
 
-          // Grass underside shadow
-          ctx.fillStyle = '#33691E';
+          // Turf underside shadow
+          ctx.fillStyle = pal.turfShadow;
           ctx.fillRect(0, 8, grassW, 2);
 
-          // Drooping grass blades / fringe into dirt
-          ctx.fillStyle = '#558B2F';
-          ctx.fillRect(5, 8, 4, 4);
-          ctx.fillRect(14, 8, 5, 5);
-          ctx.fillRect(23, 8, 4, 4);
-          ctx.fillRect(32, 8, 5, 5);
+          if (pal.theme === 'snowy') {
+            // Pillowy soft snow drifts on top edge
+            ctx.fillStyle = '#FFFFFF';
+            ctx.beginPath();
+            ctx.arc(8, 2, 5, 0, Math.PI * 2);
+            ctx.arc(20, 1, 6, 0, Math.PI * 2);
+            ctx.arc(32, 2, 5, 0, Math.PI * 2);
+            ctx.fill();
+            // Icicle drops
+            ctx.fillStyle = '#E0F2FE';
+            ctx.fillRect(12, 9, 3, 4);
+            ctx.fillRect(26, 9, 2, 3);
+          } else if (pal.theme === 'jungle') {
+            // Dangling vine tendrils
+            ctx.fillStyle = '#2D6A4F';
+            ctx.fillRect(6, 8, 3, 7);
+            ctx.fillRect(18, 8, 4, 10);
+            ctx.fillRect(30, 8, 3, 6);
+            // Little jungle flower dots
+            ctx.fillStyle = '#FF6B6B';
+            ctx.fillRect(19, 17, 2, 2);
+          } else {
+            // Drooping blades / fringe into dirt
+            ctx.fillStyle = pal.turfMain;
+            ctx.fillRect(5, 8, 4, 4);
+            ctx.fillRect(14, 8, 5, 5);
+            ctx.fillRect(23, 8, 4, 4);
+            ctx.fillRect(32, 8, 5, 5);
 
-          // Fringe bottom shadow
-          ctx.fillStyle = '#33691E';
-          ctx.fillRect(5, 11, 4, 1.5);
-          ctx.fillRect(14, 12, 5, 1.5);
-          ctx.fillRect(23, 11, 4, 1.5);
-          ctx.fillRect(32, 12, 5, 1.5);
+            // Fringe bottom shadow
+            ctx.fillStyle = pal.turfShadow;
+            ctx.fillRect(5, 11, 4, 1.5);
+            ctx.fillRect(14, 12, 5, 1.5);
+            ctx.fillRect(23, 11, 4, 1.5);
+            ctx.fillRect(32, 12, 5, 1.5);
+          }
 
           // Side drape on exposed left/right corners
           if (!hasLeft) {
-            ctx.fillStyle = '#558B2F';
+            ctx.fillStyle = pal.turfMain;
             ctx.fillRect(0, 8, 3, 5);
-            ctx.fillStyle = '#33691E';
+            ctx.fillStyle = pal.turfShadow;
             ctx.fillRect(0, 12, 3, 1.5);
           }
           if (!hasRight) {
-            ctx.fillStyle = '#558B2F';
+            ctx.fillStyle = pal.turfMain;
             ctx.fillRect(this.width - 3, 8, 3, 5);
-            ctx.fillStyle = '#33691E';
+            ctx.fillStyle = pal.turfShadow;
             ctx.fillRect(this.width - 3, 12, 3, 1.5);
           }
         }
@@ -1244,7 +1376,15 @@ export class HazardSpikes extends Entity {
     ctx.translate(this.x, this.y);
 
     this.renderCustomOrFallback(ctx, () => {
-      ctx.fillStyle = '#FF3B30'; // Punchy red
+      const theme = (typeof window !== 'undefined' && window.sidehop?.currentTheme) || 'grass';
+      let spikeFill = '#EF4444';
+      if (theme === 'snowy') spikeFill = '#93C5FD'; // Icicle blue
+      else if (theme === 'night') spikeFill = '#A855F7'; // Amethyst crystal
+      else if (theme === 'chrome') spikeFill = '#E2E8F0'; // Metallic chrome
+      else if (theme === '8-bit') spikeFill = '#D82800'; // Retro arcade red
+      else if (theme === 'jungle') spikeFill = '#B45309'; // Bamboo thorn
+
+      ctx.fillStyle = spikeFill;
       ctx.strokeStyle = '#121212';
       ctx.lineWidth = 3;
 
@@ -1259,6 +1399,16 @@ export class HazardSpikes extends Entity {
       }
       ctx.closePath();
       ctx.fill();
+      ctx.stroke();
+
+      // Gleam highlight down left edge of each spike
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.6)';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      for (let i = 0; i < numSpikes; i++) {
+        ctx.moveTo(i * spikeW + 2, this.height - 2);
+        ctx.lineTo(i * spikeW + spikeW / 2, 7);
+      }
       ctx.stroke();
     });
 

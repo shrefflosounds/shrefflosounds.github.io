@@ -9,9 +9,11 @@ const LEVEL_STORAGE_KEY = 'sidehop_saved_level_v6';
 export class LevelStorage {
   // Serialize active level to JSON-compatible object
   static serialize(player, entities, background = { theme: 'sky', customImage: null }) {
+    const activeTheme = (typeof window !== 'undefined' && window.sidehop?.currentTheme) || 'grass';
     return {
       version: 2,
       name: 'My Sidehop Level',
+      theme: activeTheme,
       background: background,
       player: {
         spawnX: player.spawnX,
@@ -134,7 +136,14 @@ export class LevelStorage {
       });
     }
 
-    return data.background || { theme: 'sky', customImage: null };
+    const bg = data.background || { theme: 'sky', customImage: null };
+    if (data.theme) {
+      bg.worldTheme = data.theme;
+      if (typeof window !== 'undefined' && window.sidehop && window.sidehop.setTheme) {
+        window.sidehop.setTheme(data.theme);
+      }
+    }
+    return bg;
   }
 
   // LocalStorage Auto-save
@@ -179,6 +188,71 @@ export class LevelStorage {
       .replace(/^-|-$/g, '') || 'sidehop-level';
     SidehopFile.download(`${slug}-${Date.now()}.sidehop`, pkg);
     return pkg;
+  }
+
+  // Export Level as a Standalone Playable Single-File HTML Game
+  static async exportStandaloneHtml(player, entities, background, theme = 'grass', customTitle) {
+    const data = this.serialize(player, entities, background);
+    data.theme = theme;
+    const title = customTitle || data.name || 'Sidehop Level';
+    const slug = title
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-|-$/g, '') || 'sidehop-game';
+
+    let htmlTemplate = '';
+    try {
+      const resp = await fetch('index.standalone.html');
+      if (resp.ok) {
+        htmlTemplate = await resp.text();
+      }
+    } catch (_) {}
+
+    if (!htmlTemplate) {
+      try {
+        const resp2 = await fetch('index.html');
+        if (resp2.ok) {
+          htmlTemplate = await resp2.text();
+        }
+      } catch (_) {}
+    }
+
+    if (!htmlTemplate) {
+      alert('Could not fetch standalone HTML template. Exporting as .sidehop package instead.');
+      this.exportLevel(player, entities, background, customTitle);
+      return;
+    }
+
+    // Embed level payload with autoPlay flag so it plays immediately on open
+    const payload = JSON.stringify({
+      version: 2,
+      levelName: title,
+      theme: theme,
+      autoPlay: true,
+      level: data
+    });
+
+    const scriptTag = `<script id="sidehop-embedded-level" type="application/json">\n${payload}\n</script>`;
+
+    let resultHtml = htmlTemplate.replace(/<title>.*?<\/title>/i, `<title>${title} — Sidehop Game</title>`);
+
+    if (resultHtml.includes('<!-- EMBEDDED_LEVEL_HOOK -->')) {
+      resultHtml = resultHtml.replace('<!-- EMBEDDED_LEVEL_HOOK -->', scriptTag);
+    } else {
+      resultHtml = resultHtml.replace('</body>', `${scriptTag}\n</body>`);
+    }
+
+    const blob = new Blob([resultHtml], { type: 'text/html;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${slug}.html`;
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(() => {
+      a.remove();
+      URL.revokeObjectURL(url);
+    }, 1000);
   }
 
   // Import any .sidehop package (or legacy JSON level)

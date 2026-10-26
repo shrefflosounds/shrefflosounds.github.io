@@ -1,5 +1,4 @@
 .DS_Store
 *.log
 tools/
-index.standalone.html
 index.modular.html

@@ -37,6 +37,19 @@ class SidehopApp {
       customImageElement: null
     };
 
+    // World & UI Theme State
+    this.currentTheme = 'grass'; // 'grass', 'snowy', 'night', 'chrome', '8-bit', 'jungle'
+    window.__SIDEHOP_THEME__ = this.currentTheme;
+
+    // Snowflakes particle cache for snowy theme
+    this.snowflakes = Array.from({ length: 48 }, () => ({
+      x: Math.random() * 2000,
+      y: Math.random() * 1200,
+      radius: Math.random() * 2.2 + 1.0,
+      speed: Math.random() * 0.8 + 0.6,
+      drift: Math.random() * 0.6 - 0.3
+    }));
+
     // Subsystems
     this.editor = new GridEditor(this.canvas, this.camera, 40);
     this.artStudio = new ArtStudio(
@@ -578,13 +591,52 @@ class SidehopApp {
     return { minLeft, minTop, maxRight, maxBottom, availW: maxRight - minLeft, availH: maxBottom - minTop };
   }
 
+  setTheme(themeName) {
+    const validThemes = ['grass', 'snowy', 'night', 'chrome', '8-bit', 'jungle'];
+    if (!validThemes.includes(themeName)) themeName = 'grass';
+    this.currentTheme = themeName;
+    window.__SIDEHOP_THEME__ = themeName;
+    document.body.setAttribute('data-theme', themeName);
+
+    // Update active state in theme-modal cards
+    document.querySelectorAll('.theme-card').forEach(card => {
+      card.classList.toggle('active', card.dataset.theme === themeName);
+    });
+
+    // Update theme icon/label on header button
+    const themeLabel = document.getElementById('theme-label');
+    const themeIcon = document.getElementById('theme-icon');
+    const themeIcons = {
+      'grass': '🌿',
+      'snowy': '❄️',
+      'night': '🌙',
+      'chrome': '⚙️',
+      '8-bit': '🕹️',
+      'jungle': '🌴'
+    };
+    const themeNames = {
+      'grass': 'Grass Plains',
+      'snowy': 'Snowy Peaks',
+      'night': 'Night Horizon',
+      'chrome': 'Chrome Future',
+      '8-bit': '8-Bit Arcade',
+      'jungle': 'Jungle Canopy'
+    };
+    if (themeIcon) themeIcon.textContent = themeIcons[themeName] || '🎨';
+    if (themeLabel) themeLabel.textContent = `${themeNames[themeName] || 'Theme'} ▾`;
+
+    // Save with level
+    LevelStorage.autoSave(this.player, this.entities, this.background);
+    this.showToast(`🎨 Theme: ${themeNames[themeName] || themeName}`);
+  }
+
   initStageFrame() {
     const wrapper = this.canvas.parentElement;
     if (!wrapper) return;
     const { minLeft, minTop, availW, availH } = this.getStageBounds();
-    // Default to 88% of the available stage area so whitespace is minimal while corner handles remain easy to grab
-    const initW = Math.max(480, Math.round(availW * 0.88));
-    const initH = Math.max(320, Math.round(availH * 0.88));
+    // Default to 96% of the available stage area so the edit workspace is expansive and immersive
+    const initW = Math.max(480, Math.round(availW * 0.96));
+    const initH = Math.max(320, Math.round(availH * 0.96));
     const initLeft = Math.round(minLeft + (availW - initW) / 2);
     const initTop = Math.round(minTop + (availH - initH) / 2);
     this.applyFrameRect(initLeft, initTop, initW, initH);
@@ -756,6 +808,30 @@ class SidehopApp {
   }
 
   initLevel() {
+    // 1. Check for standalone embedded level data payload
+    const embeddedScript = document.getElementById('sidehop-embedded-level');
+    if (embeddedScript && embeddedScript.textContent && embeddedScript.textContent.trim()) {
+      try {
+        const payload = JSON.parse(embeddedScript.textContent);
+        if (payload.theme) {
+          this.setTheme(payload.theme);
+        }
+        if (payload.level) {
+          const bg = LevelStorage.deserialize(payload.level, this.player, this.entities);
+          if (bg) this.applyBackground(bg);
+          this.camera.recenter(this.player.spawnX, this.player.spawnY);
+          if (payload.autoPlay) {
+            setTimeout(() => {
+              if (this.mode !== 'play') this.toggleMode();
+            }, 100);
+          }
+          return;
+        }
+      } catch (err) {
+        console.warn('Error booting embedded standalone level:', err);
+      }
+    }
+
     const loadedBg = LevelStorage.autoLoad(this.player, this.entities);
     if (!loadedBg || this.entities.length === 0) {
       this.loadStarterWorld();
@@ -812,69 +888,328 @@ class SidehopApp {
       return;
     }
 
-    switch (this.background.theme) {
-      case 'sky': {
+    const theme = this.currentTheme || 'grass';
+
+    switch (theme) {
+      case 'snowy': {
+        const grad = this.ctx.createLinearGradient(0, 0, 0, h);
+        grad.addColorStop(0, '#B8DCF5');
+        grad.addColorStop(0.55, '#DCEBF8');
+        grad.addColorStop(1, '#EEF5FC');
+        this.ctx.fillStyle = grad;
+        this.ctx.fillRect(0, 0, w, h);
+
+        this.drawSnowyMountains(w, h);
+        this.drawSnowflakes(w, h);
+        break;
+      }
+      case 'night': {
+        const grad = this.ctx.createLinearGradient(0, 0, 0, h);
+        grad.addColorStop(0, '#060B19');
+        grad.addColorStop(0.6, '#0E1733');
+        grad.addColorStop(1, '#1E294B');
+        this.ctx.fillStyle = grad;
+        this.ctx.fillRect(0, 0, w, h);
+
+        this.drawStars(w, h);
+        this.drawCrescentMoon(w, h);
+        break;
+      }
+      case 'chrome': {
+        const grad = this.ctx.createLinearGradient(0, 0, 0, h);
+        grad.addColorStop(0, '#11151E');
+        grad.addColorStop(0.55, '#202736');
+        grad.addColorStop(1, '#333D4F');
+        this.ctx.fillStyle = grad;
+        this.ctx.fillRect(0, 0, w, h);
+
+        this.drawChromeGrid(w, h);
+        break;
+      }
+      case '8-bit': {
+        this.ctx.fillStyle = '#5C94FC';
+        this.ctx.fillRect(0, 0, w, h);
+        this.draw8BitBackground(w, h);
+        break;
+      }
+      case 'jungle': {
+        const grad = this.ctx.createLinearGradient(0, 0, 0, h);
+        grad.addColorStop(0, '#0F2C1B');
+        grad.addColorStop(0.55, '#19492E');
+        grad.addColorStop(1, '#2D6B47');
+        this.ctx.fillStyle = grad;
+        this.ctx.fillRect(0, 0, w, h);
+
+        this.drawJungleBackground(w, h);
+        break;
+      }
+      case 'grass':
+      default: {
         const grad = this.ctx.createLinearGradient(0, 0, 0, h);
         grad.addColorStop(0, '#70C5FF');
         grad.addColorStop(1, '#E0F4FF');
         this.ctx.fillStyle = grad;
         this.ctx.fillRect(0, 0, w, h);
-        this.drawParallaxClouds(w, h);
-        break;
-      }
-      case 'sunset': {
-        const grad = this.ctx.createLinearGradient(0, 0, 0, h);
-        grad.addColorStop(0, '#FF5252');
-        grad.addColorStop(0.55, '#FF7A59');
-        grad.addColorStop(1, '#FFD166');
-        this.ctx.fillStyle = grad;
-        this.ctx.fillRect(0, 0, w, h);
 
-        // Distant warm sun
-        this.ctx.save();
-        this.ctx.fillStyle = 'rgba(255, 255, 255, 0.45)';
-        this.ctx.beginPath();
-        const sunX = (w * 0.75 - this.camera.x * 0.06) % (w + 200);
-        this.ctx.arc(sunX < -100 ? sunX + w + 200 : sunX, h * 0.45, 60, 0, Math.PI * 2);
-        this.ctx.fill();
-        this.ctx.restore();
+        this.drawParallaxClouds(w, h);
+        this.drawParallaxHills(w, h);
         break;
-      }
-      case 'night': {
-        const grad = this.ctx.createLinearGradient(0, 0, 0, h);
-        grad.addColorStop(0, '#0F172A');
-        grad.addColorStop(1, '#1E1B4B');
-        this.ctx.fillStyle = grad;
-        this.ctx.fillRect(0, 0, w, h);
-        this.drawStars(w, h);
-        break;
-      }
-      case 'paper': {
-        this.ctx.fillStyle = '#FAF8F5';
-        this.ctx.fillRect(0, 0, w, h);
-        break;
-      }
-      case 'mint': {
-        const grad = this.ctx.createLinearGradient(0, 0, 0, h);
-        grad.addColorStop(0, '#6EE7B7');
-        grad.addColorStop(1, '#D1FAE5');
-        this.ctx.fillStyle = grad;
-        this.ctx.fillRect(0, 0, w, h);
-        break;
-      }
-      case 'cyber': {
-        const grad = this.ctx.createLinearGradient(0, 0, 0, h);
-        grad.addColorStop(0, '#1E0836');
-        grad.addColorStop(1, '#4A154B');
-        this.ctx.fillStyle = grad;
-        this.ctx.fillRect(0, 0, w, h);
-        break;
-      }
-      default: {
-        this.ctx.fillStyle = '#FAF8F5';
-        this.ctx.fillRect(0, 0, w, h);
       }
     }
+  }
+
+  drawSnowyMountains(w, h) {
+    this.ctx.save();
+    const horizon = h * 0.72;
+    // Layer 1: Distant pale mountains
+    this.ctx.fillStyle = '#C1D5E8';
+    this.ctx.beginPath();
+    this.ctx.moveTo(0, h);
+    const loopW1 = 1200;
+    const off1 = (this.camera.x * 0.05) % loopW1;
+    for (let x = -200; x <= w + 200; x += 180) {
+      const peakX = x - off1;
+      const peakH = 90 + Math.sin(x * 0.02) * 40;
+      this.ctx.lineTo(peakX, horizon - peakH);
+      this.ctx.lineTo(peakX + 90, horizon);
+    }
+    this.ctx.lineTo(w, h);
+    this.ctx.closePath();
+    this.ctx.fill();
+
+    // Layer 2: Closer sharp mountain range with white snow caps
+    this.ctx.fillStyle = '#8FA9C4';
+    this.ctx.beginPath();
+    this.ctx.moveTo(0, h);
+    const loopW2 = 1000;
+    const off2 = (this.camera.x * 0.12) % loopW2;
+    const peaks = [];
+    for (let x = -200; x <= w + 200; x += 160) {
+      const peakX = x - off2;
+      const peakH = 130 + Math.cos(x * 0.015) * 50;
+      peaks.push({ x: peakX, topY: horizon - peakH });
+      this.ctx.lineTo(peakX, horizon - peakH);
+      this.ctx.lineTo(peakX + 80, horizon);
+    }
+    this.ctx.lineTo(w, h);
+    this.ctx.closePath();
+    this.ctx.fill();
+
+    // Snow caps
+    this.ctx.fillStyle = '#FFFFFF';
+    peaks.forEach(p => {
+      this.ctx.beginPath();
+      this.ctx.moveTo(p.x, p.topY);
+      this.ctx.lineTo(p.x - 24, p.topY + 36);
+      this.ctx.lineTo(p.x - 8, p.topY + 28);
+      this.ctx.lineTo(p.x + 8, p.topY + 34);
+      this.ctx.lineTo(p.x + 24, p.topY + 36);
+      this.ctx.closePath();
+      this.ctx.fill();
+    });
+
+    this.ctx.restore();
+  }
+
+  drawSnowflakes(w, h) {
+    this.ctx.save();
+    this.ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
+    this.snowflakes.forEach(s => {
+      s.y += s.speed;
+      s.x += s.drift + Math.sin(performance.now() * 0.0015 + s.radius) * 0.4;
+      if (s.y > h) s.y = -6;
+      if (s.x > w + 20) s.x = -20;
+      if (s.x < -20) s.x = w + 20;
+
+      this.ctx.beginPath();
+      this.ctx.arc(s.x, s.y, s.radius, 0, Math.PI * 2);
+      this.ctx.fill();
+    });
+    this.ctx.restore();
+  }
+
+  drawCrescentMoon(w, h) {
+    this.ctx.save();
+    const moonX = Math.max(70, w - 120);
+    const moonY = 85;
+    const radius = 28;
+
+    // Outer glow
+    const glow = this.ctx.createRadialGradient(moonX, moonY, 10, moonX, moonY, 60);
+    glow.addColorStop(0, 'rgba(254, 243, 199, 0.35)');
+    glow.addColorStop(1, 'rgba(254, 243, 199, 0)');
+    this.ctx.fillStyle = glow;
+    this.ctx.beginPath();
+    this.ctx.arc(moonX, moonY, 60, 0, Math.PI * 2);
+    this.ctx.fill();
+
+    // Moon body
+    this.ctx.fillStyle = '#FEF3C7';
+    this.ctx.beginPath();
+    this.ctx.arc(moonX, moonY, radius, 0, Math.PI * 2);
+    this.ctx.fill();
+
+    // Cutout to make crescent
+    this.ctx.fillStyle = '#080E20';
+    this.ctx.beginPath();
+    this.ctx.arc(moonX - 9, moonY - 6, radius - 2, 0, Math.PI * 2);
+    this.ctx.fill();
+
+    this.ctx.restore();
+  }
+
+  drawChromeGrid(w, h) {
+    this.ctx.save();
+    const horizon = h * 0.62;
+
+    // Distant cyber skyline
+    this.ctx.fillStyle = '#1A2130';
+    const bldOff = (this.camera.x * 0.06) % 600;
+    for (let x = -100; x < w + 200; x += 45) {
+      const bh = 40 + ((x * 37) % 70);
+      this.ctx.fillRect(x - bldOff, horizon - bh, 36, bh);
+      // Red/cyan beacon dot
+      this.ctx.fillStyle = (x % 90 === 0) ? '#00E5FF' : '#FF3366';
+      this.ctx.fillRect(x - bldOff + 16, horizon - bh - 2, 3, 3);
+      this.ctx.fillStyle = '#1A2130';
+    }
+
+    // Horizon neon glow line
+    this.ctx.strokeStyle = '#38BDF8';
+    this.ctx.lineWidth = 2;
+    this.ctx.beginPath();
+    this.ctx.moveTo(0, horizon);
+    this.ctx.lineTo(w, horizon);
+    this.ctx.stroke();
+
+    // Perspective floor grid lines
+    const numFloorLines = 14;
+    for (let i = 1; i <= numFloorLines; i++) {
+      const t = Math.pow(i / numFloorLines, 2);
+      const y = horizon + t * (h - horizon);
+      this.ctx.strokeStyle = `rgba(56, 189, 248, ${0.15 + t * 0.35})`;
+      this.ctx.lineWidth = 1 + t * 1.5;
+      this.ctx.beginPath();
+      this.ctx.moveTo(0, y);
+      this.ctx.lineTo(w, y);
+      this.ctx.stroke();
+    }
+
+    // Vertical vanishing lines
+    const centerX = w * 0.5 - (this.camera.x * 0.1) % 40;
+    this.ctx.strokeStyle = 'rgba(56, 189, 248, 0.22)';
+    this.ctx.lineWidth = 1.2;
+    for (let x = -w * 0.5; x <= w * 1.5; x += 60) {
+      this.ctx.beginPath();
+      this.ctx.moveTo(centerX, horizon);
+      this.ctx.lineTo(x, h);
+      this.ctx.stroke();
+    }
+
+    this.ctx.restore();
+  }
+
+  draw8BitBackground(w, h) {
+    this.ctx.save();
+    // 8-bit stepped pixel clouds
+    this.ctx.fillStyle = '#FFFFFF';
+    const cloudLoop = 800;
+    const off = (this.camera.x * 0.1) % cloudLoop;
+    [100, 360, 620].forEach((cx, idx) => {
+      const x = ((cx - off) % cloudLoop + cloudLoop) % cloudLoop;
+      const y = 60 + idx * 35;
+      this.ctx.fillRect(x, y + 12, 64, 16);
+      this.ctx.fillRect(x + 10, y + 4, 44, 16);
+      this.ctx.fillRect(x + 20, y, 24, 8);
+    });
+
+    // 8-bit rolling green hills at bottom
+    const hillHorizon = h * 0.78;
+    this.ctx.fillStyle = '#00A800';
+    this.ctx.strokeStyle = '#000000';
+    this.ctx.lineWidth = 3;
+    const hillLoop = 600;
+    const hOff = (this.camera.x * 0.15) % hillLoop;
+    for (let x = -200; x < w + 300; x += 300) {
+      const hx = x - hOff;
+      this.ctx.beginPath();
+      this.ctx.arc(hx + 150, hillHorizon + 80, 160, Math.PI, 0, false);
+      this.ctx.fill();
+      this.ctx.stroke();
+    }
+
+    this.ctx.restore();
+  }
+
+  drawJungleBackground(w, h) {
+    this.ctx.save();
+    // Sunbeams angled across canopy
+    const sunbeamGrad = this.ctx.createLinearGradient(0, 0, w * 0.8, h);
+    sunbeamGrad.addColorStop(0, 'rgba(253, 224, 71, 0.12)');
+    sunbeamGrad.addColorStop(0.5, 'rgba(253, 224, 71, 0.04)');
+    sunbeamGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+    this.ctx.fillStyle = sunbeamGrad;
+    this.ctx.beginPath();
+    this.ctx.moveTo(w * 0.1, 0);
+    this.ctx.lineTo(w * 0.35, 0);
+    this.ctx.lineTo(w * 0.75, h);
+    this.ctx.lineTo(w * 0.45, h);
+    this.ctx.closePath();
+    this.ctx.fill();
+
+    // Jungle canopy silhouette layers
+    this.ctx.fillStyle = '#0E2818';
+    const loopW = 900;
+    const off = (this.camera.x * 0.1) % loopW;
+    for (let x = -100; x < w + 200; x += 140) {
+      const tx = x - off;
+      this.ctx.fillRect(tx + 28, h * 0.35, 8, h * 0.65);
+      this.ctx.beginPath();
+      this.ctx.arc(tx + 32, h * 0.35, 45, Math.PI * 0.9, Math.PI * 2.1);
+      this.ctx.fill();
+      this.ctx.strokeStyle = '#0E2818';
+      this.ctx.lineWidth = 3;
+      this.ctx.beginPath();
+      this.ctx.moveTo(tx + 15, h * 0.36);
+      this.ctx.quadraticCurveTo(tx + 8, h * 0.5, tx + 18, h * 0.6);
+      this.ctx.stroke();
+    }
+
+    this.ctx.restore();
+  }
+
+  drawParallaxHills(w, h) {
+    this.ctx.save();
+    const horizon = h * 0.82;
+    // Distant hill layer
+    this.ctx.fillStyle = '#A3E635';
+    this.ctx.beginPath();
+    this.ctx.moveTo(0, h);
+    const loop1 = 800;
+    const off1 = (this.camera.x * 0.08) % loop1;
+    for (let x = -200; x < w + 300; x += 250) {
+      const hx = x - off1;
+      this.ctx.quadraticCurveTo(hx + 125, horizon - 55, hx + 250, horizon);
+    }
+    this.ctx.lineTo(w, h);
+    this.ctx.closePath();
+    this.ctx.fill();
+
+    // Closer hill layer
+    this.ctx.fillStyle = '#4ADE80';
+    this.ctx.beginPath();
+    this.ctx.moveTo(0, h);
+    const loop2 = 600;
+    const off2 = (this.camera.x * 0.16) % loop2;
+    for (let x = -200; x < w + 300; x += 200) {
+      const hx = x - off2;
+      this.ctx.quadraticCurveTo(hx + 100, horizon - 35, hx + 200, horizon + 15);
+    }
+    this.ctx.lineTo(w, h);
+    this.ctx.closePath();
+    this.ctx.fill();
+
+    this.ctx.restore();
   }
 
   drawParallaxClouds(w, h) {
@@ -1590,6 +1925,29 @@ class SidehopApp {
       this.demo.start();
     });
 
+    // Theme Selector Modal Controls
+    const themeModal = document.getElementById('theme-modal');
+    document.getElementById('theme-selector-btn')?.addEventListener('click', () => {
+      if (themeModal) {
+        themeModal.showModal();
+        sounds.playClick();
+      }
+    });
+    document.getElementById('theme-close-btn')?.addEventListener('click', () => {
+      if (themeModal) themeModal.close();
+      sounds.playClick();
+    });
+    document.querySelectorAll('.theme-card').forEach(card => {
+      card.addEventListener('click', () => {
+        const selectedTheme = card.dataset.theme;
+        if (selectedTheme) {
+          this.setTheme(selectedTheme);
+          sounds.playLand();
+          if (themeModal) themeModal.close();
+        }
+      });
+    });
+
     // Stretch Frame Buttons (Header and Floating Stage Button)
     document.getElementById('stretch-frame-btn')?.addEventListener('click', () => {
       this.toggleFrameStretch();
@@ -1758,6 +2116,13 @@ class SidehopApp {
       LevelStorage.exportLevel(this.player, this.entities, this.background);
       sounds.playCollect();
       this.showToast('💾 Level Exported (.sidehop)!');
+    });
+
+    document.getElementById('export-html-btn')?.addEventListener('click', async () => {
+      sounds.playCollect();
+      this.showToast('🌐 Generating Standalone HTML Web Game...');
+      await LevelStorage.exportStandaloneHtml(this.player, this.entities, this.background, this.currentTheme, 'Sidehop Game');
+      this.showToast('✅ Downloaded Standalone HTML Web Game!');
     });
 
     const importInput = document.getElementById('import-file-input');
@@ -2302,14 +2667,11 @@ class SidehopApp {
         if (ent.variant === 'mystery') ent.isUsed = false;
       }
 
-      // Hide Stretch Frame buttons and restore standard frame in Edit Mode
+      // Keep Stretch Frame buttons visible in Edit Mode so the user can edit in full-screen
       const stretchHeaderBtn = document.getElementById('stretch-frame-btn');
-      if (stretchHeaderBtn) stretchHeaderBtn.style.display = 'none';
+      if (stretchHeaderBtn) stretchHeaderBtn.style.display = 'inline-flex';
       const stageStretchBtn = document.getElementById('stage-stretch-btn');
-      if (stageStretchBtn) stageStretchBtn.style.display = 'none';
-      if (this.isFrameStretched) {
-        this.setFrameStretched(false);
-      }
+      if (stageStretchBtn) stageStretchBtn.style.display = 'flex';
     }
   }
 

@@ -41,10 +41,16 @@
         <span>🎬 Demo</span>
       </button>
 
-      <!-- Stretch Frame Button (Visible in Play Mode) -->
-      <button id="stretch-frame-btn" class="neo-btn neo-btn-accent" title="Stretch frame to fit screen minus header" style="display: none;">
+      <!-- Stretch Frame Button (Visible in both Edit and Play Modes) -->
+      <button id="stretch-frame-btn" class="neo-btn neo-btn-accent" title="Expand canvas to fill available screen">
         <span id="stretch-frame-icon">⤢</span>
-        <span id="stretch-frame-text">STRETCH FRAME</span>
+        <span id="stretch-frame-text">FILL SCREEN</span>
+      </button>
+
+      <!-- Theme Selector Button -->
+      <button id="theme-selector-btn" class="neo-btn" title="Choose Theme (UI, Environment &amp; Blocks)">
+        <span id="theme-icon">🎨</span>
+        <span id="theme-label">Theme ▾</span>
       </button>
 
       <!-- Video Recording Button -->
@@ -81,6 +87,9 @@
       </button>
       <button id="export-level-btn" class="neo-btn" title="Save level as .sidehop file">
         <span>💾 Export (.sidehop)</span>
+      </button>
+      <button id="export-html-btn" class="neo-btn neo-btn-cyan" title="Export level as a standalone playable single-file HTML web game">
+        <span>🌐 Export (.html)</span>
       </button>
       <button id="import-level-btn" class="neo-btn" title="Load level or personal asset from .sidehop file">
         <span>📂 Import (.sidehop)</span>
@@ -615,11 +624,10 @@
       <button id="about-close-btn" class="neo-dialog-close" title="Close About">&times;</button>
     </div>
     <div class="neo-dialog-body">
-      <div class="about-hero">
-        <img src="assets/logo.png" alt="Sidehop Logo" class="about-logo">
+      <div class="about-hero" style="justify-content: flex-start; padding-bottom: 6px;">
         <div>
           <div class="about-h1">Sidehop</div>
-          <div id="about-version-label" class="about-version">v00000-001 &bull; 2D Platformer Creator</div>
+          <div id="about-version-label" class="about-version">v00000-001 &bull; 2D Platformer Creator &amp; Personalization Studio</div>
         </div>
       </div>
 
@@ -712,12 +720,12 @@
       <!-- Tab 3: Code, Web Technologies & Engine -->
       <div id="about-tab-tech" class="about-tab-panel">
         <p style="font-size: 12px; margin-bottom: 12px; color: #555;">
-          Sidehop is built from scratch with zero heavy frameworks, running entirely on modern web standards:
+          Sidehop is built from scratch with zero heavy frameworks, running entirely on modern open web standards:
         </p>
         <div class="about-credit-card">
           <div class="about-credit-title">
-            <span>HTML5 Canvas 2D Engine</span>
-            <span class="about-credit-role">Graphics &amp; Physics</span>
+            <span>HTML5 Canvas 2D Context</span>
+            <span class="about-credit-role">W3C / WHATWG Standard</span>
           </div>
           <p class="about-credit-desc">
             Custom-engineered 60 FPS subpixel platformer engine. Features subpixel AABB collision detection, 45-degree slope heightmap physics, dynamic squash-and-stretch matrices, smooth camera lerp tracking, and procedural terrain tile rendering.
@@ -725,29 +733,38 @@
         </div>
         <div class="about-credit-card">
           <div class="about-credit-title">
-            <span>Web Audio API Chiptune Synth</span>
-            <span class="about-credit-role">Zero-Asset Sound Synthesizer</span>
+            <span>Web Audio API Synthesizer</span>
+            <span class="about-credit-role">W3C Recommendation</span>
           </div>
           <p class="about-credit-desc">
-            Procedural chiptune sound generator inspired by Tomas Pettersson's <em>sfxr / bfxr</em> algorithms. Generates real-time square-wave melodies, frequency-swept jump boings, white-noise impact thuds, and fanfare chimes without loading external audio files.
+            Zero-asset procedural chiptune sound generator inspired by Tomas Pettersson's <em>sfxr / bfxr</em> algorithms. Utilizes native Web Audio API oscillators, exponential gain ramps, and procedural white-noise buffers without loading any external sound files.
           </p>
         </div>
         <div class="about-credit-card">
           <div class="about-credit-title">
-            <span>MediaRecorder API</span>
-            <span class="about-credit-role">In-Browser Video Capture</span>
+            <span>MediaRecorder Video API</span>
+            <span class="about-credit-role">W3C Recommendation</span>
           </div>
           <p class="about-credit-desc">
-            Direct 60 FPS canvas video capture pipeline allowing users to record crisp MP4 / WebM gameplay video clips and download them instantly with zero server encoding.
+            Direct 60 FPS canvas video capture pipeline utilizing the MediaStream Recording API to record crisp WebM/MP4 gameplay clips and trigger instant client-side downloads without any server encoding.
           </p>
         </div>
         <div class="about-credit-card">
           <div class="about-credit-title">
-            <span>.sidehop File Architecture &amp; LocalStorage</span>
-            <span class="about-credit-role">Storage &amp; Portability</span>
+            <span>Standalone Single-File Web Export</span>
+            <span class="about-credit-role">Open Architecture</span>
           </div>
           <p class="about-credit-desc">
-            Portable custom JSON package format (.sidehop) for level sharing, drag-and-drop bundle imports, undo/redo state history, and offline client persistence.
+            Exports self-contained HTML files with embedded level data, custom painted visuals, and physics configs that run entirely offline in any modern web browser with zero external dependencies.
+          </p>
+        </div>
+        <div class="about-credit-card">
+          <div class="about-credit-title">
+            <span>Sidehop Core Engine</span>
+            <span class="about-credit-role">MIT License &bull; Open Source</span>
+          </div>
+          <p class="about-credit-desc">
+            Copyright &copy; 2026 John O'Brien. Released freely under the permissive MIT Open Source License. Permission is hereby granted, free of charge, to any person obtaining a copy of this software.
           </p>
         </div>
       </div>
@@ -756,30 +773,38 @@
       <div id="about-tab-design" class="about-tab-panel">
         <div class="about-credit-card">
           <div class="about-credit-title">
-            <span>Space Grotesk &amp; Fredoka</span>
-            <span class="about-credit-role">Typography</span>
+            <span>Space Grotesk</span>
+            <span class="about-credit-role">SIL Open Font License 1.1</span>
           </div>
           <p class="about-credit-desc">
-            <strong>Space Grotesk</strong> by Florian Karsten — sharp, modern brutalist geometric type.<br>
-            <strong>Fredoka</strong> by Milena Brandao — warm, friendly, rounded display typography full of personality.
+            Designed by Florian Karsten (floriankarsten.com). A proportional sans-serif typeface based on Frank Himelhoch's Space Mono. Used under the SIL Open Font License, Version 1.1.
+          </p>
+        </div>
+        <div class="about-credit-card">
+          <div class="about-credit-title">
+            <span>Fredoka</span>
+            <span class="about-credit-role">SIL Open Font License 1.1</span>
+          </div>
+          <p class="about-credit-desc">
+            Designed by Milena Brandao. A friendly, warm, rounded display typeface full of playful charm. Used under the SIL Open Font License, Version 1.1.
           </p>
         </div>
         <div class="about-credit-card">
           <div class="about-credit-title">
             <span>Neo-Brutalist Toy Workbench</span>
-            <span class="about-credit-role">Visual Language</span>
+            <span class="about-credit-role">Visual Design System</span>
           </div>
           <p class="about-credit-desc">
-            High-contrast ink borders (#121212), tactile compressed drop shadows, cheerful canary yellow (#FFE600), cyber cyan (#00E5FF), bubblegum pink (#FF3388), and mint green (#00E676) accents.
+            Refined high-contrast ink borders (#1E293B), tactile compressed drop shadows, and eye-friendly themed palettes (Grass Plains, Snowy Peaks, Night Horizon, Chrome Future, 8-Bit Arcade, and Jungle Canopy).
           </p>
         </div>
         <div class="about-credit-card">
           <div class="about-credit-title">
-            <span>Glyphs &amp; Iconography</span>
-            <span class="about-credit-role">Icons</span>
+            <span>Unicode &amp; SVG Glyphs</span>
+            <span class="about-credit-role">Unicode Consortium &bull; CC0</span>
           </div>
           <p class="about-credit-desc">
-            Custom SVG vectors and universal Unicode Consortium emoji glyphs for cross-platform visual clarity.
+            Standard Unicode Consortium emoji glyphs and handcrafted inline SVG vectors for universal cross-platform clarity.
           </p>
         </div>
       </div>
@@ -803,6 +828,72 @@
           <p class="about-credit-desc">
             Warm gratitude to the global indie web game development community, MDN Web Docs, and creators proving that the open web is an incredible, unconstrained canvas for playful software.
           </p>
+        </div>
+      </div>
+
+      <!-- Colophon & Emblem Logo at the bottom -->
+      <div class="about-colophon-bottom">
+        <img src="assets/logo.png" alt="Sidehop Logo" class="about-logo-bottom">
+        <div class="about-colophon-text">
+          <div class="about-colophon-title">Sidehop &bull; Handcrafted with Playful Spirit</div>
+          <div class="about-colophon-sub">MIT License &bull; &copy; 2026 John O'Brien &bull; Free &amp; Open Source Web Game Studio</div>
+        </div>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- THEME SELECTOR DIALOG -->
+  <dialog id="theme-modal" class="neo-dialog" style="max-width: 580px;">
+    <div class="neo-dialog-header">
+      <span class="neo-dialog-title">🎨 Choose World &amp; UI Theme</span>
+      <button id="theme-close-btn" class="neo-dialog-close" title="Close Themes">&times;</button>
+    </div>
+    <div class="neo-dialog-body">
+      <p style="font-size: 13px; margin-bottom: 14px; color: var(--text-color, #444);">
+        Select a theme to transform the workbench UI, level background atmosphere, and block styles:
+      </p>
+      <div class="theme-grid">
+        <div class="theme-card active" data-theme="grass">
+          <div class="theme-preview" style="background: linear-gradient(180deg, #A0E0FF, #D6F2FF);">
+            <span class="theme-emoji">🌿</span>
+          </div>
+          <div class="theme-name">Grass Plains</div>
+          <div class="theme-sub">Lush green turf, sunlit skies &amp; rolling hills</div>
+        </div>
+        <div class="theme-card" data-theme="snowy">
+          <div class="theme-preview" style="background: linear-gradient(180deg, #D4E8F8, #EDF5FC);">
+            <span class="theme-emoji">❄️</span>
+          </div>
+          <div class="theme-name">Snowy Peaks</div>
+          <div class="theme-sub">Frosty drifts, falling snowflakes &amp; icicle spikes</div>
+        </div>
+        <div class="theme-card" data-theme="night">
+          <div class="theme-preview" style="background: linear-gradient(180deg, #0A0F24, #1B284F);">
+            <span class="theme-emoji">🌙</span>
+          </div>
+          <div class="theme-name">Night Horizon</div>
+          <div class="theme-sub">Midnight sky, stars, moon &amp; glowing crystal turf</div>
+        </div>
+        <div class="theme-card" data-theme="chrome">
+          <div class="theme-preview" style="background: linear-gradient(180deg, #2B3340, #546274);">
+            <span class="theme-emoji">⚙️</span>
+          </div>
+          <div class="theme-name">Chrome Future</div>
+          <div class="theme-sub">Brushed steel, synth grid, rivets &amp; cyber vibes</div>
+        </div>
+        <div class="theme-card" data-theme="8-bit">
+          <div class="theme-preview" style="background: linear-gradient(180deg, #5C94FC, #94B0FE);">
+            <span class="theme-emoji">🕹️</span>
+          </div>
+          <div class="theme-name">8-Bit Arcade</div>
+          <div class="theme-sub">Retro nes-blue skies, pixelated clouds &amp; stepped turf</div>
+        </div>
+        <div class="theme-card" data-theme="jungle">
+          <div class="theme-preview" style="background: linear-gradient(180deg, #1A4D2E, #2D6A4F);">
+            <span class="theme-emoji">🌴</span>
+          </div>
+          <div class="theme-name">Jungle Canopy</div>
+          <div class="theme-sub">Tropical mist, hanging vines &amp; mossy ancient stone</div>
         </div>
       </div>
     </div>
@@ -892,6 +983,9 @@
       { title: "Personal Assets Library (.sidehop)", body: "Manage and share custom sprites, skins, blocks & backgrounds using .sidehop packages.", control: "#assets-modal-btn", keys: "🎒 Assets" },
       { title: "Interactive Guided Demo", body: "Watch automated guided tour highlighting all major creation & play features non-destructively.", control: "#demo-btn", keys: "🎬 Demo" },
       { title: "About Sidehop & Credits", body: "View inspirations, engine architecture, typography, open-source libraries, and author credits.", control: "#about-modal-btn", keys: "ℹ️ About" },
+      { title: "World & UI Theme", body: "Change theme across UI, level atmosphere, and blocks (Snowy, Night, Chrome, 8-Bit, Jungle, Grass).", control: "#theme-selector-btn", keys: "🎨 Theme" },
+      { title: "Fill Screen Mode", body: "Expand the canvas to fill the entire browser screen in edit and play modes.", control: "#stretch-frame-btn", keys: "⤢ Fill" },
+      { title: "Export Web Game (.html)", body: "Export standalone single-file playable web game with all art and physics embedded.", control: "#export-html-btn", keys: "🌐 HTML" },
       { title: "Export Level (.sidehop)", body: "Save your entire playable level to your computer.", control: "#export-level-btn", keys: "Export" },
       { title: "Import Level (.sidehop)", body: "Load a .sidehop level from your computer.", control: "#import-level-btn", keys: "Import" },
       { title: "Version Chip", body: "Shows current release build and checks for offline updates.", control: "#chip", keys: "Click ↻" }
@@ -991,5 +1085,7 @@
 
   <!-- MAIN SCRIPT -->
   <script type="module" src="js/main.js?v=3"></script>
+
+  <!-- EMBEDDED_LEVEL_HOOK -->
 </body>
 </html>
