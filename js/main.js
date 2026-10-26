@@ -2663,8 +2663,8 @@ class SidehopApp {
         sounds.playShoot();
       }
 
-      // Collect solid collision objects (Blocks and Moving Platforms)
-      const solids = this.entities.filter(ent => ent.type === 'crate' || ent.type === 'block' || ent.type === 'moving_platform');
+      // Collect solid collision objects (Blocks, Moving Platforms, and Springs)
+      const solids = this.entities.filter(ent => ent.type === 'crate' || ent.type === 'block' || ent.type === 'moving_platform' || ent.type === 'springboard');
       for (const s of solids) {
         if (s.update && (s.type === 'crate' || s.type === 'block')) s.update(dt);
       }
@@ -2694,12 +2694,31 @@ class SidehopApp {
       for (const ent of this.entities) {
         if (!ent.active) continue;
 
-        // Springs
+        // Springs / Trampolines (Standard & Mega)
         if (ent.type === 'springboard') {
           ent.update(dt);
-          if (this.physics.checkOverlap(this.player, ent) && this.player.vy > 0) {
-            this.player.vy = -ent.launchForce;
-            ent.trigger();
+          const playerBottom = this.player.y + this.player.height;
+          const hOverlap = (this.player.x + this.player.width > ent.x + 3) && (this.player.x < ent.x + ent.width - 3);
+          const vOnTop = (playerBottom >= ent.y - 6) && (this.player.y < ent.y + ent.height * 0.7);
+          const isOverlapping = this.physics.checkOverlap(this.player, ent);
+
+          if (hOverlap && (isOverlapping || vOnTop)) {
+            // Trigger if player is above/on top of spring, and spring isn't currently in bounce lockout
+            if (this.player.y < ent.y + ent.height * 0.6 && (ent.compressTimer <= 0.08 || this.player.vy >= 0)) {
+              const isHoldingJump = !!(this.keys['Space'] || this.keys['ArrowUp'] || this.keys['KeyW']);
+              const jumpMult = isHoldingJump ? 1.25 : 1.0;
+              const boost = ent.launchForce * jumpMult;
+
+              this.player.vy = -boost;
+              this.player.y = ent.y - this.player.height - 2;
+              this.player.grounded = false;
+              this.player.standingOnSolid = null;
+              this.player.coyoteTimer = 0;
+              ent.trigger();
+
+              this.player.stretchFactor = 0.38;
+              this.player.stretchTime = 0.25;
+            }
           }
         }
 
@@ -3136,8 +3155,12 @@ class SidehopApp {
     const dt = Math.min((currentTime - this.lastTime) / 1000, 0.1);
     this.lastTime = currentTime;
 
-    this.update(dt);
-    this.render();
+    try {
+      this.update(dt);
+      this.render();
+    } catch (err) {
+      console.error('gameLoop update/render error:', err);
+    }
 
     requestAnimationFrame((t) => this.gameLoop(t));
   }

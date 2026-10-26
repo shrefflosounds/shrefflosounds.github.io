@@ -1301,17 +1301,18 @@ export class Springboard extends Entity {
   constructor(x, y, width = 40, height = 40, variant = 'spring') {
     super(null, 'springboard', x, y, width, height);
     this.variant = variant || 'spring'; // 'spring', 'mega'
-    this.launchForce = this.variant === 'mega' ? 1020 : 820;
+    this.launchForce = this.variant === 'mega' ? 1040 : 840;
     this.compressTimer = 0;
+    this.isOneWay = true; // One-way platform top support
   }
 
   setVariant(variant) {
     this.variant = variant;
-    this.launchForce = variant === 'mega' ? 1020 : 820;
+    this.launchForce = variant === 'mega' ? 1040 : 840;
   }
 
   trigger() {
-    this.compressTimer = 0.25;
+    this.compressTimer = 0.28;
     sounds.playBounce();
   }
 
@@ -1325,8 +1326,17 @@ export class Springboard extends Entity {
     ctx.save();
     ctx.translate(this.x, this.y);
 
-    this.renderCustomOrFallback(ctx, () => {
-      const isCompressed = this.compressTimer > 0.1;
+    const isCompressed = this.compressTimer > 0.05;
+
+    if (this.customImageElement && this.customImageElement.complete) {
+      if (isCompressed) {
+        // Dynamic squish animation for custom decal on bounce!
+        const squashY = this.height * 0.35;
+        ctx.drawImage(this.customImageElement, -this.width * 0.05, squashY, this.width * 1.1, this.height * 0.65);
+      } else {
+        ctx.drawImage(this.customImageElement, 0, 0, this.width, this.height);
+      }
+    } else {
       const springHeight = isCompressed ? this.height * 0.42 : this.height * 0.85;
       const offsetY = this.height - springHeight;
 
@@ -1359,7 +1369,7 @@ export class Springboard extends Entity {
         ctx.arc(this.width / 2, offsetY + 5, 2.5, 0, Math.PI * 2);
         ctx.fill();
       }
-    });
+    }
 
     ctx.restore();
   }
