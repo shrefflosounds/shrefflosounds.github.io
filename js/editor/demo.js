@@ -2,7 +2,7 @@
 // Drives all major and minor features safely without modifying or damaging user work.
 
 import { sounds } from '../audio/sound.js';
-import { SolidBlock, EnemyWalker, Collectible, Springboard } from '../engine/entities.js?v=20261026_05';
+import { SolidBlock, EnemyWalker, Collectible, Springboard } from '../engine/entities.js?v=20261026_06';
 
 export class SidehopDemo {
   constructor(app) {
