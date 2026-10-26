@@ -2,6 +2,7 @@
 
 import { SolidBlock, Springboard, HazardSpikes, EnemyWalker, MovingPlatform, Collectible, GoalFlag } from '../engine/entities.js?v=20261026_07';
 import { SidehopFile } from './sidehop-format.js';
+import { generateStandaloneGameHtml } from './standalone-game-builder.js';
 
 const LEVEL_STORAGE_KEY = 'sidehop_saved_level_v6';
 
@@ -596,7 +597,7 @@ export class LevelStorage {
     return pkg;
   }
 
-  // Export Level as a Standalone Playable Single-File HTML Game
+  // Export Level as a Standalone Playable Single-File HTML Game (Offline, No Editor UI)
   static async exportStandaloneHtml(player, entities, background, theme = 'grass', customTitle) {
     const data = this.serialize(player, entities, background);
     data.theme = theme;
@@ -606,49 +607,8 @@ export class LevelStorage {
       .replace(/[^a-z0-9]+/g, '-')
       .replace(/^-|-$/g, '') || 'sidehop-game';
 
-    let htmlTemplate = '';
-    try {
-      const resp = await fetch('index.standalone.html');
-      if (resp.ok) {
-        htmlTemplate = await resp.text();
-      }
-    } catch (_) {}
-
-    if (!htmlTemplate) {
-      try {
-        const resp2 = await fetch('index.html');
-        if (resp2.ok) {
-          htmlTemplate = await resp2.text();
-        }
-      } catch (_) {}
-    }
-
-    if (!htmlTemplate) {
-      alert('Could not fetch standalone HTML template. Exporting as .sidehop package instead.');
-      this.exportLevel(player, entities, background, customTitle);
-      return;
-    }
-
-    // Embed level payload with autoPlay flag so it plays immediately on open
-    const payload = JSON.stringify({
-      version: 2,
-      levelName: title,
-      theme: theme,
-      autoPlay: true,
-      level: data
-    });
-
-    const scriptTag = `<script id="sidehop-embedded-level" type="application/json">\n${payload}\n<` + `/script>`;
-
-    let resultHtml = htmlTemplate.replace(/<title>.*?<\/title>/i, `<title>${title} — Sidehop Game</title>`);
-
-    if (resultHtml.includes('<!-- EMBEDDED_LEVEL_HOOK -->')) {
-      resultHtml = resultHtml.replace('<!-- EMBEDDED_LEVEL_HOOK -->', scriptTag);
-    } else {
-      resultHtml = resultHtml.replace('</body>', `${scriptTag}\n</body>`);
-    }
-
-    const blob = new Blob([resultHtml], { type: 'text/html;charset=utf-8' });
+    const standaloneHtml = generateStandaloneGameHtml(data, title);
+    const blob = new Blob([standaloneHtml], { type: 'text/html;charset=utf-8' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
@@ -658,7 +618,7 @@ export class LevelStorage {
     setTimeout(() => {
       a.remove();
       URL.revokeObjectURL(url);
-    }, 1000);
+    }, 1500);
   }
 
   // Import any .sidehop package (or legacy JSON level)

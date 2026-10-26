@@ -12,7 +12,2609 @@
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="apple-touch-icon" href="icon-180.png">
   <meta name="theme-color" content="#FFE600">
-  <link rel="stylesheet" href="css/style.css?v=20261026_07">
+  <style>
+/* Sidehop Modern Playful Toy Workbench Theme & Multi-Theme System */
+
+@import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Space+Grotesk:wght@500;700&display=swap');
+
+:root {
+  --theme-name: "grass";
+  --bg-cream: #FAF8F5;
+  --bg-panel: #FFFFFF;
+  --header-bg: #FFFFFF;
+  --ink-black: #1E293B;
+  --border-color: #1E293B;
+  --shadow-color: #1E293B;
+  --text-muted: #64748B;
+  --border-subtle: #E2E8F0;
+  --border-thick: 2.5px solid var(--border-color);
+  --shadow-hard: 3px 3px 0px var(--shadow-color);
+  --shadow-hover: 4px 4px 0px var(--shadow-color);
+  --shadow-active: 1px 1px 0px var(--shadow-color);
+
+  /* Refined, softer palette that's friendly and comfortable on the eyes */
+  --accent-sun: #F5CE42;
+  --accent-sky: #38BDF8;
+  --accent-rose: #F43F5E;
+  --accent-mint: #10B981;
+  --accent-purple: #A855F7;
+  --accent-slate: #64748B;
+  --hazard-red: #EF4444;
+
+  /* Aliases for backwards compatibility */
+  --canary-yellow: var(--accent-sun);
+  --cyber-cyan: var(--accent-sky);
+  --bubblegum-pink: var(--accent-rose);
+  --mint-green: var(--accent-mint);
+  --lavender: var(--accent-purple);
+}
+
+/* 1. SNOWY THEME */
+body[data-theme="snowy"] {
+  --theme-name: "snowy";
+  --bg-cream: #EFF6FB;
+  --bg-panel: #FFFFFF;
+  --header-bg: #E1EFF8;
+  --ink-black: #0F172A;
+  --border-color: #334155;
+  --shadow-color: #334155;
+  --text-muted: #475569;
+  --border-subtle: #CBD5E1;
+  --accent-sun: #7DD3FC;
+  --accent-sky: #0284C7;
+  --accent-rose: #38BDF8;
+  --accent-mint: #0EA5E9;
+}
+
+/* 2. NIGHT THEME (Clean Dark Mode) */
+body[data-theme="night"] {
+  --theme-name: "night";
+  --bg-cream: #0B0F19;
+  --bg-panel: #161F30;
+  --header-bg: #111827;
+  --ink-black: #F8FAFC;
+  --border-color: #475569;
+  --shadow-color: #020617;
+  --text-muted: #94A3B8;
+  --border-subtle: #334155;
+  --border-thick: 2px solid #475569;
+  --shadow-hard: 3px 3px 0px #020617;
+  --shadow-hover: 4px 4px 0px #020617;
+  --accent-sun: #FBBF24;
+  --accent-sky: #38BDF8;
+  --accent-rose: #F43F5E;
+  --accent-mint: #34D399;
+}
+
+body[data-theme="night"] .neo-btn {
+  background-color: #1E293B;
+  color: #F8FAFC;
+}
+
+body[data-theme="night"] .neo-btn:hover {
+  background-color: #334155;
+}
+
+body[data-theme="night"] .tool-drawer,
+body[data-theme="night"] .neo-modal-box,
+body[data-theme="night"] .neo-dialog,
+body[data-theme="night"] .about-credit-card,
+body[data-theme="night"] .about-tab-btn,
+body[data-theme="night"] .theme-card {
+  background-color: #161F30;
+  color: #F8FAFC;
+}
+
+body[data-theme="night"] .theme-name {
+  color: #FFFFFF !important;
+}
+
+body[data-theme="night"] .about-credit-desc,
+body[data-theme="night"] .theme-sub {
+  color: #CBD5E1 !important;
+}
+
+body[data-theme="night"] .palette-item,
+body[data-theme="night"] button.palette-item {
+  background-color: #1E293B;
+  color: #FFFFFF !important;
+  border-color: #475569;
+}
+
+body[data-theme="night"] .palette-item .palette-name,
+body[data-theme="night"] .palette-item span {
+  color: #FFFFFF !important;
+}
+
+body[data-theme="night"] .drawer-tips {
+  background-color: #161F30;
+  border-color: #475569;
+  color: #FFFFFF !important;
+}
+
+body[data-theme="night"] .drawer-tips summary {
+  color: #FFFFFF !important;
+}
+
+body[data-theme="night"] .drawer-tips-content {
+  color: #E2E8F0 !important;
+  border-top-color: #475569;
+}
+
+/* 3. CHROME THEME (Metallic Cyber) */
+body[data-theme="chrome"] {
+  --theme-name: "chrome";
+  --bg-cream: #E2E8F0;
+  --bg-panel: #F8FAFC;
+  --header-bg: #CBD5E1;
+  --ink-black: #0F172A;
+  --border-color: #1E293B;
+  --shadow-color: #475569;
+  --text-muted: #64748B;
+  --border-subtle: #CBD5E1;
+  --accent-sun: #94A3B8;
+  --accent-sky: #64748B;
+  --accent-rose: #475569;
+  --accent-mint: #0EA5E9;
+}
+
+/* 4. 8-BIT THEME (NES Arcade) */
+body[data-theme="8-bit"] {
+  --theme-name: "8-bit";
+  --bg-cream: #ECE5CE;
+  --bg-panel: #FAF8EE;
+  --header-bg: #DFD5B8;
+  --ink-black: #101010;
+  --border-color: #101010;
+  --shadow-color: #101010;
+  --text-muted: #505050;
+  --border-subtle: #D8D0B8;
+  --border-thick: 3px solid #101010;
+  --shadow-hard: 3px 3px 0px #101010;
+  --accent-sun: #F8B800;
+  --accent-sky: #00A800;
+  --accent-rose: #D82800;
+  --accent-mint: #008888;
+}
+
+/* 5. JUNGLE THEME (Rainforest Canopy) */
+body[data-theme="jungle"] {
+  --theme-name: "jungle";
+  --bg-cream: #F0F6F0;
+  --bg-panel: #FBFDFB;
+  --header-bg: #DCE8DC;
+  --ink-black: #1B3828;
+  --border-color: #1B3828;
+  --shadow-color: #1B3828;
+  --text-muted: #2D6A4F;
+  --border-subtle: #C8DDC8;
+  --accent-sun: #52B788;
+  --accent-sky: #74C69D;
+  --accent-rose: #E76F51;
+  --accent-mint: #2D6A4F;
+}
+
+/* 6. NEON OVER BLACK THEME (High Contrast Deep Black & Neon) */
+body[data-theme="neon"] {
+  --theme-name: "neon";
+  --bg-cream: #030305;
+  --bg-panel: #0A0A12;
+  --header-bg: #050508;
+  --ink-black: #FFFFFF;
+  --border-color: #00E5FF;
+  --shadow-color: #FF007F;
+  --text-muted: #7DD3FC;
+  --border-subtle: #1E293B;
+  --border-thick: 2px solid #00E5FF;
+  --shadow-hard: 3px 3px 0px #FF007F;
+  --shadow-hover: 4px 4px 0px #FF007F;
+  --accent-sun: #FFE600;
+  --accent-sky: #00E5FF;
+  --accent-rose: #FF007F;
+  --accent-mint: #00FF66;
+}
+
+body[data-theme="neon"] .neo-btn {
+  background-color: #10101C;
+  color: #FFFFFF;
+  border-color: #00E5FF;
+}
+
+body[data-theme="neon"] .neo-btn:hover {
+  background-color: #1A1A2E;
+}
+
+body[data-theme="neon"] .tool-drawer,
+body[data-theme="neon"] .neo-modal-box,
+body[data-theme="neon"] .neo-dialog,
+body[data-theme="neon"] .about-credit-card,
+body[data-theme="neon"] .about-tab-btn,
+body[data-theme="neon"] .theme-card {
+  background-color: #0A0A12;
+  color: #FFFFFF;
+  border-color: #00E5FF;
+}
+
+body[data-theme="neon"] .theme-name {
+  color: #FFFFFF !important;
+}
+
+body[data-theme="neon"] .about-credit-desc,
+body[data-theme="neon"] .theme-sub {
+  color: #CBD5E1 !important;
+}
+
+body[data-theme="neon"] .palette-item,
+body[data-theme="neon"] button.palette-item {
+  background-color: #0E0E1A;
+  color: #FFFFFF !important;
+  border-color: #00E5FF;
+}
+
+body[data-theme="neon"] .palette-item .palette-name,
+body[data-theme="neon"] .palette-item span {
+  color: #FFFFFF !important;
+}
+
+body[data-theme="neon"] .drawer-tips {
+  background-color: #0A0A12;
+  border-color: #00E5FF;
+  color: #FFFFFF !important;
+}
+
+body[data-theme="neon"] .drawer-tips summary {
+  color: #FFFFFF !important;
+}
+
+body[data-theme="neon"] .drawer-tips-content {
+  color: #E2E8F0 !important;
+  border-top-color: #00E5FF;
+}
+
+/* 7. ATLANTIS UNDERWATER THEME (Deep Ocean Light) */
+body[data-theme="atlantis"] {
+  --theme-name: "atlantis";
+  --bg-cream: #041B2D;
+  --bg-panel: #072B47;
+  --header-bg: #031524;
+  --ink-black: #E0F2FE;
+  --border-color: #38BDF8;
+  --shadow-color: #020D17;
+  --text-muted: #7DD3FC;
+  --border-subtle: #0C385C;
+  --border-thick: 2px solid #38BDF8;
+  --shadow-hard: 3px 3px 0px #020D17;
+  --shadow-hover: 4px 4px 0px #020D17;
+  --accent-sun: #38BDF8;
+  --accent-sky: #0284C7;
+  --accent-rose: #F43F5E;
+  --accent-mint: #2DD4BF;
+}
+
+body[data-theme="atlantis"] .neo-btn {
+  background-color: #0C385C;
+  color: #E0F2FE;
+  border-color: #38BDF8;
+}
+
+body[data-theme="atlantis"] .neo-btn:hover {
+  background-color: #124A78;
+}
+
+body[data-theme="atlantis"] .tool-drawer,
+body[data-theme="atlantis"] .neo-modal-box,
+body[data-theme="atlantis"] .neo-dialog,
+body[data-theme="atlantis"] .about-credit-card,
+body[data-theme="atlantis"] .about-tab-btn,
+body[data-theme="atlantis"] .theme-card {
+  background-color: #072B47;
+  color: #E0F2FE;
+  border-color: #38BDF8;
+}
+
+body[data-theme="atlantis"] .theme-name {
+  color: #FFFFFF !important;
+}
+
+body[data-theme="atlantis"] .about-credit-desc,
+body[data-theme="atlantis"] .theme-sub {
+  color: #BAE6FD !important;
+}
+
+body[data-theme="atlantis"] .palette-item,
+body[data-theme="atlantis"] button.palette-item {
+  background-color: #07233B;
+  color: #FFFFFF !important;
+  border-color: #38BDF8;
+}
+
+body[data-theme="atlantis"] .palette-item .palette-name,
+body[data-theme="atlantis"] .palette-item span {
+  color: #FFFFFF !important;
+}
+
+body[data-theme="atlantis"] .drawer-tips {
+  background-color: #072B47;
+  border-color: #38BDF8;
+  color: #FFFFFF !important;
+}
+
+body[data-theme="atlantis"] .drawer-tips summary {
+  color: #FFFFFF !important;
+}
+
+body[data-theme="atlantis"] .drawer-tips-content {
+  color: #E2E8F0 !important;
+  border-top-color: #38BDF8;
+}
+
+/* 8. MIXED MEDIA THEME (Paper Collage & Warm Art) */
+body[data-theme="mixed"] {
+  --theme-name: "mixed";
+  --bg-cream: #FDF6E2;
+  --bg-panel: #FFFDF7;
+  --header-bg: #F4E7CA;
+  --ink-black: #262626;
+  --border-color: #3F3F46;
+  --shadow-color: #71717A;
+  --text-muted: #78716C;
+  --border-subtle: #E7E5E4;
+  --accent-sun: #F59E0B;
+  --accent-sky: #0284C7;
+  --accent-rose: #E11D48;
+  --accent-mint: #059669;
+}
+
+/* Unified Dark Theme Readability Rules (Night, Neon over Black, Atlantis) */
+body[data-theme="night"] .editor-context-menu,
+body[data-theme="neon"] .editor-context-menu,
+body[data-theme="atlantis"] .editor-context-menu {
+  background-color: var(--bg-panel);
+  border-color: var(--border-color);
+  box-shadow: var(--shadow-hard);
+  color: var(--ink-black);
+}
+
+body[data-theme="night"] .canvas-nav-controls,
+body[data-theme="neon"] .canvas-nav-controls,
+body[data-theme="atlantis"] .canvas-nav-controls {
+  background-color: var(--bg-panel);
+  border-color: var(--border-color);
+  box-shadow: var(--shadow-hard);
+}
+
+body[data-theme="night"] .canvas-nav-controls .neo-btn,
+body[data-theme="neon"] .canvas-nav-controls .neo-btn,
+body[data-theme="atlantis"] .canvas-nav-controls .neo-btn {
+  background-color: var(--bg-cream);
+  border-color: var(--border-color);
+  color: var(--ink-black);
+}
+
+body[data-theme="night"] .action-variant-pill,
+body[data-theme="neon"] .action-variant-pill,
+body[data-theme="atlantis"] .action-variant-pill {
+  background-color: var(--bg-cream);
+  border-color: var(--border-color);
+  color: var(--ink-black);
+}
+
+body[data-theme="night"] .action-variant-pill.active,
+body[data-theme="neon"] .action-variant-pill.active,
+body[data-theme="atlantis"] .action-variant-pill.active {
+  background-color: var(--accent-rose);
+  color: #FFFFFF !important;
+}
+
+body[data-theme="night"] .bg-theme-card,
+body[data-theme="neon"] .bg-theme-card,
+body[data-theme="atlantis"] .bg-theme-card {
+  background-color: var(--bg-cream);
+  border-color: var(--border-color);
+  color: var(--ink-black);
+}
+
+body[data-theme="night"] .about-tab-btn,
+body[data-theme="neon"] .about-tab-btn,
+body[data-theme="atlantis"] .about-tab-btn {
+  background-color: var(--bg-cream);
+  border-color: var(--border-color);
+  color: var(--ink-black);
+}
+
+body[data-theme="night"] .about-tab-btn.active,
+body[data-theme="neon"] .about-tab-btn.active,
+body[data-theme="atlantis"] .about-tab-btn.active {
+  background-color: var(--accent-sun);
+  color: #050508 !important;
+}
+
+body[data-theme="night"] .about-tab-btn:hover,
+body[data-theme="neon"] .about-tab-btn:hover,
+body[data-theme="atlantis"] .about-tab-btn:hover {
+  background-color: var(--accent-sun);
+  color: #050508 !important;
+}
+
+body[data-theme="night"] .about-credit-title,
+body[data-theme="neon"] .about-credit-title,
+body[data-theme="atlantis"] .about-credit-title {
+  color: var(--ink-black);
+}
+
+body[data-theme="night"] .about-credit-role,
+body[data-theme="neon"] .about-credit-role,
+body[data-theme="atlantis"] .about-credit-role {
+  background-color: var(--bg-cream);
+  color: var(--ink-black);
+  border-color: var(--border-color);
+}
+
+body[data-theme="night"] .about-credit-desc,
+body[data-theme="neon"] .about-credit-desc,
+body[data-theme="atlantis"] .about-credit-desc {
+  color: var(--text-muted) !important;
+}
+
+body[data-theme="night"] .about-colophon-bottom,
+body[data-theme="neon"] .about-colophon-bottom,
+body[data-theme="atlantis"] .about-colophon-bottom {
+  border-top-color: var(--border-subtle);
+}
+
+body[data-theme="night"] .about-logo-bottom,
+body[data-theme="neon"] .about-logo-bottom,
+body[data-theme="atlantis"] .about-logo-bottom {
+  background-color: var(--bg-cream);
+  border-color: var(--border-color);
+  box-shadow: var(--shadow-hard);
+}
+
+body[data-theme="night"] .about-colophon-title,
+body[data-theme="neon"] .about-colophon-title,
+body[data-theme="atlantis"] .about-colophon-title {
+  color: var(--ink-black);
+}
+
+body[data-theme="night"] .about-colophon-sub,
+body[data-theme="neon"] .about-colophon-sub,
+body[data-theme="atlantis"] .about-colophon-sub {
+  color: var(--text-muted);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  user-select: none;
+}
+
+html, body {
+  height: 100vh;
+  max-height: 100vh;
+  width: 100vw;
+  overflow: hidden; /* Strict containment: no window scrolling */
+}
+
+body {
+  font-family: 'Fredoka', 'Space Grotesk', sans-serif;
+  background-color: var(--bg-cream);
+  color: var(--ink-black);
+  display: flex;
+  flex-direction: column;
+  background-image: radial-gradient(rgba(30, 41, 59, 0.08) 1.5px, transparent 1.5px);
+  background-size: 24px 24px;
+}
+
+/* TOP HEADER */
+.neo-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 56px;
+  min-height: 56px;
+  max-height: 56px;
+  padding: 6px 14px;
+  background-color: var(--header-bg);
+  border-bottom: var(--border-thick);
+  box-shadow: 0 2px 0px rgba(0, 0, 0, 0.05);
+  z-index: 100;
+  gap: 8px;
+  flex-wrap: nowrap;
+  width: 100vw;
+  max-width: 100vw;
+  box-sizing: border-box;
+}
+
+.logo-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.header-logo-img {
+  height: 32px;
+  width: auto;
+  object-fit: contain;
+  filter: drop-shadow(1px 1px 0px rgba(0, 0, 0, 0.3));
+  transition: transform 0.15s ease;
+}
+
+.header-logo-img:hover {
+  transform: scale(1.08) rotate(-2deg);
+}
+
+.logo-title {
+  font-size: 19px;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+  text-transform: uppercase;
+  color: var(--ink-black);
+  white-space: nowrap;
+}
+
+.header-controls {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: nowrap;
+  flex-shrink: 1;
+  max-width: calc(100vw - 160px);
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.header-controls::-webkit-scrollbar {
+  display: none;
+}
+
+/* BUTTONS */
+.neo-btn {
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 5px 9px;
+  border-radius: 8px;
+  border: var(--border-thick);
+  box-shadow: var(--shadow-hard);
+  background-color: var(--bg-panel);
+  color: var(--ink-black);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: transform 0.08s ease, box-shadow 0.08s ease, background-color 0.1s ease;
+}
+
+.neo-btn:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: var(--shadow-hover);
+}
+
+.neo-btn:active {
+  transform: translate(2px, 2px);
+  box-shadow: var(--shadow-active);
+}
+
+.neo-btn-primary {
+  background-color: var(--accent-sun);
+  color: #1E293B;
+  font-size: 13.5px;
+}
+
+.neo-btn-rec {
+  background-color: #FFF;
+  color: var(--hazard-red);
+}
+
+.neo-btn-rec.active {
+  background-color: var(--hazard-red);
+  color: #FFF;
+  animation: pulseRec 1s infinite alternate;
+}
+
+@keyframes pulseRec {
+  from { transform: scale(1); }
+  to { transform: scale(1.04); }
+}
+
+.neo-btn-accent {
+  background-color: var(--accent-sky);
+  color: #050508 !important;
+  font-weight: 800;
+}
+
+.neo-btn-cyan {
+  background-color: var(--accent-sky);
+  color: #050508 !important;
+  font-weight: 800;
+}
+
+.neo-btn-pink {
+  background-color: var(--accent-rose);
+  color: #FFFFFF !important;
+  font-weight: 800;
+}
+
+/* Ensure bright colored buttons always have high-contrast pitch-black text */
+.neo-btn-primary,
+.neo-btn.neo-btn-primary,
+.neo-btn-accent,
+.neo-btn.neo-btn-accent,
+.neo-btn-cyan,
+.neo-btn.neo-btn-cyan,
+body[data-theme="night"] .neo-btn.neo-btn-accent,
+body[data-theme="night"] .neo-btn.neo-btn-primary,
+body[data-theme="night"] .neo-btn.neo-btn-cyan,
+body[data-theme="neon"] .neo-btn.neo-btn-accent,
+body[data-theme="neon"] .neo-btn.neo-btn-primary,
+body[data-theme="neon"] .neo-btn.neo-btn-cyan,
+body[data-theme="atlantis"] .neo-btn.neo-btn-accent,
+body[data-theme="atlantis"] .neo-btn.neo-btn-primary,
+body[data-theme="atlantis"] .neo-btn.neo-btn-cyan {
+  color: #050508 !important;
+  font-weight: 800;
+}
+
+.neo-btn.neo-btn-accent span,
+.neo-btn.neo-btn-primary span,
+.neo-btn.neo-btn-cyan span,
+body[data-theme="night"] .neo-btn.neo-btn-accent span,
+body[data-theme="night"] .neo-btn.neo-btn-primary span,
+body[data-theme="night"] .neo-btn.neo-btn-cyan span,
+body[data-theme="neon"] .neo-btn.neo-btn-accent span,
+body[data-theme="neon"] .neo-btn.neo-btn-primary span,
+body[data-theme="neon"] .neo-btn.neo-btn-cyan span,
+body[data-theme="atlantis"] .neo-btn.neo-btn-accent span,
+body[data-theme="atlantis"] .neo-btn.neo-btn-primary span,
+body[data-theme="atlantis"] .neo-btn.neo-btn-cyan span {
+  color: #050508 !important;
+  font-weight: 800;
+}
+
+/* Disabled buttons in dark themes remain cleanly legible */
+body[data-theme="night"] .neo-btn:disabled,
+body[data-theme="neon"] .neo-btn:disabled,
+body[data-theme="atlantis"] .neo-btn:disabled {
+  opacity: 0.65 !important;
+  color: #94A3B8 !important;
+  background-color: #141A28 !important;
+  border-color: #334155 !important;
+}
+
+body[data-theme="night"] .neo-btn:disabled span,
+body[data-theme="neon"] .neo-btn:disabled span,
+body[data-theme="atlantis"] .neo-btn:disabled span {
+  color: #94A3B8 !important;
+}
+
+/* WORKBENCH LAYOUT */
+.workbench-container {
+  display: flex;
+  flex: 1;
+  height: calc(100vh - 56px);
+  max-height: calc(100vh - 56px);
+  position: relative;
+  overflow: hidden;
+  padding: 10px 16px;
+  gap: 16px;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+/* TOOL DRAWER (LEFT PALETTE) */
+.tool-drawer {
+  background-color: var(--bg-panel);
+  border: var(--border-thick);
+  border-radius: 14px;
+  box-shadow: var(--shadow-hard);
+  padding: 10px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 172px;
+  max-height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: var(--canary-yellow) transparent;
+  transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.2s ease;
+  z-index: 50;
+  flex-shrink: 0;
+}
+
+.tool-drawer::-webkit-scrollbar {
+  width: 4px;
+}
+
+.tool-drawer::-webkit-scrollbar-thumb {
+  background: var(--canary-yellow);
+  border-radius: 4px;
+}
+
+.tool-drawer.minimized {
+  transform: translateX(-220px);
+  opacity: 0;
+  pointer-events: none;
+  position: absolute;
+}
+
+.drawer-title {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--ink-black);
+  border-bottom: 2px dashed #DDD;
+  padding-bottom: 2px;
+  margin-top: 2px;
+}
+
+.palette-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 5px;
+}
+
+.palette-slot {
+  position: relative;
+  display: flex;
+}
+
+.palette-slot .palette-item {
+  flex: 1;
+  width: 100%;
+}
+
+.palette-triangle-btn {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+  background: var(--ink-black);
+  color: #FFF;
+  border: none;
+  font-size: 10px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 2;
+  transition: transform 0.12s ease, background 0.12s ease;
+  padding: 0;
+}
+
+.palette-triangle-btn:hover {
+  background: var(--bubblegum-pink);
+  transform: scale(1.15);
+}
+
+.palette-triangle-btn.active {
+  background: var(--bubblegum-pink);
+  transform: rotate(180deg);
+}
+
+.palette-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 5px 2px;
+  border-radius: 8px;
+  border: 2px solid var(--ink-black);
+  background-color: var(--bg-cream);
+  color: var(--ink-black);
+  box-shadow: 2px 2px 0 var(--ink-black);
+  cursor: pointer;
+  transition: all 0.1s ease;
+  font-size: 10px;
+  font-weight: 700;
+  text-align: center;
+  min-height: 38px;
+}
+
+.palette-item .palette-name,
+.palette-item span {
+  color: inherit;
+}
+
+.palette-item:hover {
+  transform: scale(1.04);
+  background-color: var(--canary-yellow);
+  color: #000000 !important;
+}
+
+.palette-item.active {
+  background-color: var(--cyber-cyan);
+  box-shadow: 1px 1px 0 var(--ink-black);
+  transform: translate(1px, 1px);
+  color: #000000 !important;
+}
+
+.palette-icon {
+  font-size: 17px;
+  line-height: 1.1;
+  margin-bottom: 2px;
+}
+
+/* CANVAS STAGE */
+.canvas-wrapper {
+  position: absolute;
+  border: var(--border-thick);
+  border-radius: 14px;
+  box-shadow: 5px 5px 0px var(--ink-black);
+  background-color: #FAF8F5;
+  overflow: visible;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 480px;
+  min-height: 320px;
+}
+
+#game-canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: 11px;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  background-color: #FAF8F5;
+}
+
+/* INTERACTIVE CORNER & EDGE RESIZE HANDLES */
+.frame-resize-handle {
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  background-color: var(--canary-yellow);
+  border: 2.5px solid var(--ink-black);
+  border-radius: 5px;
+  box-shadow: 2px 2px 0px var(--ink-black);
+  z-index: 85;
+  transition: transform 0.1s ease, background-color 0.1s ease;
+}
+
+.frame-resize-handle:hover,
+.frame-resize-handle.dragging {
+  background-color: var(--cyber-cyan);
+  transform: scale(1.22);
+}
+
+.frame-resize-handle.handle-nw {
+  top: -9px;
+  left: -9px;
+  cursor: nwse-resize;
+}
+
+.frame-resize-handle.handle-ne {
+  top: -9px;
+  right: -9px;
+  cursor: nesw-resize;
+}
+
+.frame-resize-handle.handle-sw {
+  bottom: -9px;
+  left: -9px;
+  cursor: nesw-resize;
+}
+
+.frame-resize-handle.handle-se {
+  bottom: -9px;
+  right: -9px;
+  cursor: nwse-resize;
+}
+
+.frame-resize-edge {
+  position: absolute;
+  z-index: 80;
+}
+
+.frame-resize-edge.edge-n {
+  top: -6px;
+  left: 10px;
+  right: 10px;
+  height: 10px;
+  cursor: ns-resize;
+}
+
+.frame-resize-edge.edge-s {
+  bottom: -6px;
+  left: 10px;
+  right: 10px;
+  height: 10px;
+  cursor: ns-resize;
+}
+
+.frame-resize-edge.edge-e {
+  right: -6px;
+  top: 10px;
+  bottom: 10px;
+  width: 10px;
+  cursor: ew-resize;
+}
+
+.frame-resize-edge.edge-w {
+  left: -6px;
+  top: 10px;
+  bottom: 10px;
+  width: 10px;
+  cursor: ew-resize;
+}
+
+/* STRETCHED FRAME (FIT SCREEN MINUS HEADER) */
+.workbench-container.frame-stretched {
+  padding: 0 !important;
+  gap: 0 !important;
+  width: 100vw !important;
+  height: calc(100vh - 56px) !important;
+  max-height: calc(100vh - 56px) !important;
+  overflow: hidden !important;
+}
+
+.workbench-container.frame-stretched .canvas-wrapper {
+  left: 0 !important;
+  top: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  max-width: 100vw !important;
+  max-height: calc(100vh - 56px) !important;
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  flex: 1 !important;
+  aspect-ratio: auto !important;
+}
+
+.workbench-container.frame-stretched .frame-resize-handle,
+.workbench-container.frame-stretched .frame-resize-edge {
+  display: none !important;
+}
+
+/* When stretched in Edit Mode, float the tool drawer cleanly so all tools remain instantly accessible */
+.workbench-container.frame-stretched .tool-drawer {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  z-index: 90;
+  max-height: calc(100vh - 80px);
+  box-shadow: 4px 4px 0 var(--shadow-color);
+}
+
+/* THEME SELECTOR MODAL */
+.theme-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.theme-card {
+  background: var(--bg-panel);
+  border: 2px solid var(--border-color);
+  border-radius: 12px;
+  padding: 10px;
+  cursor: pointer;
+  box-shadow: 2px 2px 0 var(--shadow-color);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  text-align: left;
+  transition: transform 0.1s ease, box-shadow 0.1s ease, border-color 0.1s ease;
+  font-family: inherit;
+  color: var(--ink-black);
+}
+
+.theme-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 4px 4px 0 var(--shadow-color);
+}
+
+.theme-card.active {
+  border-color: var(--accent-sun);
+  outline: 3px solid var(--accent-sun);
+  background: rgba(245, 206, 66, 0.1);
+}
+
+.theme-preview {
+  height: 54px;
+  border-radius: 8px;
+  border: 1.5px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.theme-emoji {
+  font-size: 26px;
+  filter: drop-shadow(1px 1px 0 rgba(0,0,0,0.3));
+}
+
+.theme-name {
+  font-weight: 700;
+  font-size: 13px;
+  color: var(--ink-black);
+}
+
+.theme-sub {
+  font-size: 11px;
+  color: #64748B;
+  line-height: 1.3;
+}
+
+.workbench-container.frame-stretched #game-canvas {
+  width: 100% !important;
+  height: 100% !important;
+  max-width: none !important;
+  max-height: none !important;
+  border-radius: 0 !important;
+}
+
+/* FLOATING STRETCH FRAME BUTTON (IN PLAY MODE) */
+.stage-stretch-btn {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  border: var(--border-thick);
+  box-shadow: var(--shadow-hard);
+  background-color: var(--canary-yellow);
+  color: var(--ink-black);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  font-weight: 800;
+  z-index: 70;
+  transition: transform 0.08s ease, box-shadow 0.08s ease, background-color 0.1s ease;
+}
+
+.stage-stretch-btn:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: var(--shadow-hover);
+  background-color: var(--mint-green);
+}
+
+.stage-stretch-btn:active {
+  transform: translate(2px, 2px);
+  box-shadow: var(--shadow-active);
+}
+
+/* FLOATING EDIT MODE HUD */
+.floating-hud {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  display: flex;
+  gap: 8px;
+  z-index: 60;
+}
+
+/* FLOATING ACTION CARD ON SELECTED ENTITY (FRAME-SAFE) */
+.entity-action-card {
+  position: absolute;
+  background-color: var(--bg-panel);
+  border: var(--border-thick);
+  border-radius: 14px;
+  box-shadow: var(--shadow-hard);
+  padding: 8px 12px;
+  display: none;
+  flex-direction: column;
+  gap: 8px;
+  z-index: 90;
+  pointer-events: auto;
+  width: max-content;
+  max-width: calc(100% - 24px);
+  box-sizing: border-box;
+}
+
+.entity-action-card.active {
+  display: flex;
+  animation: cardFadeIn 0.12s ease-out;
+}
+
+@keyframes cardFadeIn {
+  from { opacity: 0; transform: scale(0.92); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.action-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 2px dashed var(--border-subtle);
+  padding-bottom: 4px;
+  width: 100%;
+  box-sizing: border-box;
+  gap: 12px;
+}
+
+.action-entity-badge {
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  background-color: var(--canary-yellow);
+  color: #050508 !important;
+  padding: 2px 6px;
+  border-radius: 6px;
+  border: 1px solid var(--border-color);
+  white-space: nowrap;
+}
+
+.action-group-hint {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.action-card-close {
+  background: none;
+  border: none;
+  font-size: 18px;
+  font-weight: 700;
+  cursor: pointer;
+  line-height: 1;
+  padding: 0 4px;
+  color: var(--text-muted);
+  margin-left: auto;
+}
+
+.action-card-close:hover {
+  color: var(--hazard-red);
+}
+
+.action-card-buttons {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+  box-sizing: border-box;
+}
+
+.action-card-buttons .neo-btn {
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* FLOATING ON-SCREEN NAVIGATION CONTROLS (EDIT MODE) */
+.canvas-nav-controls {
+  position: absolute;
+  bottom: 14px;
+  right: 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  background-color: var(--bg-panel);
+  border: var(--border-thick);
+  border-radius: 12px;
+  padding: 6px;
+  box-shadow: var(--shadow-hard);
+  z-index: 60;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.canvas-nav-controls.hidden {
+  opacity: 0;
+  pointer-events: none;
+  transform: scale(0.9);
+}
+
+.nav-horizontal-row {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.nav-mini-btn {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+  background-color: var(--bg-cream);
+  border: 2px solid var(--ink-black);
+  border-radius: 6px;
+  cursor: pointer;
+  box-shadow: 1px 1px 0 var(--ink-black);
+  transition: all 0.08s ease;
+}
+
+.nav-mini-btn:hover {
+  background-color: var(--canary-yellow);
+  transform: translate(-1px, -1px);
+  box-shadow: 2px 2px 0 var(--ink-black);
+}
+
+.nav-mini-btn:active {
+  transform: translate(1px, 1px);
+  box-shadow: none;
+}
+
+.nav-recenter-btn {
+  background-color: var(--cyber-cyan);
+  font-size: 14px;
+}
+
+.drawer-tips {
+  font-size: 10.5px;
+  color: var(--ink-black);
+  margin-top: auto;
+  line-height: 1.4;
+  background: var(--bg-cream);
+  padding: 6px 8px;
+  border-radius: 8px;
+  border: 2px solid var(--ink-black);
+  box-shadow: 2px 2px 0 var(--ink-black);
+  cursor: pointer;
+  user-select: none;
+}
+
+.drawer-tips summary {
+  font-weight: 700;
+  color: var(--ink-black);
+  list-style: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  outline: none;
+  font-size: 10.5px;
+}
+
+.drawer-tips summary::-webkit-details-marker {
+  display: none;
+}
+
+.drawer-tips-content {
+  margin-top: 5px;
+  padding-top: 4px;
+  border-top: 1px dashed var(--border-color);
+  font-size: 10px;
+  line-height: 1.4;
+  color: inherit;
+}
+
+/* MODALS (Art Studio, Inspector, Video Preview) */
+.neo-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(18, 18, 18, 0.6);
+  backdrop-filter: blur(4px);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+}
+
+.neo-modal-overlay.active {
+  display: flex;
+  animation: fadeIn 0.15s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.neo-modal-box {
+  background-color: var(--bg-panel);
+  border: var(--border-thick);
+  border-radius: 20px;
+  box-shadow: 8px 8px 0px var(--ink-black);
+  padding: 24px;
+  width: 90%;
+  max-width: 580px;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 2px dashed #DDD;
+  padding-bottom: 12px;
+}
+
+.modal-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--ink-black);
+}
+
+.modal-close-btn {
+  background: none;
+  border: none;
+  font-size: 24px;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 4px 8px;
+}
+
+/* ART STUDIO STYLING */
+.art-studio-body {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+
+.art-canvas-container {
+  border: 3px solid var(--ink-black);
+  border-radius: 12px;
+  background-color: #FFF;
+  box-shadow: 3px 3px 0 var(--ink-black);
+  cursor: crosshair;
+}
+
+#paint-canvas {
+  display: block;
+}
+
+.art-tools-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  flex: 1;
+}
+
+.color-swatches {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+
+.color-swatch {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: 2px solid var(--ink-black);
+  cursor: pointer;
+  box-shadow: 2px 2px 0 var(--ink-black);
+  transition: transform 0.1s ease;
+}
+
+.color-swatch:hover {
+  transform: scale(1.15);
+}
+
+.color-swatch.active {
+  border-color: #FFF;
+  outline: 3px solid var(--ink-black);
+  transform: scale(1.1);
+}
+
+/* INSPECTOR SLIDERS & CONTROLS */
+.inspector-control-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+
+.inspector-info-card {
+  background-color: var(--bg-cream);
+  border: 2px solid var(--border-color);
+  border-radius: 8px;
+  padding: 8px 12px;
+  margin-bottom: 12px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--ink-black);
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.control-header {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.val-badge {
+  background-color: var(--canary-yellow);
+  color: #050508 !important;
+  font-weight: 800;
+  padding: 2px 6px;
+  border-radius: 6px;
+  border: 1px solid var(--border-color);
+}
+
+.neo-slider {
+  -webkit-appearance: none;
+  height: 10px;
+  border-radius: 5px;
+  background: var(--border-subtle);
+  outline: none;
+  border: 2px solid var(--border-color);
+}
+
+.neo-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--accent-sky);
+  border: 2px solid var(--border-color);
+  box-shadow: 2px 2px 0 var(--border-color);
+  cursor: pointer;
+}
+
+.neo-select {
+  background-color: var(--bg-cream);
+  color: var(--ink-black);
+  border: 2px solid var(--border-color);
+  border-radius: 8px;
+  padding: 6px 10px;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  outline: none;
+  cursor: pointer;
+  width: 100%;
+  box-sizing: border-box;
+  transition: border-color 0.15s ease;
+}
+
+.neo-select:focus {
+  border-color: var(--accent-sky);
+}
+
+.neo-select option {
+  background-color: var(--bg-panel);
+  color: var(--ink-black);
+}
+
+.toggle-group {
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.neo-toggle-switch {
+  position: relative;
+  display: inline-block;
+  width: 44px;
+  height: 24px;
+  cursor: pointer;
+}
+
+.neo-toggle-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+  position: absolute;
+}
+
+.toggle-knob {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: var(--border-subtle);
+  border: 2px solid var(--border-color);
+  border-radius: 24px;
+  transition: 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.toggle-knob:before {
+  position: absolute;
+  content: "";
+  height: 14px;
+  width: 14px;
+  left: 3px;
+  bottom: 3px;
+  background-color: #FFFFFF;
+  border: 1.5px solid var(--border-color);
+  border-radius: 50%;
+  transition: 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+input:checked + .toggle-knob {
+  background-color: var(--accent-mint);
+}
+
+input:checked + .toggle-knob:before {
+  transform: translateX(18px);
+  background-color: #FFFFFF;
+}
+
+/* VICTORY OVERLAY */
+.victory-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(250, 248, 245, 0.92);
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  z-index: 80;
+  animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+/* BACKGROUND CUSTOMIZER MODAL */
+.bg-themes-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.bg-theme-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 8px;
+  background: var(--bg-cream);
+  border: 2px solid var(--ink-black);
+  border-radius: 10px;
+  cursor: pointer;
+  box-shadow: 2px 2px 0 var(--ink-black);
+  font-size: 12px;
+  font-weight: 700;
+  transition: all 0.1s ease;
+}
+
+.bg-theme-card:hover {
+  transform: scale(1.05);
+  background-color: var(--canary-yellow);
+}
+
+.bg-theme-card.active {
+  background-color: var(--cyber-cyan);
+  outline: 3px solid var(--ink-black);
+  transform: translate(1px, 1px);
+}
+
+.bg-theme-preview {
+  width: 100%;
+  height: 48px;
+  border-radius: 6px;
+  border: 1px solid var(--ink-black);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+}
+
+.victory-overlay.active {
+  display: flex;
+}
+
+.victory-title {
+  font-size: 44px;
+  font-weight: 700;
+  color: var(--mint-green);
+  text-shadow: 3px 3px 0 var(--ink-black);
+  letter-spacing: -1px;
+}
+
+/* DISABLED BUTTON STATES (FOR UNDO / REDO) */
+.neo-btn:disabled, .neo-btn[disabled] {
+  opacity: 0.45;
+  cursor: not-allowed;
+  pointer-events: none;
+  box-shadow: 1px 1px 0px var(--ink-black);
+  transform: none !important;
+}
+
+/* COMPONENT TYPE / VARIANT POPUP FLYOUT */
+.component-flyout-menu {
+  position: fixed;
+  z-index: 1000;
+  background: #FFF;
+  border: 3px solid var(--ink-black);
+  border-radius: 12px;
+  box-shadow: 4px 4px 0 var(--ink-black);
+  min-width: 270px;
+  max-width: 320px;
+  max-height: calc(100vh - 32px);
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  box-sizing: border-box;
+  animation: flyoutPop 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes flyoutPop {
+  0% { transform: scale(0.92) translateY(-4px); opacity: 0; }
+  100% { transform: scale(1) translateY(0); opacity: 1; }
+}
+
+.flyout-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 2px dashed var(--border-subtle);
+  padding-bottom: 4px;
+  margin-bottom: 2px;
+  flex-shrink: 0;
+}
+
+.flyout-title {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.flyout-close-btn {
+  background: none;
+  border: none;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  line-height: 1;
+  color: var(--text-muted);
+  padding: 0 4px;
+}
+
+.flyout-close-btn:hover {
+  color: var(--ink-black);
+}
+
+.flyout-submenus-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  padding: 2px 0 6px 0;
+  border-bottom: 2px dashed var(--border-subtle);
+  margin-bottom: 2px;
+  flex-shrink: 0;
+}
+
+.flyout-tab-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 7px;
+  background: var(--bg-cream);
+  border: 2px solid var(--border-color);
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--ink-black);
+  cursor: pointer;
+  box-shadow: 1.5px 1.5px 0 var(--shadow-color);
+  transition: all 0.1s ease;
+  white-space: nowrap;
+}
+
+.flyout-tab-btn:hover {
+  background: var(--canary-yellow);
+  transform: translateY(-1px);
+}
+
+.flyout-tab-btn.active {
+  background: var(--cyber-cyan);
+  box-shadow: none;
+  transform: translate(1px, 1px);
+}
+
+.flyout-options-list {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  flex: 1 1 auto;
+  min-height: 0;
+  max-height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-right: 6px;
+  overscroll-behavior: contain;
+}
+
+.flyout-options-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.flyout-options-list::-webkit-scrollbar-track {
+  background: var(--bg-cream);
+  border-radius: 4px;
+}
+
+.flyout-options-list::-webkit-scrollbar-thumb {
+  background: var(--ink-black);
+  border-radius: 4px;
+}
+
+.flyout-option-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 10px;
+  background: var(--bg-cream);
+  border: 2px solid var(--border-color);
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--ink-black);
+  cursor: pointer;
+  box-shadow: 2px 2px 0 var(--shadow-color);
+  transition: all 0.1s ease;
+  text-align: left;
+  width: 100%;
+}
+
+.flyout-option-btn:hover {
+  background: var(--canary-yellow);
+  color: #050508 !important;
+  transform: scale(1.02);
+}
+
+.flyout-option-btn.active {
+  background: var(--cyber-cyan);
+  color: #050508 !important;
+  box-shadow: 1px 1px 0 var(--shadow-color);
+  transform: translate(1px, 1px);
+}
+
+.flyout-option-icon {
+  font-size: 18px;
+  line-height: 1;
+}
+
+.flyout-option-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+}
+
+.flyout-option-name {
+  font-weight: 800;
+  color: inherit;
+}
+
+.flyout-option-desc {
+  font-size: 9px;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+/* FLOATING ACTION CARD VARIANT PICKER */
+.action-variant-picker {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 6px;
+  padding-top: 6px;
+  border-top: 1.5px dashed var(--ink-black);
+  overflow-x: auto;
+}
+
+.action-variant-pill {
+  padding: 3px 8px;
+  background: var(--bg-cream);
+  border: 1.5px solid var(--ink-black);
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.action-variant-pill.active {
+  background: var(--bubblegum-pink);
+  color: #FFF;
+}
+
+/* TOAST NOTIFICATION */
+.sidehop-toast {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  background: var(--canary-yellow);
+  color: var(--ink-black);
+  padding: 10px 18px;
+  border: 3px solid var(--ink-black);
+  border-radius: 12px;
+  box-shadow: 4px 4px 0 var(--ink-black);
+  font-size: 14px;
+  font-weight: 700;
+  z-index: 9999;
+  pointer-events: none;
+  animation: toastPop 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes toastPop {
+  0% { transform: translateY(20px) scale(0.85); opacity: 0; }
+  100% { transform: translateY(0) scale(1); opacity: 1; }
+}
+
+/* NEO-BRUTALIST RIGHT-CLICK CONTEXT MENU */
+.editor-context-menu {
+  position: fixed;
+  z-index: 1050;
+  background-color: var(--bg-panel);
+  border: var(--border-thick);
+  border-radius: 12px;
+  box-shadow: var(--shadow-hard);
+  min-width: 210px;
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  color: var(--ink-black);
+  animation: flyoutPop 0.12s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.context-menu-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 8px 6px 8px;
+  border-bottom: 2px dashed var(--border-subtle);
+  margin-bottom: 3px;
+}
+
+.context-menu-title {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.context-menu-coords {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+.context-menu-items {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.context-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  border: 2px solid transparent;
+  border-radius: 8px;
+  background: transparent;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ink-black);
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.08s ease;
+  width: 100%;
+}
+
+.context-menu-item:hover:not(:disabled) {
+  background-color: var(--canary-yellow);
+  color: #050508 !important;
+  border-color: var(--border-color);
+  box-shadow: 2px 2px 0 var(--shadow-color);
+  transform: translate(-1px, -1px);
+}
+
+.context-menu-item:active:not(:disabled) {
+  transform: translate(1px, 1px);
+  box-shadow: none;
+}
+
+.context-menu-item:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.context-menu-item.ctx-danger:hover:not(:disabled) {
+  background-color: #FFE5E5;
+  color: var(--hazard-red) !important;
+}
+
+.ctx-item-icon {
+  font-size: 16px;
+  width: 20px;
+  text-align: center;
+}
+
+.ctx-item-label {
+  flex: 1;
+}
+
+.ctx-item-shortcut {
+  font-size: 10px;
+  font-weight: 800;
+  color: var(--text-muted);
+  background: var(--bg-cream);
+  border: 1.5px solid var(--border-color);
+  border-radius: 4px;
+  padding: 1px 5px;
+}
+
+.context-menu-divider {
+  height: 1px;
+  background: var(--border-subtle);
+  margin: 3px 0;
+}
+
+/* ==========================================================================
+   MOBILE DEVICE ADVISORY OVERLAY (DESKTOP ONLY NOTICE)
+   ========================================================================== */
+.mobile-blocker-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: var(--canary-yellow);
+  background-image: radial-gradient(var(--ink-black) 2px, transparent 2px);
+  background-size: 24px 24px;
+  z-index: 9999999;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  box-sizing: border-box;
+}
+
+.mobile-blocker-card {
+  background: #FFFFFF;
+  border: 4px solid var(--ink-black);
+  border-radius: 20px;
+  box-shadow: 8px 8px 0px var(--ink-black);
+  padding: 32px 24px;
+  max-width: 440px;
+  width: 100%;
+  text-align: center;
+  box-sizing: border-box;
+  animation: modalPop 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.mobile-blocker-badge {
+  display: inline-block;
+  background: var(--hazard-red);
+  color: #FFFFFF;
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 900;
+  font-size: 13px;
+  letter-spacing: 1.5px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  border: 2px solid var(--ink-black);
+  box-shadow: 2px 2px 0 var(--ink-black);
+  margin-bottom: 16px;
+  text-transform: uppercase;
+}
+
+.mobile-blocker-icon {
+  font-size: 52px;
+  margin-bottom: 14px;
+  line-height: 1.1;
+  filter: drop-shadow(3px 3px 0 var(--ink-black));
+}
+
+.mobile-blocker-title {
+  font-family: 'Fredoka', 'Space Grotesk', sans-serif;
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--ink-black);
+  margin-bottom: 12px;
+}
+
+.mobile-blocker-desc {
+  font-size: 14px;
+  font-weight: 500;
+  color: #444;
+  line-height: 1.5;
+  margin-bottom: 16px;
+}
+
+.mobile-blocker-alert {
+  background: #FFF9C4;
+  border: 2.5px dashed var(--ink-black);
+  border-radius: 10px;
+  padding: 12px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink-black);
+  line-height: 1.4;
+  margin-bottom: 16px;
+}
+
+.mobile-blocker-sub {
+  font-size: 12px;
+  font-weight: 800;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+}
+
+/* Only show on genuine mobile handheld touch devices that lack mouse/trackpad pointer */
+@media (pointer: coarse) and (hover: none) and (max-width: 820px) {
+  .mobile-blocker-overlay.is-mobile-device {
+    display: flex !important;
+  }
+}
+
+/* ==========================================================================
+   PERSONAL ASSETS STUDIO & .SIDEHOP DRAG/DROP STYLING
+   ========================================================================== */
+
+/* DRAG & DROP OVERLAY */
+.drag-drop-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 229, 255, 0.25);
+  backdrop-filter: blur(4px);
+  border: 4px dashed var(--ink-black);
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 150;
+  pointer-events: none;
+  animation: popIn 0.15s ease;
+}
+
+.drag-drop-card {
+  background: var(--canary-yellow);
+  border: var(--border-thick);
+  border-radius: 16px;
+  padding: 24px 32px;
+  box-shadow: 8px 8px 0px var(--ink-black);
+  text-align: center;
+  transform: rotate(-1deg);
+  animation: pulseCard 1s infinite alternate ease-in-out;
+}
+
+@keyframes pulseCard {
+  from { transform: scale(1) rotate(-1deg); }
+  to { transform: scale(1.03) rotate(1deg); }
+}
+
+.drag-drop-icon {
+  font-size: 40px;
+  margin-bottom: 8px;
+}
+
+.drag-drop-title {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--ink-black);
+  text-transform: uppercase;
+  letter-spacing: -0.5px;
+}
+
+.drag-drop-sub {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ink-black);
+  margin-top: 4px;
+}
+
+
+/* ─────────────────────────────────────────────────────────────
+   CONTROL RINGING (TEMPLATE PARTS 3.7)
+   ───────────────────────────────────────────────────────────── */
+/* Control Ring Animation */
+.ring {
+  outline: 4px solid var(--canary-yellow) !important;
+  outline-offset: 3px !important;
+  box-shadow: 0 0 12px var(--canary-yellow) !important;
+  transition: outline-color 1.2s ease, box-shadow 1.2s ease;
+}
+
+/* In-Stage Progress Indicator */
+.stage-progress {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: var(--cyber-cyan);
+  transform-origin: left;
+  transform: scaleX(0);
+  transition: transform 0.15s ease;
+  z-index: 50;
+  pointer-events: none;
+}
+
+/* Native Dialog Styles */
+dialog.neo-dialog {
+  border: var(--border-thick);
+  border-radius: 16px;
+  box-shadow: 8px 8px 0px var(--ink-black);
+  background: var(--bg-cream);
+  color: var(--ink-black);
+  width: 90vw;
+  max-width: 580px;
+  max-height: 85vh;
+  padding: 0;
+  overflow: hidden;
+  margin: auto;
+}
+
+dialog.neo-dialog::backdrop {
+  background: rgba(18, 18, 18, 0.65);
+  backdrop-filter: blur(4px);
+}
+
+.neo-dialog-header {
+  background: var(--canary-yellow);
+  border-bottom: var(--border-thick);
+  padding: 12px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.neo-dialog-title {
+  font-size: 18px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.neo-dialog-close {
+  background: transparent;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  line-height: 1;
+  font-weight: 700;
+}
+
+.neo-dialog-body {
+  padding: 16px 20px;
+  overflow-y: auto;
+  max-height: calc(85vh - 70px);
+}
+
+/* Searchable Help Dialog */
+.help-search-input {
+  width: 100%;
+  padding: 10px 14px;
+  font-size: 14px;
+  font-family: inherit;
+  font-weight: 600;
+  border: 2px solid var(--ink-black);
+  border-radius: 10px;
+  background: #FFF;
+  box-shadow: 2px 2px 0px var(--ink-black);
+  outline: none;
+  margin-bottom: 12px;
+}
+
+.help-search-input:focus {
+  border-color: var(--bubblegum-pink);
+}
+
+.help-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.help-row-btn {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 10px 14px;
+  text-align: left;
+  background: #FFF;
+  border: 2px solid var(--ink-black);
+  border-radius: 10px;
+  box-shadow: 2px 2px 0px var(--ink-black);
+  cursor: pointer;
+  transition: transform 0.08s ease, background 0.08s ease;
+}
+
+.help-row-btn:hover {
+  background: #FFFDE7;
+  transform: translate(-1px, -1px);
+  box-shadow: 3px 3px 0px var(--ink-black);
+}
+
+.help-row-left {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.help-row-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--ink-black);
+}
+
+.help-row-body {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-muted);
+}
+
+.help-row-keys {
+  font-family: ui-monospace, monospace;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  background: var(--canary-yellow);
+  color: #050508 !important;
+  white-space: nowrap;
+}
+
+/* About Dialog Content */
+.about-hero {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 16px;
+}
+
+.about-logo {
+  width: 56px;
+  height: 56px;
+  object-fit: contain;
+}
+
+.about-h1 {
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1.1;
+  color: var(--ink-black);
+}
+
+.about-version {
+  font-size: 12px;
+  font-family: ui-monospace, monospace;
+  color: var(--text-muted);
+  font-weight: 700;
+}
+
+.about-section {
+  margin-bottom: 14px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--ink-black);
+}
+
+.about-section strong {
+  color: var(--ink-black);
+}
+
+.about-privacy-badge {
+  background: var(--bg-cream);
+  border: 2px solid var(--accent-mint);
+  color: var(--accent-mint);
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  margin-top: 14px;
+  text-align: center;
+}
+
+/* About Modal Tabs Navigation */
+.about-tabs-nav {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  border-bottom: 2px solid var(--border-subtle);
+  padding-bottom: 10px;
+  margin-bottom: 14px;
+}
+
+.about-tab-btn {
+  background: var(--bg-cream);
+  border: 2px solid var(--border-color);
+  border-radius: 8px;
+  box-shadow: 2px 2px 0 var(--shadow-color);
+  color: var(--ink-black);
+  padding: 6px 12px;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.1s ease;
+}
+
+.about-tab-btn:hover {
+  background: var(--canary-yellow);
+  color: #050508 !important;
+}
+
+.about-tab-btn.active {
+  background: var(--canary-yellow);
+  color: #050508 !important;
+  box-shadow: inset 1px 1px 0 var(--shadow-color);
+  transform: translate(1px, 1px);
+}
+
+.about-tab-panel {
+  display: none;
+}
+
+.about-tab-panel.active {
+  display: block;
+  animation: modalPop 0.15s ease-out;
+}
+
+.about-credit-card {
+  background: var(--bg-panel);
+  border: var(--border-thick);
+  border-radius: 10px;
+  box-shadow: var(--shadow-hard);
+  color: var(--ink-black);
+  padding: 12px;
+  margin-bottom: 10px;
+}
+
+.about-credit-title {
+  font-weight: 700;
+  font-size: 13px;
+  color: var(--ink-black);
+  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.about-credit-role {
+  font-size: 11px;
+  background: var(--bg-cream);
+  color: var(--ink-black);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 2px 6px;
+  font-weight: 700;
+}
+
+.about-credit-desc {
+  font-size: 12px;
+  color: var(--ink-black);
+  opacity: 0.9;
+  line-height: 1.45;
+  margin: 0;
+}
+
+/* DEMO TOUR BANNER & GHOST CURSOR */
+.demo-tour-banner {
+  position: fixed;
+  top: 72px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--canary-yellow);
+  border: 3px solid var(--ink-black);
+  border-radius: 14px;
+  box-shadow: 4px 4px 0 var(--ink-black);
+  padding: 10px 16px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  z-index: 99999;
+  max-width: 90vw;
+  width: 760px;
+  animation: bannerSlideDown 0.25s ease-out;
+  box-sizing: border-box;
+}
+
+@keyframes bannerSlideDown {
+  from { opacity: 0; transform: translate(-50%, -20px); }
+  to { opacity: 1; transform: translate(-50%, 0); }
+}
+
+.demo-banner-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+}
+
+.demo-badge {
+  background: var(--bubblegum-pink);
+  color: #FFF;
+  font-size: 11px;
+  font-weight: 900;
+  padding: 4px 8px;
+  border-radius: 6px;
+  border: 1.5px solid var(--ink-black);
+  letter-spacing: 0.5px;
+}
+
+.demo-step-counter {
+  font-size: 11px;
+  font-weight: 700;
+  color: #334155;
+  font-family: ui-monospace, monospace;
+}
+
+.demo-step-title {
+  font-size: 14px;
+  font-weight: 800;
+  color: #050508 !important;
+}
+
+.demo-banner-center {
+  flex: 1;
+  font-size: 12px;
+  font-weight: 600;
+  color: #050508 !important;
+  line-height: 1.35;
+}
+
+.demo-banner-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.demo-btn-sm {
+  background: #FFF;
+  border: 2px solid var(--ink-black);
+  border-radius: 8px;
+  padding: 4px 8px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 2px 2px 0 var(--ink-black);
+  transition: all 0.1s;
+}
+
+.demo-btn-sm:hover {
+  background: #FFF9C4;
+}
+
+.demo-btn-sm:active {
+  transform: translate(1px, 1px);
+  box-shadow: 1px 1px 0 var(--ink-black);
+}
+
+.demo-btn-sm.demo-exit {
+  background: var(--hazard-red);
+  color: #FFF;
+}
+
+.demo-ghost-cursor {
+  position: fixed;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  z-index: 100000;
+  transition: transform 0.4s cubic-bezier(0.2, 0.9, 0.3, 1.2);
+}
+
+.cursor-pointer {
+  font-size: 32px;
+  filter: drop-shadow(2px 2px 0 var(--ink-black));
+  transition: transform 0.15s ease;
+}
+
+.demo-ghost-cursor.clicking .cursor-pointer {
+  transform: scale(0.85) rotate(-10deg);
+}
+
+.cursor-ripple {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 3px solid var(--bubblegum-pink);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.demo-ghost-cursor.clicking .cursor-ripple {
+  animation: ripplePop 0.4s ease-out;
+}
+
+@keyframes ripplePop {
+  0% { transform: scale(0.2); opacity: 1; }
+  100% { transform: scale(2.2); opacity: 0; }
+}
+
+/* About Modal Colophon Emblem at Bottom */
+.about-colophon-bottom {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 18px;
+  padding-top: 14px;
+  border-top: 2px dashed var(--ink-black);
+}
+
+.about-logo-bottom {
+  width: 52px;
+  height: 52px;
+  object-fit: contain;
+  flex-shrink: 0;
+  border-radius: 8px;
+  background: #FFFFFF;
+  padding: 4px;
+  border: 2px solid var(--ink-black);
+  box-shadow: 2px 2px 0 var(--ink-black);
+}
+
+.about-colophon-text {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.about-colophon-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ink-black);
+}
+
+.about-colophon-sub {
+  font-size: 11px;
+  color: #64748B;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+body[data-theme="night"] .about-colophon-bottom {
+  border-top-color: #334155;
+}
+
+body[data-theme="night"] .about-logo-bottom {
+  background: #1E293B;
+  border-color: #334155;
+  box-shadow: 2px 2px 0 #020617;
+}
+
+body[data-theme="night"] .about-colophon-title {
+  color: #F8FAFC;
+}
+
+body[data-theme="night"] .about-colophon-sub {
+  color: #94A3B8;
+}
+
+
+
+
+
+</style>
 </head>
 <body>
 
@@ -76,6 +2678,11 @@
       <!-- Background Customizer -->
       <button id="bg-modal-btn" class="neo-btn" title="Change Level Background">
         <span>🌄 Background</span>
+      </button>
+
+      <!-- Character Customizer -->
+      <button id="character-edit-btn" class="neo-btn neo-btn-accent" title="Edit Character (Draw, Paint, or Import Sprite)">
+        <span>🐰 Character</span>
       </button>
 
       <!-- Level Management -->
@@ -393,63 +3000,66 @@
 
   <!-- BACKGROUND CUSTOMIZER MODAL -->
   <div id="background-modal" class="neo-modal-overlay">
-    <div class="neo-modal-box" style="max-width: 480px;">
+    <div class="neo-modal-box" style="max-width: 500px;">
       <div class="modal-header">
-        <h3 class="modal-title">🌄 Level Atmosphere &amp; Sky</h3>
+        <h3 class="modal-title">🌄 Custom Level Background</h3>
         <button id="close-bg-modal" class="modal-close-btn">&times;</button>
       </div>
 
       <div style="display: flex; flex-direction: column; gap: 14px;">
-        <label style="font-size: 13px; font-weight: 700;">Preset Atmospheres</label>
-        <div class="bg-themes-grid">
-          <button class="bg-theme-card active" data-bg-theme="sky">
-            <div class="bg-theme-preview" style="background: linear-gradient(180deg, #70C5FF, #E0F4FF);">☀️</div>
-            <span>Sunny Sky</span>
+        <p style="font-size: 13px; color: #4B5563; margin: 0; line-height: 1.4;">
+          Make a custom drawing or insert an image or animated GIF to display as the background for your level.
+        </p>
+
+        <!-- Two primary background options: Drawing or Image/GIF -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <button id="bg-draw-btn" class="neo-btn neo-btn-accent" style="flex-direction: column; padding: 16px 12px; gap: 8px; text-align: center; height: auto;" type="button">
+            <span style="font-size: 28px;">🎨</span>
+            <span style="font-weight: 800; font-size: 14px;">Make a Drawing</span>
+            <span style="font-size: 11px; font-weight: normal; opacity: 0.85;">Paint, stamp, or sketch in Art Studio</span>
           </button>
-          <button class="bg-theme-card" data-bg-theme="sunset">
-            <div class="bg-theme-preview" style="background: linear-gradient(180deg, #FF6B6B, #FFE66D);">🌅</div>
-            <span>Sunset</span>
-          </button>
-          <button class="bg-theme-card" data-bg-theme="night">
-            <div class="bg-theme-preview" style="background: linear-gradient(180deg, #0F172A, #1E1B4B); color: #FFF;">🌙</div>
-            <span>Midnight</span>
-          </button>
-          <button class="bg-theme-card" data-bg-theme="neon">
-            <div class="bg-theme-preview" style="background: linear-gradient(180deg, #030305, #140520); color: #00E5FF;">⚡</div>
-            <span>Neon over Black</span>
-          </button>
-          <button class="bg-theme-card" data-bg-theme="gray">
-            <div class="bg-theme-preview" style="background: linear-gradient(180deg, #64748B, #94A3B8); color: #FFF;">🌫️</div>
-            <span>Overcast Gray</span>
-          </button>
+
+          <label class="neo-btn neo-btn-primary" style="flex-direction: column; padding: 16px 12px; gap: 8px; text-align: center; height: auto; cursor: pointer; margin: 0;">
+            <span style="font-size: 28px;">📁</span>
+            <span style="font-weight: 800; font-size: 14px;">Insert Image / GIF</span>
+            <span style="font-size: 11px; font-weight: normal; opacity: 0.85;">Upload PNG, JPG, GIF, WebP</span>
+            <input type="file" id="bg-image-upload" accept="image/*" style="display: none;">
+          </label>
         </div>
 
-        <div style="border-top: 2px dashed #E0E0E0; padding-top: 12px; display: flex; flex-direction: column; gap: 8px;">
-          <label style="font-size: 13px; font-weight: 700; display: block;">Custom Art / GIF Background</label>
-          <div style="display: flex; gap: 6px; flex-wrap: wrap;">
-            <label class="neo-btn" style="flex: 1; justify-content: center; font-size: 12px; cursor: pointer;">
-              📁 Upload Custom Art / GIF
-              <input type="file" id="bg-image-upload" accept="image/*" style="display: none;">
-            </label>
-            <label class="neo-btn neo-btn-cyan" style="flex: 1; justify-content: center; font-size: 12px; cursor: pointer;">
-              📂 Import .sidehop
-              <input type="file" id="bg-sidehop-upload" accept=".sidehop,.json" style="display: none;">
-            </label>
-            <button id="bg-export-sidehop-btn" class="neo-btn neo-btn-accent" style="font-size: 12px;" type="button">
-              💾 Export .sidehop
-            </button>
+        <!-- Active Background Status & Preview Box -->
+        <div id="bg-preview-card" style="border: 2px solid #121212; border-radius: 8px; padding: 12px; background: #F8FAFC;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <span style="font-size: 12px; font-weight: 800; text-transform: uppercase;">Active Background</span>
+            <span id="bg-status-badge" style="font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 4px; border: 1.5px solid #121212; background: #E2E8F0;">Theme</span>
           </div>
-          <div style="font-size: 11px; color: #666;">(Supports PNG, JPG, GIF, WebP)</div>
-          <div style="display: flex; justify-content: space-between; align-items: center;">
-            <p id="bg-custom-status" style="font-size: 11px; color: #2E7D32; font-weight: 700; margin: 0; display: none;">Status: Custom Background Active</p>
-            <button id="bg-clear-custom-btn" class="neo-btn" style="font-size: 11px; padding: 3px 8px; display: none;" type="button">Clear Custom Art ✕</button>
+
+          <div id="bg-preview-container" style="height: 120px; border: 2px solid #121212; border-radius: 6px; overflow: hidden; background: #000; display: flex; align-items: center; justify-content: center; position: relative;">
+            <img id="bg-preview-img" style="width: 100%; height: 100%; object-fit: cover; display: none;" alt="Custom Background Preview">
+            <div id="bg-preview-placeholder" style="font-size: 12px; color: #94A3B8; text-align: center; padding: 10px;">
+              <span>No custom background active.<br>Using the active World Theme.</span>
+            </div>
+          </div>
+
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px; gap: 8px; flex-wrap: wrap;">
+            <button id="bg-clear-custom-btn" class="neo-btn" style="font-size: 11px; padding: 5px 10px; display: none;" type="button">
+              Clear Custom Background ✕
+            </button>
+            <div style="display: flex; gap: 6px; margin-left: auto;">
+              <label class="neo-btn" style="font-size: 11px; padding: 5px 10px; cursor: pointer; margin: 0;" title="Import .sidehop background package">
+                📂 Import .sidehop
+                <input type="file" id="bg-sidehop-upload" accept=".sidehop,.json" style="display: none;">
+              </label>
+              <button id="bg-export-sidehop-btn" class="neo-btn" style="font-size: 11px; padding: 5px 10px; display: none;" type="button" title="Export custom background as .sidehop asset">
+                💾 Export .sidehop
+              </button>
+            </div>
           </div>
         </div>
       </div>
 
-      <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 10px;">
-        <button id="bg-reset-default" class="neo-btn">Reset Default</button>
-        <button id="bg-done-btn" class="neo-btn neo-btn-primary">Close ✓</button>
+      <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 12px;">
+        <button id="bg-done-btn" class="neo-btn neo-btn-primary">Done ✓</button>
       </div>
     </div>
   </div>
@@ -5508,13 +8118,50 @@ class ArtStudio {
 
   openForEntity(entity, onApply) {
     this.targetEntity = entity;
+    this.targetBackground = null;
+    this.isBackgroundMode = false;
     this.onApplyCallback = onApply;
     this.clearCanvas();
 
+    const titleEl = this.modal?.querySelector('.modal-title');
+    if (titleEl) {
+      if (entity && (entity.type === 'player' || entity === window.sidehop?.player)) {
+        titleEl.textContent = '🐰 Art Studio — Edit Character';
+      } else if (entity && entity.type) {
+        titleEl.textContent = `🎨 Art Studio — Edit ${entity.type.charAt(0).toUpperCase() + entity.type.slice(1)}`;
+      } else {
+        titleEl.textContent = '🎨 Art Studio';
+      }
+    }
+
     // If entity already has custom visual, draw it onto canvas
-    if (entity.customVisual) {
+    if (entity && entity.customVisual) {
       const img = new Image();
       img.src = entity.customVisual;
+      img.onload = () => {
+        this.ctx.drawImage(img, 0, 0, this.canvas.width, this.canvas.height);
+      };
+    }
+
+    this.modal.classList.add('active');
+    sounds.playClick();
+  }
+
+  openForBackground(background, onApply) {
+    this.targetEntity = null;
+    this.targetBackground = background;
+    this.isBackgroundMode = true;
+    this.onApplyCallback = onApply;
+    this.clearCanvas();
+
+    const titleEl = this.modal?.querySelector('.modal-title');
+    if (titleEl) {
+      titleEl.textContent = '🌄 Art Studio — Draw Background';
+    }
+
+    if (background && background.customImage) {
+      const img = new Image();
+      img.src = background.customImage;
       img.onload = () => {
         this.ctx.drawImage(img, 0, 0, this.canvas.width, this.canvas.height);
       };
@@ -5709,6 +8356,7 @@ class ArtStudio {
   }
 
   getSuggestedCategory() {
+    if (this.isBackgroundMode) return 'background';
     if (!this.targetEntity) return 'sprite';
     const type = this.targetEntity.type;
     if (type === 'player') return 'player';
@@ -5823,6 +8471,12 @@ class ArtStudio {
   }
 
   apply() {
+    if (this.isBackgroundMode && this.onApplyCallback) {
+      const dataUrl = this.canvas.toDataURL('image/png');
+      this.onApplyCallback(dataUrl);
+      this.close();
+      return;
+    }
     if (this.targetEntity && this.onApplyCallback) {
       const dataUrl = this.canvas.toDataURL('image/png');
       this.targetEntity.setCustomVisual(dataUrl);
@@ -5832,6 +8486,11 @@ class ArtStudio {
   }
 
   resetDefault() {
+    if (this.isBackgroundMode && this.onApplyCallback) {
+      this.onApplyCallback(null);
+      this.close();
+      return;
+    }
     if (this.targetEntity && this.onApplyCallback) {
       this.targetEntity.setCustomVisual(null);
       this.onApplyCallback(this.targetEntity);
@@ -5841,8 +8500,2054 @@ class ArtStudio {
 }
 
 
+// ── js/storage/standalone-game-builder.js ──
+/**
+ * Standalone Offline Single-File HTML Game Generator for Sidehop.
+ * Generates a completely self-contained .html file containing the user's level,
+ * custom drawn / imported assets, sound synthesizer, physics, and gameplay engine.
+ * Requires ZERO internet connection, ZERO external CSS/JS, and NO editor UI.
+ */
+function generateStandaloneGameHtml(levelData, customTitle) {
+  const title = customTitle || levelData.name || 'Sidehop Game';
+  const cleanTitle = title.replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  const serializedJson = JSON.stringify(levelData);
+
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>${cleanTitle} — Sidehop</title>
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    body, html {
+      width: 100%;
+      height: 100%;
+      background: #090D16;
+      color: #121212;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #game-wrapper {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      max-width: 1280px;
+      max-height: 720px;
+      display: flex;
+      flex-direction: column;
+      background: #121212;
+      border: 3px solid #121212;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
+    }
+
+    /* Top Arcade Game HUD */
+    #game-header {
+      height: 48px;
+      background: #FFE600;
+      border-bottom: 3px solid #121212;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 14px;
+      font-weight: 800;
+      z-index: 10;
+      flex-shrink: 0;
+    }
+
+    .hud-section {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .hud-title {
+      font-size: 15px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #121212;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .hud-stat-pill {
+      background: #FFFFFF;
+      border: 2px solid #121212;
+      border-radius: 6px;
+      padding: 3px 8px;
+      font-size: 13px;
+      font-weight: 800;
+      box-shadow: 2px 2px 0 #121212;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .hud-hearts {
+      display: flex;
+      gap: 3px;
+      font-size: 14px;
+    }
+
+    .hud-btn {
+      background: #FFFFFF;
+      border: 2px solid #121212;
+      border-radius: 6px;
+      padding: 4px 10px;
+      font-size: 12px;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 2px 2px 0 #121212;
+      transition: transform 0.08s ease, box-shadow 0.08s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .hud-btn:hover {
+      background: #F4F4F5;
+      transform: translate(-1px, -1px);
+      box-shadow: 3px 3px 0 #121212;
+    }
+
+    .hud-btn:active {
+      transform: translate(1px, 1px);
+      box-shadow: 1px 1px 0 #121212;
+    }
+
+    .hud-btn-primary {
+      background: #00E5FF;
+    }
+    .hud-btn-primary:hover {
+      background: #33EBFF;
+    }
+
+    /* Canvas Stage Container */
+    #canvas-container {
+      position: relative;
+      flex: 1;
+      width: 100%;
+      height: 100%;
+      background: #000000;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #game-canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      image-rendering: -webkit-optimize-contrast;
+      image-rendering: pixelated;
+    }
+
+    /* Overlays (Victory & Game Over) */
+    .game-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 50;
+      padding: 20px;
+    }
+
+    .game-overlay.active {
+      display: flex;
+    }
+
+    .overlay-card {
+      background: #FFFFFF;
+      border: 4px solid #121212;
+      border-radius: 14px;
+      padding: 28px 36px;
+      text-align: center;
+      box-shadow: 8px 8px 0 #121212;
+      max-width: 420px;
+      width: 90%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      animation: popIn 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    @keyframes popIn {
+      0% { transform: scale(0.85); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    .overlay-title {
+      font-size: 28px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin: 0;
+    }
+
+    .victory-title {
+      color: #059669;
+    }
+
+    .gameover-title {
+      color: #DC2626;
+    }
+
+    .overlay-stats {
+      font-size: 16px;
+      font-weight: 700;
+      color: #4B5563;
+    }
+
+    .overlay-action-btn {
+      background: #FFE600;
+      border: 3px solid #121212;
+      border-radius: 8px;
+      padding: 12px 26px;
+      font-size: 16px;
+      font-weight: 900;
+      color: #121212;
+      cursor: pointer;
+      box-shadow: 4px 4px 0 #121212;
+      transition: transform 0.08s ease, box-shadow 0.08s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .overlay-action-btn:hover {
+      background: #FFED4A;
+      transform: translate(-2px, -2px);
+      box-shadow: 6px 6px 0 #121212;
+    }
+
+    .overlay-action-btn:active {
+      transform: translate(2px, 2px);
+      box-shadow: 2px 2px 0 #121212;
+    }
+
+    /* Mobile / Touch On-Screen Controls */
+    #touch-controls {
+      display: none;
+      position: absolute;
+      bottom: 16px;
+      left: 0;
+      right: 0;
+      padding: 0 20px;
+      justify-content: space-between;
+      align-items: flex-end;
+      z-index: 25;
+      pointer-events: none;
+    }
+
+    @media (hover: none) and (pointer: coarse) {
+      #touch-controls {
+        display: flex;
+      }
+    }
+
+    .touch-btn-group {
+      display: flex;
+      gap: 12px;
+      pointer-events: auto;
+    }
+
+    .touch-btn {
+      width: 58px;
+      height: 58px;
+      background: rgba(255, 255, 255, 0.85);
+      border: 3px solid #121212;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      font-weight: 900;
+      box-shadow: 3px 3px 0 #121212;
+      touch-action: manipulation;
+      user-select: none;
+    }
+
+    .touch-btn:active {
+      background: #FFE600;
+      transform: scale(0.92);
+      box-shadow: 1px 1px 0 #121212;
+    }
+
+    .touch-btn-action {
+      background: #00E5FF;
+      width: 64px;
+      height: 64px;
+    }
+
+    /* Fullscreen mode */
+    :fullscreen #game-wrapper, :-webkit-full-screen #game-wrapper {
+      max-width: 100vw;
+      max-height: 100vh;
+      border: none;
+      box-shadow: none;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="game-wrapper">
+    <!-- Top HUD Bar -->
+    <header id="game-header">
+      <div class="hud-section">
+        <span class="hud-title">🎮 ${cleanTitle}</span>
+        <div class="hud-stat-pill" title="Health">
+          <div id="hud-hearts-container" class="hud-hearts">❤️❤️❤️❤️</div>
+        </div>
+        <div class="hud-stat-pill" title="Score">
+          ⭐ <span id="hud-score-val">0</span>
+        </div>
+        <div id="hud-coin-pill" class="hud-stat-pill" style="display: none;" title="Coins">
+          🪙 <span id="hud-coin-val">0</span>
+        </div>
+      </div>
+
+      <div class="hud-section">
+        <button id="restart-btn" class="hud-btn" title="Restart Level (R)">
+          🔄 <span>Restart</span>
+        </button>
+        <button id="sound-btn" class="hud-btn" title="Toggle Sound (M)">
+          🔊
+        </button>
+        <button id="fullscreen-btn" class="hud-btn hud-btn-primary" title="Fullscreen (F)">
+          ⤢
+        </button>
+      </div>
+    </header>
+
+    <!-- Canvas Stage -->
+    <div id="canvas-container">
+      <canvas id="game-canvas" width="960" height="540"></canvas>
+
+      <!-- Victory Celebration Overlay -->
+      <div id="victory-overlay" class="game-overlay">
+        <div class="overlay-card">
+          <h2 class="overlay-title victory-title">🎉 LEVEL CLEAR!</h2>
+          <p id="victory-score-text" class="overlay-stats">Score: 0 PTS</p>
+          <button id="victory-replay-btn" class="overlay-action-btn">
+            ▶ Play Again [Space]
+          </button>
+        </div>
+      </div>
+
+      <!-- Game Over Overlay -->
+      <div id="gameover-overlay" class="game-overlay">
+        <div class="overlay-card">
+          <h2 class="overlay-title gameover-title">💀 GAME OVER</h2>
+          <p class="overlay-stats">Don't give up! Try again.</p>
+          <button id="gameover-retry-btn" class="overlay-action-btn">
+            🔄 Try Again [Space]
+          </button>
+        </div>
+      </div>
+
+      <!-- Touch D-Pad & Action Buttons (Mobile / Tablet) -->
+      <div id="touch-controls">
+        <div class="touch-btn-group">
+          <button id="touch-left" class="touch-btn">◀</button>
+          <button id="touch-right" class="touch-btn">▶</button>
+        </div>
+        <div class="touch-btn-group">
+          <button id="touch-shoot" class="touch-btn" style="display: none;">🔫</button>
+          <button id="touch-jump" class="touch-btn touch-btn-action">⬆️</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script id="embedded-level-data" type="application/json">
+${serializedJson}
+  </script>
+
+  <script>
+  "use strict";
+
+  // --- Procedural Sound Synthesis Engine (Zero Audio Files Needed) ---
+  class StandaloneSoundEngine {
+    constructor() {
+      this.ctx = null;
+      this.muted = false;
+      this.masterGain = null;
+    }
+
+    init() {
+      if (this.ctx) return;
+      try {
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        if (!AudioContext) return;
+        this.ctx = new AudioContext();
+        this.masterGain = this.ctx.createGain();
+        this.masterGain.gain.value = this.muted ? 0 : 0.4;
+        this.masterGain.connect(this.ctx.destination);
+      } catch (e) {
+        this.ctx = null;
+      }
+    }
+
+    ensureContext() {
+      try {
+        this.init();
+        if (this.ctx && this.ctx.state === 'suspended') {
+          this.ctx.resume().catch(() => {});
+        }
+        return !!(this.ctx && this.masterGain);
+      } catch (e) {
+        return false;
+      }
+    }
+
+    setMuted(muted) {
+      this.muted = muted;
+      try {
+        if (this.masterGain && this.ctx) {
+          this.masterGain.gain.setValueAtTime(muted ? 0 : 0.4, this.ctx.currentTime);
+        }
+      } catch (e) {}
+    }
+
+    playJump() {
+      if (!this.ensureContext()) return;
+      const t = this.ctx.currentTime;
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(160, t);
+      osc.frequency.exponentialRampToValueAtTime(540, t + 0.16);
+      gain.gain.setValueAtTime(0.35, t);
+      gain.gain.exponentialRampToValueAtTime(0.01, t + 0.16);
+      osc.connect(gain);
+      gain.connect(this.masterGain);
+      osc.start(t);
+      osc.stop(t + 0.16);
+    }
+
+    playSpring() {
+      if (!this.ensureContext()) return;
+      const t = this.ctx.currentTime;
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(140, t);
+      osc.frequency.exponentialRampToValueAtTime(780, t + 0.28);
+      gain.gain.setValueAtTime(0.45, t);
+      gain.gain.exponentialRampToValueAtTime(0.01, t + 0.28);
+      osc.connect(gain);
+      gain.connect(this.masterGain);
+      osc.start(t);
+      osc.stop(t + 0.28);
+    }
+
+    playLand() {
+      if (!this.ensureContext()) return;
+      const t = this.ctx.currentTime;
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(120, t);
+      osc.frequency.exponentialRampToValueAtTime(40, t + 0.08);
+      gain.gain.setValueAtTime(0.2, t);
+      gain.gain.exponentialRampToValueAtTime(0.01, t + 0.08);
+      osc.connect(gain);
+      gain.connect(this.masterGain);
+      osc.start(t);
+      osc.stop(t + 0.08);
+    }
+
+    playCoin() {
+      if (!this.ensureContext()) return;
+      const t = this.ctx.currentTime;
+      const osc1 = this.ctx.createOscillator();
+      const gain1 = this.ctx.createGain();
+      osc1.type = 'sine';
+      osc1.frequency.setValueAtTime(987.77, t); // B5
+      osc1.frequency.setValueAtTime(1318.51, t + 0.08); // E6
+      gain1.gain.setValueAtTime(0.3, t);
+      gain1.gain.exponentialRampToValueAtTime(0.01, t + 0.35);
+      osc1.connect(gain1);
+      gain1.connect(this.masterGain);
+      osc1.start(t);
+      osc1.stop(t + 0.35);
+    }
+
+    playStomp() {
+      if (!this.ensureContext()) return;
+      const t = this.ctx.currentTime;
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(320, t);
+      osc.frequency.exponentialRampToValueAtTime(80, t + 0.12);
+      gain.gain.setValueAtTime(0.4, t);
+      gain.gain.exponentialRampToValueAtTime(0.01, t + 0.12);
+      osc.connect(gain);
+      gain.connect(this.masterGain);
+      osc.start(t);
+      osc.stop(t + 0.12);
+    }
+
+    playHurt() {
+      if (!this.ensureContext()) return;
+      const t = this.ctx.currentTime;
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(280, t);
+      osc.frequency.linearRampToValueAtTime(80, t + 0.22);
+      gain.gain.setValueAtTime(0.35, t);
+      gain.gain.exponentialRampToValueAtTime(0.01, t + 0.22);
+      osc.connect(gain);
+      gain.connect(this.masterGain);
+      osc.start(t);
+      osc.stop(t + 0.22);
+    }
+
+    playShoot() {
+      if (!this.ensureContext()) return;
+      const t = this.ctx.currentTime;
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = 'square';
+      osc.frequency.setValueAtTime(880, t);
+      osc.frequency.exponentialRampToValueAtTime(110, t + 0.14);
+      gain.gain.setValueAtTime(0.25, t);
+      gain.gain.exponentialRampToValueAtTime(0.01, t + 0.14);
+      osc.connect(gain);
+      gain.connect(this.masterGain);
+      osc.start(t);
+      osc.stop(t + 0.14);
+    }
+
+    playVictory() {
+      if (!this.ensureContext()) return;
+      const notes = [261.63, 329.63, 392.00, 523.25, 659.25, 783.99];
+      const t = this.ctx.currentTime;
+      notes.forEach((freq, idx) => {
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(freq, t + idx * 0.08);
+        gain.gain.setValueAtTime(0.35, t + idx * 0.08);
+        gain.gain.exponentialRampToValueAtTime(0.01, t + idx * 0.08 + 0.4);
+        osc.connect(gain);
+        gain.connect(this.masterGain);
+        osc.start(t + idx * 0.08);
+        osc.stop(t + idx * 0.08 + 0.4);
+      });
+    }
+
+    playClick() {
+      if (!this.ensureContext()) return;
+      const t = this.ctx.currentTime;
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(800, t);
+      gain.gain.setValueAtTime(0.15, t);
+      gain.gain.exponentialRampToValueAtTime(0.01, t + 0.03);
+      osc.connect(gain);
+      gain.connect(this.masterGain);
+      osc.start(t);
+      osc.stop(t + 0.03);
+    }
+  }
+
+  const sounds = new StandaloneSoundEngine();
+
+  // --- Camera Engine ---
+  class StandaloneCamera {
+    constructor(canvasWidth, canvasHeight) {
+      this.x = 0;
+      this.y = 0;
+      this.width = canvasWidth;
+      this.height = canvasHeight;
+      this.target = null;
+      this.zoom = 1.0;
+    }
+
+    setTarget(entity) {
+      this.target = entity;
+    }
+
+    update(dt) {
+      if (!this.target) return;
+      const targetCenterX = this.target.x + this.target.width / 2;
+      const targetCenterY = this.target.y + this.target.height / 2;
+      const lookAhead = (this.target.facing === 'left' ? -40 : 40);
+      const desiredX = targetCenterX - (this.width / 2) + lookAhead;
+      const desiredY = targetCenterY - (this.height / 2) - 20;
+
+      const lerpSpeed = Math.min(1.0, 7.5 * dt);
+      this.x += (desiredX - this.x) * lerpSpeed;
+      this.y += (desiredY - this.y) * lerpSpeed;
+      if (this.y > 600) this.y = 600;
+    }
+  }
+
+  // --- Physics Collision Engine ---
+  class StandalonePhysics {
+    constructor() {
+      this.gravity = 1480;
+    }
+
+    checkOverlap(a, b) {
+      return (
+        a.x < b.x + b.width &&
+        a.x + a.width > b.x &&
+        a.y < b.y + b.height &&
+        a.y + a.height > b.y
+      );
+    }
+
+    updateEntity(entity, solids, dt) {
+      const gScale = entity.gravityScale !== undefined ? entity.gravityScale : 1.0;
+      entity.vy += this.gravity * gScale * dt;
+      if (entity.vy > 950) entity.vy = 950;
+
+      entity.x += entity.vx * dt;
+      for (const s of solids) {
+        if (!s.active && s.active !== undefined) continue;
+        if (s.variant === 'cloud') continue; // One-way clouds don't block horizontal
+        if (s.variant === 'slope') continue;
+        if (this.checkOverlap(entity, s)) {
+          if (entity.vx > 0) {
+            entity.x = s.x - entity.width;
+            entity.vx = 0;
+          } else if (entity.vx < 0) {
+            entity.x = s.x + s.width;
+            entity.vx = 0;
+          }
+        }
+      }
+
+      entity.y += entity.vy * dt;
+      entity.grounded = false;
+
+      for (const s of solids) {
+        if (!s.active && s.active !== undefined) continue;
+        if (s.variant === 'slope') {
+          this.handleSlope(entity, s);
+          continue;
+        }
+
+        if (s.variant === 'cloud') {
+          // Semi-solid one-way platform
+          const prevY = entity.y - entity.vy * dt;
+          if (entity.vy >= 0 && prevY + entity.height <= s.y + 12 && this.checkOverlap(entity, s)) {
+            entity.y = s.y - entity.height;
+            entity.vy = 0;
+            entity.grounded = true;
+            entity.standingOnSolid = s;
+          }
+          continue;
+        }
+
+        if (this.checkOverlap(entity, s)) {
+          if (entity.vy > 0) {
+            entity.y = s.y - entity.height;
+            entity.vy = 0;
+            entity.grounded = true;
+            entity.standingOnSolid = s;
+          } else if (entity.vy < 0) {
+            entity.y = s.y + s.height;
+            entity.vy = 0;
+            if (s.bump) s.bump(entity);
+          }
+        }
+      }
+    }
+
+    handleSlope(entity, slope) {
+      if (entity.x + entity.width <= slope.x || entity.x >= slope.x + slope.width) return;
+      const relX = Math.max(0, Math.min(slope.width, (entity.x + entity.width / 2) - slope.x));
+      const t = relX / slope.width;
+
+      let surfaceY = slope.y + slope.height;
+      if (slope.orientation === 'up-right' || !slope.orientation) {
+        surfaceY = slope.y + slope.height - (t * slope.height);
+      } else if (slope.orientation === 'up-left') {
+        surfaceY = slope.y + (t * slope.height);
+      } else if (slope.orientation === 'ceiling-right') {
+        surfaceY = slope.y + (t * slope.height);
+      } else if (slope.orientation === 'ceiling-left') {
+        surfaceY = slope.y + slope.height - (t * slope.height);
+      }
+
+      const entityBottom = entity.y + entity.height;
+      if (entityBottom >= surfaceY - 8 && entity.y <= slope.y + slope.height) {
+        entity.y = surfaceY - entity.height;
+        if (entity.vy > 0) entity.vy = 0;
+        entity.grounded = true;
+        entity.standingOnSolid = slope;
+      }
+    }
+  }
+
+  // --- Game Entity Models ---
+  class Player {
+    constructor(x, y) {
+      this.x = x || 100;
+      this.y = y || 300;
+      this.spawnX = this.x;
+      this.spawnY = this.y;
+      this.width = 32;
+      this.height = 36;
+      this.type = 'player';
+      this.vx = 0;
+      this.vy = 0;
+      this.speed = 280;
+      this.jumpForce = 580;
+      this.gravityScale = 1.0;
+      this.grounded = false;
+      this.facing = 'right';
+      this.hasGun = false;
+      this.shootCooldown = 0;
+      this.maxHearts = 4;
+      this.hearts = 4;
+      this.invulnerableTimer = 0;
+      this.customVisual = null;
+      this.customImageElement = null;
+    }
+
+    setCustomVisual(dataUrl) {
+      this.customVisual = dataUrl;
+      if (dataUrl) {
+        const img = new Image();
+        img.src = dataUrl;
+        img.onload = () => { this.customImageElement = img; };
+      } else {
+        this.customImageElement = null;
+      }
+    }
+
+    respawn() {
+      this.x = this.spawnX;
+      this.y = this.spawnY;
+      this.vx = 0;
+      this.vy = 0;
+      this.grounded = false;
+      this.hearts = this.maxHearts;
+      this.invulnerableTimer = 0;
+      this.hasGun = false;
+    }
+
+    takeDamage(amount = 1) {
+      if (this.invulnerableTimer > 0) return false;
+      this.hearts -= amount;
+      this.invulnerableTimer = 1.2;
+      this.vy = -340;
+      return true;
+    }
+
+    handleInput(keys, dt) {
+      let moveDir = 0;
+      if (keys['ArrowLeft'] || keys['KeyA']) moveDir -= 1;
+      if (keys['ArrowRight'] || keys['KeyD']) moveDir += 1;
+
+      if (moveDir !== 0) {
+        this.vx = moveDir * this.speed;
+        this.facing = moveDir > 0 ? 'right' : 'left';
+      } else {
+        this.vx *= Math.pow(0.001, dt);
+        if (Math.abs(this.vx) < 5) this.vx = 0;
+      }
+
+      if ((keys['Space'] || keys['ArrowUp'] || keys['KeyW']) && this.grounded) {
+        this.vy = -this.jumpForce;
+        this.grounded = false;
+        sounds.playJump();
+      }
+
+      if (this.invulnerableTimer > 0) this.invulnerableTimer -= dt;
+      if (this.shootCooldown > 0) this.shootCooldown -= dt;
+
+      if ((keys['KeyX'] || keys['KeyF'] || keys['KeyE']) && this.hasGun && this.shootCooldown <= 0) {
+        this.shootCooldown = 0.28;
+        const bVx = this.facing === 'left' ? -620 : 620;
+        const bX = this.facing === 'left' ? this.x - 10 : this.x + this.width + 2;
+        return new Bullet(bX, this.y + 12, bVx);
+      }
+      return null;
+    }
+
+    render(ctx) {
+      ctx.save();
+      if (this.invulnerableTimer > 0 && Math.floor(performance.now() / 80) % 2 === 0) {
+        ctx.globalAlpha = 0.45;
+      }
+
+      if (this.customImageElement && this.customImageElement.complete) {
+        ctx.translate(this.x + this.width / 2, this.y + this.height / 2);
+        if (this.facing === 'left') ctx.scale(-1, 1);
+        ctx.drawImage(this.customImageElement, -this.width / 2, -this.height / 2, this.width, this.height);
+      } else {
+        // Built-in Rabbit Hero Sprite
+        ctx.translate(this.x, this.y);
+        if (this.facing === 'left') {
+          ctx.translate(this.width, 0);
+          ctx.scale(-1, 1);
+        }
+
+        // Body
+        ctx.fillStyle = '#FFFFFF';
+        ctx.strokeStyle = '#121212';
+        ctx.lineWidth = 2.5;
+
+        // Ears
+        ctx.beginPath();
+        ctx.ellipse(10, 4, 4, 10, -0.15, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.ellipse(22, 3, 4, 11, 0.15, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+
+        // Ear pink inners
+        ctx.fillStyle = '#FDA4AF';
+        ctx.beginPath();
+        ctx.ellipse(10, 5, 2, 7, -0.15, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.beginPath();
+        ctx.ellipse(22, 4, 2, 8, 0.15, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Torso & head
+        ctx.fillStyle = '#FFFFFF';
+        ctx.beginPath();
+        ctx.roundRect(4, 10, 24, 24, 8);
+        ctx.fill();
+        ctx.stroke();
+
+        // Eye & cheek
+        ctx.fillStyle = '#121212';
+        ctx.fillRect(19, 16, 4, 5);
+        ctx.fillStyle = '#FDA4AF';
+        ctx.beginPath();
+        ctx.arc(17, 24, 3, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Gun equipped visual
+        if (this.hasGun) {
+          ctx.fillStyle = '#00E5FF';
+          ctx.strokeStyle = '#121212';
+          ctx.lineWidth = 2;
+          ctx.fillRect(22, 20, 10, 5);
+          ctx.strokeRect(22, 20, 10, 5);
+        }
+      }
+      ctx.restore();
+    }
+  }
+
+  class SolidBlock {
+    constructor(x, y, w, h, variant = 'solid', content = null) {
+      this.x = x;
+      this.y = y;
+      this.width = w || 40;
+      this.height = h || 40;
+      this.type = 'block';
+      this.variant = variant;
+      this.material = 'turf';
+      this.content = content;
+      this.isUsed = false;
+      this.orientation = 'up-right';
+      this.customVisual = null;
+      this.customImageElement = null;
+    }
+
+    setCustomVisual(dataUrl) {
+      this.customVisual = dataUrl;
+      if (dataUrl) {
+        const img = new Image();
+        img.src = dataUrl;
+        img.onload = () => { this.customImageElement = img; };
+      }
+    }
+
+    bump(player) {
+      if (this.variant === 'mystery' && !this.isUsed) {
+        this.isUsed = true;
+        sounds.playCoin();
+        if (this.content === 'gun') player.hasGun = true;
+      }
+    }
+
+    render(ctx, theme) {
+      ctx.save();
+      if (this.customImageElement && this.customImageElement.complete) {
+        ctx.drawImage(this.customImageElement, this.x, this.y, this.width, this.height);
+        ctx.restore();
+        return;
+      }
+
+      if (this.variant === 'slope') {
+        ctx.beginPath();
+        if (this.orientation === 'up-right') {
+          ctx.moveTo(this.x, this.y + this.height);
+          ctx.lineTo(this.x + this.width, this.y);
+          ctx.lineTo(this.x + this.width, this.y + this.height);
+        } else if (this.orientation === 'up-left') {
+          ctx.moveTo(this.x, this.y);
+          ctx.lineTo(this.x + this.width, this.y + this.height);
+          ctx.lineTo(this.x, this.y + this.height);
+        }
+        ctx.closePath();
+        ctx.fillStyle = '#65A30D';
+        ctx.fill();
+        ctx.strokeStyle = '#121212';
+        ctx.lineWidth = 2.5;
+        ctx.stroke();
+        ctx.restore();
+        return;
+      }
+
+      if (this.variant === 'mystery') {
+        ctx.fillStyle = this.isUsed ? '#94A3B8' : '#F59E0B';
+        ctx.fillRect(this.x, this.y, this.width, this.height);
+        ctx.strokeStyle = '#121212';
+        ctx.lineWidth = 2.5;
+        ctx.strokeRect(this.x, this.y, this.width, this.height);
+        ctx.fillStyle = '#121212';
+        ctx.font = 'bold 20px monospace';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(this.isUsed ? '—' : '?', this.x + this.width / 2, this.y + this.height / 2);
+        ctx.restore();
+        return;
+      }
+
+      if (this.variant === 'cloud') {
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+        ctx.beginPath();
+        ctx.roundRect(this.x, this.y, this.width, this.height, 12);
+        ctx.fill();
+        ctx.strokeStyle = '#CBD5E1';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        ctx.restore();
+        return;
+      }
+
+      // Standard Theme Turf / Rock
+      let topColor = '#22C55E';
+      let dirtColor = '#78350F';
+      if (theme === 'snowy') { topColor = '#E0F2FE'; dirtColor = '#334155'; }
+      else if (theme === 'night') { topColor = '#4338CA'; dirtColor = '#1E1B4B'; }
+      else if (theme === 'chrome') { topColor = '#E2E8F0'; dirtColor = '#475569'; }
+      else if (theme === '8-bit') { topColor = '#00D800'; dirtColor = '#D82800'; }
+      else if (theme === 'neon') { topColor = '#00E5FF'; dirtColor = '#121212'; }
+      else if (theme === 'atlantis') { topColor = '#0284C7'; dirtColor = '#0F172A'; }
+      else if (theme === 'jungle') { topColor = '#15803D'; dirtColor = '#2D1B00'; }
+
+      ctx.fillStyle = dirtColor;
+      ctx.fillRect(this.x, this.y, this.width, this.height);
+      ctx.fillStyle = topColor;
+      ctx.fillRect(this.x, this.y, this.width, 10);
+      ctx.strokeStyle = '#121212';
+      ctx.lineWidth = 2.5;
+      ctx.strokeRect(this.x, this.y, this.width, this.height);
+      ctx.restore();
+    }
+  }
+
+  class Hazard {
+    constructor(x, y, w, h) {
+      this.x = x;
+      this.y = y;
+      this.width = w || 40;
+      this.height = h || 40;
+      this.type = 'hazard';
+      this.customVisual = null;
+      this.customImageElement = null;
+    }
+
+    setCustomVisual(dataUrl) {
+      this.customVisual = dataUrl;
+      if (dataUrl) {
+        const img = new Image();
+        img.src = dataUrl;
+        img.onload = () => { this.customImageElement = img; };
+      }
+    }
+
+    render(ctx) {
+      ctx.save();
+      if (this.customImageElement && this.customImageElement.complete) {
+        ctx.drawImage(this.customImageElement, this.x, this.y, this.width, this.height);
+        ctx.restore();
+        return;
+      }
+      ctx.fillStyle = '#EF4444';
+      ctx.strokeStyle = '#121212';
+      ctx.lineWidth = 2.5;
+      const count = Math.max(1, Math.floor(this.width / 14));
+      const segW = this.width / count;
+      ctx.beginPath();
+      ctx.moveTo(this.x, this.y + this.height);
+      for (let i = 0; i < count; i++) {
+        ctx.lineTo(this.x + i * segW + segW / 2, this.y);
+        ctx.lineTo(this.x + (i + 1) * segW, this.y + this.height);
+      }
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+      ctx.restore();
+    }
+  }
+
+  class Enemy {
+    constructor(x, y, variant = 'walker') {
+      this.x = x;
+      this.y = y;
+      this.width = 34;
+      this.height = 34;
+      this.type = 'enemy';
+      this.variant = variant;
+      this.vx = -65;
+      this.vy = 0;
+      this.active = true;
+      this.isSquashed = false;
+      this.stompable = variant !== 'spiky';
+      this.customVisual = null;
+      this.customImageElement = null;
+    }
+
+    setCustomVisual(dataUrl) {
+      this.customVisual = dataUrl;
+      if (dataUrl) {
+        const img = new Image();
+        img.src = dataUrl;
+        img.onload = () => { this.customImageElement = img; };
+      }
+    }
+
+    update(dt, solids) {
+      if (!this.active || this.isSquashed) return;
+      this.vy += 1200 * dt;
+      this.x += this.vx * dt;
+
+      for (const s of solids) {
+        if (s.variant === 'slope') continue;
+        if (this.x < s.x + s.width && this.x + this.width > s.x && this.y < s.y + s.height && this.y + this.height > s.y) {
+          if (this.vx > 0) {
+            this.x = s.x - this.width;
+            this.vx = -Math.abs(this.vx);
+          } else {
+            this.x = s.x + s.width;
+            this.vx = Math.abs(this.vx);
+          }
+        }
+      }
+
+      this.y += this.vy * dt;
+      for (const s of solids) {
+        if (this.x < s.x + s.width && this.x + this.width > s.x && this.y < s.y + s.height && this.y + this.height > s.y) {
+          if (this.vy > 0) {
+            this.y = s.y - this.height;
+            this.vy = 0;
+          }
+        }
+      }
+    }
+
+    stomp() {
+      this.isSquashed = true;
+      this.active = false;
+      sounds.playStomp();
+    }
+
+    render(ctx) {
+      if (!this.active) return;
+      ctx.save();
+      if (this.customImageElement && this.customImageElement.complete) {
+        ctx.drawImage(this.customImageElement, this.x, this.y, this.width, this.height);
+        ctx.restore();
+        return;
+      }
+
+      // Default Monster Sprite
+      ctx.fillStyle = this.variant === 'spiky' ? '#7C3AED' : '#DC2626';
+      ctx.beginPath();
+      ctx.roundRect(this.x, this.y, this.width, this.height, 8);
+      ctx.fill();
+      ctx.strokeStyle = '#121212';
+      ctx.lineWidth = 2.5;
+      ctx.stroke();
+
+      // Eyes
+      ctx.fillStyle = '#FFFFFF';
+      ctx.fillRect(this.x + 6, this.y + 8, 6, 8);
+      ctx.fillRect(this.x + 22, this.y + 8, 6, 8);
+      ctx.fillStyle = '#121212';
+      ctx.fillRect(this.x + (this.vx > 0 ? 8 : 6), this.y + 11, 4, 5);
+      ctx.fillRect(this.x + (this.vx > 0 ? 24 : 22), this.y + 11, 4, 5);
+
+      if (this.variant === 'spiky') {
+        ctx.fillStyle = '#F59E0B';
+        ctx.beginPath();
+        ctx.moveTo(this.x + 10, this.y);
+        ctx.lineTo(this.x + 17, this.y - 10);
+        ctx.lineTo(this.x + 24, this.y);
+        ctx.fill();
+        ctx.stroke();
+      }
+      ctx.restore();
+    }
+  }
+
+  class Springboard {
+    constructor(x, y, variant = 'spring') {
+      this.x = x;
+      this.y = y;
+      this.width = 40;
+      this.height = 36;
+      this.type = 'springboard';
+      this.variant = variant;
+      this.launchForce = variant === 'mega' ? 950 : 750;
+      this.compressTimer = 0;
+      this.customVisual = null;
+      this.customImageElement = null;
+    }
+
+    setCustomVisual(dataUrl) {
+      this.customVisual = dataUrl;
+      if (dataUrl) {
+        const img = new Image();
+        img.src = dataUrl;
+        img.onload = () => { this.customImageElement = img; };
+      }
+    }
+
+    trigger() {
+      this.compressTimer = 0.22;
+      sounds.playSpring();
+    }
+
+    update(dt) {
+      if (this.compressTimer > 0) this.compressTimer -= dt;
+    }
+
+    render(ctx) {
+      ctx.save();
+      const compress = this.compressTimer > 0 ? 10 : 0;
+      ctx.fillStyle = this.variant === 'mega' ? '#EC4899' : '#00E5FF';
+      ctx.beginPath();
+      ctx.roundRect(this.x + 4, this.y + compress + 8, this.width - 8, this.height - compress - 8, 4);
+      ctx.fill();
+      ctx.strokeStyle = '#121212';
+      ctx.lineWidth = 2.5;
+      ctx.stroke();
+
+      // Top pad
+      ctx.fillStyle = '#FFE600';
+      ctx.fillRect(this.x, this.y + compress, this.width, 8);
+      ctx.strokeRect(this.x, this.y + compress, this.width, 8);
+      ctx.restore();
+    }
+  }
+
+  class Collectible {
+    constructor(x, y, variant = 'coin') {
+      this.x = x;
+      this.y = y;
+      this.width = 30;
+      this.height = 30;
+      this.type = 'collectible';
+      this.variant = variant;
+      this.collected = false;
+      this.customVisual = null;
+      this.customImageElement = null;
+    }
+
+    setCustomVisual(dataUrl) {
+      this.customVisual = dataUrl;
+      if (dataUrl) {
+        const img = new Image();
+        img.src = dataUrl;
+        img.onload = () => { this.customImageElement = img; };
+      }
+    }
+
+    collect(player) {
+      if (this.collected) return;
+      this.collected = true;
+      sounds.playCoin();
+      if (this.variant === 'heart') {
+        player.hearts = Math.min(player.maxHearts, player.hearts + 1);
+      } else if (this.variant === 'gun') {
+        player.hasGun = true;
+      }
+    }
+
+    render(ctx) {
+      if (this.collected) return;
+      ctx.save();
+      const bob = Math.sin(performance.now() * 0.005) * 4;
+      const cy = this.y + bob;
+
+      if (this.variant === 'star') {
+        ctx.fillStyle = '#FFE600';
+        ctx.strokeStyle = '#121212';
+        ctx.lineWidth = 2.5;
+        ctx.beginPath();
+        for (let i = 0; i < 5; i++) {
+          ctx.lineTo(this.x + 15 + Math.cos((18 + i * 72) * Math.PI / 180) * 14, cy + 15 - Math.sin((18 + i * 72) * Math.PI / 180) * 14);
+          ctx.lineTo(this.x + 15 + Math.cos((54 + i * 72) * Math.PI / 180) * 7, cy + 15 - Math.sin((54 + i * 72) * Math.PI / 180) * 7);
+        }
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+      } else if (this.variant === 'heart') {
+        ctx.fillStyle = '#EF4444';
+        ctx.font = '22px sans-serif';
+        ctx.fillText('❤️', this.x, cy + 22);
+      } else if (this.variant === 'gun') {
+        ctx.fillStyle = '#00E5FF';
+        ctx.font = '22px sans-serif';
+        ctx.fillText('🔫', this.x, cy + 22);
+      } else {
+        // Coin
+        ctx.fillStyle = '#F59E0B';
+        ctx.strokeStyle = '#121212';
+        ctx.lineWidth = 2.5;
+        ctx.beginPath();
+        ctx.arc(this.x + 15, cy + 15, 12, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+        ctx.fillStyle = '#FEF3C7';
+        ctx.beginPath();
+        ctx.arc(this.x + 15, cy + 15, 7, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.restore();
+    }
+  }
+
+  class Goal {
+    constructor(x, y) {
+      this.x = x;
+      this.y = y;
+      this.width = 36;
+      this.height = 140;
+      this.type = 'goal';
+    }
+
+    render(ctx) {
+      ctx.save();
+      // Pole
+      ctx.fillStyle = '#E2E8F0';
+      ctx.strokeStyle = '#121212';
+      ctx.lineWidth = 2.5;
+      ctx.fillRect(this.x + 6, this.y, 8, this.height);
+      ctx.strokeRect(this.x + 6, this.y, 8, this.height);
+
+      // Flag
+      ctx.fillStyle = '#EF4444';
+      ctx.beginPath();
+      ctx.moveTo(this.x + 14, this.y + 6);
+      ctx.lineTo(this.x + 44, this.y + 22);
+      ctx.lineTo(this.x + 14, this.y + 38);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+
+      // Finial
+      ctx.fillStyle = '#FFE600';
+      ctx.beginPath();
+      ctx.arc(this.x + 10, this.y + 2, 6, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+      ctx.restore();
+    }
+  }
+
+  class Bullet {
+    constructor(x, y, vx) {
+      this.x = x;
+      this.y = y;
+      this.vx = vx;
+      this.width = 10;
+      this.height = 10;
+      this.active = true;
+      this.life = 1.6;
+    }
+
+    update(dt, solids) {
+      this.x += this.vx * dt;
+      this.life -= dt;
+      if (this.life <= 0) this.active = false;
+      for (const s of solids) {
+        if (s.variant === 'slope') continue;
+        if (this.x < s.x + s.width && this.x + this.width > s.x && this.y < s.y + s.height && this.y + this.height > s.y) {
+          this.active = false;
+          break;
+        }
+      }
+    }
+
+    render(ctx) {
+      ctx.save();
+      ctx.fillStyle = '#00E5FF';
+      ctx.strokeStyle = '#121212';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.arc(this.x + 5, this.y + 5, 5, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+      ctx.restore();
+    }
+  }
+
+  // --- Main Standalone Game Controller ---
+  class StandaloneGame {
+    constructor(levelData) {
+      this.data = levelData;
+      this.canvas = document.getElementById('game-canvas');
+      this.ctx = this.canvas.getContext('2d');
+      this.camera = new StandaloneCamera(this.canvas.width, this.canvas.height);
+      this.physics = new StandalonePhysics();
+
+      this.theme = levelData.theme || 'grass';
+      this.background = levelData.background || { theme: this.theme };
+      this.customBgImage = null;
+      if (this.background.customImage) {
+        const bgImg = new Image();
+        bgImg.src = this.background.customImage;
+        bgImg.onload = () => { this.customBgImage = bgImg; };
+      }
+
+      this.score = 0;
+      this.coins = 0;
+      this.isLevelWon = false;
+      this.isGameOver = false;
+
+      this.keys = {};
+      this.confetti = [];
+      this.bullets = [];
+
+      // Particle caches
+      this.snowflakes = Array.from({ length: 48 }, () => ({
+        x: Math.random() * 2000,
+        y: Math.random() * 1200,
+        radius: Math.random() * 2.2 + 1.0,
+        speed: Math.random() * 0.8 + 0.6,
+        drift: Math.random() * 0.6 - 0.3
+      }));
+
+      this.bubbles = Array.from({ length: 45 }, () => ({
+        x: Math.random() * 2000,
+        y: Math.random() * 1200,
+        radius: Math.random() * 3.5 + 1.8,
+        speed: Math.random() * 0.9 + 0.7,
+        wobbleSpeed: Math.random() * 0.003 + 0.002,
+        wobbleAmp: Math.random() * 16 + 8,
+        baseX: Math.random() * 2000
+      }));
+
+      this.chromeSparks = Array.from({ length: 42 }, () => ({
+        x: Math.random() * 2000,
+        y: Math.random() * 1200,
+        size: Math.random() * 2.5 + 1.2,
+        speed: Math.random() * 0.8 + 0.4,
+        twinkleSpeed: Math.random() * 0.005 + 0.002,
+        twinklePhase: Math.random() * Math.PI * 2,
+        isStarburst: Math.random() > 0.45,
+        color: ['#FFFFFF', '#E2E8F0', '#38BDF8', '#F59E0B'][Math.floor(Math.random() * 4)]
+      }));
+
+      this.jungleFireflies = Array.from({ length: 45 }, () => ({
+        x: Math.random() * 2000,
+        y: Math.random() * 1200,
+        baseX: Math.random() * 2000,
+        radius: Math.random() * 2.8 + 1.2,
+        speed: Math.random() * 0.4 + 0.2,
+        wobbleSpeed: Math.random() * 0.0025 + 0.0015,
+        wobbleAmp: Math.random() * 22 + 10,
+        glowSpeed: Math.random() * 0.004 + 0.002,
+        glowPhase: Math.random() * Math.PI * 2,
+        color: ['#4ADE80', '#FBBF24', '#A3E635', '#34D399'][Math.floor(Math.random() * 4)]
+      }));
+
+      this.initEntities();
+      this.bindInputs();
+      this.updateHud();
+
+      this.lastTime = performance.now();
+      requestAnimationFrame((t) => this.gameLoop(t));
+    }
+
+    initEntities() {
+      const pData = this.data.player || {};
+      this.player = new Player(pData.spawnX || 100, pData.spawnY || 300);
+      if (pData.speed) this.player.speed = pData.speed;
+      if (pData.jumpForce) this.player.jumpForce = pData.jumpForce;
+      if (pData.maxHearts) this.player.maxHearts = pData.maxHearts;
+      this.player.hearts = this.player.maxHearts;
+      if (pData.customVisual) this.player.setCustomVisual(pData.customVisual);
+
+      this.camera.setTarget(this.player);
+
+      this.entities = [];
+      const rawEntities = this.data.entities || [];
+      for (const d of rawEntities) {
+        if (!d) continue;
+        let ent = null;
+        if (d.type === 'block' || d.type === 'crate') {
+          ent = new SolidBlock(d.x, d.y, d.width, d.height, d.variant || 'solid', d.content);
+          if (d.orientation) ent.orientation = d.orientation;
+        } else if (d.type === 'hazard') {
+          ent = new Hazard(d.x, d.y, d.width, d.height);
+        } else if (d.type === 'enemy') {
+          ent = new Enemy(d.x, d.y, d.variant || 'walker');
+        } else if (d.type === 'springboard') {
+          ent = new Springboard(d.x, d.y, d.variant || 'spring');
+        } else if (d.type === 'collectible') {
+          ent = new Collectible(d.x, d.y, d.variant || 'coin');
+        } else if (d.type === 'goal') {
+          ent = new Goal(d.x, d.y);
+        }
+        if (ent) {
+          if (d.customVisual) ent.setCustomVisual(d.customVisual);
+          this.entities.push(ent);
+        }
+      }
+    }
+
+    restart() {
+      this.isLevelWon = false;
+      this.isGameOver = false;
+      document.getElementById('victory-overlay').classList.remove('active');
+      document.getElementById('gameover-overlay').classList.remove('active');
+      this.score = 0;
+      this.coins = 0;
+      this.bullets = [];
+      this.confetti = [];
+      this.initEntities();
+      this.updateHud();
+      sounds.playClick();
+    }
+
+    bindInputs() {
+      window.addEventListener('keydown', (e) => {
+        this.keys[e.code] = true;
+        sounds.ensureContext();
+        if (e.code === 'KeyR') {
+          this.restart();
+        } else if (e.code === 'KeyM') {
+          sounds.setMuted(!sounds.muted);
+          document.getElementById('sound-btn').textContent = sounds.muted ? '🔇' : '🔊';
+        } else if (e.code === 'KeyF') {
+          this.toggleFullscreen();
+        } else if (e.code === 'Space' && (this.isLevelWon || this.isGameOver)) {
+          this.restart();
+        }
+      });
+
+      window.addEventListener('keyup', (e) => {
+        this.keys[e.code] = false;
+      });
+
+      // HUD Button Events
+      document.getElementById('restart-btn').addEventListener('click', () => this.restart());
+      document.getElementById('sound-btn').addEventListener('click', () => {
+        sounds.setMuted(!sounds.muted);
+        document.getElementById('sound-btn').textContent = sounds.muted ? '🔇' : '🔊';
+      });
+      document.getElementById('fullscreen-btn').addEventListener('click', () => this.toggleFullscreen());
+      document.getElementById('victory-replay-btn').addEventListener('click', () => this.restart());
+      document.getElementById('gameover-retry-btn').addEventListener('click', () => this.restart());
+
+      // Touch Buttons Events
+      const bindTouch = (id, keyName) => {
+        const btn = document.getElementById(id);
+        if (!btn) return;
+        const press = (ev) => {
+          ev.preventDefault();
+          this.keys[keyName] = true;
+          sounds.ensureContext();
+        };
+        const release = (ev) => {
+          ev.preventDefault();
+          this.keys[keyName] = false;
+        };
+        btn.addEventListener('touchstart', press, { passive: false });
+        btn.addEventListener('touchend', release, { passive: false });
+        btn.addEventListener('mousedown', press);
+        btn.addEventListener('mouseup', release);
+      };
+
+      bindTouch('touch-left', 'ArrowLeft');
+      bindTouch('touch-right', 'ArrowRight');
+      bindTouch('touch-jump', 'Space');
+      bindTouch('touch-shoot', 'KeyX');
+    }
+
+    toggleFullscreen() {
+      const elem = document.getElementById('game-wrapper');
+      if (!document.fullscreenElement) {
+        elem.requestFullscreen().catch(() => {});
+      } else {
+        document.exitFullscreen().catch(() => {});
+      }
+    }
+
+    updateHud() {
+      const heartsContainer = document.getElementById('hud-hearts-container');
+      if (heartsContainer) {
+        let str = '';
+        for (let i = 0; i < this.player.maxHearts; i++) {
+          str += i < this.player.hearts ? '❤️' : '🖤';
+        }
+        heartsContainer.textContent = str;
+      }
+      const scoreVal = document.getElementById('hud-score-val');
+      if (scoreVal) scoreVal.textContent = this.score;
+
+      const touchShoot = document.getElementById('touch-shoot');
+      if (touchShoot) {
+        touchShoot.style.display = this.player.hasGun ? 'flex' : 'none';
+      }
+    }
+
+    update(dt) {
+      if (this.isLevelWon || this.isGameOver) return;
+
+      const bullet = this.player.handleInput(this.keys, dt);
+      if (bullet) {
+        this.bullets.push(bullet);
+        sounds.playShoot();
+      }
+
+      const solids = this.entities.filter(e => e.type === 'block' || e.type === 'springboard');
+      this.physics.updateEntity(this.player, solids, dt);
+
+      // Check Fall into Abyss
+      if (this.player.y > 900) {
+        this.isGameOver = true;
+        sounds.playHurt();
+        document.getElementById('gameover-overlay').classList.add('active');
+        return;
+      }
+
+      // Bullets vs Enemies
+      for (const b of this.bullets) {
+        b.update(dt, solids);
+        if (!b.active) continue;
+        for (const ent of this.entities) {
+          if (ent.type === 'enemy' && ent.active && !ent.isSquashed && this.physics.checkOverlap(b, ent)) {
+            b.active = false;
+            ent.stomp();
+            this.score += 150;
+            break;
+          }
+        }
+      }
+      this.bullets = this.bullets.filter(b => b.active);
+
+      // Entity Updates & Player Overlaps
+      for (const ent of this.entities) {
+        if (!ent.active && ent.active !== undefined) continue;
+
+        if (ent.type === 'enemy') {
+          ent.update(dt, solids);
+          if (ent.active && !ent.isSquashed && this.physics.checkOverlap(this.player, ent)) {
+            const isFalling = this.player.vy > 0;
+            const isAbove = this.player.y + this.player.height - 10 <= ent.y + ent.height * 0.7;
+            if (ent.stompable && isFalling && isAbove) {
+              ent.stomp();
+              this.player.vy = -420;
+              this.score += 100;
+            } else {
+              if (this.player.takeDamage(1)) {
+                sounds.playHurt();
+                if (this.player.hearts <= 0) {
+                  this.isGameOver = true;
+                  document.getElementById('gameover-overlay').classList.add('active');
+                }
+              }
+            }
+          }
+        } else if (ent.type === 'hazard') {
+          if (this.physics.checkOverlap(this.player, ent)) {
+            if (this.player.takeDamage(1)) {
+              sounds.playHurt();
+              if (this.player.hearts <= 0) {
+                this.isGameOver = true;
+                document.getElementById('gameover-overlay').classList.add('active');
+              }
+            }
+          }
+        } else if (ent.type === 'springboard') {
+          ent.update(dt);
+          const isOverlapping = this.physics.checkOverlap(this.player, ent);
+          if (isOverlapping && this.player.y < ent.y + 10 && this.player.vy >= 0) {
+            const jumpBonus = (this.keys['Space'] || this.keys['ArrowUp'] || this.keys['KeyW']) ? 1.25 : 1.0;
+            this.player.vy = -ent.launchForce * jumpBonus;
+            this.player.grounded = false;
+            ent.trigger();
+          }
+        } else if (ent.type === 'collectible') {
+          if (!ent.collected && this.physics.checkOverlap(this.player, ent)) {
+            ent.collect(this.player);
+            this.score += (ent.variant === 'star' ? 250 : 50);
+          }
+        } else if (ent.type === 'goal') {
+          if (this.physics.checkOverlap(this.player, ent)) {
+            this.triggerVictory();
+          }
+        }
+      }
+
+      this.camera.update(dt);
+      this.updateHud();
+
+      // Confetti physics
+      if (this.confetti.length > 0) {
+        for (let i = this.confetti.length - 1; i >= 0; i--) {
+          const p = this.confetti[i];
+          p.x += p.vx;
+          p.y += p.vy;
+          p.vy += 0.2;
+          p.life -= dt;
+          if (p.life <= 0) this.confetti.splice(i, 1);
+        }
+      }
+    }
+
+    triggerVictory() {
+      this.isLevelWon = true;
+      sounds.playVictory();
+      document.getElementById('victory-score-text').textContent = \`Final Score: \${this.score} PTS\`;
+      document.getElementById('victory-overlay').classList.add('active');
+
+      const colors = ['#00E5FF', '#FFE600', '#FF3388', '#00E676', '#B388FF'];
+      for (let i = 0; i < 90; i++) {
+        this.confetti.push({
+          x: this.canvas.width / 2 + (Math.random() - 0.5) * 200,
+          y: this.canvas.height / 2,
+          vx: (Math.random() - 0.5) * 16,
+          vy: -Math.random() * 12 - 4,
+          size: Math.random() * 8 + 6,
+          color: colors[Math.floor(Math.random() * colors.length)],
+          life: 3.0
+        });
+      }
+    }
+
+    // --- Background Themes Rendering ---
+    renderBackground(w, h) {
+      if (this.customBgImage && this.customBgImage.complete) {
+        this.ctx.drawImage(this.customBgImage, 0, 0, w, h);
+        return;
+      }
+
+      const time = performance.now() * 0.001;
+
+      switch (this.theme) {
+        case 'atlantis': {
+          const oceanGrad = this.ctx.createLinearGradient(0, 0, 0, h);
+          oceanGrad.addColorStop(0, '#02182B');
+          oceanGrad.addColorStop(0.5, '#052F4E');
+          oceanGrad.addColorStop(1, '#021424');
+          this.ctx.fillStyle = oceanGrad;
+          this.ctx.fillRect(0, 0, w, h);
+
+          // Caustic sunbeams
+          for (let i = 0; i < 4; i++) {
+            const bx = (w * 0.2) + i * (w * 0.22) + Math.sin(time + i * 1.5) * 25;
+            const bGrad = this.ctx.createLinearGradient(bx, 0, bx - 100, h);
+            bGrad.addColorStop(0, 'rgba(56, 189, 248, 0.14)');
+            bGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+            this.ctx.fillStyle = bGrad;
+            this.ctx.beginPath();
+            this.ctx.moveTo(bx - 30, 0);
+            this.ctx.lineTo(bx + 30, 0);
+            this.ctx.lineTo(bx - 70, h);
+            this.ctx.lineTo(bx - 140, h);
+            this.ctx.fill();
+          }
+
+          // Bubbles
+          this.bubbles.forEach(b => {
+            b.y -= b.speed;
+            if (b.y < -15) b.y = h + 15;
+            const drawX = ((b.baseX - this.camera.x * 0.08) % w + w) % w;
+            this.ctx.fillStyle = 'rgba(125, 211, 252, 0.25)';
+            this.ctx.strokeStyle = 'rgba(224, 242, 254, 0.7)';
+            this.ctx.beginPath();
+            this.ctx.arc(drawX, b.y, b.radius, 0, Math.PI * 2);
+            this.ctx.fill();
+            this.ctx.stroke();
+          });
+          break;
+        }
+
+        case 'snowy': {
+          const grad = this.ctx.createLinearGradient(0, 0, 0, h);
+          grad.addColorStop(0, '#7DD3FC');
+          grad.addColorStop(0.7, '#E0F2FE');
+          this.ctx.fillStyle = grad;
+          this.ctx.fillRect(0, 0, w, h);
+
+          // Snowflakes
+          this.snowflakes.forEach(s => {
+            s.y += s.speed;
+            s.x += s.drift;
+            if (s.y > h + 10) s.y = -10;
+            const drawX = ((s.x - this.camera.x * 0.1) % w + w) % w;
+            this.ctx.fillStyle = '#FFFFFF';
+            this.ctx.beginPath();
+            this.ctx.arc(drawX, s.y, s.radius, 0, Math.PI * 2);
+            this.ctx.fill();
+          });
+          break;
+        }
+
+        case 'night': {
+          const grad = this.ctx.createLinearGradient(0, 0, 0, h);
+          grad.addColorStop(0, '#040814');
+          grad.addColorStop(0.6, '#0B132B');
+          grad.addColorStop(1, '#1C2541');
+          this.ctx.fillStyle = grad;
+          this.ctx.fillRect(0, 0, w, h);
+
+          // Moon
+          this.ctx.fillStyle = '#FDE68A';
+          this.ctx.beginPath();
+          this.ctx.arc(w - 120, 80, 34, 0, Math.PI * 2);
+          this.ctx.fill();
+          this.ctx.fillStyle = '#050917';
+          this.ctx.beginPath();
+          this.ctx.arc(w - 132, 74, 30, 0, Math.PI * 2);
+          this.ctx.fill();
+          break;
+        }
+
+        case 'chrome': {
+          // Upgraded Animated Sci-Fi Industrial Chrome Theme
+          const grad = this.ctx.createLinearGradient(0, 0, 0, h);
+          grad.addColorStop(0, '#070A10');
+          grad.addColorStop(0.3, '#131C2E');
+          grad.addColorStop(0.55, '#24334A');
+          grad.addColorStop(0.72, '#64748B');
+          grad.addColorStop(0.75, '#CBD5E1'); // Specular horizon flare
+          grad.addColorStop(1, '#0B111E');
+          this.ctx.fillStyle = grad;
+          this.ctx.fillRect(0, 0, w, h);
+
+          const horizon = h * 0.72;
+
+          // Volumetric Holographic Laser Pillars
+          for (let i = 0; i < 4; i++) {
+            const lx = ((i * 260 + Math.sin(time * 0.8 + i) * 20 - this.camera.x * 0.05) % w + w) % w;
+            const lGrad = this.ctx.createLinearGradient(lx, 0, lx, horizon);
+            lGrad.addColorStop(0, 'rgba(56, 189, 248, 0)');
+            lGrad.addColorStop(0.6, 'rgba(56, 189, 248, 0.06)');
+            lGrad.addColorStop(1, 'rgba(56, 189, 248, 0.22)');
+            this.ctx.fillStyle = lGrad;
+            this.ctx.fillRect(lx - 12, 0, 24, horizon);
+          }
+
+          // Distant Megastructures & Blinking Beacon Lights
+          this.ctx.fillStyle = '#1A2333';
+          const loopW = 800;
+          const off = (this.camera.x * 0.04) % loopW;
+          for (let x = -100; x < w + 200; x += 160) {
+            const tx = x - off;
+            this.ctx.fillRect(tx, horizon - 110, 36, 110);
+            this.ctx.fillRect(tx + 48, horizon - 75, 48, 75);
+            // Red warning beacon
+            const beaconOn = Math.sin(time * 4 + x) > 0;
+            this.ctx.fillStyle = beaconOn ? '#EF4444' : '#450A0A';
+            this.ctx.beginPath();
+            this.ctx.arc(tx + 18, horizon - 113, 3, 0, Math.PI * 2);
+            this.ctx.fill();
+            this.ctx.fillStyle = '#1A2333';
+          }
+
+          // Rotating Chrome Industrial Gears (Midground)
+          const gearOff = (this.camera.x * 0.08) % 600;
+          [160, 480].forEach((gx, idx) => {
+            const drawGx = ((gx - gearOff) % (w + 200) + (w + 200)) % (w + 200) - 100;
+            const drawGy = horizon - 50;
+            const rot = (time * 0.3) * (idx % 2 === 0 ? 1 : -1);
+            this.ctx.save();
+            this.ctx.translate(drawGx, drawGy);
+            this.ctx.rotate(rot);
+            this.ctx.strokeStyle = '#334155';
+            this.ctx.lineWidth = 6;
+            this.ctx.beginPath();
+            this.ctx.arc(0, 0, 38, 0, Math.PI * 2);
+            this.ctx.stroke();
+            // Teeth
+            for (let a = 0; a < 8; a++) {
+              const ang = a * (Math.PI / 4);
+              this.ctx.fillStyle = '#475569';
+              this.ctx.fillRect(Math.cos(ang) * 36 - 4, Math.sin(ang) * 36 - 4, 8, 8);
+            }
+            this.ctx.restore();
+          });
+
+          // Moving Specular Horizon Sheen
+          const gleamX = ((time * 160) % (w + 400)) - 200;
+          const gleamGrad = this.ctx.createRadialGradient(gleamX, horizon, 0, gleamX, horizon, 140);
+          gleamGrad.addColorStop(0, 'rgba(255, 255, 255, 0.7)');
+          gleamGrad.addColorStop(0.4, 'rgba(203, 213, 225, 0.3)');
+          gleamGrad.addColorStop(1, 'rgba(203, 213, 225, 0)');
+          this.ctx.fillStyle = gleamGrad;
+          this.ctx.fillRect(0, horizon - 10, w, 20);
+
+          // Animated Chrome Sparks & Starburst Gleams
+          this.chromeSparks.forEach(p => {
+            p.y -= p.speed;
+            if (p.y < 0) p.y = horizon;
+            const drawPx = ((p.x - this.camera.x * 0.09) % w + w) % w;
+            const twinkle = (Math.sin(time * 5 + p.twinklePhase) + 1) * 0.5;
+            this.ctx.fillStyle = p.color;
+            this.ctx.globalAlpha = 0.4 + twinkle * 0.6;
+            if (p.isStarburst) {
+              const sz = p.size * (1 + twinkle * 0.8);
+              this.ctx.fillRect(drawPx - sz, p.y - 0.8, sz * 2, 1.6);
+              this.ctx.fillRect(drawPx - 0.8, p.y - sz, 1.6, sz * 2);
+            } else {
+              this.ctx.beginPath();
+              this.ctx.arc(drawPx, p.y, p.size, 0, Math.PI * 2);
+              this.ctx.fill();
+            }
+            this.ctx.globalAlpha = 1.0;
+          });
+          break;
+        }
+
+        case 'jungle': {
+          // Upgraded Animated Lush Tropical Jungle Theme
+          const grad = this.ctx.createLinearGradient(0, 0, 0, h);
+          grad.addColorStop(0, '#02140A');
+          grad.addColorStop(0.35, '#064E3B');
+          grad.addColorStop(0.65, '#0F766E');
+          grad.addColorStop(0.80, '#34D399');
+          grad.addColorStop(1, '#062816');
+          this.ctx.fillStyle = grad;
+          this.ctx.fillRect(0, 0, w, h);
+
+          // Volumetric Animated Golden God Rays (Filtered through canopy)
+          for (let i = 0; i < 5; i++) {
+            const rx = (w * 0.15) + i * (w * 0.2) + Math.sin(time * 0.8 + i * 1.4) * 35;
+            const rGrad = this.ctx.createLinearGradient(rx, 0, rx + 140, h);
+            rGrad.addColorStop(0, 'rgba(253, 224, 71, 0.16)');
+            rGrad.addColorStop(0.6, 'rgba(253, 224, 71, 0.05)');
+            rGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+            this.ctx.fillStyle = rGrad;
+            this.ctx.beginPath();
+            this.ctx.moveTo(rx - 35, 0);
+            this.ctx.lineTo(rx + 45, 0);
+            this.ctx.lineTo(rx + 180, h);
+            this.ctx.lineTo(rx + 70, h);
+            this.ctx.fill();
+          }
+
+          // Distant Ancient Mayan Temple Pyramid Silhouette (Slow parallax)
+          const horizon = h * 0.74;
+          const pyrOff = (this.camera.x * 0.04) % 1000;
+          const pyrX = ((540 - pyrOff) % (w + 300) + (w + 300)) % (w + 300) - 150;
+          this.ctx.fillStyle = '#062F22';
+          // Stepped tiers
+          this.ctx.fillRect(pyrX - 70, horizon - 28, 140, 28);
+          this.ctx.fillRect(pyrX - 50, horizon - 52, 100, 24);
+          this.ctx.fillRect(pyrX - 32, horizon - 72, 64, 20);
+          this.ctx.fillRect(pyrX - 14, horizon - 88, 28, 16);
+
+          // Midground Giant Banyan Trunks & Canopy
+          this.ctx.fillStyle = '#07331F';
+          const jLoop = 900;
+          const jOff = (this.camera.x * 0.1) % jLoop;
+          for (let x = -100; x < w + 200; x += 150) {
+            const tx = x - jOff;
+            this.ctx.fillRect(tx + 24, horizon - 120, 14, 120);
+            this.ctx.beginPath();
+            this.ctx.arc(tx + 31, horizon - 120, 52, Math.PI * 0.85, Math.PI * 2.15);
+            this.ctx.fill();
+
+            // Dynamic Swaying Vines (Lianas)
+            const sway = Math.sin(time * 2.0 + x * 0.02) * 16;
+            this.ctx.strokeStyle = '#07331F';
+            this.ctx.lineWidth = 3.5;
+            this.ctx.beginPath();
+            this.ctx.moveTo(tx + 12, horizon - 110);
+            this.ctx.quadraticCurveTo(tx + 6 + sway * 0.6, horizon - 50, tx + 14 + sway, horizon - 10);
+            this.ctx.stroke();
+          }
+
+          // Glowing Bioluminescent Fireflies Particle System
+          this.jungleFireflies.forEach(f => {
+            f.y -= f.speed;
+            if (f.y < 0) f.y = h;
+            const fx = ((f.baseX + Math.sin(time * 2 + f.wobbleSpeed * 1000) * f.wobbleAmp - this.camera.x * 0.08) % w + w) % w;
+            const glow = (Math.sin(time * 4 + f.glowPhase) + 1) * 0.5;
+
+            // Halo
+            const halo = this.ctx.createRadialGradient(fx, f.y, 0, fx, f.y, f.radius * 3.5);
+            halo.addColorStop(0, f.color);
+            halo.addColorStop(1, 'rgba(0, 0, 0, 0)');
+            this.ctx.fillStyle = halo;
+            this.ctx.globalAlpha = 0.25 + glow * 0.5;
+            this.ctx.beginPath();
+            this.ctx.arc(fx, f.y, f.radius * 3.5, 0, Math.PI * 2);
+            this.ctx.fill();
+
+            // Core
+            this.ctx.fillStyle = '#FFFFFF';
+            this.ctx.globalAlpha = 0.8;
+            this.ctx.beginPath();
+            this.ctx.arc(fx, f.y, f.radius * 0.6, 0, Math.PI * 2);
+            this.ctx.fill();
+            this.ctx.globalAlpha = 1.0;
+          });
+          break;
+        }
+
+        case 'neon': {
+          this.ctx.fillStyle = '#030305';
+          this.ctx.fillRect(0, 0, w, h);
+          const horizon = h * 0.68;
+          this.ctx.strokeStyle = '#00E5FF';
+          this.ctx.lineWidth = 2;
+          this.ctx.beginPath();
+          this.ctx.moveTo(0, horizon);
+          this.ctx.lineTo(w, horizon);
+          this.ctx.stroke();
+          break;
+        }
+
+        case '8-bit': {
+          this.ctx.fillStyle = '#5C94FC';
+          this.ctx.fillRect(0, 0, w, h);
+          break;
+        }
+
+        case 'mixed': {
+          const grad = this.ctx.createLinearGradient(0, 0, 0, h);
+          grad.addColorStop(0, '#FAF4E8');
+          grad.addColorStop(1, '#E9D2AC');
+          this.ctx.fillStyle = grad;
+          this.ctx.fillRect(0, 0, w, h);
+          break;
+        }
+
+        case 'grass':
+        default: {
+          const grad = this.ctx.createLinearGradient(0, 0, 0, h);
+          grad.addColorStop(0, '#60A5FA');
+          grad.addColorStop(1, '#DBEAFE');
+          this.ctx.fillStyle = grad;
+          this.ctx.fillRect(0, 0, w, h);
+
+          // Simple Parallax Hills
+          this.ctx.fillStyle = '#86EFAC';
+          const loop1 = 800;
+          const off1 = (this.camera.x * 0.08) % loop1;
+          this.ctx.beginPath();
+          this.ctx.moveTo(0, h);
+          for (let x = -200; x < w + 300; x += 250) {
+            this.ctx.quadraticCurveTo(x - off1 + 125, h * 0.72, x - off1 + 250, h);
+          }
+          this.ctx.fill();
+          break;
+        }
+      }
+    }
+
+    render() {
+      const w = this.canvas.width;
+      const h = this.canvas.height;
+      this.ctx.clearRect(0, 0, w, h);
+
+      // 1. Background
+      this.renderBackground(w, h);
+
+      // 2. World Space
+      this.ctx.save();
+      this.ctx.translate(-Math.round(this.camera.x), -Math.round(this.camera.y));
+
+      // Entities
+      for (const ent of this.entities) {
+        if (ent.render) ent.render(this.ctx, this.theme);
+      }
+
+      // Bullets
+      for (const b of this.bullets) {
+        b.render(this.ctx);
+      }
+
+      // Player
+      this.player.render(this.ctx);
+
+      this.ctx.restore();
+
+      // 3. Screen Space Overlays / Confetti
+      for (const p of this.confetti) {
+        this.ctx.save();
+        this.ctx.fillStyle = p.color;
+        this.ctx.fillRect(p.x, p.y, p.size, p.size);
+        this.ctx.restore();
+      }
+    }
+
+    gameLoop(now) {
+      const dt = Math.min(0.06, (now - this.lastTime) / 1000);
+      this.lastTime = now;
+
+      this.update(dt);
+      this.render();
+
+      requestAnimationFrame((t) => this.gameLoop(t));
+    }
+  }
+
+  // Auto-launch standalone game once DOM is loaded
+  window.addEventListener('DOMContentLoaded', () => {
+    try {
+      const levelPayload = JSON.parse(document.getElementById('embedded-level-data').textContent);
+      new StandaloneGame(levelPayload);
+    } catch (err) {
+      console.error('Failed to initialize standalone game:', err);
+    }
+  });
+  </script>
+</body>
+</html>`;
+}
+
+
 // ── js/storage/storage.js ──
 // Sidehop Level Persistence & Preset Levels Engine
+
 
 
 const LEVEL_STORAGE_KEY = 'sidehop_saved_level_v6';
@@ -6436,7 +11141,7 @@ class LevelStorage {
     return pkg;
   }
 
-  // Export Level as a Standalone Playable Single-File HTML Game
+  // Export Level as a Standalone Playable Single-File HTML Game (Offline, No Editor UI)
   static async exportStandaloneHtml(player, entities, background, theme = 'grass', customTitle) {
     const data = this.serialize(player, entities, background);
     data.theme = theme;
@@ -6446,52 +11151,8 @@ class LevelStorage {
       .replace(/[^a-z0-9]+/g, '-')
       .replace(/^-|-$/g, '') || 'sidehop-game';
 
-    let htmlTemplate = '';
-    try {
-      const resp = await fetch('index.standalone.html');
-      if (resp.ok) {
-        htmlTemplate = await resp.text();
-      }
-    } catch (_) {}
-
-    if (!htmlTemplate) {
-      try {
-        const resp2 = await fetch('index.html');
-        if (resp2.ok) {
-          htmlTemplate = await resp2.text();
-        }
-      } catch (_) {}
-    }
-
-    if (!htmlTemplate) {
-      alert('Could not fetch standalone HTML template. Exporting as .sidehop package instead.');
-      this.exportLevel(player, entities, background, customTitle);
-      return;
-    }
-
-    // Embed level payload with autoPlay flag so it plays immediately on open
-    const payload = JSON.stringify({
-      version: 2,
-      levelName: title,
-      theme: theme,
-      autoPlay: true,
-      level: data
-    });
-
-    const scriptTag = `<script id="sidehop-embedded-level" type="application/json">
-${payload}
-<` + `/script>`;
-
-    let resultHtml = htmlTemplate.replace(/<title>.*?<\/title>/i, `<title>${title} — Sidehop Game</title>`);
-
-    if (resultHtml.includes('<!-- EMBEDDED_LEVEL_HOOK -->')) {
-      resultHtml = resultHtml.replace('<!-- EMBEDDED_LEVEL_HOOK -->', scriptTag);
-    } else {
-      resultHtml = resultHtml.replace('</body>', `${scriptTag}
-</body>`);
-    }
-
-    const blob = new Blob([resultHtml], { type: 'text/html;charset=utf-8' });
+    const standaloneHtml = generateStandaloneGameHtml(data, title);
+    const blob = new Blob([standaloneHtml], { type: 'text/html;charset=utf-8' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
@@ -6501,7 +11162,7 @@ ${payload}
     setTimeout(() => {
       a.remove();
       URL.revokeObjectURL(url);
-    }, 1000);
+    }, 1500);
   }
 
   // Import any .sidehop package (or legacy JSON level)
@@ -8196,6 +12857,32 @@ class SidehopApp {
       baseX: Math.random() * 2000
     }));
 
+    // Chrome sparks & specular glints cache for chrome theme
+    this.chromeSparks = Array.from({ length: 42 }, () => ({
+      x: Math.random() * 2000,
+      y: Math.random() * 1200,
+      size: Math.random() * 2.5 + 1.2,
+      speed: Math.random() * 0.8 + 0.4,
+      twinkleSpeed: Math.random() * 0.005 + 0.002,
+      twinklePhase: Math.random() * Math.PI * 2,
+      isStarburst: Math.random() > 0.45,
+      color: ['#FFFFFF', '#E2E8F0', '#38BDF8', '#F59E0B'][Math.floor(Math.random() * 4)]
+    }));
+
+    // Bioluminescent fireflies & forest spores cache for jungle theme
+    this.jungleFireflies = Array.from({ length: 45 }, () => ({
+      x: Math.random() * 2000,
+      y: Math.random() * 1200,
+      baseX: Math.random() * 2000,
+      radius: Math.random() * 2.8 + 1.2,
+      speed: Math.random() * 0.4 + 0.2,
+      wobbleSpeed: Math.random() * 0.0025 + 0.0015,
+      wobbleAmp: Math.random() * 22 + 10,
+      glowSpeed: Math.random() * 0.004 + 0.002,
+      glowPhase: Math.random() * Math.PI * 2,
+      color: ['#4ADE80', '#FBBF24', '#A3E635', '#34D399'][Math.floor(Math.random() * 4)]
+    }));
+
     // Subsystems
     this.editor = new GridEditor(this.canvas, this.camera, 40);
     this.artStudio = new ArtStudio(
@@ -9026,7 +13713,7 @@ class SidehopApp {
   // --- Background Application & Rendering ---
   applyBackground(bg) {
     if (!bg) return;
-    this.background.theme = bg.theme || 'sky';
+    this.background.theme = bg.theme || this.currentTheme || 'grass';
     this.background.customImage = bg.customImage || null;
     if (this.background.customImage) {
       const img = new Image();
@@ -9037,15 +13724,45 @@ class SidehopApp {
     } else {
       this.background.customImageElement = null;
     }
+    this.updateBackgroundModalUI();
+  }
 
-    const themeCards = document.querySelectorAll('.bg-theme-card');
-    themeCards.forEach(c => {
-      c.classList.toggle('active', c.getAttribute('data-bg-theme') === this.background.theme);
-    });
+  updateBackgroundModalUI() {
+    const previewImg = document.getElementById('bg-preview-img');
+    const placeholder = document.getElementById('bg-preview-placeholder');
+    const statusBadge = document.getElementById('bg-status-badge');
+    const clearBtn = document.getElementById('bg-clear-custom-btn');
+    const exportBtn = document.getElementById('bg-export-sidehop-btn');
 
-    const customStatus = document.getElementById('bg-custom-status');
-    if (customStatus) {
-      customStatus.style.display = this.background.customImage ? 'block' : 'none';
+    if (this.background.customImage) {
+      if (previewImg) {
+        previewImg.src = this.background.customImage;
+        previewImg.style.display = 'block';
+      }
+      if (placeholder) placeholder.style.display = 'none';
+      if (statusBadge) {
+        statusBadge.textContent = 'Custom Active';
+        statusBadge.style.background = '#86EFAC';
+        statusBadge.style.color = '#14532D';
+      }
+      if (clearBtn) clearBtn.style.display = 'inline-flex';
+      if (exportBtn) exportBtn.style.display = 'inline-flex';
+    } else {
+      if (previewImg) {
+        previewImg.src = '';
+        previewImg.style.display = 'none';
+      }
+      if (placeholder) {
+        placeholder.style.display = 'block';
+        placeholder.innerHTML = `<span>Using active World Theme (<strong>${(this.currentTheme || 'grass').toUpperCase()}</strong>).<br>No custom background active.</span>`;
+      }
+      if (statusBadge) {
+        statusBadge.textContent = `Theme: ${(this.currentTheme || 'grass').toUpperCase()}`;
+        statusBadge.style.background = '#E2E8F0';
+        statusBadge.style.color = '#1E293B';
+      }
+      if (clearBtn) clearBtn.style.display = 'none';
+      if (exportBtn) exportBtn.style.display = 'none';
     }
   }
 
@@ -9058,34 +13775,7 @@ class SidehopApp {
       return;
     }
 
-    const bgTheme = this.background.theme || 'sky';
     const theme = this.currentTheme || 'grass';
-
-    // If specific atmospheric sky preset selected from Background modal
-    if (bgTheme === 'sunset') {
-      const grad = this.ctx.createLinearGradient(0, 0, 0, h);
-      grad.addColorStop(0, '#E11D48');
-      grad.addColorStop(0.4, '#F97316');
-      grad.addColorStop(0.8, '#FBBF24');
-      grad.addColorStop(1, '#FEF08A');
-      this.ctx.fillStyle = grad;
-      this.ctx.fillRect(0, 0, w, h);
-      this.drawParallaxHills(w, h);
-      return;
-    } else if (bgTheme === 'gray') {
-      const grad = this.ctx.createLinearGradient(0, 0, 0, h);
-      grad.addColorStop(0, '#475569');
-      grad.addColorStop(0.6, '#64748B');
-      grad.addColorStop(1, '#94A3B8');
-      this.ctx.fillStyle = grad;
-      this.ctx.fillRect(0, 0, w, h);
-      this.drawParallaxClouds(w, h);
-      this.drawParallaxHills(w, h);
-      return;
-    } else if (bgTheme === 'neon' || theme === 'neon') {
-      this.drawNeonBackground(w, h);
-      return;
-    }
 
     switch (theme) {
       case 'atlantis': {
@@ -9424,14 +14114,164 @@ class SidehopApp {
 
   drawChromeBackground(w, h) {
     this.ctx.save();
+    const time = performance.now() * 0.001;
+
+    // 1. Titanium brushed steel sky gradient with specular flare
     const grad = this.ctx.createLinearGradient(0, 0, 0, h);
-    grad.addColorStop(0, '#0F172A');
-    grad.addColorStop(0.55, '#1E293B');
-    grad.addColorStop(1, '#333D4F');
+    grad.addColorStop(0, '#070A10');
+    grad.addColorStop(0.28, '#131C2E');
+    grad.addColorStop(0.55, '#24334A');
+    grad.addColorStop(0.70, '#64748B');
+    grad.addColorStop(0.72, '#E2E8F0'); // Specular horizon flare
+    grad.addColorStop(1, '#0B111E');
     this.ctx.fillStyle = grad;
     this.ctx.fillRect(0, 0, w, h);
 
-    this.drawChromeGrid(w, h);
+    const horizon = h * 0.70;
+
+    // 2. Volumetric Holographic Laser Sensor Pillars ascending into the sky
+    for (let i = 0; i < 5; i++) {
+      const lx = ((i * 240 + Math.sin(time * 0.75 + i * 1.3) * 25 - this.camera.x * 0.05) % w + w) % w;
+      const lGrad = this.ctx.createLinearGradient(lx, 0, lx, horizon);
+      lGrad.addColorStop(0, 'rgba(56, 189, 248, 0)');
+      lGrad.addColorStop(0.5, 'rgba(56, 189, 248, 0.05)');
+      lGrad.addColorStop(1, 'rgba(56, 189, 248, 0.22)');
+      this.ctx.fillStyle = lGrad;
+      this.ctx.fillRect(lx - 15, 0, 30, horizon);
+    }
+
+    // 3. Distant Industrial Megastructures with Blinking Beacon Lights (Layer 1 - slow parallax)
+    this.ctx.fillStyle = '#1A2333';
+    const structLoop = 900;
+    const structOff = (this.camera.x * 0.04) % structLoop;
+    for (let x = -150; x < w + 300; x += 160) {
+      const tx = x - structOff;
+      const tH = 90 + Math.sin(x * 0.01) * 35;
+      this.ctx.fillRect(tx, horizon - tH, 38, tH);
+      this.ctx.fillRect(tx + 46, horizon - (tH * 0.7), 54, tH * 0.7);
+
+      // Warning beacon light on tower apex
+      const beaconOn = Math.sin(time * 4.5 + x * 0.05) > 0;
+      this.ctx.fillStyle = beaconOn ? '#EF4444' : '#450A0A';
+      this.ctx.beginPath();
+      this.ctx.arc(tx + 19, horizon - tH - 4, 3, 0, Math.PI * 2);
+      this.ctx.fill();
+
+      // Cyan antenna signal light
+      const beaconCyan = Math.cos(time * 3.5 + x * 0.08) > 0;
+      this.ctx.fillStyle = beaconCyan ? '#00E5FF' : '#083344';
+      this.ctx.beginPath();
+      this.ctx.arc(tx + 73, horizon - (tH * 0.7) - 4, 2.5, 0, Math.PI * 2);
+      this.ctx.fill();
+
+      this.ctx.fillStyle = '#1A2333';
+    }
+
+    // 4. Midground Heavy Industrial Chrome Cogwheels & Truss Girders (Layer 2 - parallax)
+    const gearLoop = 700;
+    const gearOff = (this.camera.x * 0.08) % gearLoop;
+    [180, 520].forEach((gx, idx) => {
+      const drawGx = ((gx - gearOff) % (w + 200) + (w + 200)) % (w + 200) - 100;
+      const drawGy = horizon - 55;
+      const rot = (time * 0.35) * (idx % 2 === 0 ? 1 : -1);
+
+      this.ctx.save();
+      this.ctx.translate(drawGx, drawGy);
+      this.ctx.rotate(rot);
+
+      // Outer rim
+      this.ctx.strokeStyle = '#334155';
+      this.ctx.lineWidth = 7;
+      this.ctx.beginPath();
+      this.ctx.arc(0, 0, 42, 0, Math.PI * 2);
+      this.ctx.stroke();
+
+      // Specular highlight rim
+      this.ctx.strokeStyle = 'rgba(255, 255, 255, 0.25)';
+      this.ctx.lineWidth = 2;
+      this.ctx.beginPath();
+      this.ctx.arc(0, 0, 44, 0, Math.PI);
+      this.ctx.stroke();
+
+      // Gear teeth
+      const teeth = 8;
+      for (let t = 0; t < teeth; t++) {
+        const ang = t * (Math.PI * 2 / teeth);
+        this.ctx.fillStyle = '#475569';
+        this.ctx.fillRect(Math.cos(ang) * 40 - 5, Math.sin(ang) * 40 - 5, 10, 10);
+      }
+
+      // Hub & spokes
+      this.ctx.fillStyle = '#1E293B';
+      this.ctx.beginPath();
+      this.ctx.arc(0, 0, 16, 0, Math.PI * 2);
+      this.ctx.fill();
+      this.ctx.strokeStyle = '#64748B';
+      this.ctx.lineWidth = 2.5;
+      this.ctx.stroke();
+
+      this.ctx.restore();
+    });
+
+    // 5. Polished Chrome Horizon Line with Moving Specular Sheen
+    const sheenX = ((time * 180) % (w + 400)) - 200;
+    const sheenGrad = this.ctx.createRadialGradient(sheenX, horizon, 0, sheenX, horizon, 150);
+    sheenGrad.addColorStop(0, 'rgba(255, 255, 255, 0.85)');
+    sheenGrad.addColorStop(0.35, 'rgba(203, 213, 225, 0.35)');
+    sheenGrad.addColorStop(1, 'rgba(203, 213, 225, 0)');
+    this.ctx.fillStyle = sheenGrad;
+    this.ctx.fillRect(0, horizon - 12, w, 24);
+
+    this.ctx.strokeStyle = '#CBD5E1';
+    this.ctx.lineWidth = 2;
+    this.ctx.beginPath();
+    this.ctx.moveTo(0, horizon);
+    this.ctx.lineTo(w, horizon);
+    this.ctx.stroke();
+
+    // 6. Perspective Cybernetic Ground Plane
+    const groundLines = 10;
+    for (let i = 1; i <= groundLines; i++) {
+      const t = Math.pow(i / groundLines, 2.2);
+      const gy = horizon + t * (h - horizon);
+      this.ctx.strokeStyle = `rgba(148, 163, 184, ${0.1 + t * 0.35})`;
+      this.ctx.lineWidth = 1 + t * 1.5;
+      this.ctx.beginPath();
+      this.ctx.moveTo(0, gy);
+      this.ctx.lineTo(w, gy);
+      this.ctx.stroke();
+    }
+
+    // 7. Animated Chrome Sparks & Starburst Gleams
+    if (this.chromeSparks) {
+      this.chromeSparks.forEach(p => {
+        p.y -= p.speed;
+        if (p.y < 0) {
+          p.y = horizon + Math.random() * 40;
+          p.x = Math.random() * 2000;
+        }
+        const drawPx = ((p.x - this.camera.x * 0.09) % (w + 100) + (w + 100)) % (w + 100) - 50;
+        const twinkle = (Math.sin(time * 5 + p.twinklePhase) + 1) * 0.5;
+
+        this.ctx.save();
+        this.ctx.fillStyle = p.color;
+        this.ctx.globalAlpha = 0.35 + twinkle * 0.65;
+
+        if (p.isStarburst) {
+          const sz = p.size * (1 + twinkle * 0.9);
+          this.ctx.fillRect(drawPx - sz, p.y - 1, sz * 2, 2);
+          this.ctx.fillRect(drawPx - 1, p.y - sz, 2, sz * 2);
+          this.ctx.fillStyle = '#FFFFFF';
+          this.ctx.fillRect(drawPx - 1.5, p.y - 1.5, 3, 3);
+        } else {
+          this.ctx.beginPath();
+          this.ctx.arc(drawPx, p.y, p.size, 0, Math.PI * 2);
+          this.ctx.fill();
+        }
+        this.ctx.restore();
+      });
+    }
+
     this.ctx.restore();
   }
 
@@ -9695,42 +14535,138 @@ class SidehopApp {
 
   drawJungleBackground(w, h) {
     this.ctx.save();
-    // Sunbeams angled across canopy
-    const sunbeamGrad = this.ctx.createLinearGradient(0, 0, w * 0.8, h);
-    sunbeamGrad.addColorStop(0, 'rgba(253, 224, 71, 0.14)');
-    sunbeamGrad.addColorStop(0.5, 'rgba(253, 224, 71, 0.05)');
-    sunbeamGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
-    this.ctx.fillStyle = sunbeamGrad;
+    const time = performance.now() * 0.001;
+
+    // 1. Primeval rainforest canopy dusk & emerald mist gradient
+    const grad = this.ctx.createLinearGradient(0, 0, 0, h);
+    grad.addColorStop(0, '#02140A');
+    grad.addColorStop(0.35, '#064E3B');
+    grad.addColorStop(0.65, '#0F766E');
+    grad.addColorStop(0.80, '#34D399');
+    grad.addColorStop(1, '#062816');
+    this.ctx.fillStyle = grad;
+    this.ctx.fillRect(0, 0, w, h);
+
+    // 2. Volumetric Animated Golden God Rays (Sunbeams streaming through canopy)
+    for (let i = 0; i < 5; i++) {
+      const rx = (w * 0.12) + i * (w * 0.21) + Math.sin(time * 0.8 + i * 1.4) * 35;
+      const rGrad = this.ctx.createLinearGradient(rx, 0, rx + 160, h);
+      rGrad.addColorStop(0, 'rgba(253, 224, 71, 0.17)');
+      rGrad.addColorStop(0.5, 'rgba(253, 224, 71, 0.06)');
+      rGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+      this.ctx.fillStyle = rGrad;
+      this.ctx.beginPath();
+      this.ctx.moveTo(rx - 40, 0);
+      this.ctx.lineTo(rx + 50, 0);
+      this.ctx.lineTo(rx + 200, h);
+      this.ctx.lineTo(rx + 80, h);
+      this.ctx.closePath();
+      this.ctx.fill();
+    }
+
+    const horizon = h * 0.74;
+
+    // 3. Distant Ancient Mayan Temple Pyramid Silhouette (Slow parallax)
+    const pyrLoop = 1100;
+    const pyrOff = (this.camera.x * 0.04) % pyrLoop;
+    const pyrX = ((560 - pyrOff) % (w + 400) + (w + 400)) % (w + 400) - 200;
+    this.ctx.fillStyle = '#062F22';
+
+    // Stepped stone tiers
+    this.ctx.fillRect(pyrX - 75, horizon - 32, 150, 32);
+    this.ctx.fillRect(pyrX - 54, horizon - 58, 108, 26);
+    this.ctx.fillRect(pyrX - 35, horizon - 80, 70, 22);
+    this.ctx.fillRect(pyrX - 16, horizon - 96, 32, 16);
+
+    // Central temple stairs
+    this.ctx.fillStyle = '#083D2D';
+    this.ctx.fillRect(pyrX - 8, horizon - 96, 16, 96);
+
+    // 4. Distant Jungle Ridge Silhouettes
+    this.ctx.fillStyle = '#083E2C';
+    const ridgeLoop = 800;
+    const ridgeOff = (this.camera.x * 0.06) % ridgeLoop;
     this.ctx.beginPath();
-    this.ctx.moveTo(w * 0.1, 0);
-    this.ctx.lineTo(w * 0.35, 0);
-    this.ctx.lineTo(w * 0.75, h);
-    this.ctx.lineTo(w * 0.45, h);
+    this.ctx.moveTo(0, h);
+    for (let x = -200; x <= w + 200; x += 160) {
+      const rx = x - ridgeOff;
+      const ry = horizon - 20 + Math.sin(x * 0.015) * 22;
+      this.ctx.lineTo(rx, ry);
+    }
+    this.ctx.lineTo(w, h);
     this.ctx.closePath();
     this.ctx.fill();
 
-    // Jungle canopy silhouette layers
-    this.ctx.fillStyle = '#0E2818';
-    const loopW = 900;
-    const off = (this.camera.x * 0.1) % loopW;
-    for (let x = -100; x < w + 200; x += 140) {
-      const tx = x - off;
-      this.ctx.fillRect(tx + 28, h * 0.35, 10, h * 0.65);
+    // 5. Midground Lush Banyan Tree Trunks & Swaying Jungle Vines (Layer 2)
+    this.ctx.fillStyle = '#07331F';
+    const jLoop = 900;
+    const jOff = (this.camera.x * 0.11) % jLoop;
+    for (let x = -120; x < w + 250; x += 150) {
+      const tx = x - jOff;
+      // Trunk
+      this.ctx.fillRect(tx + 24, horizon - 130, 16, 130);
+      // Canopy tuft
       this.ctx.beginPath();
-      this.ctx.arc(tx + 32, h * 0.35, 48, Math.PI * 0.88, Math.PI * 2.12);
+      this.ctx.arc(tx + 32, horizon - 130, 56, Math.PI * 0.82, Math.PI * 2.18);
       this.ctx.fill();
-      // Vines
-      this.ctx.strokeStyle = '#0E2818';
+
+      // Dynamic Swaying Lianas / Vines
+      const sway = Math.sin(time * 1.8 + x * 0.02) * 18;
+      this.ctx.strokeStyle = '#052919';
       this.ctx.lineWidth = 3.5;
+      this.ctx.lineCap = 'round';
       this.ctx.beginPath();
-      this.ctx.moveTo(tx + 12, h * 0.36);
-      this.ctx.quadraticCurveTo(tx + 4, h * 0.52, tx + 16, h * 0.65);
+      this.ctx.moveTo(tx + 14, horizon - 120);
+      this.ctx.quadraticCurveTo(tx + 6 + sway * 0.5, horizon - 60, tx + 16 + sway, horizon - 15);
       this.ctx.stroke();
 
+      // Second vine
+      const sway2 = Math.cos(time * 2.2 + x * 0.03) * 14;
       this.ctx.beginPath();
-      this.ctx.moveTo(tx + 48, h * 0.38);
-      this.ctx.quadraticCurveTo(tx + 56, h * 0.48, tx + 46, h * 0.58);
+      this.ctx.moveTo(tx + 50, horizon - 115);
+      this.ctx.quadraticCurveTo(tx + 60 + sway2 * 0.6, horizon - 55, tx + 48 + sway2, horizon - 20);
       this.ctx.stroke();
+    }
+
+    // 6. Overhead Canopy Vignette (Top foliage dipping from ceiling)
+    this.ctx.fillStyle = '#031F11';
+    for (let x = -100; x < w + 200; x += 180) {
+      const ox = ((x - this.camera.x * 0.14) % (w + 200) + (w + 200)) % (w + 200) - 100;
+      this.ctx.beginPath();
+      this.ctx.arc(ox, -20, 65, 0, Math.PI);
+      this.ctx.fill();
+    }
+
+    // 7. Bioluminescent Glowing Fireflies & Forest Spores
+    if (this.jungleFireflies) {
+      this.jungleFireflies.forEach(f => {
+        f.y -= f.speed;
+        if (f.y < 0) {
+          f.y = h;
+          f.baseX = Math.random() * 2000;
+        }
+        const fx = ((f.baseX + Math.sin(time * 2 + f.wobbleSpeed * 1000) * f.wobbleAmp - this.camera.x * 0.08) % (w + 100) + (w + 100)) % (w + 100) - 50;
+        const glow = (Math.sin(time * 4 + f.glowPhase) + 1) * 0.5;
+
+        this.ctx.save();
+        // Pulsing radial aura
+        const halo = this.ctx.createRadialGradient(fx, f.y, 0, fx, f.y, f.radius * 3.8);
+        halo.addColorStop(0, f.color);
+        halo.addColorStop(1, 'rgba(0, 0, 0, 0)');
+        this.ctx.fillStyle = halo;
+        this.ctx.globalAlpha = 0.28 + glow * 0.55;
+        this.ctx.beginPath();
+        this.ctx.arc(fx, f.y, f.radius * 3.8, 0, Math.PI * 2);
+        this.ctx.fill();
+
+        // Bright white/golden core
+        this.ctx.fillStyle = '#FFFFFF';
+        this.ctx.globalAlpha = 0.85;
+        this.ctx.beginPath();
+        this.ctx.arc(fx, f.y, Math.max(1.0, f.radius * 0.55), 0, Math.PI * 2);
+        this.ctx.fill();
+        this.ctx.restore();
+      });
     }
 
     this.ctx.restore();
@@ -10502,9 +15438,17 @@ class SidehopApp {
       sounds.playClick();
     });
 
+    // Character Edit Button (Header shortcut)
+    document.getElementById('character-edit-btn')?.addEventListener('click', () => {
+      this.artStudio.openForEntity(this.player, () => {
+        LevelStorage.autoSave(this.player, this.entities, this.background);
+      });
+    });
+
     // 4. Background Customizer Modal Controls
     const bgModal = document.getElementById('background-modal');
     document.getElementById('bg-modal-btn').addEventListener('click', () => {
+      this.updateBackgroundModalUI();
       bgModal.classList.add('active');
       sounds.playClick();
     });
@@ -10518,23 +15462,31 @@ class SidehopApp {
       sounds.playClick();
     });
 
-    const bgThemeCards = document.querySelectorAll('.bg-theme-card');
-    bgThemeCards.forEach(card => {
-      card.addEventListener('click', () => {
-        bgThemeCards.forEach(c => c.classList.remove('active'));
-        card.classList.add('active');
-        this.background.theme = card.getAttribute('data-bg-theme');
-        this.background.customImage = null;
-        this.background.customImageElement = null;
-        const customStatus = document.getElementById('bg-custom-status');
-        if (customStatus) customStatus.style.display = 'none';
-        sounds.playClick();
+    // Make a drawing button (opens Art Studio in background mode)
+    document.getElementById('bg-draw-btn')?.addEventListener('click', () => {
+      bgModal.classList.remove('active');
+      this.artStudio.openForBackground(this.background, (dataUrl) => {
+        if (dataUrl) {
+          this.background.theme = 'custom';
+          this.background.customImage = dataUrl;
+          const img = new Image();
+          img.src = dataUrl;
+          img.onload = () => {
+            this.background.customImageElement = img;
+          };
+          sounds.playPaintSquish();
+        } else {
+          this.background.theme = this.currentTheme || 'grass';
+          this.background.customImage = null;
+          this.background.customImageElement = null;
+        }
+        this.updateBackgroundModalUI();
         LevelStorage.autoSave(this.player, this.entities, this.background);
       });
     });
 
     const bgUploadInput = document.getElementById('bg-image-upload');
-    bgUploadInput.addEventListener('change', (e) => {
+    bgUploadInput?.addEventListener('change', (e) => {
       if (e.target.files && e.target.files[0]) {
         const file = e.target.files[0];
         const reader = new FileReader();
@@ -10546,25 +15498,21 @@ class SidehopApp {
           img.onload = () => {
             this.background.customImageElement = img;
           };
-          bgThemeCards.forEach(c => c.classList.remove('active'));
-          const customStatus = document.getElementById('bg-custom-status');
-          if (customStatus) customStatus.style.display = 'block';
+          this.updateBackgroundModalUI();
           sounds.playPaintSquish();
           LevelStorage.autoSave(this.player, this.entities, this.background);
         };
         reader.readAsDataURL(file);
+        bgUploadInput.value = '';
       }
     });
 
-    document.getElementById('bg-reset-default').addEventListener('click', () => {
-      this.background.theme = 'sky';
+    // Clear Custom Art Background button
+    document.getElementById('bg-clear-custom-btn')?.addEventListener('click', () => {
+      this.background.theme = this.currentTheme || 'grass';
       this.background.customImage = null;
       this.background.customImageElement = null;
-      bgThemeCards.forEach(c => {
-        c.classList.toggle('active', c.getAttribute('data-bg-theme') === 'sky');
-      });
-      const customStatus = document.getElementById('bg-custom-status');
-      if (customStatus) customStatus.style.display = 'none';
+      this.updateBackgroundModalUI();
       sounds.playClick();
       LevelStorage.autoSave(this.player, this.entities, this.background);
     });
@@ -10582,7 +15530,7 @@ class SidehopApp {
         this.canvas.width = prevW;
         this.canvas.height = prevH;
       }
-      const title = `${this.background.theme.toUpperCase()} Background`;
+      const title = `${(this.background.theme || this.currentTheme).toUpperCase()} Background`;
       const pkg = SidehopFile.createAssetPackage({
         name: title,
         category: 'background',
@@ -10594,7 +15542,7 @@ class SidehopApp {
         title: title,
         description: 'Level background exported from Sidehop'
       });
-      SidehopFile.download(`${this.background.theme}-background.sidehop`, pkg);
+      SidehopFile.download(`${this.background.theme || this.currentTheme}-background.sidehop`, pkg);
       sounds.playCollect();
       this.showToast('💾 Exported Background (.sidehop)');
     });
@@ -10617,11 +15565,7 @@ class SidehopApp {
               img.onload = () => {
                 this.background.customImageElement = img;
               };
-              bgThemeCards.forEach(c => c.classList.remove('active'));
-              const customStatus = document.getElementById('bg-custom-status');
-              if (customStatus) customStatus.style.display = 'block';
-              const clearBtn = document.getElementById('bg-clear-custom-btn');
-              if (clearBtn) clearBtn.style.display = 'inline-flex';
+              this.updateBackgroundModalUI();
               LevelStorage.autoSave(this.player, this.entities, this.background);
               sounds.playCollect();
               this.showToast('🌄 Loaded .sidehop Background');
@@ -10631,21 +15575,8 @@ class SidehopApp {
           }
         };
         reader.readAsText(file);
+        bgSidehopUpload.value = '';
       }
-    });
-
-    // Clear Custom Art Background button
-    document.getElementById('bg-clear-custom-btn')?.addEventListener('click', () => {
-      this.background.theme = 'sky';
-      this.background.customImage = null;
-      this.background.customImageElement = null;
-      const customStatus = document.getElementById('bg-custom-status');
-      if (customStatus) customStatus.style.display = 'none';
-      const clearBtn = document.getElementById('bg-clear-custom-btn');
-      if (clearBtn) clearBtn.style.display = 'none';
-      bgThemeCards.forEach(c => c.classList.toggle('active', c.getAttribute('data-bg-theme') === 'sky'));
-      sounds.playClick();
-      LevelStorage.autoSave(this.player, this.entities, this.background);
     });
 
     // Clear Art Studio Canvas button

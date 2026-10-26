@@ -68,6 +68,32 @@ class SidehopApp {
       baseX: Math.random() * 2000
     }));
 
+    // Chrome sparks & specular glints cache for chrome theme
+    this.chromeSparks = Array.from({ length: 42 }, () => ({
+      x: Math.random() * 2000,
+      y: Math.random() * 1200,
+      size: Math.random() * 2.5 + 1.2,
+      speed: Math.random() * 0.8 + 0.4,
+      twinkleSpeed: Math.random() * 0.005 + 0.002,
+      twinklePhase: Math.random() * Math.PI * 2,
+      isStarburst: Math.random() > 0.45,
+      color: ['#FFFFFF', '#E2E8F0', '#38BDF8', '#F59E0B'][Math.floor(Math.random() * 4)]
+    }));
+
+    // Bioluminescent fireflies & forest spores cache for jungle theme
+    this.jungleFireflies = Array.from({ length: 45 }, () => ({
+      x: Math.random() * 2000,
+      y: Math.random() * 1200,
+      baseX: Math.random() * 2000,
+      radius: Math.random() * 2.8 + 1.2,
+      speed: Math.random() * 0.4 + 0.2,
+      wobbleSpeed: Math.random() * 0.0025 + 0.0015,
+      wobbleAmp: Math.random() * 22 + 10,
+      glowSpeed: Math.random() * 0.004 + 0.002,
+      glowPhase: Math.random() * Math.PI * 2,
+      color: ['#4ADE80', '#FBBF24', '#A3E635', '#34D399'][Math.floor(Math.random() * 4)]
+    }));
+
     // Subsystems
     this.editor = new GridEditor(this.canvas, this.camera, 40);
     this.artStudio = new ArtStudio(
@@ -898,7 +924,7 @@ class SidehopApp {
   // --- Background Application & Rendering ---
   applyBackground(bg) {
     if (!bg) return;
-    this.background.theme = bg.theme || 'sky';
+    this.background.theme = bg.theme || this.currentTheme || 'grass';
     this.background.customImage = bg.customImage || null;
     if (this.background.customImage) {
       const img = new Image();
@@ -909,15 +935,45 @@ class SidehopApp {
     } else {
       this.background.customImageElement = null;
     }
+    this.updateBackgroundModalUI();
+  }
 
-    const themeCards = document.querySelectorAll('.bg-theme-card');
-    themeCards.forEach(c => {
-      c.classList.toggle('active', c.getAttribute('data-bg-theme') === this.background.theme);
-    });
+  updateBackgroundModalUI() {
+    const previewImg = document.getElementById('bg-preview-img');
+    const placeholder = document.getElementById('bg-preview-placeholder');
+    const statusBadge = document.getElementById('bg-status-badge');
+    const clearBtn = document.getElementById('bg-clear-custom-btn');
+    const exportBtn = document.getElementById('bg-export-sidehop-btn');
 
-    const customStatus = document.getElementById('bg-custom-status');
-    if (customStatus) {
-      customStatus.style.display = this.background.customImage ? 'block' : 'none';
+    if (this.background.customImage) {
+      if (previewImg) {
+        previewImg.src = this.background.customImage;
+        previewImg.style.display = 'block';
+      }
+      if (placeholder) placeholder.style.display = 'none';
+      if (statusBadge) {
+        statusBadge.textContent = 'Custom Active';
+        statusBadge.style.background = '#86EFAC';
+        statusBadge.style.color = '#14532D';
+      }
+      if (clearBtn) clearBtn.style.display = 'inline-flex';
+      if (exportBtn) exportBtn.style.display = 'inline-flex';
+    } else {
+      if (previewImg) {
+        previewImg.src = '';
+        previewImg.style.display = 'none';
+      }
+      if (placeholder) {
+        placeholder.style.display = 'block';
+        placeholder.innerHTML = `<span>Using active World Theme (<strong>${(this.currentTheme || 'grass').toUpperCase()}</strong>).<br>No custom background active.</span>`;
+      }
+      if (statusBadge) {
+        statusBadge.textContent = `Theme: ${(this.currentTheme || 'grass').toUpperCase()}`;
+        statusBadge.style.background = '#E2E8F0';
+        statusBadge.style.color = '#1E293B';
+      }
+      if (clearBtn) clearBtn.style.display = 'none';
+      if (exportBtn) exportBtn.style.display = 'none';
     }
   }
 
@@ -930,34 +986,7 @@ class SidehopApp {
       return;
     }
 
-    const bgTheme = this.background.theme || 'sky';
     const theme = this.currentTheme || 'grass';
-
-    // If specific atmospheric sky preset selected from Background modal
-    if (bgTheme === 'sunset') {
-      const grad = this.ctx.createLinearGradient(0, 0, 0, h);
-      grad.addColorStop(0, '#E11D48');
-      grad.addColorStop(0.4, '#F97316');
-      grad.addColorStop(0.8, '#FBBF24');
-      grad.addColorStop(1, '#FEF08A');
-      this.ctx.fillStyle = grad;
-      this.ctx.fillRect(0, 0, w, h);
-      this.drawParallaxHills(w, h);
-      return;
-    } else if (bgTheme === 'gray') {
-      const grad = this.ctx.createLinearGradient(0, 0, 0, h);
-      grad.addColorStop(0, '#475569');
-      grad.addColorStop(0.6, '#64748B');
-      grad.addColorStop(1, '#94A3B8');
-      this.ctx.fillStyle = grad;
-      this.ctx.fillRect(0, 0, w, h);
-      this.drawParallaxClouds(w, h);
-      this.drawParallaxHills(w, h);
-      return;
-    } else if (bgTheme === 'neon' || theme === 'neon') {
-      this.drawNeonBackground(w, h);
-      return;
-    }
 
     switch (theme) {
       case 'atlantis': {
@@ -1296,14 +1325,164 @@ class SidehopApp {
 
   drawChromeBackground(w, h) {
     this.ctx.save();
+    const time = performance.now() * 0.001;
+
+    // 1. Titanium brushed steel sky gradient with specular flare
     const grad = this.ctx.createLinearGradient(0, 0, 0, h);
-    grad.addColorStop(0, '#0F172A');
-    grad.addColorStop(0.55, '#1E293B');
-    grad.addColorStop(1, '#333D4F');
+    grad.addColorStop(0, '#070A10');
+    grad.addColorStop(0.28, '#131C2E');
+    grad.addColorStop(0.55, '#24334A');
+    grad.addColorStop(0.70, '#64748B');
+    grad.addColorStop(0.72, '#E2E8F0'); // Specular horizon flare
+    grad.addColorStop(1, '#0B111E');
     this.ctx.fillStyle = grad;
     this.ctx.fillRect(0, 0, w, h);
 
-    this.drawChromeGrid(w, h);
+    const horizon = h * 0.70;
+
+    // 2. Volumetric Holographic Laser Sensor Pillars ascending into the sky
+    for (let i = 0; i < 5; i++) {
+      const lx = ((i * 240 + Math.sin(time * 0.75 + i * 1.3) * 25 - this.camera.x * 0.05) % w + w) % w;
+      const lGrad = this.ctx.createLinearGradient(lx, 0, lx, horizon);
+      lGrad.addColorStop(0, 'rgba(56, 189, 248, 0)');
+      lGrad.addColorStop(0.5, 'rgba(56, 189, 248, 0.05)');
+      lGrad.addColorStop(1, 'rgba(56, 189, 248, 0.22)');
+      this.ctx.fillStyle = lGrad;
+      this.ctx.fillRect(lx - 15, 0, 30, horizon);
+    }
+
+    // 3. Distant Industrial Megastructures with Blinking Beacon Lights (Layer 1 - slow parallax)
+    this.ctx.fillStyle = '#1A2333';
+    const structLoop = 900;
+    const structOff = (this.camera.x * 0.04) % structLoop;
+    for (let x = -150; x < w + 300; x += 160) {
+      const tx = x - structOff;
+      const tH = 90 + Math.sin(x * 0.01) * 35;
+      this.ctx.fillRect(tx, horizon - tH, 38, tH);
+      this.ctx.fillRect(tx + 46, horizon - (tH * 0.7), 54, tH * 0.7);
+
+      // Warning beacon light on tower apex
+      const beaconOn = Math.sin(time * 4.5 + x * 0.05) > 0;
+      this.ctx.fillStyle = beaconOn ? '#EF4444' : '#450A0A';
+      this.ctx.beginPath();
+      this.ctx.arc(tx + 19, horizon - tH - 4, 3, 0, Math.PI * 2);
+      this.ctx.fill();
+
+      // Cyan antenna signal light
+      const beaconCyan = Math.cos(time * 3.5 + x * 0.08) > 0;
+      this.ctx.fillStyle = beaconCyan ? '#00E5FF' : '#083344';
+      this.ctx.beginPath();
+      this.ctx.arc(tx + 73, horizon - (tH * 0.7) - 4, 2.5, 0, Math.PI * 2);
+      this.ctx.fill();
+
+      this.ctx.fillStyle = '#1A2333';
+    }
+
+    // 4. Midground Heavy Industrial Chrome Cogwheels & Truss Girders (Layer 2 - parallax)
+    const gearLoop = 700;
+    const gearOff = (this.camera.x * 0.08) % gearLoop;
+    [180, 520].forEach((gx, idx) => {
+      const drawGx = ((gx - gearOff) % (w + 200) + (w + 200)) % (w + 200) - 100;
+      const drawGy = horizon - 55;
+      const rot = (time * 0.35) * (idx % 2 === 0 ? 1 : -1);
+
+      this.ctx.save();
+      this.ctx.translate(drawGx, drawGy);
+      this.ctx.rotate(rot);
+
+      // Outer rim
+      this.ctx.strokeStyle = '#334155';
+      this.ctx.lineWidth = 7;
+      this.ctx.beginPath();
+      this.ctx.arc(0, 0, 42, 0, Math.PI * 2);
+      this.ctx.stroke();
+
+      // Specular highlight rim
+      this.ctx.strokeStyle = 'rgba(255, 255, 255, 0.25)';
+      this.ctx.lineWidth = 2;
+      this.ctx.beginPath();
+      this.ctx.arc(0, 0, 44, 0, Math.PI);
+      this.ctx.stroke();
+
+      // Gear teeth
+      const teeth = 8;
+      for (let t = 0; t < teeth; t++) {
+        const ang = t * (Math.PI * 2 / teeth);
+        this.ctx.fillStyle = '#475569';
+        this.ctx.fillRect(Math.cos(ang) * 40 - 5, Math.sin(ang) * 40 - 5, 10, 10);
+      }
+
+      // Hub & spokes
+      this.ctx.fillStyle = '#1E293B';
+      this.ctx.beginPath();
+      this.ctx.arc(0, 0, 16, 0, Math.PI * 2);
+      this.ctx.fill();
+      this.ctx.strokeStyle = '#64748B';
+      this.ctx.lineWidth = 2.5;
+      this.ctx.stroke();
+
+      this.ctx.restore();
+    });
+
+    // 5. Polished Chrome Horizon Line with Moving Specular Sheen
+    const sheenX = ((time * 180) % (w + 400)) - 200;
+    const sheenGrad = this.ctx.createRadialGradient(sheenX, horizon, 0, sheenX, horizon, 150);
+    sheenGrad.addColorStop(0, 'rgba(255, 255, 255, 0.85)');
+    sheenGrad.addColorStop(0.35, 'rgba(203, 213, 225, 0.35)');
+    sheenGrad.addColorStop(1, 'rgba(203, 213, 225, 0)');
+    this.ctx.fillStyle = sheenGrad;
+    this.ctx.fillRect(0, horizon - 12, w, 24);
+
+    this.ctx.strokeStyle = '#CBD5E1';
+    this.ctx.lineWidth = 2;
+    this.ctx.beginPath();
+    this.ctx.moveTo(0, horizon);
+    this.ctx.lineTo(w, horizon);
+    this.ctx.stroke();
+
+    // 6. Perspective Cybernetic Ground Plane
+    const groundLines = 10;
+    for (let i = 1; i <= groundLines; i++) {
+      const t = Math.pow(i / groundLines, 2.2);
+      const gy = horizon + t * (h - horizon);
+      this.ctx.strokeStyle = `rgba(148, 163, 184, ${0.1 + t * 0.35})`;
+      this.ctx.lineWidth = 1 + t * 1.5;
+      this.ctx.beginPath();
+      this.ctx.moveTo(0, gy);
+      this.ctx.lineTo(w, gy);
+      this.ctx.stroke();
+    }
+
+    // 7. Animated Chrome Sparks & Starburst Gleams
+    if (this.chromeSparks) {
+      this.chromeSparks.forEach(p => {
+        p.y -= p.speed;
+        if (p.y < 0) {
+          p.y = horizon + Math.random() * 40;
+          p.x = Math.random() * 2000;
+        }
+        const drawPx = ((p.x - this.camera.x * 0.09) % (w + 100) + (w + 100)) % (w + 100) - 50;
+        const twinkle = (Math.sin(time * 5 + p.twinklePhase) + 1) * 0.5;
+
+        this.ctx.save();
+        this.ctx.fillStyle = p.color;
+        this.ctx.globalAlpha = 0.35 + twinkle * 0.65;
+
+        if (p.isStarburst) {
+          const sz = p.size * (1 + twinkle * 0.9);
+          this.ctx.fillRect(drawPx - sz, p.y - 1, sz * 2, 2);
+          this.ctx.fillRect(drawPx - 1, p.y - sz, 2, sz * 2);
+          this.ctx.fillStyle = '#FFFFFF';
+          this.ctx.fillRect(drawPx - 1.5, p.y - 1.5, 3, 3);
+        } else {
+          this.ctx.beginPath();
+          this.ctx.arc(drawPx, p.y, p.size, 0, Math.PI * 2);
+          this.ctx.fill();
+        }
+        this.ctx.restore();
+      });
+    }
+
     this.ctx.restore();
   }
 
@@ -1567,42 +1746,138 @@ class SidehopApp {
 
   drawJungleBackground(w, h) {
     this.ctx.save();
-    // Sunbeams angled across canopy
-    const sunbeamGrad = this.ctx.createLinearGradient(0, 0, w * 0.8, h);
-    sunbeamGrad.addColorStop(0, 'rgba(253, 224, 71, 0.14)');
-    sunbeamGrad.addColorStop(0.5, 'rgba(253, 224, 71, 0.05)');
-    sunbeamGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
-    this.ctx.fillStyle = sunbeamGrad;
+    const time = performance.now() * 0.001;
+
+    // 1. Primeval rainforest canopy dusk & emerald mist gradient
+    const grad = this.ctx.createLinearGradient(0, 0, 0, h);
+    grad.addColorStop(0, '#02140A');
+    grad.addColorStop(0.35, '#064E3B');
+    grad.addColorStop(0.65, '#0F766E');
+    grad.addColorStop(0.80, '#34D399');
+    grad.addColorStop(1, '#062816');
+    this.ctx.fillStyle = grad;
+    this.ctx.fillRect(0, 0, w, h);
+
+    // 2. Volumetric Animated Golden God Rays (Sunbeams streaming through canopy)
+    for (let i = 0; i < 5; i++) {
+      const rx = (w * 0.12) + i * (w * 0.21) + Math.sin(time * 0.8 + i * 1.4) * 35;
+      const rGrad = this.ctx.createLinearGradient(rx, 0, rx + 160, h);
+      rGrad.addColorStop(0, 'rgba(253, 224, 71, 0.17)');
+      rGrad.addColorStop(0.5, 'rgba(253, 224, 71, 0.06)');
+      rGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+      this.ctx.fillStyle = rGrad;
+      this.ctx.beginPath();
+      this.ctx.moveTo(rx - 40, 0);
+      this.ctx.lineTo(rx + 50, 0);
+      this.ctx.lineTo(rx + 200, h);
+      this.ctx.lineTo(rx + 80, h);
+      this.ctx.closePath();
+      this.ctx.fill();
+    }
+
+    const horizon = h * 0.74;
+
+    // 3. Distant Ancient Mayan Temple Pyramid Silhouette (Slow parallax)
+    const pyrLoop = 1100;
+    const pyrOff = (this.camera.x * 0.04) % pyrLoop;
+    const pyrX = ((560 - pyrOff) % (w + 400) + (w + 400)) % (w + 400) - 200;
+    this.ctx.fillStyle = '#062F22';
+
+    // Stepped stone tiers
+    this.ctx.fillRect(pyrX - 75, horizon - 32, 150, 32);
+    this.ctx.fillRect(pyrX - 54, horizon - 58, 108, 26);
+    this.ctx.fillRect(pyrX - 35, horizon - 80, 70, 22);
+    this.ctx.fillRect(pyrX - 16, horizon - 96, 32, 16);
+
+    // Central temple stairs
+    this.ctx.fillStyle = '#083D2D';
+    this.ctx.fillRect(pyrX - 8, horizon - 96, 16, 96);
+
+    // 4. Distant Jungle Ridge Silhouettes
+    this.ctx.fillStyle = '#083E2C';
+    const ridgeLoop = 800;
+    const ridgeOff = (this.camera.x * 0.06) % ridgeLoop;
     this.ctx.beginPath();
-    this.ctx.moveTo(w * 0.1, 0);
-    this.ctx.lineTo(w * 0.35, 0);
-    this.ctx.lineTo(w * 0.75, h);
-    this.ctx.lineTo(w * 0.45, h);
+    this.ctx.moveTo(0, h);
+    for (let x = -200; x <= w + 200; x += 160) {
+      const rx = x - ridgeOff;
+      const ry = horizon - 20 + Math.sin(x * 0.015) * 22;
+      this.ctx.lineTo(rx, ry);
+    }
+    this.ctx.lineTo(w, h);
     this.ctx.closePath();
     this.ctx.fill();
 
-    // Jungle canopy silhouette layers
-    this.ctx.fillStyle = '#0E2818';
-    const loopW = 900;
-    const off = (this.camera.x * 0.1) % loopW;
-    for (let x = -100; x < w + 200; x += 140) {
-      const tx = x - off;
-      this.ctx.fillRect(tx + 28, h * 0.35, 10, h * 0.65);
+    // 5. Midground Lush Banyan Tree Trunks & Swaying Jungle Vines (Layer 2)
+    this.ctx.fillStyle = '#07331F';
+    const jLoop = 900;
+    const jOff = (this.camera.x * 0.11) % jLoop;
+    for (let x = -120; x < w + 250; x += 150) {
+      const tx = x - jOff;
+      // Trunk
+      this.ctx.fillRect(tx + 24, horizon - 130, 16, 130);
+      // Canopy tuft
       this.ctx.beginPath();
-      this.ctx.arc(tx + 32, h * 0.35, 48, Math.PI * 0.88, Math.PI * 2.12);
+      this.ctx.arc(tx + 32, horizon - 130, 56, Math.PI * 0.82, Math.PI * 2.18);
       this.ctx.fill();
-      // Vines
-      this.ctx.strokeStyle = '#0E2818';
+
+      // Dynamic Swaying Lianas / Vines
+      const sway = Math.sin(time * 1.8 + x * 0.02) * 18;
+      this.ctx.strokeStyle = '#052919';
       this.ctx.lineWidth = 3.5;
+      this.ctx.lineCap = 'round';
       this.ctx.beginPath();
-      this.ctx.moveTo(tx + 12, h * 0.36);
-      this.ctx.quadraticCurveTo(tx + 4, h * 0.52, tx + 16, h * 0.65);
+      this.ctx.moveTo(tx + 14, horizon - 120);
+      this.ctx.quadraticCurveTo(tx + 6 + sway * 0.5, horizon - 60, tx + 16 + sway, horizon - 15);
       this.ctx.stroke();
 
+      // Second vine
+      const sway2 = Math.cos(time * 2.2 + x * 0.03) * 14;
       this.ctx.beginPath();
-      this.ctx.moveTo(tx + 48, h * 0.38);
-      this.ctx.quadraticCurveTo(tx + 56, h * 0.48, tx + 46, h * 0.58);
+      this.ctx.moveTo(tx + 50, horizon - 115);
+      this.ctx.quadraticCurveTo(tx + 60 + sway2 * 0.6, horizon - 55, tx + 48 + sway2, horizon - 20);
       this.ctx.stroke();
+    }
+
+    // 6. Overhead Canopy Vignette (Top foliage dipping from ceiling)
+    this.ctx.fillStyle = '#031F11';
+    for (let x = -100; x < w + 200; x += 180) {
+      const ox = ((x - this.camera.x * 0.14) % (w + 200) + (w + 200)) % (w + 200) - 100;
+      this.ctx.beginPath();
+      this.ctx.arc(ox, -20, 65, 0, Math.PI);
+      this.ctx.fill();
+    }
+
+    // 7. Bioluminescent Glowing Fireflies & Forest Spores
+    if (this.jungleFireflies) {
+      this.jungleFireflies.forEach(f => {
+        f.y -= f.speed;
+        if (f.y < 0) {
+          f.y = h;
+          f.baseX = Math.random() * 2000;
+        }
+        const fx = ((f.baseX + Math.sin(time * 2 + f.wobbleSpeed * 1000) * f.wobbleAmp - this.camera.x * 0.08) % (w + 100) + (w + 100)) % (w + 100) - 50;
+        const glow = (Math.sin(time * 4 + f.glowPhase) + 1) * 0.5;
+
+        this.ctx.save();
+        // Pulsing radial aura
+        const halo = this.ctx.createRadialGradient(fx, f.y, 0, fx, f.y, f.radius * 3.8);
+        halo.addColorStop(0, f.color);
+        halo.addColorStop(1, 'rgba(0, 0, 0, 0)');
+        this.ctx.fillStyle = halo;
+        this.ctx.globalAlpha = 0.28 + glow * 0.55;
+        this.ctx.beginPath();
+        this.ctx.arc(fx, f.y, f.radius * 3.8, 0, Math.PI * 2);
+        this.ctx.fill();
+
+        // Bright white/golden core
+        this.ctx.fillStyle = '#FFFFFF';
+        this.ctx.globalAlpha = 0.85;
+        this.ctx.beginPath();
+        this.ctx.arc(fx, f.y, Math.max(1.0, f.radius * 0.55), 0, Math.PI * 2);
+        this.ctx.fill();
+        this.ctx.restore();
+      });
     }
 
     this.ctx.restore();
@@ -2374,9 +2649,17 @@ class SidehopApp {
       sounds.playClick();
     });
 
+    // Character Edit Button (Header shortcut)
+    document.getElementById('character-edit-btn')?.addEventListener('click', () => {
+      this.artStudio.openForEntity(this.player, () => {
+        LevelStorage.autoSave(this.player, this.entities, this.background);
+      });
+    });
+
     // 4. Background Customizer Modal Controls
     const bgModal = document.getElementById('background-modal');
     document.getElementById('bg-modal-btn').addEventListener('click', () => {
+      this.updateBackgroundModalUI();
       bgModal.classList.add('active');
       sounds.playClick();
     });
@@ -2390,23 +2673,31 @@ class SidehopApp {
       sounds.playClick();
     });
 
-    const bgThemeCards = document.querySelectorAll('.bg-theme-card');
-    bgThemeCards.forEach(card => {
-      card.addEventListener('click', () => {
-        bgThemeCards.forEach(c => c.classList.remove('active'));
-        card.classList.add('active');
-        this.background.theme = card.getAttribute('data-bg-theme');
-        this.background.customImage = null;
-        this.background.customImageElement = null;
-        const customStatus = document.getElementById('bg-custom-status');
-        if (customStatus) customStatus.style.display = 'none';
-        sounds.playClick();
+    // Make a drawing button (opens Art Studio in background mode)
+    document.getElementById('bg-draw-btn')?.addEventListener('click', () => {
+      bgModal.classList.remove('active');
+      this.artStudio.openForBackground(this.background, (dataUrl) => {
+        if (dataUrl) {
+          this.background.theme = 'custom';
+          this.background.customImage = dataUrl;
+          const img = new Image();
+          img.src = dataUrl;
+          img.onload = () => {
+            this.background.customImageElement = img;
+          };
+          sounds.playPaintSquish();
+        } else {
+          this.background.theme = this.currentTheme || 'grass';
+          this.background.customImage = null;
+          this.background.customImageElement = null;
+        }
+        this.updateBackgroundModalUI();
         LevelStorage.autoSave(this.player, this.entities, this.background);
       });
     });
 
     const bgUploadInput = document.getElementById('bg-image-upload');
-    bgUploadInput.addEventListener('change', (e) => {
+    bgUploadInput?.addEventListener('change', (e) => {
       if (e.target.files && e.target.files[0]) {
         const file = e.target.files[0];
         const reader = new FileReader();
@@ -2418,25 +2709,21 @@ class SidehopApp {
           img.onload = () => {
             this.background.customImageElement = img;
           };
-          bgThemeCards.forEach(c => c.classList.remove('active'));
-          const customStatus = document.getElementById('bg-custom-status');
-          if (customStatus) customStatus.style.display = 'block';
+          this.updateBackgroundModalUI();
           sounds.playPaintSquish();
           LevelStorage.autoSave(this.player, this.entities, this.background);
         };
         reader.readAsDataURL(file);
+        bgUploadInput.value = '';
       }
     });
 
-    document.getElementById('bg-reset-default').addEventListener('click', () => {
-      this.background.theme = 'sky';
+    // Clear Custom Art Background button
+    document.getElementById('bg-clear-custom-btn')?.addEventListener('click', () => {
+      this.background.theme = this.currentTheme || 'grass';
       this.background.customImage = null;
       this.background.customImageElement = null;
-      bgThemeCards.forEach(c => {
-        c.classList.toggle('active', c.getAttribute('data-bg-theme') === 'sky');
-      });
-      const customStatus = document.getElementById('bg-custom-status');
-      if (customStatus) customStatus.style.display = 'none';
+      this.updateBackgroundModalUI();
       sounds.playClick();
       LevelStorage.autoSave(this.player, this.entities, this.background);
     });
@@ -2454,7 +2741,7 @@ class SidehopApp {
         this.canvas.width = prevW;
         this.canvas.height = prevH;
       }
-      const title = `${this.background.theme.toUpperCase()} Background`;
+      const title = `${(this.background.theme || this.currentTheme).toUpperCase()} Background`;
       const pkg = SidehopFile.createAssetPackage({
         name: title,
         category: 'background',
@@ -2466,7 +2753,7 @@ class SidehopApp {
         title: title,
         description: 'Level background exported from Sidehop'
       });
-      SidehopFile.download(`${this.background.theme}-background.sidehop`, pkg);
+      SidehopFile.download(`${this.background.theme || this.currentTheme}-background.sidehop`, pkg);
       sounds.playCollect();
       this.showToast('💾 Exported Background (.sidehop)');
     });
@@ -2489,11 +2776,7 @@ class SidehopApp {
               img.onload = () => {
                 this.background.customImageElement = img;
               };
-              bgThemeCards.forEach(c => c.classList.remove('active'));
-              const customStatus = document.getElementById('bg-custom-status');
-              if (customStatus) customStatus.style.display = 'block';
-              const clearBtn = document.getElementById('bg-clear-custom-btn');
-              if (clearBtn) clearBtn.style.display = 'inline-flex';
+              this.updateBackgroundModalUI();
               LevelStorage.autoSave(this.player, this.entities, this.background);
               sounds.playCollect();
               this.showToast('🌄 Loaded .sidehop Background');
@@ -2503,21 +2786,8 @@ class SidehopApp {
           }
         };
         reader.readAsText(file);
+        bgSidehopUpload.value = '';
       }
-    });
-
-    // Clear Custom Art Background button
-    document.getElementById('bg-clear-custom-btn')?.addEventListener('click', () => {
-      this.background.theme = 'sky';
-      this.background.customImage = null;
-      this.background.customImageElement = null;
-      const customStatus = document.getElementById('bg-custom-status');
-      if (customStatus) customStatus.style.display = 'none';
-      const clearBtn = document.getElementById('bg-clear-custom-btn');
-      if (clearBtn) clearBtn.style.display = 'none';
-      bgThemeCards.forEach(c => c.classList.toggle('active', c.getAttribute('data-bg-theme') === 'sky'));
-      sounds.playClick();
-      LevelStorage.autoSave(this.player, this.entities, this.background);
     });
 
     // Clear Art Studio Canvas button

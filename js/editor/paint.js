@@ -30,13 +30,50 @@ export class ArtStudio {
 
   openForEntity(entity, onApply) {
     this.targetEntity = entity;
+    this.targetBackground = null;
+    this.isBackgroundMode = false;
     this.onApplyCallback = onApply;
     this.clearCanvas();
 
+    const titleEl = this.modal?.querySelector('.modal-title');
+    if (titleEl) {
+      if (entity && (entity.type === 'player' || entity === window.sidehop?.player)) {
+        titleEl.textContent = '🐰 Art Studio — Edit Character';
+      } else if (entity && entity.type) {
+        titleEl.textContent = `🎨 Art Studio — Edit ${entity.type.charAt(0).toUpperCase() + entity.type.slice(1)}`;
+      } else {
+        titleEl.textContent = '🎨 Art Studio';
+      }
+    }
+
     // If entity already has custom visual, draw it onto canvas
-    if (entity.customVisual) {
+    if (entity && entity.customVisual) {
       const img = new Image();
       img.src = entity.customVisual;
+      img.onload = () => {
+        this.ctx.drawImage(img, 0, 0, this.canvas.width, this.canvas.height);
+      };
+    }
+
+    this.modal.classList.add('active');
+    sounds.playClick();
+  }
+
+  openForBackground(background, onApply) {
+    this.targetEntity = null;
+    this.targetBackground = background;
+    this.isBackgroundMode = true;
+    this.onApplyCallback = onApply;
+    this.clearCanvas();
+
+    const titleEl = this.modal?.querySelector('.modal-title');
+    if (titleEl) {
+      titleEl.textContent = '🌄 Art Studio — Draw Background';
+    }
+
+    if (background && background.customImage) {
+      const img = new Image();
+      img.src = background.customImage;
       img.onload = () => {
         this.ctx.drawImage(img, 0, 0, this.canvas.width, this.canvas.height);
       };
@@ -231,6 +268,7 @@ export class ArtStudio {
   }
 
   getSuggestedCategory() {
+    if (this.isBackgroundMode) return 'background';
     if (!this.targetEntity) return 'sprite';
     const type = this.targetEntity.type;
     if (type === 'player') return 'player';
@@ -345,6 +383,12 @@ export class ArtStudio {
   }
 
   apply() {
+    if (this.isBackgroundMode && this.onApplyCallback) {
+      const dataUrl = this.canvas.toDataURL('image/png');
+      this.onApplyCallback(dataUrl);
+      this.close();
+      return;
+    }
     if (this.targetEntity && this.onApplyCallback) {
       const dataUrl = this.canvas.toDataURL('image/png');
       this.targetEntity.setCustomVisual(dataUrl);
@@ -354,6 +398,11 @@ export class ArtStudio {
   }
 
   resetDefault() {
+    if (this.isBackgroundMode && this.onApplyCallback) {
+      this.onApplyCallback(null);
+      this.close();
+      return;
+    }
     if (this.targetEntity && this.onApplyCallback) {
       this.targetEntity.setCustomVisual(null);
       this.onApplyCallback(this.targetEntity);
