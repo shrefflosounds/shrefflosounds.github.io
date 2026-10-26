@@ -136,6 +136,109 @@ body[data-theme="jungle"] {
   --accent-mint: #2D6A4F;
 }
 
+/* 6. NEON OVER BLACK THEME (High Contrast Cyber Synth) */
+body[data-theme="neon"] {
+  --theme-name: "neon";
+  --bg-cream: #050508;
+  --bg-panel: #0E0E18;
+  --header-bg: #0A0A12;
+  --ink-black: #F8FAFC;
+  --border-color: #00E5FF;
+  --shadow-color: #FF007F;
+  --border-thick: 2px solid #00E5FF;
+  --shadow-hard: 3px 3px 0px #FF007F;
+  --shadow-hover: 4px 4px 0px #FF007F;
+  --accent-sun: #FFE600;
+  --accent-sky: #00E5FF;
+  --accent-rose: #FF007F;
+  --accent-mint: #00FF66;
+}
+
+body[data-theme="neon"] .neo-btn {
+  background-color: #141424;
+  color: #F8FAFC;
+  border-color: #00E5FF;
+}
+
+body[data-theme="neon"] .neo-btn:hover {
+  background-color: #202038;
+}
+
+body[data-theme="neon"] .tool-drawer,
+body[data-theme="neon"] .neo-modal-box,
+body[data-theme="neon"] .neo-dialog,
+body[data-theme="neon"] .about-credit-card,
+body[data-theme="neon"] .about-tab-btn,
+body[data-theme="neon"] .theme-card {
+  background-color: #0E0E18;
+  color: #F8FAFC;
+  border-color: #00E5FF;
+}
+
+body[data-theme="neon"] .about-credit-desc,
+body[data-theme="neon"] .theme-sub {
+  color: #94A3B8;
+}
+
+/* 7. ATLANTIS UNDERWATER THEME (Deep Ocean Light) */
+body[data-theme="atlantis"] {
+  --theme-name: "atlantis";
+  --bg-cream: #041B2D;
+  --bg-panel: #072B47;
+  --header-bg: #031524;
+  --ink-black: #E0F2FE;
+  --border-color: #38BDF8;
+  --shadow-color: #020D17;
+  --border-thick: 2px solid #38BDF8;
+  --shadow-hard: 3px 3px 0px #020D17;
+  --shadow-hover: 4px 4px 0px #020D17;
+  --accent-sun: #38BDF8;
+  --accent-sky: #0284C7;
+  --accent-rose: #F43F5E;
+  --accent-mint: #2DD4BF;
+}
+
+body[data-theme="atlantis"] .neo-btn {
+  background-color: #0C385C;
+  color: #E0F2FE;
+  border-color: #38BDF8;
+}
+
+body[data-theme="atlantis"] .neo-btn:hover {
+  background-color: #124A78;
+}
+
+body[data-theme="atlantis"] .tool-drawer,
+body[data-theme="atlantis"] .neo-modal-box,
+body[data-theme="atlantis"] .neo-dialog,
+body[data-theme="atlantis"] .about-credit-card,
+body[data-theme="atlantis"] .about-tab-btn,
+body[data-theme="atlantis"] .theme-card {
+  background-color: #072B47;
+  color: #E0F2FE;
+  border-color: #38BDF8;
+}
+
+body[data-theme="atlantis"] .about-credit-desc,
+body[data-theme="atlantis"] .theme-sub {
+  color: #7DD3FC;
+}
+
+/* 8. MIXED MEDIA THEME (Paper Collage & Warm Art) */
+body[data-theme="mixed"] {
+  --theme-name: "mixed";
+  --bg-cream: #FDF6E2;
+  --bg-panel: #FFFDF7;
+  --header-bg: #F4E7CA;
+  --ink-black: #262626;
+  --border-color: #3F3F46;
+  --shadow-color: #71717A;
+  --accent-sun: #F59E0B;
+  --accent-sky: #0284C7;
+  --accent-rose: #E11D48;
+  --accent-mint: #059669;
+}
+
 * {
   box-sizing: border-box;
   margin: 0;

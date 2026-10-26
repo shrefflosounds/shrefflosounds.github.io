@@ -20,49 +20,49 @@ export class SidehopDemo {
       {
         id: 'welcome',
         title: '🌟 Welcome to Sidehop',
-        desc: 'Build, paint, tune, and play 2D platformers right in your browser. Watch as we take a quick tour of every major feature!',
+        desc: 'Build, paint, tune, and play 2D platformers right in your browser. Welcome to this quick tour of every major feature',
         duration: 3800
       },
       {
         id: 'blocks',
-        title: '🧱 Component Palette & Mario Maker Blocks',
-        desc: 'Choose from 13 versatile block styles: Solid Ground, 45° Slopes, Slippery Ice, Donut Lifts, Note Trampolines, and Mystery [?] Blocks!',
+        title: '🧱 Components, Types & Blocks',
+        desc: 'Choose from 13 block styles: Solid blocks, angled slopes, moving platforms, etc.',
         duration: 5200
       },
       {
         id: 'items',
         title: '⭐ Powerups, Weapons & Enemies',
-        desc: 'Place Gold Coins, Star Gems, Health Hearts, Springboards, and the Pistol Gun sidearm weapon to blast enemies!',
+        desc: 'Place Coins, Hearts, Guns, and other fun things',
         duration: 4800
       },
       {
         id: 'tuning',
-        title: '🎛️ Real-Time Inspector & Physics Tuning',
-        desc: 'Tune Run Speed, Jump Force, Gravity, Weight, and Bounciness with tactile sliders in the Inspector.',
+        title: '🎛️ Real-Time Physics Tuning',
+        desc: 'Tune Running, Jumping, Gravity, Weight, Bounciness, and more component attributes',
         duration: 4600
       },
       {
         id: 'art',
-        title: '🎨 Kid Pix Art Studio & Square Block Preservation',
-        desc: 'Paint custom doodles, stamps, or import any photo or GIF. Square blocks stay in their square shape with custom visuals!',
+        title: '🎨 Art Studio',
+        desc: 'Draw characters, blocks, or import any photo or GIF into your creation',
         duration: 4800
       },
       {
         id: 'backgrounds',
-        title: '🌄 Atmospheric Visual Themes',
-        desc: 'Transform your world instantly with atmospheric sky themes: Sunset, Cyberpunk Neon Grid, Midnight, or custom uploads.',
+        title: '🌄 Themes',
+        desc: 'Transform visuals with themes like: Tundra, Neon, Chrome, and more',
         duration: 4200
       },
       {
         id: 'playtest',
-        title: '🎮 Instant In-Place Playtesting',
-        desc: 'Seamlessly switch to Play Mode: run, slide on ice, bounce on springs, bump mystery blocks, and shoot blaster shots!',
+        title: '🎮 Realtime Edit and Play',
+        desc: 'Seamlessly switch from Play Mode to Edit Mode for quick edits and playtests',
         duration: 6500
       },
       {
         id: 'recording',
         title: '🎥 Video Recording & .sidehop Sharing',
-        desc: 'Capture 60fps MP4 video clips with one click, or export portable .sidehop files to share with friends. Happy creating!',
+        desc: 'Screen Capture with one click, or export easily shareable ".sidehop" files or standalone html',
         duration: 4000
       }
     ];
@@ -203,12 +203,13 @@ export class SidehopDemo {
     app.coins = b.coins;
     app.ammo = b.ammo;
     app.gunPickedUpInLevel = b.gunPickedUpInLevel;
-    app.updateScoreUI();
+    if (app.updateScoreUI) app.updateScoreUI();
 
     // Restore history
     app.history.undoStack = b.undoStack;
     app.history.redoStack = b.redoStack;
-    app.history.updateButtons();
+    if (app.history.updateButtons) app.history.updateButtons();
+    else if (app.history.notifyChange) app.history.notifyChange();
 
     // Deselect all
     app.editor.selectedEntity = null;
@@ -252,7 +253,8 @@ export class SidehopDemo {
     }
 
     this.createUI();
-    sounds.playFanfare();
+    if (sounds.playFanfare) sounds.playFanfare();
+    else if (sounds.playVictory) sounds.playVictory();
     this.app.showToast('🎬 Sidehop Interactive Tour Started!');
 
     this.runStep(0);
@@ -287,8 +289,8 @@ export class SidehopDemo {
     this.bannerEl.className = 'demo-tour-banner';
     this.bannerEl.innerHTML = `
       <div class="demo-banner-left">
-        <span class="demo-badge">🎬 DEMO TOUR</span>
-        <span class="demo-step-counter" id="demo-step-counter">Step 1 of 8</span>
+        <span class="demo-badge">🎬 SIDEHOP DEMO</span>
+        <span class="demo-step-counter" id="demo-step-counter">STEP 1 OF 8</span>
         <span class="demo-step-title" id="demo-step-title">Welcome to Sidehop</span>
       </div>
       <div class="demo-banner-center" id="demo-step-desc">
@@ -296,8 +298,8 @@ export class SidehopDemo {
       </div>
       <div class="demo-banner-actions">
         <button id="demo-prev-btn" class="demo-btn-sm" title="Previous step">⏮️</button>
-        <button id="demo-next-btn" class="demo-btn-sm" title="Next step">⏭️</button>
-        <button id="demo-exit-btn" class="demo-btn-sm demo-exit" title="Exit Tour (Escape)">✕ Exit</button>
+        <button id="demo-next-btn" class="demo-btn-sm" title="Next step">⏭️ Next</button>
+        <button id="demo-exit-btn" class="demo-btn-sm demo-exit" title="Exit Tour (Escape)">Stop Demo ✕</button>
       </div>
     `;
     document.body.appendChild(this.bannerEl);
@@ -341,7 +343,7 @@ export class SidehopDemo {
     const counter = document.getElementById('demo-step-counter');
     const title = document.getElementById('demo-step-title');
     const desc = document.getElementById('demo-step-desc');
-    if (counter) counter.textContent = `Step ${this.currentStep + 1} of ${this.steps.length}`;
+    if (counter) counter.textContent = `STEP ${this.currentStep + 1} OF ${this.steps.length}`;
     if (title) title.textContent = step.title;
     if (desc) desc.textContent = step.desc;
   }

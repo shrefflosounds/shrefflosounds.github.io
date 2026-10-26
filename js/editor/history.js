@@ -81,6 +81,10 @@ export class HistoryManager {
     }
   }
 
+  updateButtons() {
+    this.notifyChange();
+  }
+
   clear() {
     this.undoStack = [];
     this.redoStack = [];

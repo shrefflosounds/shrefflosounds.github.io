@@ -1497,7 +1497,7 @@ export class HazardSpikes extends Entity {
   }
 }
 
-// 5. ENEMY WALKER (Walker, Winged Hopper, and Armored Spiky Variants)
+// 5. ENEMY WALKER (Walker, Flyer, and Spiker Variants)
 export class EnemyWalker extends Entity {
   constructor(x, y, width = 40, height = 40, variant = 'walker') {
     super(null, 'enemy', x, y, width, height);
@@ -1583,7 +1583,7 @@ export class EnemyWalker extends Entity {
 
     this.renderCustomOrFallback(ctx, () => {
       if (this.variant === 'winged') {
-        // Winged Hopper (Golden Yellow with animated white wings)
+        // Flyer (Golden Yellow with animated white wings)
         const wingFlap = Math.sin(this.walkCycle * 2.5) * 8;
         ctx.fillStyle = '#FFFFFF';
         ctx.strokeStyle = '#121212';
@@ -1628,7 +1628,7 @@ export class EnemyWalker extends Entity {
         ctx.fill();
         ctx.stroke();
       } else if (this.variant === 'spiky') {
-        // Armored Spiky Urchin (Cannot be stomped!)
+        // Spiker (Hazardous spines - cannot be stomped!)
         // Steel Spikes on top
         ctx.fillStyle = '#ECEFF1';
         ctx.strokeStyle = '#121212';
@@ -1665,7 +1665,7 @@ export class EnemyWalker extends Entity {
         ctx.fillRect(13, 19, 2.5, 4);
         ctx.fillRect(25, 19, 2.5, 4);
       } else {
-        // Standard Lavender Walker (Grumpy Potato)
+        // Standard Walker
         ctx.fillStyle = '#B388FF'; // Lavender purple
         ctx.strokeStyle = '#121212';
         ctx.lineWidth = 3;

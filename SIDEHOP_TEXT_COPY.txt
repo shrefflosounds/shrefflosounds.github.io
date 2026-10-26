@@ -1,0 +1,818 @@
+================================================================================
+SIDEHOP — COMPLETE VISIBLE TEXT & EMOJI COPY MANIFEST
+================================================================================
+Instructions:
+You can edit any text, label, emoji, description, or message in this document.
+When you are ready, send your edited version back, and every change will be
+updated directly into the app!
+================================================================================
+
+
+────────────────────────────────────────────────────────────────────────────────
+SECTION 1: TOP HEADER & MAIN NAVIGATION
+────────────────────────────────────────────────────────────────────────────────
+Logo Title:
+Sidehop
+
+Mode Switch Button:
+▶ PLAY TEST
+(Tooltip: Press Space to toggle mode)
+(When in Play mode):
+✏️ EDIT WORKBENCH
+
+Top Navigation Buttons:
+❓ Help
+(Tooltip: Searchable Help and Controls (H))
+
+ℹ️ About
+(Tooltip: About Sidehop)
+
+🎬 Demo
+(Tooltip: Watch interactive guided demo tour)
+
+⤢ FILL
+(Tooltip: Expand canvas to fill available screen)
+(When filled):
+⤡ RESTORE
+
+🎨 Theme ▾
+(Tooltip: Choose Theme (Environment & Blocks))
+
+● REC
+(Tooltip: Record gameplay clip)
+Timer default: 00:00
+
+🔊
+(Tooltip: Toggle Sound FX)
+(When muted):
+🔇
+
+↩ Undo
+(Tooltip: Undo (⌘Z / Ctrl+Z))
+
+↪ Redo
+(Tooltip: Redo (⌘⇧Z / Ctrl+Y))
+
+🌄 Background
+(Tooltip: Change Level Background)
+
+🔄 Reset
+(Tooltip: Reset level to default layout)
+
+💾 .sidehop
+(Tooltip: Save level as .sidehop file)
+
+🌐 Save HTML
+(Tooltip: Export as HTML web game)
+
+📂 Import
+(Tooltip: Load .sidehop file)
+
+
+────────────────────────────────────────────────────────────────────────────────
+SECTION 2: LEFT SIDEBAR TOOLS (WORKBENCH PALETTE)
+────────────────────────────────────────────────────────────────────────────────
+Section Header:
+Tools
+
+Tool Buttons:
+👆 Select
+(Tooltip: Select, Move & Inspect (1))
+
+⬚ Box Select
+(Tooltip: Drag & Select Multiple (5 / Shift+Drag))
+
+🖌️ Place
+(Tooltip: Place Components (2))
+
+✋ Pan
+(Tooltip: Pan Map (3 / Hold Spacebar & Drag))
+
+🧹 Eraser
+(Tooltip: Erase Placed Items (4))
+
+Grid Toggle Button:
+🔲 Grid: ON
+(When off):
+🔲 Grid: OFF
+
+
+────────────────────────────────────────────────────────────────────────────────
+SECTION 3: LEFT SIDEBAR COMPONENTS (PALETTE)
+────────────────────────────────────────────────────────────────────────────────
+Section Header:
+Components
+
+Palette Component Buttons:
+🐰 Spawnpoint
+(Tooltip: Starting point (P))
+
+🟩 Ground Block
+(Tooltip: Solid Block — Click arrow for Mario Maker styles (B))
+
+🌀 Springboard
+(Tooltip: Bouncy Springboard — Click arrow for Mega Spring (S))
+
+⚠️ Spike Hazard
+(Tooltip: Spike Hazard (H))
+
+👾 Enemy Walker
+(Tooltip: Enemy — Click arrow for Winged & Spiky (E))
+
+⏥ Moving Platform
+(Tooltip: Moving Platform (M))
+
+⭐ Collectibles
+(Tooltip: Collectible — Click arrow for Star, Coin, Heart, Gun (C))
+
+🏁 Goal Flag
+(Tooltip: Goal Finish Line (G))
+
+
+────────────────────────────────────────────────────────────────────────────────
+SECTION 4: COMPONENT FLYOUT MENUS (VARIANTS & DESCRIPTIONS)
+────────────────────────────────────────────────────────────────────────────────
+
+[CATEGORY: BLOCK & SLOPE TYPES]
+Flyout Menu Title:
+BLOCK & SLOPE TYPES
+
+Variants:
+1. 🟩 Solid Ground
+   Short Name: Solid
+   Description: Standard solid block platform
+
+2. ◢ Slope Up (45°)
+   Short Name: Slope Up
+   Description: Walkable incline hill slant
+
+3. ◣ Slope Down (45°)
+   Short Name: Slope Down
+   Description: Walkable decline hill slant
+
+4. 🪵 Jump-thru Platform
+   Short Name: Semi-Solid
+   Description: Jump through from below, stand on top
+
+5. 🪨 Half-Block (40x20)
+   Short Name: Half Slab
+   Description: Half-height stepping stone block
+
+6. ❇️ Mega Block (80x80)
+   Short Name: Mega Block
+   Description: Giant 2x2 fortress block
+
+7. ♻️ Warp Pipe (40x80)
+   Short Name: Pipe
+   Description: Tall iconic 2-tile pipe column
+
+8. 🍩 Donut Drop
+   Short Name: Donut Lift
+   Description: Drops and falls when stood upon
+
+9. 🎵 Note Block
+   Short Name: Note Block
+   Description: Super bouncy musical trampoline block
+
+10. ❓ Mystery Block
+    Short Name: Mystery
+    Description: Breakable surprise block [?]
+
+11. 🧊 Sliding Block
+    Short Name: Ice
+    Description: Low-friction slippery surface
+
+12. ☁️ Cloud
+    Short Name: Cloud
+    Description: Soft floating cloud block
+
+13. 🪨 Stone Block
+    Short Name: Stone
+    Description: Chiseled fortress stone masonry
+
+
+[CATEGORY: SPRING TYPES]
+Flyout Menu Title:
+SPRING TYPES
+
+Variants:
+1. 🌀 Standard Spring
+   Short Name: Spring
+   Description: Bounces player high upward
+
+2. 🚀 Mega Trampoline
+   Short Name: Mega Spring
+   Description: Super high vertical booster
+
+
+[CATEGORY: ENEMY TYPES]
+Flyout Menu Title:
+ENEMY TYPES
+
+Variants:
+1. 🧌 Walker
+   Short Name: Enemy
+   Description: Patrols back and forth on ground
+
+2. 🪽 Flyer
+   Short Name: Winged
+   Description: Hops & flutters airborne
+
+3. 🦔 Spiker
+   Short Name: Spiky
+   Description: Hazardous spines - can't stomp
+
+
+[CATEGORY: COLLECTIBLE TYPES]
+Flyout Menu Title:
+COLLECTIBLE TYPES
+
+Variants:
+1. ⭐ Star Gem
+   Short Name: Star
+   Description: Bright glowing star token (+500 pts)
+
+2. 💰 Gold Coin
+   Short Name: Coin
+   Description: Shiny spinning coin token (+100 pts)
+
+3. ❤️ Heart
+   Short Name: Heart
+   Description: Restores +1 heart of player health
+
+4. 🔫 Gun
+   Short Name: Pistol
+   Description: Sidearm blaster weapon (+15 Ammo)
+
+5. 📦 Ammunition
+   Short Name: Ammo
+   Description: Ammo reload (+15 rounds)
+
+
+────────────────────────────────────────────────────────────────────────────────
+SECTION 5: BOTTOM DRAWER CONTROLS & SHORTCUTS
+────────────────────────────────────────────────────────────────────────────────
+Drawer Header:
+Controls
+
+Shortcut Chips:
+▶ [Space] Play/Edit
+[1-5] Tools
+[B] Block
+[S] Spring
+[E] Enemy
+[C] Coin/Star
+[H] Spike
+[M] Moving Plat
+[G] Goal
+[P] Spawn
+[F/X] Shoot Gun
+[R] Record
+[⌘Z] Undo
+[H] Help Menu
+
+
+────────────────────────────────────────────────────────────────────────────────
+SECTION 6: FLOATING ACTION CARD (WHEN SELECTING COMPONENTS)
+────────────────────────────────────────────────────────────────────────────────
+Entity Badges:
+🐰 PLAYER SPAWN
+🧱 SOLID BLOCK
+🌀 SPRING BOUNCER
+⚠️ SPIKE HAZARD
+👾 ENEMY WALKER
+🛹 MOVING PLATFORM
+⭐ STAR / COIN
+🏁 GOAL FINISH
+📦 COMPONENT
+
+Action Card Buttons:
+📑 Duplicate
+(Tooltip: Duplicate component (⌘D))
+
+📋 Copy
+(Tooltip: Copy component (⌘C))
+
+🎨 Paint / Decal
+(Tooltip: Paint custom art or import decal/GIF in Kid Pix Art Studio)
+
+🎛️ Tune Physics
+(Tooltip: Tune parameters & physics in Inspector)
+
+🗑️ Delete
+(Tooltip: Delete component (Backspace / Del))
+
+
+────────────────────────────────────────────────────────────────────────────────
+SECTION 7: IN-GAME PLAY HUD (PLAY TEST MODE)
+────────────────────────────────────────────────────────────────────────────────
+Score Label:
+SCORE
+(Displays numeric points, e.g. 0, 100, 500)
+
+Health Display:
+4 Hearts (❤️❤️❤️❤️)
+
+Ammunition Display (when gun acquired):
+AMMO
+[x] ROUNDS (e.g. 15 ROUNDS)
+
+
+────────────────────────────────────────────────────────────────────────────────
+SECTION 8: ART STUDIO (PAINT & PHOTO)
+────────────────────────────────────────────────────────────────────────────────
+Modal Header:
+🎨 Art Studio
+
+Tool Buttons:
+✏️ Pencil
+🖌️ Brush
+🪣 Bucket Fill
+🧽 Eraser
+
+Special Action Buttons:
+💣 Clear Canvas
+📁 Import Image / GIF
+
+Brush Size Slider:
+Size: [number]px (e.g. 8px)
+
+Color Palette:
+Default selected: Electric Cyan (#00E5FF)
+(Includes: Canary Yellow, Hot Magenta, Lime Green, Electric Cyan, Neon Orange,
+ Coral Red, Pure White, Charcoal Black, Dark Slate, Deep Violet, Warm Gold, Sky Blue)
+
+Stamp Palette Tabs & Icons:
+Faces: 😊 🐰 👾 🐱 🐶 🐸 🦊 🐻 🐼 🐵
+Items: 🪙 ⭐ 💎 🍎 🍕 🍦 🍄 ⚡ 🔥 💖
+Nature: 🌲 🌸 🌵 🌊 ☀️ 🌈 🌴 ❄️ 🍀 🍂
+Bricks: 🧱 🪨 📦 🪵 ⚙️ 🏛️ 🚪 🪜 🕳️ 💎
+
+Bottom Buttons:
+↩ Reset Default Art
+Apply to Component ✓
+
+
+────────────────────────────────────────────────────────────────────────────────
+SECTION 9: REAL-TIME INSPECTOR & TUNER MODAL
+────────────────────────────────────────────────────────────────────────────────
+Modal Header:
+🎛️ Inspector & Physics Tuner
+
+General Information:
+Component: [Component Type]
+Position: X: [number]px, Y: [number]px
+Size: Width: [number]px, Height: [number]px
+
+Physics Parameter Sliders & Labels:
+- Speed (px/s): [value]
+- Jump Force: [value]
+- Gravity (px/s²): [value]
+- Bounciness: [value]
+- Friction: [value]
+- One-Way Platform: [Toggle checkbox]
+- Patrol Distance: [value]
+
+Preset Buttons:
+Standard Physics
+Floaty Moon
+High Gravity
+Super Bouncy
+Ice Skater
+
+Modal Action Buttons:
+Done ✓
+
+
+────────────────────────────────────────────────────────────────────────────────
+SECTION 10: ATMOSPHERIC BACKGROUND MODAL
+────────────────────────────────────────────────────────────────────────────────
+Modal Header:
+🌄 Level Atmosphere & Sky
+
+Sky Theme Options:
+- ☀️ Sunny Sky
+- 🌅 Sunset
+- 🌙 Midnight
+- 🌆 Neon
+- 🌫️ Overcast Gray
+
+Custom Art / GIF Background:
+📁 Upload Custom Art / GIF
+(Supports PNG, JPG, GIF, WebP)
+Status: Custom Background Active
+Clear Custom Art ✕
+
+Bottom Buttons:
+Close ✓
+
+
+────────────────────────────────────────────────────────────────────────────────
+SECTION 11: THEME SELECTOR MODAL (UI, WORKBENCH & WORLD)
+────────────────────────────────────────────────────────────────────────────────
+Modal Header:
+🎨 Choose World & UI Theme
+
+Description:
+Select a theme to transform the workbench UI, level background atmosphere, and block styles:
+
+Theme Cards:
+1. 🌿 Grass Plains
+   Lush green turf, sunlit skies & rolling hills
+
+2. ❄️ Snowy Peaks
+   Frosty drifts, falling snowflakes & icicle spikes
+
+3. 🌙 Night Horizon
+   Midnight sky, stars, moon & glowing crystal turf
+
+4. ⚙️ Chrome Future
+   Brushed steel, synth grid, rivets & cyber vibes
+
+5. 🕹️ 8-Bit Arcade
+   Retro nes-blue skies, pixelated clouds & stepped turf
+
+6. 🌴 Jungle Canopy
+   Tropical mist, hanging vines & mossy ancient stone
+
+
+────────────────────────────────────────────────────────────────────────────────
+SECTION 12: SEARCHABLE HELP & CONTROLS MODAL
+────────────────────────────────────────────────────────────────────────────────
+Modal Header:
+❓ Help & Controls
+
+Search Input Placeholder:
+Search controls, tools, shortcuts (e.g. "play", "jump", "undo")...
+
+Help Database Entries:
+1. Play / Test Mode
+   Body: Toggle between Edit workbench and live playable arcade mode.
+   Shortcut: Space / ▶
+
+2. Select & Inspect Tool
+   Body: Select placed items to move, paint art, or tune physics.
+   Shortcut: 1
+
+3. Place Tool
+   Body: Stamp the currently chosen component onto the grid.
+   Shortcut: 2
+
+4. Pan Stage
+   Body: Drag to move around the level canvas without placing blocks.
+   Shortcut: 3 / Space+Drag
+
+5. Erase Tool
+   Body: Click or drag across placed components to remove them.
+   Shortcut: 4
+
+6. Box Select
+   Body: Drag a box to select multiple components at once.
+   Shortcut: 5 / Shift+Drag
+
+7. Solid Block Component
+   Body: Place ground blocks. Click arrow for mystery, cloud, and ice.
+   Shortcut: B
+
+8. Springboard Bouncer
+   Body: Place trampolines that launch player and enemies upward.
+   Shortcut: S
+
+9. Spike Hazard
+   Body: Deadly spikes triggering instant defeat and respawn.
+   Shortcut: H
+
+10. Patrolling Enemy
+    Body: Stompable walking enemies with customizable patrol paths.
+    Shortcut: E
+
+11. Moving Platform
+    Body: Floating platform traveling back and forth horizontally or vertically.
+    Shortcut: M
+
+12. Collectibles
+    Body: Stars, coins, hearts, or pistols with shootable bullets.
+    Shortcut: C
+
+13. Goal Finish Line
+    Body: Flagpole triggering victory fanfare and confetti celebration.
+    Shortcut: G
+
+14. Hero Spawn Point
+    Body: Sets the starting spawn position for the player character.
+    Shortcut: P
+
+15. Record Gameplay Clip
+    Body: Record video clips directly from canvas and download WebM/MP4.
+    Shortcut: R / ●
+
+16. Undo Modification
+    Body: Revert the last level edit or placement change.
+    Shortcut: ⌘Z / Ctrl+Z
+
+17. Redo Modification
+    Body: Reapply a previously undone change.
+    Shortcut: ⌘⇧Z / Ctrl+Y
+
+18. Atmospheric Background
+    Body: Choose background themes or upload custom images and GIFs.
+    Shortcut: BG
+
+19. Interactive Guided Demo
+    Body: Watch automated guided tour highlighting all major creation & play features non-destructively.
+    Shortcut: 🎬 Demo
+
+20. About Sidehop & Credits
+    Body: View inspirations, engine architecture, typography, open-source libraries, and author credits.
+    Shortcut: ℹ️ About
+
+21. World & UI Theme
+    Body: Change theme across UI, level atmosphere, and blocks (Snowy, Night, Chrome, 8-Bit, Jungle, Grass).
+    Shortcut: 🎨 Theme
+
+22. Fill Screen Mode
+    Body: Expand the canvas to fill the entire browser screen in edit and play modes.
+    Shortcut: ⤢ Fill
+
+23. Export Web Game (.html)
+    Body: Export standalone single-file playable web game with all art and physics embedded.
+    Shortcut: 🌐 HTML
+
+24. Export Level (.sidehop)
+    Body: Save your entire playable level to your computer.
+    Shortcut: Export
+
+25. Import Level (.sidehop)
+    Body: Load a .sidehop level from your computer.
+    Shortcut: Import
+
+
+────────────────────────────────────────────────────────────────────────────────
+SECTION 13: ABOUT SIDEHOP & CREDITS MODAL
+────────────────────────────────────────────────────────────────────────────────
+Modal Header:
+ℹ️ About Sidehop & Credits
+
+Title & Subtitle:
+Sidehop
+2D Platformer Creator & Personalization Studio
+
+Tab Navigation:
+🌟 Overview
+💡 Inspirations
+🛠️ Code & Engine
+🎨 Design & Type
+🤝 Acknowledgements
+
+[TAB 1: OVERVIEW]
+Raison d'Être:
+Sidehop exists because building and playing your own video games should feel as immediate, tactile, and expressive as finger painting on drafting paper.
+
+Creator Card:
+Name: John O'Brien
+Role: Creator & Lead Designer
+Description:
+Game design, audio direction, creative mechanics, and interactive sandbox architecture.
+Portfolio: shrefflosounds.github.io • GitHub: shrefflosounds/sidehop
+
+Privacy Badge:
+🔒 100% Local-First: All levels, art, and custom assets are created, simulated, and stored right in your browser. No accounts, no trackers, zero remote servers.
+
+License Note:
+Released under the MIT Open Source License. © 2026 John O'Brien.
+
+[TAB 2: INSPIRATIONS]
+Header:
+Sidehop stands on the shoulders of legendary creative game-making tools and responsive platformers:
+
+Inspirations:
+1. Super Mario Maker (Nintendo, 2015)
+   Role: Game Flow & Sandbox UI
+   Description: Directed by Takashi Tezuka and produced by Shigeru Miyamoto. Inspired Sidehop's seamless in-place playtesting, snap-to-grid entity placement, corner flyout component menus, mystery question blocks, springboards, note blocks, donut drop lifts, and flagpole victory celebrations.
+
+2. Kid Pix & Kid Pix 3D (Broderbund, 1989/1994)
+   Role: Art Studio & Tactile Feel
+   Description: Created by Craig Hickman. The guiding spirit behind Sidehop's Kid Pix Art Studio: chunky tactile toolbars, wacky stamps, squishy audio feedback, and the philosophy that creating things should be messy, joyful, and hilarious.
+
+3. Drawn to Life (5th Cell / THQ, 2007)
+   Role: Personalization & Custom Heroes
+   Description: Directed by Jeremiah Slaczka. Inspired Sidehop's player personalization: the magical feeling of drawing your own hero and platforms directly into a living physics engine.
+
+4. WarioWare D.I.Y. (Nintendo, 2009)
+   Role: Accessible Micro-Creation
+   Description: Directed by Goro Abe. Proven proof that playful constraints, bold graphic identity, and micro-tools empower players to become confident game creators.
+
+5. Celeste & TowerFall (Maddy Makes Games, 2013/2018)
+   Role: Platformer Kinesthetics & Game Feel
+   Description: Designed by Maddy Thorson and Noel Berry. Inspired Sidehop's tactile coyote-time jump buffering, squash-and-stretch air deformation, and snappy deceleration.
+
+[TAB 3: CODE & ENGINE]
+Architecture Cards:
+1. HTML5 Canvas 2D Context
+   Role: W3C / WHATWG Standard
+   Description: Custom-engineered 60 FPS subpixel platformer engine. Features subpixel AABB collision detection, 45-degree slope heightmap physics, dynamic squash-and-stretch matrices, smooth camera lerp tracking, and procedural terrain tile rendering.
+
+2. Web Audio API Synthesizer
+   Role: W3C Recommendation
+   Description: Zero-asset procedural chiptune sound generator inspired by Tomas Pettersson's sfxr / bfxr algorithms. Utilizes native Web Audio API oscillators, exponential gain ramps, and procedural white-noise buffers without loading any external sound files.
+
+3. MediaRecorder Video API
+   Role: W3C Recommendation
+   Description: Direct 60 FPS canvas video capture pipeline utilizing the MediaStream Recording API to record crisp WebM/MP4 gameplay clips and trigger instant client-side downloads without any server encoding.
+
+4. Standalone Single-File Web Export
+   Role: Open Architecture
+   Description: Exports self-contained HTML files with embedded level data, custom painted visuals, and physics configs that run entirely offline in any modern web browser with zero external dependencies.
+
+5. Sidehop Core Engine
+   Role: MIT License • Open Source
+   Description: Copyright © 2026 John O'Brien. Released freely under the permissive MIT Open Source License. Permission is hereby granted, free of charge, to any person obtaining a copy of this software.
+
+[TAB 4: DESIGN & TYPE]
+Design Cards:
+1. Space Grotesk
+   Role: SIL Open Font License 1.1
+   Description: Designed by Florian Karsten (floriankarsten.com). A proportional sans-serif typeface based on Frank Himelhoch's Space Mono. Used under the SIL Open Font License, Version 1.1.
+
+2. Fredoka
+   Role: SIL Open Font License 1.1
+   Description: Designed by Milena Brandao. A friendly, warm, rounded display typeface full of playful charm. Used under the SIL Open Font License, Version 1.1.
+
+3. Neo-Brutalist Toy Workbench
+   Role: Visual Design System
+   Description: Refined high-contrast ink borders (#1E293B), tactile compressed drop shadows, and eye-friendly themed palettes (Grass Plains, Snowy Peaks, Night Horizon, Chrome Future, 8-Bit Arcade, and Jungle Canopy).
+
+4. Unicode & SVG Glyphs
+   Role: Unicode Consortium • CC0
+   Description: Standard Unicode Consortium emoji glyphs and handcrafted inline SVG vectors for universal cross-platform clarity.
+
+[TAB 5: ACKNOWLEDGEMENTS]
+Community Cards:
+1. Antigravity (Google DeepMind)
+   Role: AI Architecture Partner
+   Description: Assisted with code architecture, physics slope integration, refactoring, single-file bundling pipelines, and accessibility hardening. All creative concepts, aesthetic choices, sound direction, and game design authored and directed by John O'Brien.
+
+2. Open Web & Indie Game Creators
+   Role: Community
+   Description: Warm gratitude to the global indie web game development community, MDN Web Docs, and creators proving that the open web is an incredible, unconstrained canvas for playful software.
+
+Bottom Colophon:
+Sidehop • Handcrafted with Playful Spirit
+MIT License • © 2026 John O'Brien • Free & Open Source Web Game Studio
+
+
+────────────────────────────────────────────────────────────────────────────────
+SECTION 14: INTERACTIVE DEMO TOUR (GUIDED WALKTHROUGH)
+────────────────────────────────────────────────────────────────────────────────
+Demo Notification Card:
+Card Badge: 🎬 SIDEHOP DEMO
+Progress indicator: STEP [X] OF 8
+
+Step 1:
+Title: 🌟 Welcome to Sidehop
+Description: Build, paint, tune, and play 2D platformers right in your browser. Welcome to this quick tour of every major feature
+
+Step 2:
+Title: 🧱 Components, Types & Blocks
+Description: Choose from 13 block styles: Solid blocks, angled slopes, moving platforms, etc.
+
+Step 3:
+Title: ⭐ Powerups, Weapons & Enemies
+Description: Place Coins, Hearts, Guns, and other fun things
+
+Step 4:
+Title: 🎛️ Real-Time Physics Tuning
+Description: Tune Running, Jumping, Gravity, Weight, Bounciness, and more component attributes
+
+Step 5:
+Title: 🎨 Art Studio
+Description: Draw characters, blocks, or import any photo or GIF into your creation
+
+Step 6:
+Title: 🌄 Themes
+Description: Transform visuals with themes like: Tundra, Neon, Chrome, and more
+
+Step 7:
+Title: 🎮 Realtime Edit and Play
+Description: Seamlessly switch from Play Mode to Edit Mode for quick edits and playtests
+
+Step 8:
+Title: 🎥 Video Recording & .sidehop Sharing
+Description: Screen Capture with one click, or export easily shareable ".sidehop" files or standalone html
+
+Tour Buttons:
+⏭️ Next
+Stop Demo ✕
+
+
+────────────────────────────────────────────────────────────────────────────────
+SECTION 15: VICTORY & LEVEL FINISH OVERLAY
+────────────────────────────────────────────────────────────────────────────────
+Victory Banner:
+🏆 LEVEL COMPLETE
+
+Stats Line:
+Total Score: [number] PTS (e.g. Total Score: 500 PTS)
+
+Victory Action Buttons:
+🔄 Play Again
+✏️ Keep Editing
+
+
+────────────────────────────────────────────────────────────────────────────────
+SECTION 16: MOBILE & TABLET ADVISORY BLOCKER
+────────────────────────────────────────────────────────────────────────────────
+Banner:
+💻 Best on Desktop & Laptop
+
+Message:
+ohhh dang Sidehop is a tactile game creation studio designed for desktop displays with a mouse
+
+Dismiss Button:
+Continue Anyway →
+
+
+────────────────────────────────────────────────────────────────────────────────
+SECTION 17: TOAST NOTIFICATIONS & ALERTS
+────────────────────────────────────────────────────────────────────────────────
+Mode & Frame Toasts:
+- ⤢ Stage Maximized
+- ⤢ Frame Stretched to Screen
+- ⤡ Standard Frame Restored
+- ⤡ Frame Restored
+
+Theme Toasts:
+- 🎨 Theme: Meadows
+- 🎨 Theme: Tundra
+- 🎨 Theme: Nightlife
+- 🎨 Theme: Chrome
+- 🎨 Theme: 8-Bit
+- 🎨 Theme: Jungle
+- 🎨 Theme: Neon over Black
+- 🎨 Theme: Atlantis Underwater
+- 🎨 Theme: Mixed Media
+
+
+Gameplay & Powerup Toasts:
+- 🪙 +100 PTS
+- ❤️ +1 Heart
+- 🔫 Gun! (+15 Ammo) [F/X to Shoot]
+- 📦 Ammo Reloaded! (+15 Rounds) [F/X to Shoot]
+- 💥 Pistol Powerup
+- ✨ 🔫 Gun Powerup
+- ✨ 📦 Ammunition Box
+- ✨ ❤️ Health Heart
+
+Editing & Clipboard Toasts:
+- 📋 Copied [Component Name]
+- 📋 Copied [X] components
+- ✂️ Cut [Component Name]
+- ✂️ Cut [X] components
+- 📋 Pasted [Component Name]
+- 📋 Pasted [X] components
+- 📋 Pasted Player Spawn
+- 📑 Duplicated [Component Name]
+- 📑 Duplicated [X] components
+- 🗑️ Deleted [X] components
+- ↩ Undo
+- ↪ Redo
+- Clipboard empty (Use ⌘C to copy)
+- Select a component to copy
+- Select a component to cut
+- Select a component to duplicate
+- ⚠️ Only one player spawn can exist
+- ⚠️ Player spawn cannot be cut
+- Selected [Variant Name]!
+
+Level Import / Export & File Toasts:
+- 💾 Level Exported (.sidehop)
+- 🎮 Loaded Level: [Level Title] (.sidehop)
+- 🎨 Imported Asset: [Asset Name] (.sidehop)
+- 📦 Imported [X] Assets (.sidehop)
+- 🎨 Loaded [Asset Name] into canvas
+- 🌄 Loaded .sidehop Background
+- 💾 Exported Background (.sidehop)
+- 🌐 Generating Standalone HTML Web Game...
+- ✅ Downloaded Standalone HTML Web Game
+- 🔄 World Reset to Default
+
+Demo Tour Toasts:
+- 🎬 Sidehop Interactive Tour Started!
+- ✨ Tour Finished! Canvas restored to your workspace.
+
+
+────────────────────────────────────────────────────────────────────────────────
+SECTION 18: DEFAULT LEVEL & METADATA NAMES
+────────────────────────────────────────────────────────────────────────────────
+Default Level Name:
+Starter World
+
+Default Export Title:
+Sidehop Level
+
+Default Web Game File Slug:
+sidehop-game
+
+Default Package Description:
+Platformer level created with Sidehop
+================================================================================

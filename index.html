@@ -48,7 +48,7 @@
       </button>
 
       <!-- Theme Selector Button -->
-      <button id="theme-selector-btn" class="neo-btn" title="Choose Theme (UI, Environment &amp; Blocks)">
+      <button id="theme-selector-btn" class="neo-btn" title="Choose Theme (Environment &amp; Blocks)">
         <span id="theme-icon">🎨</span>
         <span id="theme-label">Theme ▾</span>
       </button>
@@ -79,16 +79,16 @@
       </button>
 
       <!-- Level Management -->
-      <button id="load-preset-btn" class="neo-btn neo-btn-accent" title="Reset level to default starter layout">
+      <button id="load-preset-btn" class="neo-btn neo-btn-accent" title="Reset level to default layout">
         <span>🔄 Reset</span>
       </button>
       <button id="export-level-btn" class="neo-btn" title="Save level as .sidehop file">
-        <span>💾 Export</span>
+        <span>💾 .sidehop</span>
       </button>
-      <button id="export-html-btn" class="neo-btn neo-btn-cyan" title="Export level as a standalone playable single-file HTML web game">
-        <span>🌐 Web Game</span>
+      <button id="export-html-btn" class="neo-btn neo-btn-cyan" title="Export as HTML web game">
+        <span>🌐 Save HTML</span>
       </button>
-      <button id="import-level-btn" class="neo-btn" title="Load level from .sidehop file">
+      <button id="import-level-btn" class="neo-btn" title="Load .sidehop file">
         <span>📂 Import</span>
       </button>
       <input type="file" id="import-file-input" accept=".sidehop,.json" style="display: none;">
@@ -118,90 +118,92 @@
           <span class="palette-icon">✋</span>
           <span>Pan</span>
         </button>
-        <button class="palette-item" data-tool="erase" title="Erase Components (4)">
+        <button class="palette-item" data-tool="erase" title="Erase Placed Items (4)">
           <span class="palette-icon">🧹</span>
-          <span>Erase</span>
+          <span>Eraser</span>
         </button>
       </div>
 
       <div class="drawer-title" style="margin-top: 8px;">Components</div>
       <div class="palette-grid">
         <div class="palette-slot">
-          <button class="palette-item active" data-palette="block" title="Solid Ground / Platform Block">
-            <span class="palette-icon" id="palette-icon-block">🧱</span>
-            <span class="palette-name" id="palette-name-block">Block</span>
+          <button class="palette-item active" data-palette="block" title="Solid Block — Click arrow for Mario Maker styles (B)">
+            <span class="palette-icon" id="palette-icon-block">🟩</span>
+            <span class="palette-name" id="palette-name-block">Ground Block</span>
           </button>
           <button class="palette-triangle-btn" data-triangle="block" title="Choose Block Types (Solid, Mystery, Cloud, Ice)">▾</button>
         </div>
 
         <div class="palette-slot">
-          <button class="palette-item" data-palette="springboard" title="Spring Bouncer">
+          <button class="palette-item" data-palette="springboard" title="Bouncy Springboard — Click arrow for Mega Spring (S)">
             <span class="palette-icon" id="palette-icon-springboard">🌀</span>
-            <span class="palette-name" id="palette-name-springboard">Spring</span>
+            <span class="palette-name" id="palette-name-springboard">Springboard</span>
           </button>
           <button class="palette-triangle-btn" data-triangle="springboard" title="Choose Spring Types (Standard, Mega)">▾</button>
         </div>
 
         <div class="palette-slot">
-          <button class="palette-item" data-palette="hazard" title="Spike Hazard">
+          <button class="palette-item" data-palette="hazard" title="Spike Hazard (H)">
             <span class="palette-icon">⚠️</span>
-            <span class="palette-name">Spikes</span>
+            <span class="palette-name">Spike Hazard</span>
           </button>
         </div>
 
         <div class="palette-slot">
-          <button class="palette-item" data-palette="enemy" title="Patrolling Enemy">
+          <button class="palette-item" data-palette="enemy" title="Enemy — Click arrow for Winged &amp; Spiky (E)">
             <span class="palette-icon" id="palette-icon-enemy">👾</span>
-            <span class="palette-name" id="palette-name-enemy">Enemy</span>
+            <span class="palette-name" id="palette-name-enemy">Enemy Walker</span>
           </button>
           <button class="palette-triangle-btn" data-triangle="enemy" title="Choose Enemy Types (Walker, Winged, Spiky)">▾</button>
         </div>
 
         <div class="palette-slot">
-          <button class="palette-item" data-palette="moving_platform" title="Moving Platform">
-            <span class="palette-icon">🛹</span>
-            <span class="palette-name">Platform</span>
+          <button class="palette-item" data-palette="moving_platform" title="Moving Platform (M)">
+            <span class="palette-icon">⏥</span>
+            <span class="palette-name">Moving Platform</span>
           </button>
         </div>
 
         <div class="palette-slot">
-          <button class="palette-item" data-palette="collectible" title="Star / Coin / Heart / Pistol Powerup">
+          <button class="palette-item" data-palette="collectible" title="Collectible — Click arrow for Star, Coin, Heart, Gun (C)">
             <span class="palette-icon" id="palette-icon-collectible">⭐</span>
-            <span class="palette-name" id="palette-name-collectible">Star</span>
+            <span class="palette-name" id="palette-name-collectible">Collectibles</span>
           </button>
           <button class="palette-triangle-btn" data-triangle="collectible" title="Choose Collectible Types (Coin, Star, Heart, Pistol)">▾</button>
         </div>
 
         <div class="palette-slot">
-          <button class="palette-item" data-palette="goal" title="Finish Line Flag">
+          <button class="palette-item" data-palette="goal" title="Goal Finish Line (G)">
             <span class="palette-icon">🏁</span>
-            <span class="palette-name">Goal</span>
+            <span class="palette-name">Goal Flag</span>
           </button>
         </div>
 
         <div class="palette-slot">
-          <button class="palette-item" data-palette="player" title="Player Start Point">
+          <button class="palette-item" data-palette="player" title="Starting point (P)">
             <span class="palette-icon">🐰</span>
-            <span class="palette-name">Spawn</span>
+            <span class="palette-name">Spawnpoint</span>
           </button>
         </div>
       </div>
 
       <details class="drawer-tips" style="margin-top: 10px;">
-        <summary>⌨️ Controls ▾</summary>
+        <summary>Controls</summary>
         <div class="drawer-tips-content">
-          • <strong>Box Select:</strong> Shift+Drag / 5<br>
-          • <strong>Copy/Paste:</strong> ⌘C / ⌘V<br>
-          • <strong>Duplicate:</strong> ⌘D<br>
-          • <strong>Arrow Keys:</strong> Move spot<br>
-          • <strong>Enter:</strong> Place at spot<br>
-          • <strong>Shift+Arrows:</strong> Quick path<br>
-          • <strong>Blocks:</strong> Click ▾ for styles<br>
-          • <strong>Empty Drag:</strong> Pan stage<br>
-          • <strong>Right-Click:</strong> Context Menu<br>
-          • <strong>Undo/Redo:</strong> ⌘Z / ⌘⇧Z<br>
-          • <strong>Play/Edit:</strong> Spacebar / ▶<br>
-          • <strong>Shoot:</strong> F / X / Click (with Pistol)
+          • ▶ [Space] Play/Edit<br>
+          • [1-5] Tools<br>
+          • [B] Block<br>
+          • [S] Spring<br>
+          • [E] Enemy<br>
+          • [C] Coin/Star<br>
+          • [H] Spike<br>
+          • [M] Moving Plat<br>
+          • [G] Goal<br>
+          • [P] Spawn<br>
+          • [F/X] Shoot Gun<br>
+          • [R] Record<br>
+          • [⌘Z] Undo<br>
+          • [H] Help Menu
         </div>
       </details>
     </aside>
@@ -250,13 +252,13 @@
           <button id="action-copy-btn" class="neo-btn" style="padding: 6px 12px; font-size: 13px;" title="Copy to clipboard (⌘C)">
             <span>📋 Copy</span>
           </button>
-          <button id="action-paint-btn" class="neo-btn neo-btn-pink" style="padding: 6px 12px; font-size: 13px;">
-            <span>🎨 Paint Art</span>
+          <button id="action-paint-btn" class="neo-btn neo-btn-pink" style="padding: 6px 12px; font-size: 13px;" title="Paint custom art or import decal/GIF in Kid Pix Art Studio">
+            <span>🎨 Paint / Decal</span>
           </button>
-          <button id="action-tune-btn" class="neo-btn neo-btn-accent" style="padding: 6px 12px; font-size: 13px;">
-            <span>⚙️ Tune Physics</span>
+          <button id="action-tune-btn" class="neo-btn neo-btn-accent" style="padding: 6px 12px; font-size: 13px;" title="Tune parameters &amp; physics in Inspector">
+            <span>🎛️ Tune Physics</span>
           </button>
-          <button id="action-delete-btn" class="neo-btn" style="padding: 6px 12px; font-size: 13px; color: var(--hazard-red);">
+          <button id="action-delete-btn" class="neo-btn" style="padding: 6px 12px; font-size: 13px; color: var(--hazard-red);" title="Delete component (Backspace / Del)">
             <span>🗑️ Delete</span>
           </button>
         </div>
@@ -275,8 +277,8 @@
 
       <!-- Victory Celebration Overlay -->
       <div id="victory-overlay" class="victory-overlay">
-        <h2 class="victory-title">LEVEL COMPLETE! 🎉</h2>
-        <p id="victory-stats" style="font-size: 20px; font-weight: 700;">Score: 100 PTS</p>
+        <h2 class="victory-title">🏆 LEVEL COMPLETE</h2>
+        <p id="victory-stats" style="font-size: 20px; font-weight: 700;">Total Score: 0 PTS</p>
         <div style="display: flex; gap: 12px; margin-top: 10px;">
           <button id="victory-clip-btn" class="neo-btn neo-btn-rec">
             <span>📹 Save Replay Clip</span>
@@ -285,18 +287,18 @@
             <span>🔄 Play Again</span>
           </button>
           <button id="victory-edit-btn" class="neo-btn neo-btn-accent">
-            <span>✏️ Back to Editor</span>
+            <span>✏️ Keep Editing</span>
           </button>
         </div>
       </div>
     </section>
   </main>
 
-  <!-- ART STUDIO MODAL (KID PIX STYLE) -->
+  <!-- ART STUDIO MODAL -->
   <div id="art-studio-modal" class="neo-modal-overlay">
     <div class="neo-modal-box">
       <div class="modal-header">
-        <h3 class="modal-title">🎨 Kid Pix Art Studio</h3>
+        <h3 class="modal-title">🎨 Art Studio</h3>
         <button id="close-art-studio" class="modal-close-btn">&times;</button>
       </div>
 
@@ -330,8 +332,11 @@
           </div>
 
           <div style="margin-top: 6px; display: flex; flex-direction: column; gap: 6px;">
+            <button id="paint-clear-canvas-btn" class="neo-btn neo-btn-rec" style="width: 100%; justify-content: center; font-size: 13px;" type="button">
+              💣 Clear Canvas
+            </button>
             <label class="neo-btn" style="width: 100%; justify-content: center; font-size: 13px; cursor: pointer;">
-              📁 Upload Image / GIF
+              📁 Import Image / GIF
               <input type="file" id="paint-image-upload" accept="image/*" style="display: none;">
             </label>
             <label class="neo-btn neo-btn-cyan" style="width: 100%; justify-content: center; font-size: 13px; cursor: pointer;">
@@ -345,10 +350,10 @@
 
       <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 12px; flex-wrap: wrap; gap: 8px;">
         <div style="display: flex; gap: 6px;">
-          <button id="paint-reset-btn" class="neo-btn">Reset Default</button>
+          <button id="paint-reset-btn" class="neo-btn">↩ Reset Default Art</button>
         </div>
         <div style="display: flex; gap: 6px;">
-          <button id="paint-apply-btn" class="neo-btn neo-btn-primary">Apply to Entity</button>
+          <button id="paint-apply-btn" class="neo-btn neo-btn-primary">Apply to Component ✓</button>
         </div>
       </div>
     </div>
@@ -358,12 +363,12 @@
   <div id="inspector-modal" class="neo-modal-overlay">
     <div class="neo-modal-box" style="max-width: 440px;">
       <div class="modal-header">
-        <h3 id="inspector-title" class="modal-title">Tuning</h3>
+        <h3 id="inspector-title" class="modal-title">🎛️ Inspector &amp; Physics Tuner</h3>
         <button id="inspector-close" class="modal-close-btn">&times;</button>
       </div>
       <div id="inspector-fields"></div>
       <div style="display: flex; justify-content: flex-end; margin-top: 10px;">
-        <button id="inspector-done-btn" class="neo-btn neo-btn-primary">Done</button>
+        <button id="inspector-done-btn" class="neo-btn neo-btn-primary">Done ✓</button>
       </div>
     </div>
   </div>
@@ -390,7 +395,7 @@
   <div id="background-modal" class="neo-modal-overlay">
     <div class="neo-modal-box" style="max-width: 480px;">
       <div class="modal-header">
-        <h3 class="modal-title">🌄 Choose Level Background</h3>
+        <h3 class="modal-title">🌄 Level Atmosphere &amp; Sky</h3>
         <button id="close-bg-modal" class="modal-close-btn">&times;</button>
       </div>
 
@@ -398,7 +403,7 @@
         <label style="font-size: 13px; font-weight: 700;">Preset Atmospheres</label>
         <div class="bg-themes-grid">
           <button class="bg-theme-card active" data-bg-theme="sky">
-            <div class="bg-theme-preview" style="background: linear-gradient(180deg, #70C5FF, #E0F4FF);">☁️</div>
+            <div class="bg-theme-preview" style="background: linear-gradient(180deg, #70C5FF, #E0F4FF);">☀️</div>
             <span>Sunny Sky</span>
           </button>
           <button class="bg-theme-card" data-bg-theme="sunset">
@@ -406,28 +411,24 @@
             <span>Sunset</span>
           </button>
           <button class="bg-theme-card" data-bg-theme="night">
-            <div class="bg-theme-preview" style="background: linear-gradient(180deg, #0F172A, #1E1B4B); color: #FFF;">🌌</div>
+            <div class="bg-theme-preview" style="background: linear-gradient(180deg, #0F172A, #1E1B4B); color: #FFF;">🌙</div>
             <span>Midnight</span>
           </button>
-          <button class="bg-theme-card" data-bg-theme="paper">
-            <div class="bg-theme-preview" style="background: #FAF8F5; border: 1px dashed #CCC;">📜</div>
-            <span>Paper Grid</span>
-          </button>
-          <button class="bg-theme-card" data-bg-theme="mint">
-            <div class="bg-theme-preview" style="background: linear-gradient(180deg, #A7F3D0, #ECFDF5);">🌿</div>
-            <span>Meadow</span>
-          </button>
-          <button class="bg-theme-card" data-bg-theme="cyber">
+          <button class="bg-theme-card" data-bg-theme="neon">
             <div class="bg-theme-preview" style="background: linear-gradient(180deg, #1A0B2E, #4A154B); color: #FFF;">🌆</div>
-            <span>Cyberpunk</span>
+            <span>Neon</span>
+          </button>
+          <button class="bg-theme-card" data-bg-theme="gray">
+            <div class="bg-theme-preview" style="background: linear-gradient(180deg, #64748B, #94A3B8); color: #FFF;">🌫️</div>
+            <span>Overcast Gray</span>
           </button>
         </div>
 
         <div style="border-top: 2px dashed #E0E0E0; padding-top: 12px; display: flex; flex-direction: column; gap: 8px;">
-          <label style="font-size: 13px; font-weight: 700; display: block;">Custom Background Art (.sidehop / Image)</label>
+          <label style="font-size: 13px; font-weight: 700; display: block;">Custom Art / GIF Background</label>
           <div style="display: flex; gap: 6px; flex-wrap: wrap;">
             <label class="neo-btn" style="flex: 1; justify-content: center; font-size: 12px; cursor: pointer;">
-              📁 Upload Image
+              📁 Upload Custom Art / GIF
               <input type="file" id="bg-image-upload" accept="image/*" style="display: none;">
             </label>
             <label class="neo-btn neo-btn-cyan" style="flex: 1; justify-content: center; font-size: 12px; cursor: pointer;">
@@ -438,13 +439,17 @@
               💾 Export .sidehop
             </button>
           </div>
-          <p id="bg-custom-status" style="font-size: 11px; color: #666; margin-top: 2px; display: none;">Custom background image active</p>
+          <div style="font-size: 11px; color: #666;">(Supports PNG, JPG, GIF, WebP)</div>
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <p id="bg-custom-status" style="font-size: 11px; color: #2E7D32; font-weight: 700; margin: 0; display: none;">Status: Custom Background Active</p>
+            <button id="bg-clear-custom-btn" class="neo-btn" style="font-size: 11px; padding: 3px 8px; display: none;" type="button">Clear Custom Art ✕</button>
+          </div>
         </div>
       </div>
 
       <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 10px;">
         <button id="bg-reset-default" class="neo-btn">Reset Default</button>
-        <button id="bg-done-btn" class="neo-btn neo-btn-primary">Apply & Done</button>
+        <button id="bg-done-btn" class="neo-btn neo-btn-primary">Close ✓</button>
       </div>
     </div>
   </div>
@@ -518,32 +523,26 @@
   <!-- MOBILE DEVICE ONLY ADVISORY OVERLAY -->
   <div id="mobile-blocker" class="mobile-blocker-overlay" role="dialog" aria-modal="true" aria-label="Desktop browser required">
     <div class="mobile-blocker-card">
-      <div class="mobile-blocker-badge">⚠️ DESKTOP ONLY</div>
+      <div class="mobile-blocker-badge">💻 Best on Desktop &amp; Laptop</div>
       <div class="mobile-blocker-icon">💻 🎮</div>
       <h2 class="mobile-blocker-title">Desktop Browser Required</h2>
       <p class="mobile-blocker-desc">
-        Sidehop is designed exclusively for desktop and laptop computers with a keyboard and mouse or trackpad.
-      </p>
-      <div class="mobile-blocker-alert">
-        This website does not support mobile phones or handheld devices.
-      </div>
-      <p class="mobile-blocker-sub">
-        Please open Sidehop on your computer to create and play levels!
+        ohhh dang Sidehop is a tactile game creation studio designed for desktop displays with a mouse
       </p>
       <button id="mobile-blocker-dismiss" class="neo-btn" style="margin-top: 14px; background: #FFFFFF; font-size: 13px; font-weight: 700; padding: 8px 16px;">
-        ✕ Dismiss Advisory
+        Continue Anyway →
       </button>
     </div>
   </div>
 
-  <!-- SEARCHABLE HELP DIALOG (TEMPLATE PART 3.7) -->
+  <!-- SEARCHABLE HELP DIALOG -->
   <dialog id="help" class="neo-dialog">
     <div class="neo-dialog-header">
-      <span class="neo-dialog-title">❓ Sidehop Controls &amp; Help</span>
+      <span class="neo-dialog-title">❓ Help &amp; Controls</span>
       <button id="help-close-btn" class="neo-dialog-close" title="Close Help">&times;</button>
     </div>
     <div class="neo-dialog-body">
-      <input type="text" id="help-search" class="help-search-input" placeholder="Search controls, tools, shortcuts (e.g. 'undo', 'play', 'block')...">
+      <input type="text" id="help-search" class="help-search-input" placeholder="Search controls, tools, shortcuts (e.g. &quot;play&quot;, &quot;jump&quot;, &quot;undo&quot;)...">
       <div id="help-list" class="help-list"></div>
     </div>
   </dialog>
@@ -826,6 +825,27 @@
           <div class="theme-name">Jungle Canopy</div>
           <div class="theme-sub">Tropical mist, hanging vines &amp; mossy ancient stone</div>
         </div>
+        <div class="theme-card" data-theme="neon">
+          <div class="theme-preview" style="background: linear-gradient(180deg, #050508, #18092B);">
+            <span class="theme-emoji">🌆</span>
+          </div>
+          <div class="theme-name">Neon over Black</div>
+          <div class="theme-sub">High contrast dark grid, laser cyber vibes</div>
+        </div>
+        <div class="theme-card" data-theme="atlantis">
+          <div class="theme-preview" style="background: linear-gradient(180deg, #075985, #082F49);">
+            <span class="theme-emoji">🌊</span>
+          </div>
+          <div class="theme-name">Atlantis Underwater</div>
+          <div class="theme-sub">Deep sea ocean floor, coral &amp; aquatic light</div>
+        </div>
+        <div class="theme-card" data-theme="mixed">
+          <div class="theme-preview" style="background: linear-gradient(180deg, #FDE68A, #F59E0B);">
+            <span class="theme-emoji">🎨</span>
+          </div>
+          <div class="theme-name">Mixed Media</div>
+          <div class="theme-sub">Collage textures, newsprint &amp; vibrant pastels</div>
+        </div>
       </div>
     </div>
   </dialog>
@@ -882,7 +902,7 @@
       { title: "Collectibles", body: "Stars, coins, hearts, or pistols with shootable bullets.", control: '[data-palette="collectible"]', keys: "C" },
       { title: "Goal Finish Line", body: "Flagpole triggering victory fanfare and confetti celebration.", control: '[data-palette="goal"]', keys: "G" },
       { title: "Hero Spawn Point", body: "Sets the starting spawn position for the player character.", control: '[data-palette="player"]', keys: "P" },
-      { title: "Record Gameplay Clip", body: "Record video clips directly from canvas and download WebM.", control: "#rec-btn", keys: "R / ●" },
+      { title: "Record Gameplay Clip", body: "Record video clips directly from canvas and download WebM/MP4.", control: "#rec-btn", keys: "R / ●" },
       { title: "Undo Modification", body: "Revert the last level edit or placement change.", control: "#undo-btn", keys: "⌘Z / Ctrl+Z" },
       { title: "Redo Modification", body: "Reapply a previously undone change.", control: "#redo-btn", keys: "⌘⇧Z / Ctrl+Y" },
       { title: "Atmospheric Background", body: "Choose background themes or upload custom images and GIFs.", control: "#bg-modal-btn", keys: "BG" },

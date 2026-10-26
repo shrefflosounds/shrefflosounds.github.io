@@ -257,7 +257,7 @@ export class ArtStudio {
       height: this.canvas.height
     }, {
       title: name,
-      description: `Personal asset created in Kid Pix Art Studio`
+      description: `Custom asset created in Art Studio`
     });
 
     const slug = name

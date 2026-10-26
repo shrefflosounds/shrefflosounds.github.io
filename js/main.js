@@ -587,7 +587,7 @@ class SidehopApp {
   }
 
   setTheme(themeName) {
-    const validThemes = ['grass', 'snowy', 'night', 'chrome', '8-bit', 'jungle'];
+    const validThemes = ['grass', 'snowy', 'night', 'chrome', '8-bit', 'jungle', 'neon', 'atlantis', 'mixed'];
     if (!validThemes.includes(themeName)) themeName = 'grass';
     this.currentTheme = themeName;
     window.__SIDEHOP_THEME__ = themeName;
@@ -607,22 +607,39 @@ class SidehopApp {
       'night': '🌙',
       'chrome': '⚙️',
       '8-bit': '🕹️',
-      'jungle': '🌴'
+      'jungle': '🌴',
+      'neon': '🌆',
+      'atlantis': '🌊',
+      'mixed': '🎨'
     };
-    const themeNames = {
+    const themeDisplayNames = {
       'grass': 'Grass Plains',
       'snowy': 'Snowy Peaks',
       'night': 'Night Horizon',
       'chrome': 'Chrome Future',
       '8-bit': '8-Bit Arcade',
-      'jungle': 'Jungle Canopy'
+      'jungle': 'Jungle Canopy',
+      'neon': 'Neon over Black',
+      'atlantis': 'Atlantis Underwater',
+      'mixed': 'Mixed Media'
+    };
+    const themeToastNames = {
+      'grass': 'Meadows',
+      'snowy': 'Tundra',
+      'night': 'Nightlife',
+      'chrome': 'Chrome',
+      '8-bit': '8-Bit',
+      'jungle': 'Jungle',
+      'neon': 'Neon over Black',
+      'atlantis': 'Atlantis Underwater',
+      'mixed': 'Mixed Media'
     };
     if (themeIcon) themeIcon.textContent = themeIcons[themeName] || '🎨';
-    if (themeLabel) themeLabel.textContent = `${themeNames[themeName] || 'Theme'} ▾`;
+    if (themeLabel) themeLabel.textContent = `${themeDisplayNames[themeName] || 'Theme'} ▾`;
 
     // Save with level
     LevelStorage.autoSave(this.player, this.entities, this.background);
-    this.showToast(`🎨 Theme: ${themeNames[themeName] || themeName}`);
+    this.showToast(`🎨 Theme: ${themeToastNames[themeName] || themeDisplayNames[themeName] || themeName}`);
   }
 
   initStageFrame() {
@@ -883,9 +900,63 @@ class SidehopApp {
       return;
     }
 
+    const bgTheme = this.background.theme || 'sky';
     const theme = this.currentTheme || 'grass';
 
+    // If specific atmospheric sky preset selected from Background modal
+    if (bgTheme === 'sunset') {
+      const grad = this.ctx.createLinearGradient(0, 0, 0, h);
+      grad.addColorStop(0, '#E11D48');
+      grad.addColorStop(0.4, '#F97316');
+      grad.addColorStop(0.8, '#FBBF24');
+      grad.addColorStop(1, '#FEF08A');
+      this.ctx.fillStyle = grad;
+      this.ctx.fillRect(0, 0, w, h);
+      this.drawParallaxHills(w, h);
+      return;
+    } else if (bgTheme === 'gray') {
+      const grad = this.ctx.createLinearGradient(0, 0, 0, h);
+      grad.addColorStop(0, '#475569');
+      grad.addColorStop(0.6, '#64748B');
+      grad.addColorStop(1, '#94A3B8');
+      this.ctx.fillStyle = grad;
+      this.ctx.fillRect(0, 0, w, h);
+      this.drawParallaxClouds(w, h);
+      this.drawParallaxHills(w, h);
+      return;
+    } else if (bgTheme === 'neon' || theme === 'neon') {
+      const grad = this.ctx.createLinearGradient(0, 0, 0, h);
+      grad.addColorStop(0, '#0A0014');
+      grad.addColorStop(0.5, '#19002E');
+      grad.addColorStop(1, '#3B0066');
+      this.ctx.fillStyle = grad;
+      this.ctx.fillRect(0, 0, w, h);
+      this.drawChromeGrid(w, h);
+      return;
+    }
+
     switch (theme) {
+      case 'atlantis': {
+        const grad = this.ctx.createLinearGradient(0, 0, 0, h);
+        grad.addColorStop(0, '#021B33');
+        grad.addColorStop(0.55, '#073B63');
+        grad.addColorStop(1, '#0B598F');
+        this.ctx.fillStyle = grad;
+        this.ctx.fillRect(0, 0, w, h);
+        this.drawParallaxHills(w, h);
+        break;
+      }
+      case 'mixed': {
+        const grad = this.ctx.createLinearGradient(0, 0, 0, h);
+        grad.addColorStop(0, '#FDF2D8');
+        grad.addColorStop(0.6, '#F8E3BE');
+        grad.addColorStop(1, '#EDCD9D');
+        this.ctx.fillStyle = grad;
+        this.ctx.fillRect(0, 0, w, h);
+        this.drawParallaxClouds(w, h);
+        this.drawParallaxHills(w, h);
+        break;
+      }
       case 'snowy': {
         const grad = this.ctx.createLinearGradient(0, 0, 0, h);
         grad.addColorStop(0, '#B8DCF5');
@@ -1345,27 +1416,40 @@ class SidehopApp {
     if (variantPicker) {
       variantPicker.innerHTML = '';
       const blockVariants = [
-        { id: 'solid', label: '🧱 Solid' },
+        { id: 'solid', label: '🟩 Solid' },
         { id: 'slope_up', label: '◢ Slope Up' },
         { id: 'slope_down', label: '◣ Slope Down' },
         { id: 'semisolid', label: '🪵 Semi-Solid' },
-        { id: 'slab', label: '🪨 Slab' },
-        { id: 'mega', label: '🏰 Mega 2x2' },
-        { id: 'pipe', label: '🧪 Pipe' },
-        { id: 'donut', label: '🍩 Donut' },
-        { id: 'note', label: '🎵 Note' },
+        { id: 'slab', label: '🪨 Half Slab' },
+        { id: 'mega', label: '❇️ Mega Block' },
+        { id: 'pipe', label: '♻️ Pipe' },
+        { id: 'donut', label: '🍩 Donut Lift' },
+        { id: 'note', label: '🎵 Note Block' },
         { id: 'mystery', label: '❓ Mystery' },
         { id: 'cloud', label: '☁️ Cloud' },
         { id: 'ice', label: '🧊 Ice' },
-        { id: 'stone', label: '🏛️ Stone' }
+        { id: 'stone', label: '🪨 Stone' }
       ];
 
       const variantDefs = {
         block: blockVariants,
         crate: blockVariants,
-        enemy: [{ id: 'walker', label: '🥔 Walker' }, { id: 'winged', label: '🪽 Winged' }, { id: 'spiky', label: '🦔 Spiky' }],
-        collectible: [{ id: 'star', label: '⭐ Star' }, { id: 'coin', label: '🪙 Coin' }, { id: 'heart', label: '❤️ Heart' }, { id: 'pistol', label: '🔫 Pistol' }],
-        springboard: [{ id: 'spring', label: '🌀 Standard' }, { id: 'mega', label: '🚀 Mega' }]
+        enemy: [
+          { id: 'walker', label: '🧌 Walker' },
+          { id: 'winged', label: '🪽 Flyer' },
+          { id: 'spiky', label: '🦔 Spiker' }
+        ],
+        collectible: [
+          { id: 'star', label: '⭐ Star' },
+          { id: 'coin', label: '💰 Coin' },
+          { id: 'heart', label: '❤️ Heart' },
+          { id: 'pistol', label: '🔫 Pistol' },
+          { id: 'ammo', label: '📦 Ammo' }
+        ],
+        springboard: [
+          { id: 'spring', label: '🌀 Spring' },
+          { id: 'mega', label: '🚀 Mega Spring' }
+        ]
       };
 
       const options = variantDefs[ent.type];
@@ -1428,6 +1512,24 @@ class SidehopApp {
     actionCard.style.top = `${top}px`;
   }
 
+  updateScoreUI() {
+    // Score is rendered in real-time in drawHud() every frame
+  }
+
+  updateActionToolbar() {
+    this.updateActionCard(this.editor?.selectedEntity);
+  }
+
+  firePistol() {
+    if (this.player) {
+      const b = this.player.shoot();
+      if (b) {
+        this.bullets.push(b);
+        sounds.playShoot();
+      }
+    }
+  }
+
   // Toast Notification Popup
   showToast(message) {
     const existing = document.querySelector('.sidehop-toast');
@@ -1476,7 +1578,7 @@ class SidehopApp {
         sounds.playCollect();
         this.score += 100;
         this.spawnCoinBounceParticle(block.x + block.width / 2, block.y);
-        this.showToast('🪙 +100 PTS!');
+        this.showToast('🪙 +100 PTS');
       } else {
         // Health Heart, Pistol Gun, or Ammunition Box emerges from top of block
         const itemW = 32;
@@ -1491,10 +1593,10 @@ class SidehopApp {
         this.entities.push(item);
 
         const label = variant === 'pistol'
-          ? '🔫 Gun Powerup!'
+          ? '🔫 Gun Powerup'
           : variant === 'ammo'
-            ? '📦 Ammunition Box!'
-            : '❤️ Health Heart!';
+            ? '📦 Ammunition Box'
+            : '❤️ Health Heart';
         this.showToast(`✨ ${label}`);
       }
     } catch (err) {
@@ -1591,19 +1693,19 @@ class SidehopApp {
       block: {
         title: 'BLOCK & SLOPE TYPES',
         variants: [
-          { id: 'solid', icon: '🧱', name: 'Solid Ground', desc: 'Standard solid block platform', shortName: 'Solid' },
+          { id: 'solid', icon: '🟩', name: 'Solid Ground', desc: 'Standard solid block platform', shortName: 'Solid' },
           { id: 'slope_up', icon: '◢', name: 'Slope Up (45°)', desc: 'Walkable incline hill slant', shortName: 'Slope Up' },
           { id: 'slope_down', icon: '◣', name: 'Slope Down (45°)', desc: 'Walkable decline hill slant', shortName: 'Slope Down' },
-          { id: 'semisolid', icon: '🪵', name: 'Semi-Solid Platform', desc: 'Jump through from below, stand on top', shortName: 'Semi-Solid' },
-          { id: 'slab', icon: '🪨', name: 'Half Slab (40x20)', desc: 'Half-height stepping stone block', shortName: 'Half Slab' },
-          { id: 'mega', icon: '🏰', name: 'Mega Block (80x80)', desc: 'Giant 2x2 fortress block', shortName: 'Mega Block' },
-          { id: 'pipe', icon: '🧪', name: 'Warp Pipe (40x80)', desc: 'Tall iconic 2-tile pipe column', shortName: 'Pipe' },
-          { id: 'donut', icon: '🍩', name: 'Donut Lift', desc: 'Drops and falls when stood upon', shortName: 'Donut Lift' },
-          { id: 'note', icon: '🎵', name: 'Note Block ♪', desc: 'Super bouncy musical trampoline block', shortName: 'Note Block' },
+          { id: 'semisolid', icon: '🪵', name: 'Jump-thru Platform', desc: 'Jump through from below, stand on top', shortName: 'Semi-Solid' },
+          { id: 'slab', icon: '🪨', name: 'Half-Block (40x20)', desc: 'Half-height stepping stone block', shortName: 'Half Slab' },
+          { id: 'mega', icon: '❇️', name: 'Mega Block (80x80)', desc: 'Giant 2x2 fortress block', shortName: 'Mega Block' },
+          { id: 'pipe', icon: '♻️', name: 'Warp Pipe (40x80)', desc: 'Tall iconic 2-tile pipe column', shortName: 'Pipe' },
+          { id: 'donut', icon: '🍩', name: 'Donut Drop', desc: 'Drops and falls when stood upon', shortName: 'Donut Lift' },
+          { id: 'note', icon: '🎵', name: 'Note Block', desc: 'Super bouncy musical trampoline block', shortName: 'Note Block' },
           { id: 'mystery', icon: '❓', name: 'Mystery Block', desc: 'Breakable surprise block [?]', shortName: 'Mystery' },
-          { id: 'ice', icon: '🧊', name: 'Ice Block', desc: 'Low-friction slippery surface', shortName: 'Ice' },
-          { id: 'cloud', icon: '☁️', name: 'Cloud Platform', desc: 'Soft floating cloud block', shortName: 'Cloud' },
-          { id: 'stone', icon: '🏛️', name: 'Castle Stone', desc: 'Chiseled fortress stone masonry', shortName: 'Stone' }
+          { id: 'ice', icon: '🧊', name: 'Sliding Block', desc: 'Low-friction slippery surface', shortName: 'Ice' },
+          { id: 'cloud', icon: '☁️', name: 'Cloud', desc: 'Soft floating cloud block', shortName: 'Cloud' },
+          { id: 'stone', icon: '🪨', name: 'Stone Block', desc: 'Chiseled fortress stone masonry', shortName: 'Stone' }
         ]
       },
       springboard: {
@@ -1616,19 +1718,19 @@ class SidehopApp {
       enemy: {
         title: 'ENEMY TYPES',
         variants: [
-          { id: 'walker', icon: '🥔', name: 'Potato Walker', desc: 'Patrols back and forth on ground', shortName: 'Enemy' },
-          { id: 'winged', icon: '🪽', name: 'Winged Hopper', desc: 'Hops & flutters airborne', shortName: 'Winged' },
-          { id: 'spiky', icon: '🦔', name: 'Armored Spiky', desc: 'Hazardous spines - cannot stomp!', shortName: 'Spiky' }
+          { id: 'walker', icon: '🧌', name: 'Walker', desc: 'Patrols back and forth on ground', shortName: 'Enemy' },
+          { id: 'winged', icon: '🪽', name: 'Flyer', desc: 'Hops & flutters airborne', shortName: 'Winged' },
+          { id: 'spiky', icon: '🦔', name: 'Spiker', desc: "Hazardous spines - can't stomp", shortName: 'Spiky' }
         ]
       },
       collectible: {
         title: 'COLLECTIBLE TYPES',
         variants: [
           { id: 'star', icon: '⭐', name: 'Star Gem', desc: 'Bright glowing star token (+500 pts)', shortName: 'Star' },
-          { id: 'coin', icon: '🪙', name: 'Gold Coin', desc: 'Shiny spinning coin token (+100 pts)', shortName: 'Coin' },
-          { id: 'heart', icon: '❤️', name: 'Health Heart', desc: 'Restores +1 heart of player health', shortName: 'Heart' },
-          { id: 'pistol', icon: '🔫', name: 'Pistol Gun', desc: 'Sidearm blaster weapon (+15 Ammo)', shortName: 'Pistol' },
-          { id: 'ammo', icon: '📦', name: 'Ammunition Box', desc: 'Ammo reload (+15 rounds)', shortName: 'Ammo' }
+          { id: 'coin', icon: '💰', name: 'Gold Coin', desc: 'Shiny spinning coin token (+100 pts)', shortName: 'Coin' },
+          { id: 'heart', icon: '❤️', name: 'Heart', desc: 'Restores +1 heart of player health', shortName: 'Heart' },
+          { id: 'pistol', icon: '🔫', name: 'Gun', desc: 'Sidearm blaster weapon (+15 Ammo)', shortName: 'Pistol' },
+          { id: 'ammo', icon: '📦', name: 'Ammunition', desc: 'Ammo reload (+15 rounds)', shortName: 'Ammo' }
         ]
       }
     };
@@ -1905,7 +2007,7 @@ class SidehopApp {
       });
       SidehopFile.download(`${this.background.theme}-background.sidehop`, pkg);
       sounds.playCollect();
-      this.showToast('💾 Exported Background (.sidehop)!');
+      this.showToast('💾 Exported Background (.sidehop)');
     });
 
     const bgSidehopUpload = document.getElementById('bg-sidehop-upload');
@@ -1929,9 +2031,11 @@ class SidehopApp {
               bgThemeCards.forEach(c => c.classList.remove('active'));
               const customStatus = document.getElementById('bg-custom-status');
               if (customStatus) customStatus.style.display = 'block';
+              const clearBtn = document.getElementById('bg-clear-custom-btn');
+              if (clearBtn) clearBtn.style.display = 'inline-flex';
               LevelStorage.autoSave(this.player, this.entities, this.background);
               sounds.playCollect();
-              this.showToast('🌄 Loaded .sidehop Background!');
+              this.showToast('🌄 Loaded .sidehop Background');
             }
           } catch (err) {
             console.warn('Background import error:', err);
@@ -1941,24 +2045,44 @@ class SidehopApp {
       }
     });
 
+    // Clear Custom Art Background button
+    document.getElementById('bg-clear-custom-btn')?.addEventListener('click', () => {
+      this.background.theme = 'sky';
+      this.background.customImage = null;
+      this.background.customImageElement = null;
+      const customStatus = document.getElementById('bg-custom-status');
+      if (customStatus) customStatus.style.display = 'none';
+      const clearBtn = document.getElementById('bg-clear-custom-btn');
+      if (clearBtn) clearBtn.style.display = 'none';
+      bgThemeCards.forEach(c => c.classList.toggle('active', c.getAttribute('data-bg-theme') === 'sky'));
+      sounds.playClick();
+      LevelStorage.autoSave(this.player, this.entities, this.background);
+    });
+
+    // Clear Art Studio Canvas button
+    document.getElementById('paint-clear-canvas-btn')?.addEventListener('click', () => {
+      this.artStudio.clearCanvas();
+      sounds.playPaintSquish();
+    });
+
     // 5. Presets & .sidehop Level Management
     document.getElementById('load-preset-btn').addEventListener('click', () => {
       this.loadStarterWorld();
       sounds.playLand();
-      this.showToast('🔄 World Reset to Default!');
+      this.showToast('🔄 World Reset to Default');
     });
 
     document.getElementById('export-level-btn').addEventListener('click', () => {
       LevelStorage.exportLevel(this.player, this.entities, this.background);
       sounds.playCollect();
-      this.showToast('💾 Level Exported (.sidehop)!');
+      this.showToast('💾 Level Exported (.sidehop)');
     });
 
     document.getElementById('export-html-btn')?.addEventListener('click', async () => {
       sounds.playCollect();
       this.showToast('🌐 Generating Standalone HTML Web Game...');
       await LevelStorage.exportStandaloneHtml(this.player, this.entities, this.background, this.currentTheme, 'Sidehop Game');
-      this.showToast('✅ Downloaded Standalone HTML Web Game!');
+      this.showToast('✅ Downloaded Standalone HTML Web Game');
     });
 
     const importInput = document.getElementById('import-file-input');
@@ -2742,7 +2866,7 @@ class SidehopApp {
                 this.spawnHurtParticles(this.player.x + this.player.width / 2, this.player.y + this.player.height / 2);
                 if (hadPistol) {
                   this.spawnPistolLostParticles(this.player.x + this.player.width / 2, this.player.y + this.player.height / 2);
-                  this.showToast('💥 Lost Pistol Powerup!');
+                  this.showToast('💥 Pistol Powerup');
                 }
                 if (this.player.hearts <= 0) {
                   this.player.respawn();
@@ -2780,7 +2904,7 @@ class SidehopApp {
                   this.spawnHurtParticles(this.player.x + this.player.width / 2, this.player.y + this.player.height / 2);
                   if (hadPistol) {
                     this.spawnPistolLostParticles(this.player.x + this.player.width / 2, this.player.y + this.player.height / 2);
-                    this.showToast('💥 Lost Pistol Powerup!');
+                    this.showToast('💥 Pistol Powerup');
                   }
                   if (this.player.hearts <= 0) {
                     this.player.respawn();
@@ -2821,7 +2945,7 @@ class SidehopApp {
                 this.player.ammo = (this.player.ammo || 0) + 15;
                 this.gunPickedUpInLevel = true;
                 this.score += 300;
-                this.showToast('🔫 Pistol Acquired! (+15 Ammo) [F/X to Shoot]');
+                this.showToast('🔫 Gun! (+15 Ammo) [F/X to Shoot]');
               } else if (isAmmo) {
                 this.player.hasPistol = true;
                 this.player.ammo = (this.player.ammo || 0) + 15;
@@ -2831,7 +2955,7 @@ class SidehopApp {
               } else if (ent.variant === 'heart') {
                 this.player.hearts = Math.min(this.player.maxHearts, this.player.hearts + 1);
                 this.score += 200;
-                this.showToast('❤️ +1 Heart!');
+                this.showToast('❤️ +1 Heart');
               } else if (ent.variant === 'star') {
                 this.score += 500;
               } else {
@@ -3116,15 +3240,14 @@ class SidehopApp {
       this.ctx.fill();
       this.ctx.stroke();
 
-      // Gun icon & Ammo Count
+      // Ammo label & count
+      this.ctx.font = '700 11px "Fredoka", sans-serif';
+      this.ctx.fillStyle = '#777777';
+      this.ctx.fillText('AMMO', ammoX + 16, ammoY + 19);
+
       this.ctx.font = '900 16px "Fredoka", sans-serif';
       this.ctx.fillStyle = '#121212';
-      this.ctx.fillText(`🔫 ${this.player.ammo} RDS`, ammoX + 12, ammoY + 28);
-
-      // Key prompt
-      this.ctx.font = '700 10px "Fredoka", sans-serif';
-      this.ctx.fillStyle = '#555555';
-      this.ctx.fillText('[F / X / Click]', ammoX + 14, ammoY + 42);
+      this.ctx.fillText(`${this.player.ammo} ROUNDS`, ammoX + 16, ammoY + 39);
     }
 
     this.ctx.restore();

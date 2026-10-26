@@ -11,7 +11,7 @@ export class LevelStorage {
     const activeTheme = (typeof window !== 'undefined' && window.sidehop?.currentTheme) || 'grass';
     return {
       version: 2,
-      name: 'My Sidehop Level',
+      name: 'Starter World',
       theme: activeTheme,
       background: background,
       player: {
@@ -336,7 +336,7 @@ export class LevelStorage {
     entities.push(new Collectible(244, 430, 32, 32, 'coin'));
     entities.push(new Collectible(324, 430, 32, 32, 'coin'));
 
-    // Patrolling Potato Walker (Shoot with Pistol or Stomp!)
+    // Patrolling Walker (Shoot with Gun or Stomp!)
     const enemy1 = new EnemyWalker(380, 440, T, T, 'walker');
     enemy1.patrolRange = 90;
     entities.push(enemy1);
@@ -356,14 +356,14 @@ export class LevelStorage {
       entities.push(new SolidBlock(x, 520, T, T, 'solid'));
     }
 
-    // Mystery Block with Health Heart on the plateau!
+    // Mystery Block with Heart on the plateau!
     entities.push(new SolidBlock(560, 320, T, T, 'mystery', 'heart'));
 
     // Iconic Tall Warp Pipe (40x80) on the plateau
     entities.push(new SolidBlock(640, 360, 40, 80, 'pipe'));
     entities.push(new Collectible(644, 310, 32, 32, 'coin'));
 
-    // Winged Hopper on the elevated ground
+    // Flyer on the elevated ground
     const enemy2 = new EnemyWalker(720, 400, T, T, 'winged');
     enemy2.patrolRange = 60;
     entities.push(enemy2);
@@ -437,7 +437,7 @@ export class LevelStorage {
       entities.push(new SolidBlock(x, 520, T, T, 'solid'));
     }
 
-    // Armored Spiky Enemy on the ice (Cannot stomp! Must shoot with gun or leap over!)
+    // Spiker Enemy on the ice (Cannot stomp! Must shoot with gun or leap over!)
     const enemySpiky1 = new EnemyWalker(1880, 440, T, T, 'spiky');
     enemySpiky1.patrolRange = 70;
     entities.push(enemySpiky1);
@@ -467,7 +467,7 @@ export class LevelStorage {
     entities.push(new SolidBlock(2440, 320, T, T, 'semisolid'));
     entities.push(new Collectible(2404, 270, 32, 32, 'star')); // Hidden Star!
 
-    // Winged Hopper airborne over the abyss
+    // Flyer airborne over the abyss
     const enemyWinged2 = new EnemyWalker(2400, 240, T, T, 'winged');
     enemyWinged2.patrolRange = 50;
     entities.push(enemyWinged2);
@@ -550,7 +550,7 @@ export class LevelStorage {
     canyonPlat.speed = 65;
     entities.push(canyonPlat);
 
-    // Winged Hopper guarding the gap
+    // Flyer guarding the gap
     const enemyWinged3 = new EnemyWalker(3780, 240, T, T, 'winged');
     enemyWinged3.patrolRange = 60;
     entities.push(enemyWinged3);
@@ -642,7 +642,7 @@ export class LevelStorage {
     skyPlat.speed = 70;
     entities.push(skyPlat);
 
-    // Winged Hopper patrolling over the void
+    // Flyer patrolling over the void
     const enemyWinged4 = new EnemyWalker(5480, 240, T, T, 'winged');
     enemyWinged4.patrolRange = 60;
     entities.push(enemyWinged4);
@@ -675,7 +675,7 @@ export class LevelStorage {
     entities.push(new SolidBlock(6080, 280, T, T, 'mystery', 'heart'));
     entities.push(new SolidBlock(6120, 280, T, T, 'mystery', 'coin'));
 
-    // Patrolling Armored Spiky and Walker
+    // Patrolling Spiker and Walker
     const enemySpiky5 = new EnemyWalker(6280, 440, T, T, 'spiky');
     enemySpiky5.patrolRange = 50;
     entities.push(enemySpiky5);

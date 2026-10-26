@@ -206,6 +206,10 @@ class SoundEngine {
     } catch (e) {}
   }
 
+  playFanfare() {
+    this.playVictory();
+  }
+
   // Paint Squelch (Kid Pix style squishy drawing sound)
   playPaintSquish() {
     if (this.muted || !this.ensureContext()) return;

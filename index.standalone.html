@@ -151,6 +151,109 @@ body[data-theme="jungle"] {
   --accent-mint: #2D6A4F;
 }
 
+/* 6. NEON OVER BLACK THEME (High Contrast Cyber Synth) */
+body[data-theme="neon"] {
+  --theme-name: "neon";
+  --bg-cream: #050508;
+  --bg-panel: #0E0E18;
+  --header-bg: #0A0A12;
+  --ink-black: #F8FAFC;
+  --border-color: #00E5FF;
+  --shadow-color: #FF007F;
+  --border-thick: 2px solid #00E5FF;
+  --shadow-hard: 3px 3px 0px #FF007F;
+  --shadow-hover: 4px 4px 0px #FF007F;
+  --accent-sun: #FFE600;
+  --accent-sky: #00E5FF;
+  --accent-rose: #FF007F;
+  --accent-mint: #00FF66;
+}
+
+body[data-theme="neon"] .neo-btn {
+  background-color: #141424;
+  color: #F8FAFC;
+  border-color: #00E5FF;
+}
+
+body[data-theme="neon"] .neo-btn:hover {
+  background-color: #202038;
+}
+
+body[data-theme="neon"] .tool-drawer,
+body[data-theme="neon"] .neo-modal-box,
+body[data-theme="neon"] .neo-dialog,
+body[data-theme="neon"] .about-credit-card,
+body[data-theme="neon"] .about-tab-btn,
+body[data-theme="neon"] .theme-card {
+  background-color: #0E0E18;
+  color: #F8FAFC;
+  border-color: #00E5FF;
+}
+
+body[data-theme="neon"] .about-credit-desc,
+body[data-theme="neon"] .theme-sub {
+  color: #94A3B8;
+}
+
+/* 7. ATLANTIS UNDERWATER THEME (Deep Ocean Light) */
+body[data-theme="atlantis"] {
+  --theme-name: "atlantis";
+  --bg-cream: #041B2D;
+  --bg-panel: #072B47;
+  --header-bg: #031524;
+  --ink-black: #E0F2FE;
+  --border-color: #38BDF8;
+  --shadow-color: #020D17;
+  --border-thick: 2px solid #38BDF8;
+  --shadow-hard: 3px 3px 0px #020D17;
+  --shadow-hover: 4px 4px 0px #020D17;
+  --accent-sun: #38BDF8;
+  --accent-sky: #0284C7;
+  --accent-rose: #F43F5E;
+  --accent-mint: #2DD4BF;
+}
+
+body[data-theme="atlantis"] .neo-btn {
+  background-color: #0C385C;
+  color: #E0F2FE;
+  border-color: #38BDF8;
+}
+
+body[data-theme="atlantis"] .neo-btn:hover {
+  background-color: #124A78;
+}
+
+body[data-theme="atlantis"] .tool-drawer,
+body[data-theme="atlantis"] .neo-modal-box,
+body[data-theme="atlantis"] .neo-dialog,
+body[data-theme="atlantis"] .about-credit-card,
+body[data-theme="atlantis"] .about-tab-btn,
+body[data-theme="atlantis"] .theme-card {
+  background-color: #072B47;
+  color: #E0F2FE;
+  border-color: #38BDF8;
+}
+
+body[data-theme="atlantis"] .about-credit-desc,
+body[data-theme="atlantis"] .theme-sub {
+  color: #7DD3FC;
+}
+
+/* 8. MIXED MEDIA THEME (Paper Collage & Warm Art) */
+body[data-theme="mixed"] {
+  --theme-name: "mixed";
+  --bg-cream: #FDF6E2;
+  --bg-panel: #FFFDF7;
+  --header-bg: #F4E7CA;
+  --ink-black: #262626;
+  --border-color: #3F3F46;
+  --shadow-color: #71717A;
+  --accent-sun: #F59E0B;
+  --accent-sky: #0284C7;
+  --accent-rose: #E11D48;
+  --accent-mint: #059669;
+}
+
 * {
   box-sizing: border-box;
   margin: 0;
@@ -2106,7 +2209,7 @@ body[data-theme="night"] .about-colophon-sub {
       </button>
 
       <!-- Theme Selector Button -->
-      <button id="theme-selector-btn" class="neo-btn" title="Choose Theme (UI, Environment &amp; Blocks)">
+      <button id="theme-selector-btn" class="neo-btn" title="Choose Theme (Environment &amp; Blocks)">
         <span id="theme-icon">🎨</span>
         <span id="theme-label">Theme ▾</span>
       </button>
@@ -2137,16 +2240,16 @@ body[data-theme="night"] .about-colophon-sub {
       </button>
 
       <!-- Level Management -->
-      <button id="load-preset-btn" class="neo-btn neo-btn-accent" title="Reset level to default starter layout">
+      <button id="load-preset-btn" class="neo-btn neo-btn-accent" title="Reset level to default layout">
         <span>🔄 Reset</span>
       </button>
       <button id="export-level-btn" class="neo-btn" title="Save level as .sidehop file">
-        <span>💾 Export</span>
+        <span>💾 .sidehop</span>
       </button>
-      <button id="export-html-btn" class="neo-btn neo-btn-cyan" title="Export level as a standalone playable single-file HTML web game">
-        <span>🌐 Web Game</span>
+      <button id="export-html-btn" class="neo-btn neo-btn-cyan" title="Export as HTML web game">
+        <span>🌐 Save HTML</span>
       </button>
-      <button id="import-level-btn" class="neo-btn" title="Load level from .sidehop file">
+      <button id="import-level-btn" class="neo-btn" title="Load .sidehop file">
         <span>📂 Import</span>
       </button>
       <input type="file" id="import-file-input" accept=".sidehop,.json" style="display: none;">
@@ -2176,90 +2279,92 @@ body[data-theme="night"] .about-colophon-sub {
           <span class="palette-icon">✋</span>
           <span>Pan</span>
         </button>
-        <button class="palette-item" data-tool="erase" title="Erase Components (4)">
+        <button class="palette-item" data-tool="erase" title="Erase Placed Items (4)">
           <span class="palette-icon">🧹</span>
-          <span>Erase</span>
+          <span>Eraser</span>
         </button>
       </div>
 
       <div class="drawer-title" style="margin-top: 8px;">Components</div>
       <div class="palette-grid">
         <div class="palette-slot">
-          <button class="palette-item active" data-palette="block" title="Solid Ground / Platform Block">
-            <span class="palette-icon" id="palette-icon-block">🧱</span>
-            <span class="palette-name" id="palette-name-block">Block</span>
+          <button class="palette-item active" data-palette="block" title="Solid Block — Click arrow for Mario Maker styles (B)">
+            <span class="palette-icon" id="palette-icon-block">🟩</span>
+            <span class="palette-name" id="palette-name-block">Ground Block</span>
           </button>
           <button class="palette-triangle-btn" data-triangle="block" title="Choose Block Types (Solid, Mystery, Cloud, Ice)">▾</button>
         </div>
 
         <div class="palette-slot">
-          <button class="palette-item" data-palette="springboard" title="Spring Bouncer">
+          <button class="palette-item" data-palette="springboard" title="Bouncy Springboard — Click arrow for Mega Spring (S)">
             <span class="palette-icon" id="palette-icon-springboard">🌀</span>
-            <span class="palette-name" id="palette-name-springboard">Spring</span>
+            <span class="palette-name" id="palette-name-springboard">Springboard</span>
           </button>
           <button class="palette-triangle-btn" data-triangle="springboard" title="Choose Spring Types (Standard, Mega)">▾</button>
         </div>
 
         <div class="palette-slot">
-          <button class="palette-item" data-palette="hazard" title="Spike Hazard">
+          <button class="palette-item" data-palette="hazard" title="Spike Hazard (H)">
             <span class="palette-icon">⚠️</span>
-            <span class="palette-name">Spikes</span>
+            <span class="palette-name">Spike Hazard</span>
           </button>
         </div>
 
         <div class="palette-slot">
-          <button class="palette-item" data-palette="enemy" title="Patrolling Enemy">
+          <button class="palette-item" data-palette="enemy" title="Enemy — Click arrow for Winged &amp; Spiky (E)">
             <span class="palette-icon" id="palette-icon-enemy">👾</span>
-            <span class="palette-name" id="palette-name-enemy">Enemy</span>
+            <span class="palette-name" id="palette-name-enemy">Enemy Walker</span>
           </button>
           <button class="palette-triangle-btn" data-triangle="enemy" title="Choose Enemy Types (Walker, Winged, Spiky)">▾</button>
         </div>
 
         <div class="palette-slot">
-          <button class="palette-item" data-palette="moving_platform" title="Moving Platform">
-            <span class="palette-icon">🛹</span>
-            <span class="palette-name">Platform</span>
+          <button class="palette-item" data-palette="moving_platform" title="Moving Platform (M)">
+            <span class="palette-icon">⏥</span>
+            <span class="palette-name">Moving Platform</span>
           </button>
         </div>
 
         <div class="palette-slot">
-          <button class="palette-item" data-palette="collectible" title="Star / Coin / Heart / Pistol Powerup">
+          <button class="palette-item" data-palette="collectible" title="Collectible — Click arrow for Star, Coin, Heart, Gun (C)">
             <span class="palette-icon" id="palette-icon-collectible">⭐</span>
-            <span class="palette-name" id="palette-name-collectible">Star</span>
+            <span class="palette-name" id="palette-name-collectible">Collectibles</span>
           </button>
           <button class="palette-triangle-btn" data-triangle="collectible" title="Choose Collectible Types (Coin, Star, Heart, Pistol)">▾</button>
         </div>
 
         <div class="palette-slot">
-          <button class="palette-item" data-palette="goal" title="Finish Line Flag">
+          <button class="palette-item" data-palette="goal" title="Goal Finish Line (G)">
             <span class="palette-icon">🏁</span>
-            <span class="palette-name">Goal</span>
+            <span class="palette-name">Goal Flag</span>
           </button>
         </div>
 
         <div class="palette-slot">
-          <button class="palette-item" data-palette="player" title="Player Start Point">
+          <button class="palette-item" data-palette="player" title="Starting point (P)">
             <span class="palette-icon">🐰</span>
-            <span class="palette-name">Spawn</span>
+            <span class="palette-name">Spawnpoint</span>
           </button>
         </div>
       </div>
 
       <details class="drawer-tips" style="margin-top: 10px;">
-        <summary>⌨️ Controls ▾</summary>
+        <summary>Controls</summary>
         <div class="drawer-tips-content">
-          • <strong>Box Select:</strong> Shift+Drag / 5<br>
-          • <strong>Copy/Paste:</strong> ⌘C / ⌘V<br>
-          • <strong>Duplicate:</strong> ⌘D<br>
-          • <strong>Arrow Keys:</strong> Move spot<br>
-          • <strong>Enter:</strong> Place at spot<br>
-          • <strong>Shift+Arrows:</strong> Quick path<br>
-          • <strong>Blocks:</strong> Click ▾ for styles<br>
-          • <strong>Empty Drag:</strong> Pan stage<br>
-          • <strong>Right-Click:</strong> Context Menu<br>
-          • <strong>Undo/Redo:</strong> ⌘Z / ⌘⇧Z<br>
-          • <strong>Play/Edit:</strong> Spacebar / ▶<br>
-          • <strong>Shoot:</strong> F / X / Click (with Pistol)
+          • ▶ [Space] Play/Edit<br>
+          • [1-5] Tools<br>
+          • [B] Block<br>
+          • [S] Spring<br>
+          • [E] Enemy<br>
+          • [C] Coin/Star<br>
+          • [H] Spike<br>
+          • [M] Moving Plat<br>
+          • [G] Goal<br>
+          • [P] Spawn<br>
+          • [F/X] Shoot Gun<br>
+          • [R] Record<br>
+          • [⌘Z] Undo<br>
+          • [H] Help Menu
         </div>
       </details>
     </aside>
@@ -2308,13 +2413,13 @@ body[data-theme="night"] .about-colophon-sub {
           <button id="action-copy-btn" class="neo-btn" style="padding: 6px 12px; font-size: 13px;" title="Copy to clipboard (⌘C)">
             <span>📋 Copy</span>
           </button>
-          <button id="action-paint-btn" class="neo-btn neo-btn-pink" style="padding: 6px 12px; font-size: 13px;">
-            <span>🎨 Paint Art</span>
+          <button id="action-paint-btn" class="neo-btn neo-btn-pink" style="padding: 6px 12px; font-size: 13px;" title="Paint custom art or import decal/GIF in Kid Pix Art Studio">
+            <span>🎨 Paint / Decal</span>
           </button>
-          <button id="action-tune-btn" class="neo-btn neo-btn-accent" style="padding: 6px 12px; font-size: 13px;">
-            <span>⚙️ Tune Physics</span>
+          <button id="action-tune-btn" class="neo-btn neo-btn-accent" style="padding: 6px 12px; font-size: 13px;" title="Tune parameters &amp; physics in Inspector">
+            <span>🎛️ Tune Physics</span>
           </button>
-          <button id="action-delete-btn" class="neo-btn" style="padding: 6px 12px; font-size: 13px; color: var(--hazard-red);">
+          <button id="action-delete-btn" class="neo-btn" style="padding: 6px 12px; font-size: 13px; color: var(--hazard-red);" title="Delete component (Backspace / Del)">
             <span>🗑️ Delete</span>
           </button>
         </div>
@@ -2333,8 +2438,8 @@ body[data-theme="night"] .about-colophon-sub {
 
       <!-- Victory Celebration Overlay -->
       <div id="victory-overlay" class="victory-overlay">
-        <h2 class="victory-title">LEVEL COMPLETE! 🎉</h2>
-        <p id="victory-stats" style="font-size: 20px; font-weight: 700;">Score: 100 PTS</p>
+        <h2 class="victory-title">🏆 LEVEL COMPLETE</h2>
+        <p id="victory-stats" style="font-size: 20px; font-weight: 700;">Total Score: 0 PTS</p>
         <div style="display: flex; gap: 12px; margin-top: 10px;">
           <button id="victory-clip-btn" class="neo-btn neo-btn-rec">
             <span>📹 Save Replay Clip</span>
@@ -2343,18 +2448,18 @@ body[data-theme="night"] .about-colophon-sub {
             <span>🔄 Play Again</span>
           </button>
           <button id="victory-edit-btn" class="neo-btn neo-btn-accent">
-            <span>✏️ Back to Editor</span>
+            <span>✏️ Keep Editing</span>
           </button>
         </div>
       </div>
     </section>
   </main>
 
-  <!-- ART STUDIO MODAL (KID PIX STYLE) -->
+  <!-- ART STUDIO MODAL -->
   <div id="art-studio-modal" class="neo-modal-overlay">
     <div class="neo-modal-box">
       <div class="modal-header">
-        <h3 class="modal-title">🎨 Kid Pix Art Studio</h3>
+        <h3 class="modal-title">🎨 Art Studio</h3>
         <button id="close-art-studio" class="modal-close-btn">&times;</button>
       </div>
 
@@ -2388,8 +2493,11 @@ body[data-theme="night"] .about-colophon-sub {
           </div>
 
           <div style="margin-top: 6px; display: flex; flex-direction: column; gap: 6px;">
+            <button id="paint-clear-canvas-btn" class="neo-btn neo-btn-rec" style="width: 100%; justify-content: center; font-size: 13px;" type="button">
+              💣 Clear Canvas
+            </button>
             <label class="neo-btn" style="width: 100%; justify-content: center; font-size: 13px; cursor: pointer;">
-              📁 Upload Image / GIF
+              📁 Import Image / GIF
               <input type="file" id="paint-image-upload" accept="image/*" style="display: none;">
             </label>
             <label class="neo-btn neo-btn-cyan" style="width: 100%; justify-content: center; font-size: 13px; cursor: pointer;">
@@ -2403,10 +2511,10 @@ body[data-theme="night"] .about-colophon-sub {
 
       <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 12px; flex-wrap: wrap; gap: 8px;">
         <div style="display: flex; gap: 6px;">
-          <button id="paint-reset-btn" class="neo-btn">Reset Default</button>
+          <button id="paint-reset-btn" class="neo-btn">↩ Reset Default Art</button>
         </div>
         <div style="display: flex; gap: 6px;">
-          <button id="paint-apply-btn" class="neo-btn neo-btn-primary">Apply to Entity</button>
+          <button id="paint-apply-btn" class="neo-btn neo-btn-primary">Apply to Component ✓</button>
         </div>
       </div>
     </div>
@@ -2416,12 +2524,12 @@ body[data-theme="night"] .about-colophon-sub {
   <div id="inspector-modal" class="neo-modal-overlay">
     <div class="neo-modal-box" style="max-width: 440px;">
       <div class="modal-header">
-        <h3 id="inspector-title" class="modal-title">Tuning</h3>
+        <h3 id="inspector-title" class="modal-title">🎛️ Inspector &amp; Physics Tuner</h3>
         <button id="inspector-close" class="modal-close-btn">&times;</button>
       </div>
       <div id="inspector-fields"></div>
       <div style="display: flex; justify-content: flex-end; margin-top: 10px;">
-        <button id="inspector-done-btn" class="neo-btn neo-btn-primary">Done</button>
+        <button id="inspector-done-btn" class="neo-btn neo-btn-primary">Done ✓</button>
       </div>
     </div>
   </div>
@@ -2448,7 +2556,7 @@ body[data-theme="night"] .about-colophon-sub {
   <div id="background-modal" class="neo-modal-overlay">
     <div class="neo-modal-box" style="max-width: 480px;">
       <div class="modal-header">
-        <h3 class="modal-title">🌄 Choose Level Background</h3>
+        <h3 class="modal-title">🌄 Level Atmosphere &amp; Sky</h3>
         <button id="close-bg-modal" class="modal-close-btn">&times;</button>
       </div>
 
@@ -2456,7 +2564,7 @@ body[data-theme="night"] .about-colophon-sub {
         <label style="font-size: 13px; font-weight: 700;">Preset Atmospheres</label>
         <div class="bg-themes-grid">
           <button class="bg-theme-card active" data-bg-theme="sky">
-            <div class="bg-theme-preview" style="background: linear-gradient(180deg, #70C5FF, #E0F4FF);">☁️</div>
+            <div class="bg-theme-preview" style="background: linear-gradient(180deg, #70C5FF, #E0F4FF);">☀️</div>
             <span>Sunny Sky</span>
           </button>
           <button class="bg-theme-card" data-bg-theme="sunset">
@@ -2464,28 +2572,24 @@ body[data-theme="night"] .about-colophon-sub {
             <span>Sunset</span>
           </button>
           <button class="bg-theme-card" data-bg-theme="night">
-            <div class="bg-theme-preview" style="background: linear-gradient(180deg, #0F172A, #1E1B4B); color: #FFF;">🌌</div>
+            <div class="bg-theme-preview" style="background: linear-gradient(180deg, #0F172A, #1E1B4B); color: #FFF;">🌙</div>
             <span>Midnight</span>
           </button>
-          <button class="bg-theme-card" data-bg-theme="paper">
-            <div class="bg-theme-preview" style="background: #FAF8F5; border: 1px dashed #CCC;">📜</div>
-            <span>Paper Grid</span>
-          </button>
-          <button class="bg-theme-card" data-bg-theme="mint">
-            <div class="bg-theme-preview" style="background: linear-gradient(180deg, #A7F3D0, #ECFDF5);">🌿</div>
-            <span>Meadow</span>
-          </button>
-          <button class="bg-theme-card" data-bg-theme="cyber">
+          <button class="bg-theme-card" data-bg-theme="neon">
             <div class="bg-theme-preview" style="background: linear-gradient(180deg, #1A0B2E, #4A154B); color: #FFF;">🌆</div>
-            <span>Cyberpunk</span>
+            <span>Neon</span>
+          </button>
+          <button class="bg-theme-card" data-bg-theme="gray">
+            <div class="bg-theme-preview" style="background: linear-gradient(180deg, #64748B, #94A3B8); color: #FFF;">🌫️</div>
+            <span>Overcast Gray</span>
           </button>
         </div>
 
         <div style="border-top: 2px dashed #E0E0E0; padding-top: 12px; display: flex; flex-direction: column; gap: 8px;">
-          <label style="font-size: 13px; font-weight: 700; display: block;">Custom Background Art (.sidehop / Image)</label>
+          <label style="font-size: 13px; font-weight: 700; display: block;">Custom Art / GIF Background</label>
           <div style="display: flex; gap: 6px; flex-wrap: wrap;">
             <label class="neo-btn" style="flex: 1; justify-content: center; font-size: 12px; cursor: pointer;">
-              📁 Upload Image
+              📁 Upload Custom Art / GIF
               <input type="file" id="bg-image-upload" accept="image/*" style="display: none;">
             </label>
             <label class="neo-btn neo-btn-cyan" style="flex: 1; justify-content: center; font-size: 12px; cursor: pointer;">
@@ -2496,13 +2600,17 @@ body[data-theme="night"] .about-colophon-sub {
               💾 Export .sidehop
             </button>
           </div>
-          <p id="bg-custom-status" style="font-size: 11px; color: #666; margin-top: 2px; display: none;">Custom background image active</p>
+          <div style="font-size: 11px; color: #666;">(Supports PNG, JPG, GIF, WebP)</div>
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <p id="bg-custom-status" style="font-size: 11px; color: #2E7D32; font-weight: 700; margin: 0; display: none;">Status: Custom Background Active</p>
+            <button id="bg-clear-custom-btn" class="neo-btn" style="font-size: 11px; padding: 3px 8px; display: none;" type="button">Clear Custom Art ✕</button>
+          </div>
         </div>
       </div>
 
       <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 10px;">
         <button id="bg-reset-default" class="neo-btn">Reset Default</button>
-        <button id="bg-done-btn" class="neo-btn neo-btn-primary">Apply & Done</button>
+        <button id="bg-done-btn" class="neo-btn neo-btn-primary">Close ✓</button>
       </div>
     </div>
   </div>
@@ -2576,32 +2684,26 @@ body[data-theme="night"] .about-colophon-sub {
   <!-- MOBILE DEVICE ONLY ADVISORY OVERLAY -->
   <div id="mobile-blocker" class="mobile-blocker-overlay" role="dialog" aria-modal="true" aria-label="Desktop browser required">
     <div class="mobile-blocker-card">
-      <div class="mobile-blocker-badge">⚠️ DESKTOP ONLY</div>
+      <div class="mobile-blocker-badge">💻 Best on Desktop &amp; Laptop</div>
       <div class="mobile-blocker-icon">💻 🎮</div>
       <h2 class="mobile-blocker-title">Desktop Browser Required</h2>
       <p class="mobile-blocker-desc">
-        Sidehop is designed exclusively for desktop and laptop computers with a keyboard and mouse or trackpad.
-      </p>
-      <div class="mobile-blocker-alert">
-        This website does not support mobile phones or handheld devices.
-      </div>
-      <p class="mobile-blocker-sub">
-        Please open Sidehop on your computer to create and play levels!
+        ohhh dang Sidehop is a tactile game creation studio designed for desktop displays with a mouse
       </p>
       <button id="mobile-blocker-dismiss" class="neo-btn" style="margin-top: 14px; background: #FFFFFF; font-size: 13px; font-weight: 700; padding: 8px 16px;">
-        ✕ Dismiss Advisory
+        Continue Anyway →
       </button>
     </div>
   </div>
 
-  <!-- SEARCHABLE HELP DIALOG (TEMPLATE PART 3.7) -->
+  <!-- SEARCHABLE HELP DIALOG -->
   <dialog id="help" class="neo-dialog">
     <div class="neo-dialog-header">
-      <span class="neo-dialog-title">❓ Sidehop Controls &amp; Help</span>
+      <span class="neo-dialog-title">❓ Help &amp; Controls</span>
       <button id="help-close-btn" class="neo-dialog-close" title="Close Help">&times;</button>
     </div>
     <div class="neo-dialog-body">
-      <input type="text" id="help-search" class="help-search-input" placeholder="Search controls, tools, shortcuts (e.g. 'undo', 'play', 'block')...">
+      <input type="text" id="help-search" class="help-search-input" placeholder="Search controls, tools, shortcuts (e.g. &quot;play&quot;, &quot;jump&quot;, &quot;undo&quot;)...">
       <div id="help-list" class="help-list"></div>
     </div>
   </dialog>
@@ -2884,6 +2986,27 @@ body[data-theme="night"] .about-colophon-sub {
           <div class="theme-name">Jungle Canopy</div>
           <div class="theme-sub">Tropical mist, hanging vines &amp; mossy ancient stone</div>
         </div>
+        <div class="theme-card" data-theme="neon">
+          <div class="theme-preview" style="background: linear-gradient(180deg, #050508, #18092B);">
+            <span class="theme-emoji">🌆</span>
+          </div>
+          <div class="theme-name">Neon over Black</div>
+          <div class="theme-sub">High contrast dark grid, laser cyber vibes</div>
+        </div>
+        <div class="theme-card" data-theme="atlantis">
+          <div class="theme-preview" style="background: linear-gradient(180deg, #075985, #082F49);">
+            <span class="theme-emoji">🌊</span>
+          </div>
+          <div class="theme-name">Atlantis Underwater</div>
+          <div class="theme-sub">Deep sea ocean floor, coral &amp; aquatic light</div>
+        </div>
+        <div class="theme-card" data-theme="mixed">
+          <div class="theme-preview" style="background: linear-gradient(180deg, #FDE68A, #F59E0B);">
+            <span class="theme-emoji">🎨</span>
+          </div>
+          <div class="theme-name">Mixed Media</div>
+          <div class="theme-sub">Collage textures, newsprint &amp; vibrant pastels</div>
+        </div>
       </div>
     </div>
   </dialog>
@@ -2940,7 +3063,7 @@ body[data-theme="night"] .about-colophon-sub {
       { title: "Collectibles", body: "Stars, coins, hearts, or pistols with shootable bullets.", control: '[data-palette="collectible"]', keys: "C" },
       { title: "Goal Finish Line", body: "Flagpole triggering victory fanfare and confetti celebration.", control: '[data-palette="goal"]', keys: "G" },
       { title: "Hero Spawn Point", body: "Sets the starting spawn position for the player character.", control: '[data-palette="player"]', keys: "P" },
-      { title: "Record Gameplay Clip", body: "Record video clips directly from canvas and download WebM.", control: "#rec-btn", keys: "R / ●" },
+      { title: "Record Gameplay Clip", body: "Record video clips directly from canvas and download WebM/MP4.", control: "#rec-btn", keys: "R / ●" },
       { title: "Undo Modification", body: "Revert the last level edit or placement change.", control: "#undo-btn", keys: "⌘Z / Ctrl+Z" },
       { title: "Redo Modification", body: "Reapply a previously undone change.", control: "#redo-btn", keys: "⌘⇧Z / Ctrl+Y" },
       { title: "Atmospheric Background", body: "Choose background themes or upload custom images and GIFs.", control: "#bg-modal-btn", keys: "BG" },
@@ -3257,6 +3380,10 @@ class SoundEngine {
     } catch (e) {}
   }
 
+  playFanfare() {
+    this.playVictory();
+  }
+
   // Paint Squelch (Kid Pix style squishy drawing sound)
   playPaintSquish() {
     if (this.muted || !this.ensureContext()) return;
@@ -3367,12 +3494,12 @@ class SidehopFile {
         creator: metadata.creator || "John O'Brien",
         createdAt: new Date().toISOString(),
         app: 'Sidehop',
-        description: metadata.description || '2D Platformer Level created in Sidehop',
+        description: metadata.description || 'Platformer level created with Sidehop',
         tags: metadata.tags || ['level', 'platformer']
       },
       level: {
         version: levelData.version || 2,
-        name: levelData.name || 'My Sidehop Level',
+        name: levelData.name || 'Starter World',
         background: levelData.background || { theme: 'sky', customImage: null },
         player: levelData.player,
         entities: levelData.entities || []
@@ -5403,7 +5530,7 @@ class HazardSpikes extends Entity {
   }
 }
 
-// 5. ENEMY WALKER (Walker, Winged Hopper, and Armored Spiky Variants)
+// 5. ENEMY WALKER (Walker, Flyer, and Spiker Variants)
 class EnemyWalker extends Entity {
   constructor(x, y, width = 40, height = 40, variant = 'walker') {
     super(null, 'enemy', x, y, width, height);
@@ -5489,7 +5616,7 @@ class EnemyWalker extends Entity {
 
     this.renderCustomOrFallback(ctx, () => {
       if (this.variant === 'winged') {
-        // Winged Hopper (Golden Yellow with animated white wings)
+        // Flyer (Golden Yellow with animated white wings)
         const wingFlap = Math.sin(this.walkCycle * 2.5) * 8;
         ctx.fillStyle = '#FFFFFF';
         ctx.strokeStyle = '#121212';
@@ -5534,7 +5661,7 @@ class EnemyWalker extends Entity {
         ctx.fill();
         ctx.stroke();
       } else if (this.variant === 'spiky') {
-        // Armored Spiky Urchin (Cannot be stomped!)
+        // Spiker (Hazardous spines - cannot be stomped!)
         // Steel Spikes on top
         ctx.fillStyle = '#ECEFF1';
         ctx.strokeStyle = '#121212';
@@ -5571,7 +5698,7 @@ class EnemyWalker extends Entity {
         ctx.fillRect(13, 19, 2.5, 4);
         ctx.fillRect(25, 19, 2.5, 4);
       } else {
-        // Standard Lavender Walker (Grumpy Potato)
+        // Standard Walker
         ctx.fillStyle = '#B388FF'; // Lavender purple
         ctx.strokeStyle = '#121212';
         ctx.lineWidth = 3;
@@ -6210,7 +6337,7 @@ class Inspector {
   open(entity) {
     this.targetEntity = entity;
     this.panel.classList.add('active');
-    this.titleElement.textContent = `Tuning: ${entity.type.toUpperCase()}`;
+    this.titleElement.textContent = '🎛️ Inspector & Physics Tuner';
     this.renderFields();
     sounds.playClick();
   }
@@ -6226,10 +6353,63 @@ class Inspector {
     const ent = this.targetEntity;
     if (!ent) return;
 
+    // General Information Card
+    const infoCard = document.createElement('div');
+    infoCard.style.cssText = 'background: #F8FAFC; border: 2px solid #1E293B; border-radius: 8px; padding: 8px 12px; margin-bottom: 12px; font-size: 12px; font-weight: 700; display: flex; flex-direction: column; gap: 3px;';
+    infoCard.innerHTML = `
+      <div>Component: ${ent.type.toUpperCase()}${ent.variant ? ` (${ent.variant})` : ''}</div>
+      <div>Position: X: ${Math.round(ent.x)}px, Y: ${Math.round(ent.y)}px</div>
+      <div>Size: Width: ${Math.round(ent.width || 40)}px, Height: ${Math.round(ent.height || 40)}px</div>
+    `;
+    this.fieldsContainer.appendChild(infoCard);
+
+    // Physics Preset Buttons (for Player and Blocks)
+    if (ent.type === 'player' || ent.type === 'crate' || ent.type === 'block') {
+      const presetRow = document.createElement('div');
+      presetRow.style.cssText = 'display: flex; gap: 4px; flex-wrap: wrap; margin-bottom: 12px;';
+      const presets = [
+        { name: 'Standard Physics', apply: () => {
+          if (ent.type === 'player') { ent.speed = 280; ent.jumpForce = 620; ent.gravityScale = 1.0; }
+          else { ent.bounciness = 0; ent.friction = 0.8; }
+        }},
+        { name: 'Floaty Moon', apply: () => {
+          if (ent.type === 'player') { ent.speed = 220; ent.jumpForce = 720; ent.gravityScale = 0.5; }
+          else { ent.bounciness = 0.3; ent.friction = 0.8; }
+        }},
+        { name: 'High Gravity', apply: () => {
+          if (ent.type === 'player') { ent.speed = 320; ent.jumpForce = 820; ent.gravityScale = 1.8; }
+          else { ent.bounciness = 0; ent.friction = 0.9; }
+        }},
+        { name: 'Super Bouncy', apply: () => {
+          if (ent.type === 'player') { ent.speed = 300; ent.jumpForce = 750; ent.gravityScale = 0.85; }
+          else { ent.bounciness = 0.85; ent.friction = 0.6; }
+        }},
+        { name: 'Ice Skater', apply: () => {
+          if (ent.type === 'player') { ent.speed = 360; ent.jumpForce = 600; ent.gravityScale = 1.0; }
+          else { ent.bounciness = 0; ent.friction = 0.05; }
+        }}
+      ];
+
+      presets.forEach(p => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'neo-btn';
+        btn.style.cssText = 'font-size: 11px; padding: 4px 8px; flex: 1 1 30%; justify-content: center;';
+        btn.textContent = p.name;
+        btn.addEventListener('click', () => {
+          p.apply();
+          this.renderFields();
+          sounds.playClick();
+        });
+        presetRow.appendChild(btn);
+      });
+      this.fieldsContainer.appendChild(presetRow);
+    }
+
     if (ent.type === 'player') {
-      this.addSlider('Run Speed', ent.speed, 150, 600, 10, (val) => ent.speed = val);
+      this.addSlider('Speed (px/s)', ent.speed, 150, 600, 10, (val) => ent.speed = val);
       this.addSlider('Jump Force', ent.jumpForce, 300, 950, 10, (val) => ent.jumpForce = val);
-      this.addSlider('Weight / Gravity', ent.gravityScale, 0.4, 2.5, 0.1, (val) => ent.gravityScale = val);
+      this.addSlider('Gravity (px/s²)', ent.gravityScale, 0.4, 2.5, 0.1, (val) => ent.gravityScale = val);
       this.addSlider('Max Hearts', ent.maxHearts || 4, 1, 8, 1, (val) => {
         ent.maxHearts = val;
         ent.hearts = val;
@@ -6238,18 +6418,19 @@ class Inspector {
         ent.doubleJumpAllowed = val;
         ent.hasDoubleJump = val;
       });
-    } else if (ent.type === 'crate') {
-      this.addSlider('Bounciness', ent.bounciness, 0, 1.2, 0.05, (val) => ent.bounciness = val);
-      this.addSlider('Friction', ent.friction, 0.1, 1.0, 0.05, (val) => ent.friction = val);
+    } else if (ent.type === 'crate' || ent.type === 'block') {
+      this.addSlider('Bounciness', ent.bounciness || 0, 0, 1.2, 0.05, (val) => ent.bounciness = val);
+      this.addSlider('Friction', ent.friction || 0.8, 0.05, 1.0, 0.05, (val) => ent.friction = val);
+      this.addToggle('One-Way Platform', !!ent.isOneWay, (val) => ent.isOneWay = val);
     } else if (ent.type === 'springboard') {
       this.addSlider('Launch Force', ent.launchForce, 500, 1400, 20, (val) => ent.launchForce = val);
     } else if (ent.type === 'enemy') {
-      this.addSlider('Patrol Speed', ent.speed, 20, 240, 5, (val) => ent.speed = val);
+      this.addSlider('Speed (px/s)', ent.speed, 20, 240, 5, (val) => ent.speed = val);
       this.addSlider('Patrol Distance', ent.patrolRange, 40, 300, 10, (val) => ent.patrolRange = val);
       this.addToggle('Stompable', ent.stompable, (val) => ent.stompable = val);
     } else if (ent.type === 'moving_platform') {
-      this.addSlider('Move Speed', ent.speed, 20, 200, 5, (val) => ent.speed = val);
-      this.addSlider('Travel Distance', ent.distance, 40, 400, 10, (val) => ent.distance = val);
+      this.addSlider('Speed (px/s)', ent.speed, 20, 200, 5, (val) => ent.speed = val);
+      this.addSlider('Patrol Distance', ent.distance, 40, 400, 10, (val) => ent.distance = val);
       this.addSelect('Movement Axis', ent.axis, ['horizontal', 'vertical'], (val) => ent.axis = val);
     } else {
       const p = document.createElement('p');
@@ -6607,7 +6788,7 @@ class ArtStudio {
       height: this.canvas.height
     }, {
       title: name,
-      description: `Personal asset created in Kid Pix Art Studio`
+      description: `Custom asset created in Art Studio`
     });
 
     const slug = name
@@ -6724,7 +6905,7 @@ class LevelStorage {
     const activeTheme = (typeof window !== 'undefined' && window.sidehop?.currentTheme) || 'grass';
     return {
       version: 2,
-      name: 'My Sidehop Level',
+      name: 'Starter World',
       theme: activeTheme,
       background: background,
       player: {
@@ -7052,7 +7233,7 @@ ${payload}
     entities.push(new Collectible(244, 430, 32, 32, 'coin'));
     entities.push(new Collectible(324, 430, 32, 32, 'coin'));
 
-    // Patrolling Potato Walker (Shoot with Pistol or Stomp!)
+    // Patrolling Walker (Shoot with Gun or Stomp!)
     const enemy1 = new EnemyWalker(380, 440, T, T, 'walker');
     enemy1.patrolRange = 90;
     entities.push(enemy1);
@@ -7072,14 +7253,14 @@ ${payload}
       entities.push(new SolidBlock(x, 520, T, T, 'solid'));
     }
 
-    // Mystery Block with Health Heart on the plateau!
+    // Mystery Block with Heart on the plateau!
     entities.push(new SolidBlock(560, 320, T, T, 'mystery', 'heart'));
 
     // Iconic Tall Warp Pipe (40x80) on the plateau
     entities.push(new SolidBlock(640, 360, 40, 80, 'pipe'));
     entities.push(new Collectible(644, 310, 32, 32, 'coin'));
 
-    // Winged Hopper on the elevated ground
+    // Flyer on the elevated ground
     const enemy2 = new EnemyWalker(720, 400, T, T, 'winged');
     enemy2.patrolRange = 60;
     entities.push(enemy2);
@@ -7153,7 +7334,7 @@ ${payload}
       entities.push(new SolidBlock(x, 520, T, T, 'solid'));
     }
 
-    // Armored Spiky Enemy on the ice (Cannot stomp! Must shoot with gun or leap over!)
+    // Spiker Enemy on the ice (Cannot stomp! Must shoot with gun or leap over!)
     const enemySpiky1 = new EnemyWalker(1880, 440, T, T, 'spiky');
     enemySpiky1.patrolRange = 70;
     entities.push(enemySpiky1);
@@ -7183,7 +7364,7 @@ ${payload}
     entities.push(new SolidBlock(2440, 320, T, T, 'semisolid'));
     entities.push(new Collectible(2404, 270, 32, 32, 'star')); // Hidden Star!
 
-    // Winged Hopper airborne over the abyss
+    // Flyer airborne over the abyss
     const enemyWinged2 = new EnemyWalker(2400, 240, T, T, 'winged');
     enemyWinged2.patrolRange = 50;
     entities.push(enemyWinged2);
@@ -7266,7 +7447,7 @@ ${payload}
     canyonPlat.speed = 65;
     entities.push(canyonPlat);
 
-    // Winged Hopper guarding the gap
+    // Flyer guarding the gap
     const enemyWinged3 = new EnemyWalker(3780, 240, T, T, 'winged');
     enemyWinged3.patrolRange = 60;
     entities.push(enemyWinged3);
@@ -7358,7 +7539,7 @@ ${payload}
     skyPlat.speed = 70;
     entities.push(skyPlat);
 
-    // Winged Hopper patrolling over the void
+    // Flyer patrolling over the void
     const enemyWinged4 = new EnemyWalker(5480, 240, T, T, 'winged');
     enemyWinged4.patrolRange = 60;
     entities.push(enemyWinged4);
@@ -7391,7 +7572,7 @@ ${payload}
     entities.push(new SolidBlock(6080, 280, T, T, 'mystery', 'heart'));
     entities.push(new SolidBlock(6120, 280, T, T, 'mystery', 'coin'));
 
-    // Patrolling Armored Spiky and Walker
+    // Patrolling Spiker and Walker
     const enemySpiky5 = new EnemyWalker(6280, 440, T, T, 'spiky');
     enemySpiky5.patrolRange = 50;
     entities.push(enemySpiky5);
@@ -8285,6 +8466,10 @@ class HistoryManager {
     }
   }
 
+  updateButtons() {
+    this.notifyChange();
+  }
+
   clear() {
     this.undoStack = [];
     this.redoStack = [];
@@ -8312,49 +8497,49 @@ class SidehopDemo {
       {
         id: 'welcome',
         title: '🌟 Welcome to Sidehop',
-        desc: 'Build, paint, tune, and play 2D platformers right in your browser. Watch as we take a quick tour of every major feature!',
+        desc: 'Build, paint, tune, and play 2D platformers right in your browser. Welcome to this quick tour of every major feature',
         duration: 3800
       },
       {
         id: 'blocks',
-        title: '🧱 Component Palette & Mario Maker Blocks',
-        desc: 'Choose from 13 versatile block styles: Solid Ground, 45° Slopes, Slippery Ice, Donut Lifts, Note Trampolines, and Mystery [?] Blocks!',
+        title: '🧱 Components, Types & Blocks',
+        desc: 'Choose from 13 block styles: Solid blocks, angled slopes, moving platforms, etc.',
         duration: 5200
       },
       {
         id: 'items',
         title: '⭐ Powerups, Weapons & Enemies',
-        desc: 'Place Gold Coins, Star Gems, Health Hearts, Springboards, and the Pistol Gun sidearm weapon to blast enemies!',
+        desc: 'Place Coins, Hearts, Guns, and other fun things',
         duration: 4800
       },
       {
         id: 'tuning',
-        title: '🎛️ Real-Time Inspector & Physics Tuning',
-        desc: 'Tune Run Speed, Jump Force, Gravity, Weight, and Bounciness with tactile sliders in the Inspector.',
+        title: '🎛️ Real-Time Physics Tuning',
+        desc: 'Tune Running, Jumping, Gravity, Weight, Bounciness, and more component attributes',
         duration: 4600
       },
       {
         id: 'art',
-        title: '🎨 Kid Pix Art Studio & Square Block Preservation',
-        desc: 'Paint custom doodles, stamps, or import any photo or GIF. Square blocks stay in their square shape with custom visuals!',
+        title: '🎨 Art Studio',
+        desc: 'Draw characters, blocks, or import any photo or GIF into your creation',
         duration: 4800
       },
       {
         id: 'backgrounds',
-        title: '🌄 Atmospheric Visual Themes',
-        desc: 'Transform your world instantly with atmospheric sky themes: Sunset, Cyberpunk Neon Grid, Midnight, or custom uploads.',
+        title: '🌄 Themes',
+        desc: 'Transform visuals with themes like: Tundra, Neon, Chrome, and more',
         duration: 4200
       },
       {
         id: 'playtest',
-        title: '🎮 Instant In-Place Playtesting',
-        desc: 'Seamlessly switch to Play Mode: run, slide on ice, bounce on springs, bump mystery blocks, and shoot blaster shots!',
+        title: '🎮 Realtime Edit and Play',
+        desc: 'Seamlessly switch from Play Mode to Edit Mode for quick edits and playtests',
         duration: 6500
       },
       {
         id: 'recording',
         title: '🎥 Video Recording & .sidehop Sharing',
-        desc: 'Capture 60fps MP4 video clips with one click, or export portable .sidehop files to share with friends. Happy creating!',
+        desc: 'Screen Capture with one click, or export easily shareable ".sidehop" files or standalone html',
         duration: 4000
       }
     ];
@@ -8495,12 +8680,13 @@ class SidehopDemo {
     app.coins = b.coins;
     app.ammo = b.ammo;
     app.gunPickedUpInLevel = b.gunPickedUpInLevel;
-    app.updateScoreUI();
+    if (app.updateScoreUI) app.updateScoreUI();
 
     // Restore history
     app.history.undoStack = b.undoStack;
     app.history.redoStack = b.redoStack;
-    app.history.updateButtons();
+    if (app.history.updateButtons) app.history.updateButtons();
+    else if (app.history.notifyChange) app.history.notifyChange();
 
     // Deselect all
     app.editor.selectedEntity = null;
@@ -8544,7 +8730,8 @@ class SidehopDemo {
     }
 
     this.createUI();
-    sounds.playFanfare();
+    if (sounds.playFanfare) sounds.playFanfare();
+    else if (sounds.playVictory) sounds.playVictory();
     this.app.showToast('🎬 Sidehop Interactive Tour Started!');
 
     this.runStep(0);
@@ -8579,8 +8766,8 @@ class SidehopDemo {
     this.bannerEl.className = 'demo-tour-banner';
     this.bannerEl.innerHTML = `
       <div class="demo-banner-left">
-        <span class="demo-badge">🎬 DEMO TOUR</span>
-        <span class="demo-step-counter" id="demo-step-counter">Step 1 of 8</span>
+        <span class="demo-badge">🎬 SIDEHOP DEMO</span>
+        <span class="demo-step-counter" id="demo-step-counter">STEP 1 OF 8</span>
         <span class="demo-step-title" id="demo-step-title">Welcome to Sidehop</span>
       </div>
       <div class="demo-banner-center" id="demo-step-desc">
@@ -8588,8 +8775,8 @@ class SidehopDemo {
       </div>
       <div class="demo-banner-actions">
         <button id="demo-prev-btn" class="demo-btn-sm" title="Previous step">⏮️</button>
-        <button id="demo-next-btn" class="demo-btn-sm" title="Next step">⏭️</button>
-        <button id="demo-exit-btn" class="demo-btn-sm demo-exit" title="Exit Tour (Escape)">✕ Exit</button>
+        <button id="demo-next-btn" class="demo-btn-sm" title="Next step">⏭️ Next</button>
+        <button id="demo-exit-btn" class="demo-btn-sm demo-exit" title="Exit Tour (Escape)">Stop Demo ✕</button>
       </div>
     `;
     document.body.appendChild(this.bannerEl);
@@ -8633,7 +8820,7 @@ class SidehopDemo {
     const counter = document.getElementById('demo-step-counter');
     const title = document.getElementById('demo-step-title');
     const desc = document.getElementById('demo-step-desc');
-    if (counter) counter.textContent = `Step ${this.currentStep + 1} of ${this.steps.length}`;
+    if (counter) counter.textContent = `STEP ${this.currentStep + 1} OF ${this.steps.length}`;
     if (title) title.textContent = step.title;
     if (desc) desc.textContent = step.desc;
   }
@@ -9534,7 +9721,7 @@ class SidehopApp {
   }
 
   setTheme(themeName) {
-    const validThemes = ['grass', 'snowy', 'night', 'chrome', '8-bit', 'jungle'];
+    const validThemes = ['grass', 'snowy', 'night', 'chrome', '8-bit', 'jungle', 'neon', 'atlantis', 'mixed'];
     if (!validThemes.includes(themeName)) themeName = 'grass';
     this.currentTheme = themeName;
     window.__SIDEHOP_THEME__ = themeName;
@@ -9554,22 +9741,39 @@ class SidehopApp {
       'night': '🌙',
       'chrome': '⚙️',
       '8-bit': '🕹️',
-      'jungle': '🌴'
+      'jungle': '🌴',
+      'neon': '🌆',
+      'atlantis': '🌊',
+      'mixed': '🎨'
     };
-    const themeNames = {
+    const themeDisplayNames = {
       'grass': 'Grass Plains',
       'snowy': 'Snowy Peaks',
       'night': 'Night Horizon',
       'chrome': 'Chrome Future',
       '8-bit': '8-Bit Arcade',
-      'jungle': 'Jungle Canopy'
+      'jungle': 'Jungle Canopy',
+      'neon': 'Neon over Black',
+      'atlantis': 'Atlantis Underwater',
+      'mixed': 'Mixed Media'
+    };
+    const themeToastNames = {
+      'grass': 'Meadows',
+      'snowy': 'Tundra',
+      'night': 'Nightlife',
+      'chrome': 'Chrome',
+      '8-bit': '8-Bit',
+      'jungle': 'Jungle',
+      'neon': 'Neon over Black',
+      'atlantis': 'Atlantis Underwater',
+      'mixed': 'Mixed Media'
     };
     if (themeIcon) themeIcon.textContent = themeIcons[themeName] || '🎨';
-    if (themeLabel) themeLabel.textContent = `${themeNames[themeName] || 'Theme'} ▾`;
+    if (themeLabel) themeLabel.textContent = `${themeDisplayNames[themeName] || 'Theme'} ▾`;
 
     // Save with level
     LevelStorage.autoSave(this.player, this.entities, this.background);
-    this.showToast(`🎨 Theme: ${themeNames[themeName] || themeName}`);
+    this.showToast(`🎨 Theme: ${themeToastNames[themeName] || themeDisplayNames[themeName] || themeName}`);
   }
 
   initStageFrame() {
@@ -9830,9 +10034,63 @@ class SidehopApp {
       return;
     }
 
+    const bgTheme = this.background.theme || 'sky';
     const theme = this.currentTheme || 'grass';
 
+    // If specific atmospheric sky preset selected from Background modal
+    if (bgTheme === 'sunset') {
+      const grad = this.ctx.createLinearGradient(0, 0, 0, h);
+      grad.addColorStop(0, '#E11D48');
+      grad.addColorStop(0.4, '#F97316');
+      grad.addColorStop(0.8, '#FBBF24');
+      grad.addColorStop(1, '#FEF08A');
+      this.ctx.fillStyle = grad;
+      this.ctx.fillRect(0, 0, w, h);
+      this.drawParallaxHills(w, h);
+      return;
+    } else if (bgTheme === 'gray') {
+      const grad = this.ctx.createLinearGradient(0, 0, 0, h);
+      grad.addColorStop(0, '#475569');
+      grad.addColorStop(0.6, '#64748B');
+      grad.addColorStop(1, '#94A3B8');
+      this.ctx.fillStyle = grad;
+      this.ctx.fillRect(0, 0, w, h);
+      this.drawParallaxClouds(w, h);
+      this.drawParallaxHills(w, h);
+      return;
+    } else if (bgTheme === 'neon' || theme === 'neon') {
+      const grad = this.ctx.createLinearGradient(0, 0, 0, h);
+      grad.addColorStop(0, '#0A0014');
+      grad.addColorStop(0.5, '#19002E');
+      grad.addColorStop(1, '#3B0066');
+      this.ctx.fillStyle = grad;
+      this.ctx.fillRect(0, 0, w, h);
+      this.drawChromeGrid(w, h);
+      return;
+    }
+
     switch (theme) {
+      case 'atlantis': {
+        const grad = this.ctx.createLinearGradient(0, 0, 0, h);
+        grad.addColorStop(0, '#021B33');
+        grad.addColorStop(0.55, '#073B63');
+        grad.addColorStop(1, '#0B598F');
+        this.ctx.fillStyle = grad;
+        this.ctx.fillRect(0, 0, w, h);
+        this.drawParallaxHills(w, h);
+        break;
+      }
+      case 'mixed': {
+        const grad = this.ctx.createLinearGradient(0, 0, 0, h);
+        grad.addColorStop(0, '#FDF2D8');
+        grad.addColorStop(0.6, '#F8E3BE');
+        grad.addColorStop(1, '#EDCD9D');
+        this.ctx.fillStyle = grad;
+        this.ctx.fillRect(0, 0, w, h);
+        this.drawParallaxClouds(w, h);
+        this.drawParallaxHills(w, h);
+        break;
+      }
       case 'snowy': {
         const grad = this.ctx.createLinearGradient(0, 0, 0, h);
         grad.addColorStop(0, '#B8DCF5');
@@ -10292,27 +10550,40 @@ class SidehopApp {
     if (variantPicker) {
       variantPicker.innerHTML = '';
       const blockVariants = [
-        { id: 'solid', label: '🧱 Solid' },
+        { id: 'solid', label: '🟩 Solid' },
         { id: 'slope_up', label: '◢ Slope Up' },
         { id: 'slope_down', label: '◣ Slope Down' },
         { id: 'semisolid', label: '🪵 Semi-Solid' },
-        { id: 'slab', label: '🪨 Slab' },
-        { id: 'mega', label: '🏰 Mega 2x2' },
-        { id: 'pipe', label: '🧪 Pipe' },
-        { id: 'donut', label: '🍩 Donut' },
-        { id: 'note', label: '🎵 Note' },
+        { id: 'slab', label: '🪨 Half Slab' },
+        { id: 'mega', label: '❇️ Mega Block' },
+        { id: 'pipe', label: '♻️ Pipe' },
+        { id: 'donut', label: '🍩 Donut Lift' },
+        { id: 'note', label: '🎵 Note Block' },
         { id: 'mystery', label: '❓ Mystery' },
         { id: 'cloud', label: '☁️ Cloud' },
         { id: 'ice', label: '🧊 Ice' },
-        { id: 'stone', label: '🏛️ Stone' }
+        { id: 'stone', label: '🪨 Stone' }
       ];
 
       const variantDefs = {
         block: blockVariants,
         crate: blockVariants,
-        enemy: [{ id: 'walker', label: '🥔 Walker' }, { id: 'winged', label: '🪽 Winged' }, { id: 'spiky', label: '🦔 Spiky' }],
-        collectible: [{ id: 'star', label: '⭐ Star' }, { id: 'coin', label: '🪙 Coin' }, { id: 'heart', label: '❤️ Heart' }, { id: 'pistol', label: '🔫 Pistol' }],
-        springboard: [{ id: 'spring', label: '🌀 Standard' }, { id: 'mega', label: '🚀 Mega' }]
+        enemy: [
+          { id: 'walker', label: '🧌 Walker' },
+          { id: 'winged', label: '🪽 Flyer' },
+          { id: 'spiky', label: '🦔 Spiker' }
+        ],
+        collectible: [
+          { id: 'star', label: '⭐ Star' },
+          { id: 'coin', label: '💰 Coin' },
+          { id: 'heart', label: '❤️ Heart' },
+          { id: 'pistol', label: '🔫 Pistol' },
+          { id: 'ammo', label: '📦 Ammo' }
+        ],
+        springboard: [
+          { id: 'spring', label: '🌀 Spring' },
+          { id: 'mega', label: '🚀 Mega Spring' }
+        ]
       };
 
       const options = variantDefs[ent.type];
@@ -10375,6 +10646,24 @@ class SidehopApp {
     actionCard.style.top = `${top}px`;
   }
 
+  updateScoreUI() {
+    // Score is rendered in real-time in drawHud() every frame
+  }
+
+  updateActionToolbar() {
+    this.updateActionCard(this.editor?.selectedEntity);
+  }
+
+  firePistol() {
+    if (this.player) {
+      const b = this.player.shoot();
+      if (b) {
+        this.bullets.push(b);
+        sounds.playShoot();
+      }
+    }
+  }
+
   // Toast Notification Popup
   showToast(message) {
     const existing = document.querySelector('.sidehop-toast');
@@ -10423,7 +10712,7 @@ class SidehopApp {
         sounds.playCollect();
         this.score += 100;
         this.spawnCoinBounceParticle(block.x + block.width / 2, block.y);
-        this.showToast('🪙 +100 PTS!');
+        this.showToast('🪙 +100 PTS');
       } else {
         // Health Heart, Pistol Gun, or Ammunition Box emerges from top of block
         const itemW = 32;
@@ -10438,10 +10727,10 @@ class SidehopApp {
         this.entities.push(item);
 
         const label = variant === 'pistol'
-          ? '🔫 Gun Powerup!'
+          ? '🔫 Gun Powerup'
           : variant === 'ammo'
-            ? '📦 Ammunition Box!'
-            : '❤️ Health Heart!';
+            ? '📦 Ammunition Box'
+            : '❤️ Health Heart';
         this.showToast(`✨ ${label}`);
       }
     } catch (err) {
@@ -10538,19 +10827,19 @@ class SidehopApp {
       block: {
         title: 'BLOCK & SLOPE TYPES',
         variants: [
-          { id: 'solid', icon: '🧱', name: 'Solid Ground', desc: 'Standard solid block platform', shortName: 'Solid' },
+          { id: 'solid', icon: '🟩', name: 'Solid Ground', desc: 'Standard solid block platform', shortName: 'Solid' },
           { id: 'slope_up', icon: '◢', name: 'Slope Up (45°)', desc: 'Walkable incline hill slant', shortName: 'Slope Up' },
           { id: 'slope_down', icon: '◣', name: 'Slope Down (45°)', desc: 'Walkable decline hill slant', shortName: 'Slope Down' },
-          { id: 'semisolid', icon: '🪵', name: 'Semi-Solid Platform', desc: 'Jump through from below, stand on top', shortName: 'Semi-Solid' },
-          { id: 'slab', icon: '🪨', name: 'Half Slab (40x20)', desc: 'Half-height stepping stone block', shortName: 'Half Slab' },
-          { id: 'mega', icon: '🏰', name: 'Mega Block (80x80)', desc: 'Giant 2x2 fortress block', shortName: 'Mega Block' },
-          { id: 'pipe', icon: '🧪', name: 'Warp Pipe (40x80)', desc: 'Tall iconic 2-tile pipe column', shortName: 'Pipe' },
-          { id: 'donut', icon: '🍩', name: 'Donut Lift', desc: 'Drops and falls when stood upon', shortName: 'Donut Lift' },
-          { id: 'note', icon: '🎵', name: 'Note Block ♪', desc: 'Super bouncy musical trampoline block', shortName: 'Note Block' },
+          { id: 'semisolid', icon: '🪵', name: 'Jump-thru Platform', desc: 'Jump through from below, stand on top', shortName: 'Semi-Solid' },
+          { id: 'slab', icon: '🪨', name: 'Half-Block (40x20)', desc: 'Half-height stepping stone block', shortName: 'Half Slab' },
+          { id: 'mega', icon: '❇️', name: 'Mega Block (80x80)', desc: 'Giant 2x2 fortress block', shortName: 'Mega Block' },
+          { id: 'pipe', icon: '♻️', name: 'Warp Pipe (40x80)', desc: 'Tall iconic 2-tile pipe column', shortName: 'Pipe' },
+          { id: 'donut', icon: '🍩', name: 'Donut Drop', desc: 'Drops and falls when stood upon', shortName: 'Donut Lift' },
+          { id: 'note', icon: '🎵', name: 'Note Block', desc: 'Super bouncy musical trampoline block', shortName: 'Note Block' },
           { id: 'mystery', icon: '❓', name: 'Mystery Block', desc: 'Breakable surprise block [?]', shortName: 'Mystery' },
-          { id: 'ice', icon: '🧊', name: 'Ice Block', desc: 'Low-friction slippery surface', shortName: 'Ice' },
-          { id: 'cloud', icon: '☁️', name: 'Cloud Platform', desc: 'Soft floating cloud block', shortName: 'Cloud' },
-          { id: 'stone', icon: '🏛️', name: 'Castle Stone', desc: 'Chiseled fortress stone masonry', shortName: 'Stone' }
+          { id: 'ice', icon: '🧊', name: 'Sliding Block', desc: 'Low-friction slippery surface', shortName: 'Ice' },
+          { id: 'cloud', icon: '☁️', name: 'Cloud', desc: 'Soft floating cloud block', shortName: 'Cloud' },
+          { id: 'stone', icon: '🪨', name: 'Stone Block', desc: 'Chiseled fortress stone masonry', shortName: 'Stone' }
         ]
       },
       springboard: {
@@ -10563,19 +10852,19 @@ class SidehopApp {
       enemy: {
         title: 'ENEMY TYPES',
         variants: [
-          { id: 'walker', icon: '🥔', name: 'Potato Walker', desc: 'Patrols back and forth on ground', shortName: 'Enemy' },
-          { id: 'winged', icon: '🪽', name: 'Winged Hopper', desc: 'Hops & flutters airborne', shortName: 'Winged' },
-          { id: 'spiky', icon: '🦔', name: 'Armored Spiky', desc: 'Hazardous spines - cannot stomp!', shortName: 'Spiky' }
+          { id: 'walker', icon: '🧌', name: 'Walker', desc: 'Patrols back and forth on ground', shortName: 'Enemy' },
+          { id: 'winged', icon: '🪽', name: 'Flyer', desc: 'Hops & flutters airborne', shortName: 'Winged' },
+          { id: 'spiky', icon: '🦔', name: 'Spiker', desc: "Hazardous spines - can't stomp", shortName: 'Spiky' }
         ]
       },
       collectible: {
         title: 'COLLECTIBLE TYPES',
         variants: [
           { id: 'star', icon: '⭐', name: 'Star Gem', desc: 'Bright glowing star token (+500 pts)', shortName: 'Star' },
-          { id: 'coin', icon: '🪙', name: 'Gold Coin', desc: 'Shiny spinning coin token (+100 pts)', shortName: 'Coin' },
-          { id: 'heart', icon: '❤️', name: 'Health Heart', desc: 'Restores +1 heart of player health', shortName: 'Heart' },
-          { id: 'pistol', icon: '🔫', name: 'Pistol Gun', desc: 'Sidearm blaster weapon (+15 Ammo)', shortName: 'Pistol' },
-          { id: 'ammo', icon: '📦', name: 'Ammunition Box', desc: 'Ammo reload (+15 rounds)', shortName: 'Ammo' }
+          { id: 'coin', icon: '💰', name: 'Gold Coin', desc: 'Shiny spinning coin token (+100 pts)', shortName: 'Coin' },
+          { id: 'heart', icon: '❤️', name: 'Heart', desc: 'Restores +1 heart of player health', shortName: 'Heart' },
+          { id: 'pistol', icon: '🔫', name: 'Gun', desc: 'Sidearm blaster weapon (+15 Ammo)', shortName: 'Pistol' },
+          { id: 'ammo', icon: '📦', name: 'Ammunition', desc: 'Ammo reload (+15 rounds)', shortName: 'Ammo' }
         ]
       }
     };
@@ -10852,7 +11141,7 @@ class SidehopApp {
       });
       SidehopFile.download(`${this.background.theme}-background.sidehop`, pkg);
       sounds.playCollect();
-      this.showToast('💾 Exported Background (.sidehop)!');
+      this.showToast('💾 Exported Background (.sidehop)');
     });
 
     const bgSidehopUpload = document.getElementById('bg-sidehop-upload');
@@ -10876,9 +11165,11 @@ class SidehopApp {
               bgThemeCards.forEach(c => c.classList.remove('active'));
               const customStatus = document.getElementById('bg-custom-status');
               if (customStatus) customStatus.style.display = 'block';
+              const clearBtn = document.getElementById('bg-clear-custom-btn');
+              if (clearBtn) clearBtn.style.display = 'inline-flex';
               LevelStorage.autoSave(this.player, this.entities, this.background);
               sounds.playCollect();
-              this.showToast('🌄 Loaded .sidehop Background!');
+              this.showToast('🌄 Loaded .sidehop Background');
             }
           } catch (err) {
             console.warn('Background import error:', err);
@@ -10888,24 +11179,44 @@ class SidehopApp {
       }
     });
 
+    // Clear Custom Art Background button
+    document.getElementById('bg-clear-custom-btn')?.addEventListener('click', () => {
+      this.background.theme = 'sky';
+      this.background.customImage = null;
+      this.background.customImageElement = null;
+      const customStatus = document.getElementById('bg-custom-status');
+      if (customStatus) customStatus.style.display = 'none';
+      const clearBtn = document.getElementById('bg-clear-custom-btn');
+      if (clearBtn) clearBtn.style.display = 'none';
+      bgThemeCards.forEach(c => c.classList.toggle('active', c.getAttribute('data-bg-theme') === 'sky'));
+      sounds.playClick();
+      LevelStorage.autoSave(this.player, this.entities, this.background);
+    });
+
+    // Clear Art Studio Canvas button
+    document.getElementById('paint-clear-canvas-btn')?.addEventListener('click', () => {
+      this.artStudio.clearCanvas();
+      sounds.playPaintSquish();
+    });
+
     // 5. Presets & .sidehop Level Management
     document.getElementById('load-preset-btn').addEventListener('click', () => {
       this.loadStarterWorld();
       sounds.playLand();
-      this.showToast('🔄 World Reset to Default!');
+      this.showToast('🔄 World Reset to Default');
     });
 
     document.getElementById('export-level-btn').addEventListener('click', () => {
       LevelStorage.exportLevel(this.player, this.entities, this.background);
       sounds.playCollect();
-      this.showToast('💾 Level Exported (.sidehop)!');
+      this.showToast('💾 Level Exported (.sidehop)');
     });
 
     document.getElementById('export-html-btn')?.addEventListener('click', async () => {
       sounds.playCollect();
       this.showToast('🌐 Generating Standalone HTML Web Game...');
       await LevelStorage.exportStandaloneHtml(this.player, this.entities, this.background, this.currentTheme, 'Sidehop Game');
-      this.showToast('✅ Downloaded Standalone HTML Web Game!');
+      this.showToast('✅ Downloaded Standalone HTML Web Game');
     });
 
     const importInput = document.getElementById('import-file-input');
@@ -11689,7 +12000,7 @@ class SidehopApp {
                 this.spawnHurtParticles(this.player.x + this.player.width / 2, this.player.y + this.player.height / 2);
                 if (hadPistol) {
                   this.spawnPistolLostParticles(this.player.x + this.player.width / 2, this.player.y + this.player.height / 2);
-                  this.showToast('💥 Lost Pistol Powerup!');
+                  this.showToast('💥 Pistol Powerup');
                 }
                 if (this.player.hearts <= 0) {
                   this.player.respawn();
@@ -11727,7 +12038,7 @@ class SidehopApp {
                   this.spawnHurtParticles(this.player.x + this.player.width / 2, this.player.y + this.player.height / 2);
                   if (hadPistol) {
                     this.spawnPistolLostParticles(this.player.x + this.player.width / 2, this.player.y + this.player.height / 2);
-                    this.showToast('💥 Lost Pistol Powerup!');
+                    this.showToast('💥 Pistol Powerup');
                   }
                   if (this.player.hearts <= 0) {
                     this.player.respawn();
@@ -11768,7 +12079,7 @@ class SidehopApp {
                 this.player.ammo = (this.player.ammo || 0) + 15;
                 this.gunPickedUpInLevel = true;
                 this.score += 300;
-                this.showToast('🔫 Pistol Acquired! (+15 Ammo) [F/X to Shoot]');
+                this.showToast('🔫 Gun! (+15 Ammo) [F/X to Shoot]');
               } else if (isAmmo) {
                 this.player.hasPistol = true;
                 this.player.ammo = (this.player.ammo || 0) + 15;
@@ -11778,7 +12089,7 @@ class SidehopApp {
               } else if (ent.variant === 'heart') {
                 this.player.hearts = Math.min(this.player.maxHearts, this.player.hearts + 1);
                 this.score += 200;
-                this.showToast('❤️ +1 Heart!');
+                this.showToast('❤️ +1 Heart');
               } else if (ent.variant === 'star') {
                 this.score += 500;
               } else {
@@ -12063,15 +12374,14 @@ class SidehopApp {
       this.ctx.fill();
       this.ctx.stroke();
 
-      // Gun icon & Ammo Count
+      // Ammo label & count
+      this.ctx.font = '700 11px "Fredoka", sans-serif';
+      this.ctx.fillStyle = '#777777';
+      this.ctx.fillText('AMMO', ammoX + 16, ammoY + 19);
+
       this.ctx.font = '900 16px "Fredoka", sans-serif';
       this.ctx.fillStyle = '#121212';
-      this.ctx.fillText(`🔫 ${this.player.ammo} RDS`, ammoX + 12, ammoY + 28);
-
-      // Key prompt
-      this.ctx.font = '700 10px "Fredoka", sans-serif';
-      this.ctx.fillStyle = '#555555';
-      this.ctx.fillText('[F / X / Click]', ammoX + 14, ammoY + 42);
+      this.ctx.fillText(`${this.player.ammo} ROUNDS`, ammoX + 16, ammoY + 39);
     }
 
     this.ctx.restore();

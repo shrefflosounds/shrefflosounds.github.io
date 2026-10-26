@@ -17,12 +17,12 @@ export class SidehopFile {
         creator: metadata.creator || "John O'Brien",
         createdAt: new Date().toISOString(),
         app: 'Sidehop',
-        description: metadata.description || '2D Platformer Level created in Sidehop',
+        description: metadata.description || 'Platformer level created with Sidehop',
         tags: metadata.tags || ['level', 'platformer']
       },
       level: {
         version: levelData.version || 2,
-        name: levelData.name || 'My Sidehop Level',
+        name: levelData.name || 'Starter World',
         background: levelData.background || { theme: 'sky', customImage: null },
         player: levelData.player,
         entities: levelData.entities || []
