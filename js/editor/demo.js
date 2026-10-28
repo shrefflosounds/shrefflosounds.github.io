@@ -1,8 +1,7 @@
-// Sidehop Built-in Interactive Feature Tour & Automation Demo
-// Drives all major and minor features safely without modifying or damaging user work.
+// Sidehop Interactive Feature & Options Pointer Tour
+// Blatantly points out every feature, explains what it does, and shows all of its options non-destructively.
 
 import { sounds } from '../audio/sound.js';
-import { SolidBlock, EnemyWalker, Collectible, Springboard } from '../engine/entities.js?v=20261027_221448';
 
 export class SidehopDemo {
   constructor(app) {
@@ -11,214 +10,249 @@ export class SidehopDemo {
     this.isPaused = false;
     this.currentStep = 0;
     this.timers = [];
-    this.userBackup = null;
     this.bannerEl = null;
     this.cursorEl = null;
-    this.demoEntities = [];
+    this.ringEl = null;
+    this.calloutEl = null;
 
     this.steps = [
       {
-        id: 'welcome',
-        title: '🌟 Welcome to Sidehop',
-        desc: 'Build, paint, tune, and play 2D platformers right in your browser. Welcome to this quick tour of every major feature',
-        duration: 3800
+        id: 'tools',
+        badge: 'FEATURE 1 OF 10 • TOOLS',
+        title: '🛠️ Workbench Cursor Tools',
+        targetSelector: '#tool-drawer .palette-grid:first-of-type',
+        pointerSelector: '[data-tool="select"]',
+        what: 'Controls how your mouse interacts with the level canvas in Edit Mode.',
+        options: [
+          '<strong>👆 Select (Key 1):</strong> Click any block, enemy, or character to drag-move it or open its quick action bar.',
+          '<strong>⬚ Box Select (Key 5 / Shift+Drag):</strong> Drag a selection box around multiple items to move or delete them together.',
+          '<strong>🖌️ Place (Key 2):</strong> Click or drag across the grid to stamp the currently active component.',
+          '<strong>✋ Pan (Key 3 / Hold Space+Drag):</strong> Grab and scroll around your level map.',
+          '<strong>🧹 Eraser (Key 4):</strong> Click or drag over placed items to remove them.'
+        ],
+        duration: 6500,
+        onEnter: () => {
+          this.app.closeComponentFlyout?.();
+          this.closeAllModals();
+        }
       },
       {
         id: 'blocks',
-        title: '🧱 Components, Types & Blocks',
-        desc: 'Choose from 13 block styles: Solid blocks, angled slopes, moving platforms, etc.',
-        duration: 5200
+        badge: 'FEATURE 2 OF 10 • TERRAIN & BLOCKS',
+        title: '🧱 Blocks, Slopes & Interactive Tiles',
+        targetSelector: '[data-palette="block"]',
+        pointerSelector: '[data-triangle="block"]',
+        what: 'Builds your level terrain. Click the ▾ corner arrow on the Block tile to pick from 4 categories of blocks and 45° slopes!',
+        options: [
+          '<strong>🧱 Ground & Slopes:</strong> Standard Ground plus 45° Floor Slopes (◢ ◣) and Ceiling Slopes (◤ ◥) that auto-blend seamlessly.',
+          '<strong>🪨 Castle Stone:</strong> Heavy masonry blocks and matching 45° Stone Floor & Ceiling Slopes.',
+          '<strong>🧊 Slippery Ice:</strong> Low-friction sliding ice blocks and 45° Ice Slopes.',
+          '<strong>✨ Special Blocks:</strong> ❓ Mystery Block (spawns Coin, Heart, or Gun), ♪ Musical Note Block (plays scale + super bounce), 🍩 Donut Lift (shakes & drops), 🪵 Semi-Solid, ☁️ Cloud, 🪨 Half Slab, ❇️ Mega Block, and ♻️ Pipe.'
+        ],
+        duration: 7500,
+        onEnter: () => {
+          this.closeAllModals();
+          const triBtn = document.querySelector('[data-triangle="block"]');
+          if (triBtn && this.app.openComponentFlyout) {
+            this.app.activeFlyoutItem = null;
+            this.app.openComponentFlyout('block', triBtn);
+          }
+        }
       },
       {
-        id: 'items',
-        title: '⭐ Powerups, Weapons & Enemies',
-        desc: 'Place Coins, Hearts, Guns, and other fun things',
-        duration: 4800
+        id: 'springs_platforms',
+        badge: 'FEATURE 3 OF 10 • MOVEMENT & HAZARDS',
+        title: '🚀 Springs, Moving Platforms & Spikes',
+        targetSelector: '[data-palette="springboard"]',
+        pointerSelector: '[data-triangle="springboard"]',
+        what: 'Adds vertical launch pads, moving bridges, and spike hazards to create platforming challenges.',
+        options: [
+          '<strong>🚀 Standard Spring:</strong> Bounces the player upward (hold W / Up / Space while bouncing for 25% extra launch height!).',
+          '<strong>💥 Mega Trampoline:</strong> Launches the player high into the sky (click ▾ on Spring to switch).',
+          '<strong>↔️ Moving Platform:</strong> Glides back and forth — tune its Axis (Horizontal / Vertical), Speed, and Distance.',
+          '<strong>⚠️ Hazard Spikes:</strong> Deals 1 heart of damage with knockback when touched.'
+        ],
+        duration: 6800,
+        onEnter: () => {
+          this.closeAllModals();
+          const triBtn = document.querySelector('[data-triangle="springboard"]');
+          if (triBtn && this.app.openComponentFlyout) {
+            this.app.activeFlyoutItem = null;
+            this.app.openComponentFlyout('springboard', triBtn);
+          }
+        }
       },
       {
-        id: 'tuning',
-        title: '🎛️ Real-Time Physics Tuning',
-        desc: 'Tune Running, Jumping, Gravity, Weight, Bounciness, and more component attributes',
-        duration: 4600
+        id: 'enemies',
+        badge: 'FEATURE 4 OF 10 • ENEMIES',
+        title: '👾 Patrolling Enemy Types',
+        targetSelector: '[data-palette="enemy"]',
+        pointerSelector: '[data-triangle="enemy"]',
+        what: 'Places AI enemies that patrol your level. Click the ▾ corner arrow on Enemy to switch between 3 distinct enemy behaviors.',
+        options: [
+          '<strong>🧌 Walker:</strong> Patrols left and right along the ground — jump on its head to stomp it!',
+          '<strong>🪽 Flyer (Winged Hopper):</strong> Flutters and hops through the air — stompable from above.',
+          '<strong>🦔 Spiker (Armored):</strong> Covered in sharp spines — cannot be stomped! Shoot it with the Gun powerup.',
+          '<strong>🎛️ Tunable AI:</strong> Select any enemy on the canvas to tune its Patrol Speed, Patrol Distance, and Stompable toggle.'
+        ],
+        duration: 6800,
+        onEnter: () => {
+          this.closeAllModals();
+          const triBtn = document.querySelector('[data-triangle="enemy"]');
+          if (triBtn && this.app.openComponentFlyout) {
+            this.app.activeFlyoutItem = null;
+            this.app.openComponentFlyout('enemy', triBtn);
+          }
+        }
       },
       {
-        id: 'art',
-        title: '🎨 Art Studio',
-        desc: 'Draw characters, blocks, or import any photo or GIF into your creation',
-        duration: 4800
+        id: 'collectibles',
+        badge: 'FEATURE 5 OF 10 • ITEMS & WEAPONS',
+        title: '🪙 Collectibles, Health & Gun Powerup',
+        targetSelector: '[data-palette="collectible"]',
+        pointerSelector: '[data-triangle="collectible"]',
+        what: 'Rewards exploration, heals damage, and arms the player with a blaster pistol. Click ▾ on Coin/Item to see all 5 pickups.',
+        options: [
+          '<strong>💰 Gold Coin (+100 PTS) & ⭐ Star Gem (+500 PTS):</strong> Score pickups floating in the air.',
+          '<strong>❤️ Heart Pickup:</strong> Restores +1 depleted heart of player health.',
+          '<strong>🔫 Gun Powerup:</strong> Equips the player with a blaster pistol (+15 rounds). Press <strong>F</strong> or <strong>X</strong> in Play Mode to shoot enemies!',
+          '<strong>📦 Ammunition Box:</strong> Reloads +15 extra blaster rounds.'
+        ],
+        duration: 6800,
+        onEnter: () => {
+          this.closeAllModals();
+          const triBtn = document.querySelector('[data-triangle="collectible"]');
+          if (triBtn && this.app.openComponentFlyout) {
+            this.app.activeFlyoutItem = null;
+            this.app.openComponentFlyout('collectible', triBtn);
+          }
+        }
       },
       {
-        id: 'backgrounds',
-        title: '🌄 Themes',
-        desc: 'Transform visuals with themes like: Tundra, Neon, Chrome, and more',
-        duration: 4200
+        id: 'selection_tuning',
+        badge: 'FEATURE 6 OF 10 • INSPECTOR & TUNING',
+        title: '🎛️ Selection Action Bar & Physics Tuning',
+        targetSelector: '#entity-action-card',
+        pointerSelector: '#action-tune-btn',
+        what: 'Clicking any object on the canvas opens this floating Action Bar to Duplicate, Copy, Paint, Tune Physics, or Switch Variants.',
+        options: [
+          '<strong>📑 Duplicate (⌘D) & 📋 Copy (⌘C):</strong> Quickly clone any configured block, enemy, or platform.',
+          '<strong>🎨 Paint Art:</strong> Open the Art Studio for the selected item to recolor it or draw custom art.',
+          '<strong>🎛️ Tune Physics:</strong> Adjust Player Speed, Jump Force, Gravity, Max Hearts, & Double Jump — or Block Bounciness, Friction, and Mystery Block contents!',
+          '<strong>🗑️ Delete (Backspace):</strong> Remove the selected component.'
+        ],
+        duration: 7200,
+        onEnter: () => {
+          this.app.closeComponentFlyout?.();
+          this.closeAllModals();
+          this.app.camera.recenter(this.app.player.x, this.app.player.y);
+          this.app.editor.selectedEntity = this.app.player;
+          this.app.updateActionCard(this.app.player);
+        }
       },
       {
-        id: 'playtest',
-        title: '🎮 Realtime Edit and Play',
-        desc: 'Seamlessly switch from Play Mode to Edit Mode for quick edits and playtests',
-        duration: 6500
+        id: 'character_art',
+        badge: 'FEATURE 7 OF 10 • ART STUDIO',
+        title: '🐰 Character & Block Art Studio',
+        targetSelector: '#character-edit-btn',
+        pointerSelector: '#character-edit-btn',
+        what: 'Customize your hero sprite or any block with built-in drawing tools, component tint colors, or imported images/GIFs.',
+        options: [
+          '<strong>🖌️ Drawing Tools:</strong> Freehand Brush, Translucent Marker, Precision Eraser, and 6 Brush Sizes.',
+          '<strong>⭐ Fun Stamps:</strong> Stamp Stars, Hearts, Cartoon Eyes, Lightning Bolts, Smiles, Crowns, Flames, and Skulls.',
+          '<strong>🎨 Component Color Tint:</strong> Recolor the starter artwork of any block, character, or flag with one click.',
+          '<strong>🖼️ Import Photo or Animated GIF:</strong> Upload any PNG, JPG, WebP, or animated GIF directly onto your character or block!'
+        ],
+        duration: 7000,
+        onEnter: () => {
+          this.app.closeComponentFlyout?.();
+          this.closeAllModals();
+        }
       },
       {
-        id: 'recording',
-        title: '🎥 Video Recording & .sidehop Sharing',
-        desc: 'Screen Capture with one click, or export easily shareable ".sidehop" files or standalone html',
-        duration: 4000
+        id: 'themes_backgrounds',
+        badge: 'FEATURE 8 OF 10 • THEMES & BACKGROUNDS',
+        title: '🎨 9 World Themes & Sky Backgrounds',
+        targetSelector: '#theme-selector-btn',
+        pointerSelector: '#theme-selector-btn',
+        what: 'Transform your entire game aesthetic — restyling the workbench UI, animated parallax sky, and block surface textures.',
+        options: [
+          '<strong>🌱 Light & Classic Themes:</strong> Sunny Meadows (Grass), Snowy Tundra, Cyber Chrome, 8-Bit Arcade, Lush Jungle, and Mixed Media Collage.',
+          '<strong>🌙 Dark High-Contrast Themes:</strong> Starlit Night, Neon Over Black, and Atlantis Underwater.',
+          '<strong>🌄 Background Button:</strong> Choose sky presets (Sunny Sky, Warm Sunset, Midnight Stars, Blueprint Grid), draw a custom backdrop, or upload an image.'
+        ],
+        duration: 7000,
+        onEnter: () => {
+          this.app.closeComponentFlyout?.();
+          this.closeAllModals();
+        }
+      },
+      {
+        id: 'play_fill_rec',
+        badge: 'FEATURE 9 OF 10 • PLAY, FILL & RECORD',
+        title: '▶ Play Test, Fullscreen Fill & Video Recorder',
+        targetSelector: '#mode-toggle-btn',
+        pointerSelector: '#mode-toggle-btn',
+        what: 'Instantly test your level, expand the stage to fill your screen, or record a gameplay video clip.',
+        options: [
+          '<strong>▶ PLAY TEST (Spacebar):</strong> Switch between Edit Mode and live Play Mode (WASD / Arrows to move & jump, F / X to shoot).',
+          '<strong>⤢ FILL:</strong> Expands the canvas frame to fill your entire browser window.',
+          '<strong>● REC:</strong> Records a live .webm video clip of your gameplay with synthesized audio ready to download.',
+          '<strong>🔊 Sound & ↩ Undo / ↪ Redo:</strong> Toggle retro synth sound effects or step backward/forward through edits.'
+        ],
+        duration: 7000,
+        onEnter: () => {
+          this.app.closeComponentFlyout?.();
+          this.closeAllModals();
+        }
+      },
+      {
+        id: 'save_export',
+        badge: 'FEATURE 10 OF 10 • SAVE & SHARE',
+        title: '🌐 Save .sidehop & Export Standalone HTML Game',
+        targetSelector: '#export-html-btn',
+        pointerSelector: '#export-html-btn',
+        what: 'Your work auto-saves in your browser, and you can export portable files or a complete standalone web game anytime.',
+        options: [
+          '<strong>💾 .sidehop:</strong> Saves your level (including custom art & physics) as a compact .sidehop file.',
+          '<strong>📂 Import (or Drag & Drop):</strong> Load any .sidehop file right back into the editor.',
+          '<strong>🌐 Save HTML:</strong> Exports a single, self-contained .html game file that anyone can play offline in any browser with zero setup!',
+          '<strong>🔄 Reset:</strong> Restores the default Starter World layout.'
+        ],
+        duration: 7000,
+        onEnter: () => {
+          this.app.closeComponentFlyout?.();
+          this.closeAllModals();
+        }
       }
     ];
 
-    // Listen for Escape key to exit demo anytime
     window.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && this.isActive) {
-        this.stop(true);
+      if (!this.isActive) return;
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        this.stop();
+      } else if (e.key === 'ArrowRight') {
+        e.preventDefault();
+        this.nextStep();
+      } else if (e.key === 'ArrowLeft') {
+        e.preventDefault();
+        this.prevStep();
+      }
+    });
+
+    window.addEventListener('resize', () => {
+      if (this.isActive) {
+        this.positionSpotlightAndCallout(this.steps[this.currentStep]);
       }
     });
   }
 
-  // Backup complete user workspace state
-  saveUserState() {
-    const app = this.app;
-    this.userBackup = {
-      entitiesData: app.entities.map(ent => ({
-        id: ent.id,
-        type: ent.type,
-        x: ent.x,
-        y: ent.y,
-        width: ent.width,
-        height: ent.height,
-        variant: ent.variant,
-        content: ent.content,
-        bounciness: ent.bounciness,
-        friction: ent.friction,
-        isOneWay: ent.isOneWay,
-        speed: ent.speed,
-        jumpForce: ent.jumpForce,
-        gravityScale: ent.gravityScale,
-        maxHearts: ent.maxHearts,
-        hearts: ent.hearts,
-        doubleJumpAllowed: ent.doubleJumpAllowed,
-        patrolRange: ent.patrolRange,
-        stompable: ent.stompable,
-        distance: ent.distance,
-        axis: ent.axis,
-        customVisual: ent.customVisual
-      })),
-      player: {
-        x: app.player.x,
-        y: app.player.y,
-        speed: app.player.speed,
-        jumpForce: app.player.jumpForce,
-        gravityScale: app.player.gravityScale,
-        maxHearts: app.player.maxHearts,
-        hearts: app.player.hearts,
-        doubleJumpAllowed: app.player.doubleJumpAllowed,
-        customVisual: app.player.customVisual
-      },
-      background: {
-        theme: app.background.theme,
-        customImage: app.background.customImage
-      },
-      camera: {
-        x: app.camera.x,
-        y: app.camera.y,
-        zoom: app.camera.zoom
-      },
-      mode: app.mode,
-      score: app.score,
-      coins: app.coins,
-      ammo: app.ammo,
-      gunPickedUpInLevel: app.gunPickedUpInLevel,
-      undoStack: [...app.history.undoStack],
-      redoStack: [...app.history.redoStack]
-    };
-  }
-
-  // Restore user workspace state without losing any edits
-  restoreUserState() {
-    if (!this.userBackup) return;
-    const app = this.app;
-    const b = this.userBackup;
-
-    // Reset mode
-    if (app.mode !== b.mode) {
-      if (b.mode === 'edit' && app.mode === 'play') {
-        app.toggleMode();
-      } else if (b.mode === 'play' && app.mode === 'edit') {
-        app.toggleMode();
-      }
-    }
-
-    // Reconstruct entities
-    app.entities = [];
-    for (const d of b.entitiesData) {
-      let ent = null;
-      if (d.type === 'crate') {
-        ent = new SolidBlock(d.x, d.y, d.width, d.height, d.variant, d.content);
-        if (d.bounciness !== undefined) ent.bounciness = d.bounciness;
-        if (d.friction !== undefined) ent.friction = d.friction;
-      } else if (d.type === 'enemy') {
-        ent = new EnemyWalker(d.x, d.y, d.width, d.height, d.variant);
-        if (d.speed !== undefined) ent.speed = d.speed;
-        if (d.patrolRange !== undefined) ent.patrolRange = d.patrolRange;
-        if (d.stompable !== undefined) ent.stompable = d.stompable;
-      } else if (d.type === 'collectible') {
-        ent = new Collectible(d.x, d.y, d.width, d.height, d.variant);
-      } else if (d.type === 'springboard') {
-        ent = new Springboard(d.x, d.y, d.width, d.height, d.variant);
-      } else if (window.MovingPlatform && d.type === 'moving_platform') {
-        ent = new window.MovingPlatform(d.x, d.y, d.width, d.height);
-      } else if (window.HazardSpikes && d.type === 'hazard') {
-        ent = new window.HazardSpikes(d.x, d.y, d.width, d.height);
-      } else if (window.GoalFlag && d.type === 'goal') {
-        ent = new window.GoalFlag(d.x, d.y, d.width, d.height);
-      }
-
-      if (ent) {
-        if (d.customVisual) ent.setCustomVisual(d.customVisual);
-        app.entities.push(ent);
-      }
-    }
-
-    // Restore player
-    app.player.x = b.player.x;
-    app.player.y = b.player.y;
-    app.player.vx = 0;
-    app.player.vy = 0;
-    app.player.speed = b.player.speed;
-    app.player.jumpForce = b.player.jumpForce;
-    app.player.gravityScale = b.player.gravityScale;
-    app.player.maxHearts = b.player.maxHearts;
-    app.player.hearts = b.player.hearts;
-    app.player.doubleJumpAllowed = b.player.doubleJumpAllowed;
-    app.player.setCustomVisual(b.player.customVisual);
-
-    // Restore background & camera
-    app.applyBackground(b.background);
-    app.camera.x = b.camera.x;
-    app.camera.y = b.camera.y;
-    app.camera.zoom = b.camera.zoom;
-
-    // Restore score & inventory
-    app.score = b.score;
-    app.coins = b.coins;
-    app.ammo = b.ammo;
-    app.gunPickedUpInLevel = b.gunPickedUpInLevel;
-    if (app.updateScoreUI) app.updateScoreUI();
-
-    // Restore history
-    app.history.undoStack = b.undoStack;
-    app.history.redoStack = b.redoStack;
-    if (app.history.updateButtons) app.history.updateButtons();
-    else if (app.history.notifyChange) app.history.notifyChange();
-
-    // Deselect all
-    app.editor.selectedEntity = null;
-    app.editor.selectedEntities = [];
-    app.updateActionToolbar();
-
-    if (SolidBlock.updateTerrainMap) {
-      SolidBlock.updateTerrainMap(app.entities);
-    }
+  closeAllModals() {
+    document.querySelectorAll('dialog[open]').forEach(d => d.close());
+    document.querySelectorAll('.neo-modal-overlay.active').forEach(m => m.classList.remove('active'));
+    const card = document.getElementById('entity-action-card');
+    if (card) card.classList.remove('active');
   }
 
   schedule(fn, delay) {
@@ -235,34 +269,39 @@ export class SidehopDemo {
   }
 
   start() {
-    if (this.isActive) return;
+    if (this.isActive) {
+      this.stop();
+      return;
+    }
 
-    // Close any active dialogs
-    document.querySelectorAll('dialog[open]').forEach(d => d.close());
-    document.querySelectorAll('.neo-modal-overlay.active').forEach(m => m.classList.remove('active'));
+    // Ensure we are in Edit Mode so all workbench controls are visible
+    if (this.app.mode === 'play') {
+      this.app.toggleMode();
+    }
 
-    this.saveUserState();
+    this.closeAllModals();
+    this.app.closeComponentFlyout?.();
+
     this.isActive = true;
     this.isPaused = false;
     this.app.isDemoActive = true;
     this.currentStep = 0;
 
-    // Ensure we start in Edit Mode
-    if (this.app.mode === 'play') {
-      this.app.toggleMode();
-    }
-
     this.createUI();
-    if (sounds.playFanfare) sounds.playFanfare();
-    else if (sounds.playVictory) sounds.playVictory();
-    this.app.showToast('🎬 Sidehop Interactive Tour Started!');
+    sounds.playClick();
+    this.app.showToast('🎬 Feature Guide Started! Use Next/Prev or Arrow Keys.');
 
     this.runStep(0);
   }
 
-  stop(restore = true) {
+  stop() {
     if (!this.isActive) return;
     this.clearTimers();
+
+    this.app.closeComponentFlyout?.();
+    this.closeAllModals();
+    this.app.editor.selectedEntity = null;
+    this.app.editor.selectedEntities = [];
 
     if (this.bannerEl) {
       this.bannerEl.remove();
@@ -272,43 +311,71 @@ export class SidehopDemo {
       this.cursorEl.remove();
       this.cursorEl = null;
     }
-
-    if (restore) {
-      this.restoreUserState();
+    if (this.ringEl) {
+      this.ringEl.remove();
+      this.ringEl = null;
+    }
+    if (this.calloutEl) {
+      this.calloutEl.remove();
+      this.calloutEl = null;
     }
 
     this.isActive = false;
     this.app.isDemoActive = false;
     sounds.playClick();
-    this.app.showToast('✨ Tour Finished! Canvas restored to your workspace.');
+    this.app.showToast('✨ Feature Guide Closed');
   }
 
   createUI() {
-    // Top floating demo control bar
+    // 1. Top floating control banner
     this.bannerEl = document.createElement('div');
     this.bannerEl.className = 'demo-tour-banner';
     this.bannerEl.innerHTML = `
       <div class="demo-banner-left">
-        <span class="demo-badge">🎬 SIDEHOP DEMO</span>
-        <span class="demo-step-counter" id="demo-step-counter">STEP 1 OF 8</span>
-        <span class="demo-step-title" id="demo-step-title">Welcome to Sidehop</span>
+        <span class="demo-badge">🎬 FEATURE GUIDE</span>
+        <span class="demo-step-counter" id="demo-step-counter">1 / ${this.steps.length}</span>
+        <span class="demo-step-title" id="demo-step-title"></span>
       </div>
-      <div class="demo-banner-center" id="demo-step-desc">
-        Watch as we drive all major features of Sidehop automatically!
-      </div>
+      <div class="demo-banner-center" id="demo-step-desc"></div>
       <div class="demo-banner-actions">
-        <button id="demo-prev-btn" class="demo-btn-sm" title="Previous step">⏮️</button>
-        <button id="demo-next-btn" class="demo-btn-sm" title="Next step">⏭️ Next</button>
-        <button id="demo-exit-btn" class="demo-btn-sm demo-exit" title="Exit Tour (Escape)">Stop Demo ✕</button>
+        <button id="demo-prev-btn" class="demo-btn-sm" title="Previous Feature (←)">← Prev</button>
+        <button id="demo-pause-btn" class="demo-btn-sm" title="Pause / Resume Auto-Advance">⏸ Pause</button>
+        <button id="demo-next-btn" class="demo-btn-sm" title="Next Feature (→)">Next →</button>
+        <button id="demo-exit-btn" class="demo-btn-sm demo-exit" title="Exit Guide (Esc)">Done ✕</button>
       </div>
     `;
+    this.bannerEl.addEventListener('click', (e) => e.stopPropagation());
     document.body.appendChild(this.bannerEl);
 
-    document.getElementById('demo-prev-btn')?.addEventListener('click', () => this.prevStep());
-    document.getElementById('demo-next-btn')?.addEventListener('click', () => this.nextStep());
-    document.getElementById('demo-exit-btn')?.addEventListener('click', () => this.stop(true));
+    document.getElementById('demo-prev-btn')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      this.prevStep();
+    });
+    document.getElementById('demo-pause-btn')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      this.togglePause();
+    });
+    document.getElementById('demo-next-btn')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      this.nextStep();
+    });
+    document.getElementById('demo-exit-btn')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      this.stop();
+    });
 
-    // Animated Ghost Pointer
+    // 2. Spotlight highlight ring around target element
+    this.ringEl = document.createElement('div');
+    this.ringEl.className = 'demo-spotlight-ring';
+    document.body.appendChild(this.ringEl);
+
+    // 3. Blatant Feature Callout Card anchored near the target
+    this.calloutEl = document.createElement('div');
+    this.calloutEl.className = 'demo-callout-card';
+    this.calloutEl.addEventListener('click', (e) => e.stopPropagation());
+    document.body.appendChild(this.calloutEl);
+
+    // 4. Animated Ghost Pointer
     this.cursorEl = document.createElement('div');
     this.cursorEl.className = 'demo-ghost-cursor';
     this.cursorEl.innerHTML = `
@@ -316,36 +383,25 @@ export class SidehopDemo {
       <div class="cursor-ripple"></div>
     `;
     document.body.appendChild(this.cursorEl);
-    this.moveCursor(window.innerWidth / 2, window.innerHeight / 2);
   }
 
-  moveCursor(targetX, targetY, callback) {
-    if (!this.cursorEl) return;
-    this.cursorEl.style.transform = `translate3d(${targetX}px, ${targetY}px, 0)`;
-    if (callback) {
-      this.schedule(callback, 500);
+  togglePause() {
+    this.isPaused = !this.isPaused;
+    const pauseBtn = document.getElementById('demo-pause-btn');
+    const cardPauseBtn = document.getElementById('demo-card-pause-btn');
+    const label = this.isPaused ? '▶ Auto' : '⏸ Pause';
+    if (pauseBtn) pauseBtn.textContent = label;
+    if (cardPauseBtn) cardPauseBtn.textContent = label;
+
+    if (this.isPaused) {
+      this.clearTimers();
+    } else {
+      const step = this.steps[this.currentStep];
+      if (step) {
+        this.schedule(() => this.nextStep(), step.duration || 6500);
+      }
     }
-  }
-
-  clickAt(targetX, targetY, callback) {
-    this.moveCursor(targetX, targetY, () => {
-      if (!this.cursorEl) return;
-      this.cursorEl.classList.add('clicking');
-      sounds.playClick();
-      this.schedule(() => {
-        if (this.cursorEl) this.cursorEl.classList.remove('clicking');
-        if (callback) callback();
-      }, 200);
-    });
-  }
-
-  updateBanner(step) {
-    const counter = document.getElementById('demo-step-counter');
-    const title = document.getElementById('demo-step-title');
-    const desc = document.getElementById('demo-step-desc');
-    if (counter) counter.textContent = `STEP ${this.currentStep + 1} OF ${this.steps.length}`;
-    if (title) title.textContent = step.title;
-    if (desc) desc.textContent = step.desc;
+    sounds.playClick();
   }
 
   nextStep() {
@@ -353,7 +409,7 @@ export class SidehopDemo {
     if (this.currentStep < this.steps.length - 1) {
       this.runStep(this.currentStep + 1);
     } else {
-      this.stop(true);
+      this.stop();
     }
   }
 
@@ -369,288 +425,185 @@ export class SidehopDemo {
     const step = this.steps[index];
     if (!step) return;
 
-    this.updateBanner(step);
+    this.clearTimers();
+    sounds.playClick();
 
-    switch (step.id) {
-      case 'welcome':
-        this.stepWelcome();
-        break;
-      case 'blocks':
-        this.stepBlocks();
-        break;
-      case 'items':
-        this.stepItems();
-        break;
-      case 'tuning':
-        this.stepTuning();
-        break;
-      case 'art':
-        this.stepArtStudio();
-        break;
-      case 'backgrounds':
-        this.stepBackgrounds();
-        break;
-      case 'playtest':
-        this.stepPlaytest();
-        break;
-      case 'recording':
-        this.stepRecording();
-        break;
+    if (typeof step.onEnter === 'function') {
+      step.onEnter();
+    }
+
+    // Update top banner
+    const counter = document.getElementById('demo-step-counter');
+    const title = document.getElementById('demo-step-title');
+    const desc = document.getElementById('demo-step-desc');
+    if (counter) counter.textContent = `${index + 1} / ${this.steps.length}`;
+    if (title) title.textContent = step.title;
+    if (desc) desc.textContent = step.what;
+
+    // Render Callout Card contents
+    this.renderCalloutCard(step, index);
+
+    // Position Spotlight Ring, Callout Card, and Ghost Pointer after DOM updates
+    requestAnimationFrame(() => {
+      this.positionSpotlightAndCallout(step);
+    });
+
+    if (!this.isPaused) {
+      this.schedule(() => this.nextStep(), step.duration || 6500);
     }
   }
 
-  // --- STEP 1: WELCOME & STAGE PANNING ---
-  stepWelcome() {
-    const app = this.app;
-    // Setup clean demonstration stage
-    app.entities = [];
-    app.player.x = 80;
-    app.player.y = 432;
-    app.player.vx = 0;
-    app.player.vy = 0;
-    app.camera.x = 0;
-    app.camera.y = 0;
+  renderCalloutCard(step, index) {
+    if (!this.calloutEl) return;
 
-    // Build base landing runway
-    const T = 40;
-    for (let x = 0; x <= 640; x += T) {
-      app.entities.push(new SolidBlock(x, 480, T, T, 'solid'));
-      app.entities.push(new SolidBlock(x, 520, T, T, 'solid'));
-    }
-    SolidBlock.updateTerrainMap(app.entities);
+    const optionsHtml = (step.options || [])
+      .map(opt => `<div class="demo-option-row"><span>•</span><div>${opt}</div></div>`)
+      .join('');
 
-    // Pan camera across the stage
-    let panProgress = 0;
-    const panInterval = setInterval(() => {
-      if (!this.isActive || this.currentStep !== 0) {
-        clearInterval(panInterval);
-        return;
-      }
-      panProgress += 0.05;
-      app.camera.x = Math.sin(panProgress) * 60;
-    }, 40);
+    const dotsHtml = this.steps
+      .map((s, i) => `<button class="demo-step-dot ${i === index ? 'active' : ''}" data-step="${i}" title="${s.title}"></button>`)
+      .join('');
 
-    this.schedule(() => {
-      clearInterval(panInterval);
-      app.camera.x = 0;
+    const pauseLabel = this.isPaused ? '▶ Auto' : '⏸ Pause';
+    const nextLabel = index === this.steps.length - 1 ? 'Finish ✓' : 'Next →';
+
+    this.calloutEl.innerHTML = `
+      <div class="demo-callout-header">
+        <span class="demo-callout-badge">${step.badge}</span>
+        <button id="demo-card-close-btn" class="demo-btn-sm demo-exit" style="padding: 2px 7px; font-size: 11px;">✕</button>
+      </div>
+      <h3 class="demo-callout-title">${step.title}</h3>
+      <p class="demo-callout-what">${step.what}</p>
+      <div class="demo-callout-options-label">Options &amp; Controls:</div>
+      <div class="demo-callout-options-list">
+        ${optionsHtml}
+      </div>
+      <div class="demo-callout-footer">
+        <div class="demo-step-dots">
+          ${dotsHtml}
+        </div>
+        <div class="demo-callout-nav">
+          <button id="demo-card-prev-btn" class="demo-btn-sm" ${index === 0 ? 'disabled style="opacity:0.4;cursor:default;"' : ''}>←</button>
+          <button id="demo-card-pause-btn" class="demo-btn-sm">${pauseLabel}</button>
+          <button id="demo-card-next-btn" class="demo-btn-sm" style="background:#FFE600;">${nextLabel}</button>
+        </div>
+      </div>
+    `;
+
+    this.calloutEl.querySelector('#demo-card-close-btn')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      this.stop();
+    });
+    this.calloutEl.querySelector('#demo-card-prev-btn')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (index > 0) this.prevStep();
+    });
+    this.calloutEl.querySelector('#demo-card-pause-btn')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      this.togglePause();
+    });
+    this.calloutEl.querySelector('#demo-card-next-btn')?.addEventListener('click', (e) => {
+      e.stopPropagation();
       this.nextStep();
-    }, this.steps[0].duration);
-  }
-
-  // --- STEP 2: BLOCKS, SLOPES, & QUESTION BLOCKS ---
-  stepBlocks() {
-    const app = this.app;
-    const T = 40;
-
-    // Highlight block tool button
-    const blockBtn = document.querySelector('[data-item="block"]');
-    if (blockBtn) {
-      const rect = blockBtn.getBoundingClientRect();
-      this.clickAt(rect.left + rect.width / 2, rect.top + rect.height / 2, () => {
-        // Build 45° Slope Up and Down hill
-        app.entities.push(new SolidBlock(200, 480, T, T, 'slope_up'));
-        app.entities.push(new SolidBlock(240, 440, T, T, 'solid'));
-        app.entities.push(new SolidBlock(280, 480, T, T, 'slope_down'));
-
-        // Row of Slippery Ice Blocks
-        app.entities.push(new SolidBlock(360, 400, T, T, 'ice'));
-        app.entities.push(new SolidBlock(400, 400, T, T, 'ice'));
-        app.entities.push(new SolidBlock(440, 400, T, T, 'ice'));
-
-        // Mystery Question Block overhead with Pistol Powerup
-        app.entities.push(new SolidBlock(400, 280, T, T, 'mystery', 'powerup'));
-
-        // Super Bouncy Note Block
-        app.entities.push(new SolidBlock(520, 440, T, T, 'note'));
-
-        SolidBlock.updateTerrainMap(app.entities);
-        sounds.playPop();
-      });
-    }
-
-    this.schedule(() => this.nextStep(), this.steps[1].duration);
-  }
-
-  // --- STEP 3: ITEMS, WEAPONS & HAZARDS ---
-  stepItems() {
-    const app = this.app;
-    const T = 40;
-
-    const coinBtn = document.querySelector('[data-item="collectible"]');
-    if (coinBtn) {
-      const rect = coinBtn.getBoundingClientRect();
-      this.clickAt(rect.left + rect.width / 2, rect.top + rect.height / 2, () => {
-        // Collectibles on stage
-        app.entities.push(new Collectible(364, 360, 32, 32, 'coin'));
-        app.entities.push(new Collectible(444, 360, 32, 32, 'star'));
-
-        // Springboard for high jumps
-        app.entities.push(new Springboard(320, 440, T, T, 'spring'));
-
-        // Patrolling Potato Walker enemy
-        app.entities.push(new EnemyWalker(480, 440, T, T, 'walker'));
-
-        sounds.playCollect();
-      });
-    }
-
-    this.schedule(() => this.nextStep(), this.steps[2].duration);
-  }
-
-  // --- STEP 4: REAL-TIME PARAMETER TUNING ---
-  stepTuning() {
-    const app = this.app;
-    // Select Player to tune
-    app.editor.selectedEntity = app.player;
-    app.updateActionToolbar();
-
-    const tuneBtn = document.getElementById('action-tune-btn');
-    if (tuneBtn) {
-      const rect = tuneBtn.getBoundingClientRect();
-      this.clickAt(rect.left + rect.width / 2, rect.top + rect.height / 2, () => {
-        app.inspector.open(app.player);
-
-        // Animate speed slider
-        const slider = document.querySelector('.neo-slider');
-        if (slider) {
-          slider.value = 450;
-          slider.dispatchEvent(new Event('input'));
+    });
+    this.calloutEl.querySelectorAll('.demo-step-dot').forEach(dot => {
+      dot.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const targetIdx = parseInt(dot.getAttribute('data-step'), 10);
+        if (!isNaN(targetIdx)) {
+          this.runStep(targetIdx);
         }
-
-        this.schedule(() => {
-          app.inspector.close();
-        }, 2200);
       });
-    }
-
-    this.schedule(() => this.nextStep(), this.steps[3].duration);
+    });
   }
 
-  // --- STEP 5: KID PIX ART STUDIO & SQUARE BLOCK SHAPE PRESERVATION ---
-  stepArtStudio() {
-    const app = this.app;
-    // Find a block to paint
-    const targetBlock = app.entities.find(e => e.type === 'crate' && e.variant === 'solid');
-    if (targetBlock) {
-      app.editor.selectedEntity = targetBlock;
-      app.updateActionToolbar();
+  positionSpotlightAndCallout(step) {
+    if (!step || !this.ringEl || !this.calloutEl) return;
 
-      const paintBtn = document.getElementById('action-paint-btn');
-      if (paintBtn) {
-        const rect = paintBtn.getBoundingClientRect();
-        this.clickAt(rect.left + rect.width / 2, rect.top + rect.height / 2, () => {
-          app.artStudio.openForEntity(targetBlock);
+    const targetEl = document.querySelector(step.targetSelector);
+    const pointerEl = document.querySelector(step.pointerSelector || step.targetSelector) || targetEl;
 
-          // Stamp a star onto the block
-          this.schedule(() => {
-            app.artStudio.currentTool = 'stamp';
-            app.artStudio.currentStamp = 'star';
-            app.artStudio.currentColor = '#00E5FF';
-            app.artStudio.drawStamp(110, 110);
-            sounds.playPaintSquish();
+    if (!targetEl) {
+      this.ringEl.style.display = 'none';
+      this.calloutEl.style.top = '110px';
+      this.calloutEl.style.left = `${Math.max(16, (window.innerWidth - 400) / 2)}px`;
+      return;
+    }
 
-            // Apply to entity and close
-            this.schedule(() => {
-              app.artStudio.apply();
-            }, 1200);
-          }, 800);
-        });
+    // Ensure header button is scrolled into view if inside horizontal header bar
+    if (targetEl.closest('.header-controls')) {
+      targetEl.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+    }
+
+    const rect = targetEl.getBoundingClientRect();
+    const pad = 6;
+
+    // 1. Position Spotlight Ring around targetEl
+    this.ringEl.style.display = 'block';
+    this.ringEl.style.top = `${Math.max(4, rect.top - pad)}px`;
+    this.ringEl.style.left = `${Math.max(4, rect.left - pad)}px`;
+    this.ringEl.style.width = `${rect.width + pad * 2}px`;
+    this.ringEl.style.height = `${rect.height + pad * 2}px`;
+
+    // 2. Position Ghost Cursor pointing directly at pointerEl
+    if (pointerEl && this.cursorEl) {
+      const pRect = pointerEl.getBoundingClientRect();
+      const cx = pRect.left + pRect.width * 0.55;
+      const cy = pRect.top + pRect.height * 0.65;
+      this.cursorEl.style.transform = `translate3d(${cx}px, ${cy}px, 0)`;
+      this.cursorEl.classList.add('clicking');
+      setTimeout(() => {
+        if (this.cursorEl) this.cursorEl.classList.remove('clicking');
+      }, 350);
+    }
+
+    // 3. Position Callout Card smartly next to the target (avoiding any open flyout menu)
+    const cardRect = this.calloutEl.getBoundingClientRect();
+    const cardW = cardRect.width || 400;
+    const cardH = cardRect.height || 310;
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
+
+    const flyout = document.getElementById('component-flyout-menu');
+    const flyoutVisible = flyout && flyout.style.display !== 'none';
+    const flyoutRect = flyoutVisible ? flyout.getBoundingClientRect() : null;
+
+    let left = rect.right + 20;
+    let top = rect.top;
+
+    // If component flyout is open next to left drawer, place callout card to the right of the flyout
+    if (flyoutRect && flyoutRect.width > 0) {
+      left = flyoutRect.right + 18;
+      top = Math.max(72, flyoutRect.top);
+    }
+    // If target is in top header bar, place callout card below the header bar
+    else if (rect.top < 70) {
+      top = rect.bottom + 16;
+      left = Math.min(Math.max(16, rect.left - 40), vw - cardW - 16);
+    }
+    // If target is floating action card on canvas, place callout card to its right or below
+    else if (step.targetSelector === '#entity-action-card') {
+      if (rect.right + cardW + 24 < vw) {
+        left = rect.right + 18;
+        top = Math.max(72, rect.top - 10);
+      } else {
+        left = Math.max(16, rect.left - cardW - 18);
+        top = Math.max(72, rect.top - 10);
       }
     }
 
-    this.schedule(() => this.nextStep(), this.steps[4].duration);
-  }
-
-  // --- STEP 6: ATMOSPHERIC BACKGROUNDS ---
-  stepBackgrounds() {
-    const app = this.app;
-    const bgBtn = document.getElementById('bg-modal-btn');
-    if (bgBtn) {
-      const rect = bgBtn.getBoundingClientRect();
-      this.clickAt(rect.left + rect.width / 2, rect.top + rect.height / 2, () => {
-        app.applyBackground({ theme: 'sunset' });
-        sounds.playClick();
-
-        this.schedule(() => {
-          app.applyBackground({ theme: 'midnight' });
-          sounds.playClick();
-        }, 1200);
-
-        this.schedule(() => {
-          app.applyBackground({ theme: 'grid' });
-          sounds.playClick();
-        }, 2400);
-
-        this.schedule(() => {
-          app.applyBackground({ theme: 'sky' });
-          sounds.playClick();
-        }, 3400);
-      });
+    // Clamp inside viewport bounds (below bottom banner / header)
+    if (left + cardW > vw - 16) {
+      left = Math.max(16, vw - cardW - 16);
+    }
+    if (top + cardH > vh - 76) {
+      top = Math.max(68, vh - cardH - 76);
+    }
+    if (top < 68) {
+      top = 68;
     }
 
-    this.schedule(() => this.nextStep(), this.steps[5].duration);
-  }
-
-  // --- STEP 7: LIVE PLAYTEST WITH COMBAT, JUMPING & GOAL ---
-  stepPlaytest() {
-    const app = this.app;
-    // Add Goal Flag at the end
-    app.entities.push(new (window.GoalFlag || SolidBlock)(600, 400, 48, 80));
-
-    // Click PLAY TEST button
-    const playBtn = document.getElementById('mode-toggle-btn');
-    if (playBtn) {
-      const rect = playBtn.getBoundingClientRect();
-      this.clickAt(rect.left + rect.width / 2, rect.top + rect.height / 2, () => {
-        if (app.mode === 'edit') {
-          app.toggleMode();
-        }
-
-        // Simulate arcade hero controls
-        // 1. Run right
-        app.player.vx = app.player.speed;
-        app.player.facing = 1;
-
-        // 2. Jump onto spring
-        this.schedule(() => {
-          app.player.vy = -app.player.jumpForce;
-          sounds.playJump();
-        }, 700);
-
-        // 3. Collect coin & hit question block
-        this.schedule(() => {
-          app.player.vy = -350;
-        }, 1800);
-
-        // 4. Equip pistol & shoot blaster shot
-        this.schedule(() => {
-          app.ammo = 15;
-          app.gunPickedUpInLevel = true;
-          app.firePistol();
-        }, 2800);
-
-        // 5. Reach goal flag
-        this.schedule(() => {
-          app.player.x = 600;
-          app.triggerVictory();
-        }, 4400);
-      });
-    }
-
-    this.schedule(() => this.nextStep(), this.steps[6].duration);
-  }
-
-  // --- STEP 8: VIDEO RECORDING & WRAP-UP ---
-  stepRecording() {
-    // Highlight REC button and .sidehop file sharing
-    const recBtn = document.getElementById('rec-btn');
-    if (recBtn) {
-      const rect = recBtn.getBoundingClientRect();
-      this.moveCursor(rect.left + rect.width / 2, rect.top + rect.height / 2);
-    }
-
-    this.schedule(() => {
-      this.stop(true);
-    }, this.steps[7].duration);
+    this.calloutEl.style.left = `${Math.round(left)}px`;
+    this.calloutEl.style.top = `${Math.round(top)}px`;
   }
 }

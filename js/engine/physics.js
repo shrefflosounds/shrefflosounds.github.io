@@ -26,10 +26,25 @@ export class PhysicsEngine {
     entity.vy += grav * dt;
     if (entity.vy > 1200) entity.vy = 1200;
 
+    // Spatial broadphase filter: only test solids near this entity (massive FPS speedup!)
+    const marginX = Math.max(96, Math.abs(entity.vx * dt) + 64);
+    const marginY = Math.max(96, Math.abs(entity.vy * dt) + 64);
+    const minX = entity.x - marginX;
+    const maxX = entity.x + entity.width + marginX;
+    const minY = entity.y - marginY;
+    const maxY = entity.y + entity.height + marginY;
+    const localSolids = solids.filter(s =>
+      s.active &&
+      s.x + s.width >= minX &&
+      s.x <= maxX &&
+      s.y + s.height >= minY &&
+      s.y <= maxY
+    );
+
     // 1. Horizontal Movement & Collision
     const prevX = entity.x;
     entity.x += entity.vx * dt;
-    this.resolveHorizontalCollisions(entity, solids, prevX);
+    this.resolveHorizontalCollisions(entity, localSolids, prevX);
 
     // 2. Vertical Movement & Collision
     const prevY = entity.y;
@@ -37,7 +52,7 @@ export class PhysicsEngine {
     entity.y += entity.vy * dt;
     entity.grounded = false;
     entity.standingOnSolid = null;
-    this.resolveVerticalCollisions(entity, solids, prevY, dt, wasGrounded, wasStandingOnSolid);
+    this.resolveVerticalCollisions(entity, localSolids, prevY, dt, wasGrounded, wasStandingOnSolid);
 
     // Landing detection for procedural squash:
     // Only trigger landing squash if entity was genuinely airborne and landed with significant downward velocity (> 180 px/s)
@@ -66,6 +81,12 @@ export class PhysicsEngine {
       // Skip one-way platforms and angled sloped surfaces horizontally
       if (solid.isOneWay || solid.variant === 'cloud' || solid.variant === 'semisolid' || isSlope(solid)) continue;
 
+      // Ignore horizontal collision if vertical overlap is merely boundary-level (e.g. resting on floor)
+      const verticalOverlap = Math.min(entity.y + entity.height, solid.y + solid.height) - Math.max(entity.y, solid.y);
+      if (verticalOverlap <= 3) continue;
+
+      if (!this.checkOverlap(entity, solid)) continue;
+
       // Skip solid blocks that are covered underneath any slope
       const isUnderSlope = solids.some(s =>
         s.active && isSlope(s) &&
@@ -74,42 +95,36 @@ export class PhysicsEngine {
       );
       if (isUnderSlope) continue;
 
-      // Ignore horizontal collision if vertical overlap is merely boundary-level (e.g. resting on floor)
-      const verticalOverlap = Math.min(entity.y + entity.height, solid.y + solid.height) - Math.max(entity.y, solid.y);
-      if (verticalOverlap <= 3) continue;
+      if (entity.vx > 0) {
+        // Entity moving right: only solid's left edge can block it!
+        // If entity was already past solid's left edge, solid is behind or beneath entity (e.g. descending adjacent slope)
+        if (prevX !== undefined && prevX + entity.width > solid.x + 2) continue;
 
-      if (this.checkOverlap(entity, solid)) {
-        if (entity.vx > 0) {
-          // Entity moving right: only solid's left edge can block it!
-          // If entity was already past solid's left edge, solid is behind or beneath entity (e.g. descending adjacent slope)
-          if (prevX !== undefined && prevX + entity.width > solid.x + 2) continue;
+        // Check if left face is the top junction of an adjoining slope_up
+        const connectedSlopeUp = solids.some(s =>
+          s.active && isSlopeUp(s) &&
+          Math.abs((s.x + s.width) - solid.x) <= 2 &&
+          Math.abs(s.y - solid.y) <= 2
+        );
+        if (connectedSlopeUp) continue;
 
-          // Check if left face is the top junction of an adjoining slope_up
-          const connectedSlopeUp = solids.some(s =>
-            s.active && isSlopeUp(s) &&
-            Math.abs((s.x + s.width) - solid.x) <= 2 &&
-            Math.abs(s.y - solid.y) <= 2
-          );
-          if (connectedSlopeUp) continue;
+        entity.x = solid.x - entity.width;
+        entity.vx = 0;
+      } else if (entity.vx < 0) {
+        // Entity moving left: only solid's right edge can block it!
+        // If entity was already past solid's right edge, solid is behind or beneath entity (e.g. descending adjacent slope)
+        if (prevX !== undefined && prevX < solid.x + solid.width - 2) continue;
 
-          entity.x = solid.x - entity.width;
-          entity.vx = 0;
-        } else if (entity.vx < 0) {
-          // Entity moving left: only solid's right edge can block it!
-          // If entity was already past solid's right edge, solid is behind or beneath entity (e.g. descending adjacent slope)
-          if (prevX !== undefined && prevX < solid.x + solid.width - 2) continue;
+        // Check if right face is the top junction of an adjoining slope_down
+        const connectedSlopeDown = solids.some(s =>
+          s.active && isSlopeDown(s) &&
+          Math.abs(s.x - (solid.x + solid.width)) <= 2 &&
+          Math.abs(s.y - solid.y) <= 2
+        );
+        if (connectedSlopeDown) continue;
 
-          // Check if right face is the top junction of an adjoining slope_down
-          const connectedSlopeDown = solids.some(s =>
-            s.active && isSlopeDown(s) &&
-            Math.abs(s.x - (solid.x + solid.width)) <= 2 &&
-            Math.abs(s.y - solid.y) <= 2
-          );
-          if (connectedSlopeDown) continue;
-
-          entity.x = solid.x + solid.width;
-          entity.vx = 0;
-        }
+        entity.x = solid.x + solid.width;
+        entity.vx = 0;
       }
     }
   }
@@ -124,17 +139,18 @@ export class PhysicsEngine {
     const isGroundSlope = (s) => isSlope(s) && !isCeilSlope(s);
 
     // 1. Handle Walkable Ground Slopes (slope_up and slope_down across all materials)
-    // Find all active ground slopes overlapping entity horizontally
+    // Find all active ground slopes overlapping entity horizontally AND vertically near the entity's feet
+    const footYInitial = entity.y + entity.height;
     const overlappingGroundSlopes = solids.filter(s =>
       s.active && isGroundSlope(s) &&
-      entity.x + entity.width > s.x && entity.x < s.x + s.width
+      entity.x + entity.width > s.x && entity.x < s.x + s.width &&
+      footYInitial >= s.y - 28 && footYInitial <= s.y + s.height + 32
     );
 
     if (overlappingGroundSlopes.length > 0) {
       const footX = entity.x + entity.width / 2;
       const footY = entity.y + entity.height;
       const prevFootY = prevY !== undefined ? (prevY + entity.height) : (footY - (entity.vy * (dt || 0.016)));
-      const snapDownTol = (wasGrounded || wasStandingOnSolid) ? 50 : 24;
 
       let bestSlope = null;
       let bestSurfaceY = Infinity;
@@ -150,18 +166,25 @@ export class PhysicsEngine {
           : slope.y + relX * slope.height;
 
         // Interaction condition:
-        // 1. Not actively jumping upward away from the ground (entity.vy >= -60)
-        // 2. Either:
-        //    a) Walking/running along the slope (within snap-down tolerance)
-        //    b) Falling onto the slope from above
-        //    c) Foot is currently penetrating into the slope wedge and entity was not completely beneath the slope
-        const maxFallDistance = Math.max(40, Math.abs(entity.vy * (dt || 0.016)) + 20);
-        const isDescendingOrGrounded = (wasGrounded || wasStandingOnSolid) && (footY >= surfY - snapDownTol);
-        const isLandingFromAbove = (prevFootY <= surfY + maxFallDistance) && (footY >= surfY - 8);
-        const isPenetratingWedge = (footY >= surfY) && (prevFootY <= slope.y + slope.height + 24);
+        // Entity's feet MUST be vertically close to surfY (both above and below bounds!)
+        // so lower platforms or clouds below a higher slope NEVER teleport the player upward.
+        const maxFallStep = Math.max(20, Math.abs(entity.vy * (dt || 0.016)) + 12);
+        const isDescendingOrGrounded = (wasGrounded || wasStandingOnSolid) &&
+          (footY >= surfY - 20) &&
+          (footY <= surfY + 22) &&
+          (prevFootY >= surfY - 24) &&
+          (prevFootY <= surfY + 24);
+        const isLandingFromAbove = (entity.vy >= 0) &&
+          (prevFootY <= surfY + 14) &&
+          (footY >= surfY - 6) &&
+          (footY <= surfY + maxFallStep);
+        const isPenetratingWedge = (footY >= surfY) &&
+          (footY <= surfY + 22) &&
+          (prevFootY <= surfY + 22) &&
+          (prevFootY <= slope.y + slope.height + 6);
 
         if (entity.vy >= -60 && (isDescendingOrGrounded || isLandingFromAbove || isPenetratingWedge)) {
-          // If multiple slopes overlap, pick the highest support surface (smallest Y)
+          // If multiple slopes overlap near the entity's feet, pick the highest support surface (smallest Y)
           if (surfY < bestSurfaceY) {
             bestSurfaceY = surfY;
             bestSlope = slope;
@@ -230,10 +253,11 @@ export class PhysicsEngine {
       if (this.checkOverlap(entity, solid)) {
         if (entity.vy > 0 || (entity.grounded && (entity.y + entity.height) > solid.y)) {
           // Landing on top of solid:
-          // Ensure entity entered from above the solid's top surface
-          const prevFootY = prevY !== undefined ? (prevY + entity.height) : (entity.y + entity.height - (entity.vy * (dt || 0.016)));
+          // Ensure entity entered from above the solid's top surface and feet are near solid.y
+          const footY = entity.y + entity.height;
+          const prevFootY = prevY !== undefined ? (prevY + entity.height) : (footY - (entity.vy * (dt || 0.016)));
           const maxStepDown = Math.max(16, (entity.vy * (dt || 0.016)) + 6);
-          if (prevFootY <= solid.y + maxStepDown) {
+          if (prevFootY <= solid.y + maxStepDown && footY <= solid.y + maxStepDown + 8) {
             entity.y = solid.y - entity.height;
             entity.standingOnSolid = solid;
 
@@ -344,7 +368,7 @@ export class PhysicsEngine {
               : slope.y + relX * slope.height;
 
             const footY = entity.y + entity.height;
-            if (footY >= surfY - 8 && footY <= slope.y + slope.height + 6) {
+            if (Math.abs(footY - surfY) <= 6) {
               entity.y = surfY - entity.height;
               entity.vy = 0;
               entity.grounded = true;

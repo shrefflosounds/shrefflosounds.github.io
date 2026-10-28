@@ -609,13 +609,13 @@ body {
 
 .neo-btn-accent {
   background-color: var(--accent-sky);
-  color: #050508 !important;
+  color: #050508;
   font-weight: 800;
 }
 
 .neo-btn-cyan {
   background-color: var(--accent-sky);
-  color: #050508 !important;
+  color: #050508;
   font-weight: 800;
 }
 
@@ -625,39 +625,54 @@ body {
   font-weight: 800;
 }
 
-/* Ensure bright colored buttons always have high-contrast pitch-black text */
+/* Light themes: bright colored buttons have high-contrast dark text */
 .neo-btn-primary,
 .neo-btn.neo-btn-primary,
 .neo-btn-accent,
 .neo-btn.neo-btn-accent,
 .neo-btn-cyan,
 .neo-btn.neo-btn-cyan,
-body[data-theme="night"] .neo-btn.neo-btn-accent,
-body[data-theme="night"] .neo-btn.neo-btn-primary,
-body[data-theme="night"] .neo-btn.neo-btn-cyan,
-body[data-theme="neon"] .neo-btn.neo-btn-accent,
-body[data-theme="neon"] .neo-btn.neo-btn-primary,
-body[data-theme="neon"] .neo-btn.neo-btn-cyan,
-body[data-theme="atlantis"] .neo-btn.neo-btn-accent,
-body[data-theme="atlantis"] .neo-btn.neo-btn-primary,
-body[data-theme="atlantis"] .neo-btn.neo-btn-cyan {
-  color: #050508 !important;
+.neo-btn.neo-btn-accent span,
+.neo-btn.neo-btn-primary span,
+.neo-btn.neo-btn-cyan span {
+  color: #050508;
   font-weight: 800;
 }
 
-.neo-btn.neo-btn-accent span,
-.neo-btn.neo-btn-primary span,
-.neo-btn.neo-btn-cyan span,
+/* Dark themes (Night, Neon over Black, Atlantis): all buttons use dark panel backgrounds,
+   so PLAY TEST, Home & Bio, Demo, FILL, Character, Reset, Save HTML, and all .neo-btn variants
+   switch their text color to crisp white (#FFFFFF) for effortless readability */
+body[data-theme="night"] .neo-btn,
+body[data-theme="night"] .neo-btn span,
+body[data-theme="night"] .neo-btn.neo-btn-accent,
+body[data-theme="night"] .neo-btn.neo-btn-primary,
+body[data-theme="night"] .neo-btn.neo-btn-cyan,
+body[data-theme="night"] .neo-btn.neo-btn-pink,
 body[data-theme="night"] .neo-btn.neo-btn-accent span,
 body[data-theme="night"] .neo-btn.neo-btn-primary span,
 body[data-theme="night"] .neo-btn.neo-btn-cyan span,
+body[data-theme="night"] .neo-btn.neo-btn-pink span,
+body[data-theme="neon"] .neo-btn,
+body[data-theme="neon"] .neo-btn span,
+body[data-theme="neon"] .neo-btn.neo-btn-accent,
+body[data-theme="neon"] .neo-btn.neo-btn-primary,
+body[data-theme="neon"] .neo-btn.neo-btn-cyan,
+body[data-theme="neon"] .neo-btn.neo-btn-pink,
 body[data-theme="neon"] .neo-btn.neo-btn-accent span,
 body[data-theme="neon"] .neo-btn.neo-btn-primary span,
 body[data-theme="neon"] .neo-btn.neo-btn-cyan span,
+body[data-theme="neon"] .neo-btn.neo-btn-pink span,
+body[data-theme="atlantis"] .neo-btn,
+body[data-theme="atlantis"] .neo-btn span,
+body[data-theme="atlantis"] .neo-btn.neo-btn-accent,
+body[data-theme="atlantis"] .neo-btn.neo-btn-primary,
+body[data-theme="atlantis"] .neo-btn.neo-btn-cyan,
+body[data-theme="atlantis"] .neo-btn.neo-btn-pink,
 body[data-theme="atlantis"] .neo-btn.neo-btn-accent span,
 body[data-theme="atlantis"] .neo-btn.neo-btn-primary span,
-body[data-theme="atlantis"] .neo-btn.neo-btn-cyan span {
-  color: #050508 !important;
+body[data-theme="atlantis"] .neo-btn.neo-btn-cyan span,
+body[data-theme="atlantis"] .neo-btn.neo-btn-pink span {
+  color: #FFFFFF !important;
   font-weight: 800;
 }
 
@@ -2549,6 +2564,165 @@ dialog.neo-dialog::backdrop {
 @keyframes ripplePop {
   0% { transform: scale(0.2); opacity: 1; }
   100% { transform: scale(2.2); opacity: 0; }
+}
+
+/* Blatant Feature Spotlight Ring & Callout Card for Guided Demo */
+.demo-spotlight-ring {
+  position: fixed;
+  pointer-events: none;
+  z-index: 99990;
+  border: 4px solid #FF2A85;
+  border-radius: 12px;
+  box-shadow: 0 0 0 4px #FFE600, 0 0 24px rgba(255, 42, 133, 0.75);
+  transition: top 0.32s cubic-bezier(0.2, 0.9, 0.3, 1),
+              left 0.32s cubic-bezier(0.2, 0.9, 0.3, 1),
+              width 0.32s cubic-bezier(0.2, 0.9, 0.3, 1),
+              height 0.32s cubic-bezier(0.2, 0.9, 0.3, 1);
+  animation: demoPulseRing 1.1s infinite alternate ease-in-out;
+}
+
+@keyframes demoPulseRing {
+  0% {
+    box-shadow: 0 0 0 3px #FFE600, 0 0 14px rgba(255, 42, 133, 0.65);
+  }
+  100% {
+    box-shadow: 0 0 0 6px #FFE600, 0 0 28px rgba(0, 229, 255, 0.9);
+  }
+}
+
+.demo-callout-card {
+  position: fixed;
+  z-index: 99995;
+  width: 400px;
+  max-width: calc(100vw - 24px);
+  background: #FFFFFF;
+  color: #0F172A !important;
+  border: 3.5px solid #0F172A;
+  border-radius: 16px;
+  box-shadow: 6px 6px 0px #0F172A, 0 12px 32px rgba(0, 0, 0, 0.35);
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  transition: top 0.32s cubic-bezier(0.2, 0.9, 0.3, 1),
+              left 0.32s cubic-bezier(0.2, 0.9, 0.3, 1);
+}
+
+.demo-callout-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.demo-callout-badge {
+  background: #FFE600;
+  color: #050508 !important;
+  border: 2px solid #0F172A;
+  border-radius: 6px;
+  padding: 3px 8px;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.demo-callout-title {
+  font-size: 18px;
+  font-weight: 900;
+  color: #0F172A !important;
+  line-height: 1.2;
+  margin: 0;
+}
+
+.demo-callout-what {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #1E293B !important;
+  line-height: 1.45;
+  background: #F8FAFC;
+  border-left: 4px solid #00E5FF;
+  padding: 8px 10px;
+  border-radius: 0 8px 8px 0;
+  margin: 0;
+}
+
+.demo-callout-options-label {
+  font-size: 11px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: #475569 !important;
+  margin-top: 2px;
+}
+
+.demo-callout-options-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 210px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.demo-option-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  background: #FFFDF5;
+  border: 1.5px solid #CBD5E1;
+  border-radius: 8px;
+  padding: 6px 9px;
+  font-size: 12.5px;
+  line-height: 1.35;
+  color: #0F172A !important;
+}
+
+.demo-option-row strong {
+  color: #050508 !important;
+  font-weight: 800;
+}
+
+.demo-callout-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding-top: 8px;
+  border-top: 2px dashed #CBD5E1;
+  margin-top: 2px;
+}
+
+.demo-step-dots {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.demo-step-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #CBD5E1;
+  border: 1.5px solid #0F172A;
+  cursor: pointer;
+  padding: 0;
+  transition: transform 0.12s ease, background 0.12s ease;
+}
+
+.demo-step-dot.active {
+  background: #FF2A85;
+  transform: scale(1.25);
+}
+
+.demo-callout-nav {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.demo-btn-sm {
+  color: #050508 !important;
 }
 
 /* About Modal Colophon Emblem at Bottom */

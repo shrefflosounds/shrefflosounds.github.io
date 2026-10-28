@@ -725,7 +725,7 @@ ${serializedJson}
       }
 
       const entityBottom = entity.y + entity.height;
-      if (entityBottom >= surfaceY - 8 && entity.y <= slope.y + slope.height) {
+      if (entityBottom >= surfaceY - 8 && entityBottom <= surfaceY + 22 && entity.vy >= -60) {
         entity.y = surfaceY - entity.height;
         if (entity.vy > 0) entity.vy = 0;
         entity.grounded = true;

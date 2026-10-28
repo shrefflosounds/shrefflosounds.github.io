@@ -1,17 +1,17 @@
 // Sidehop Master Application Coordinator — Enhanced Custom Backgrounds, Asset Library & Undo/Redo
 
-import { Player, Bullet, SolidBlock, Collectible } from './engine/entities.js?v=20261027_221448';
-import { PhysicsEngine } from './engine/physics.js?v=20261027_221448';
-import { Camera } from './engine/camera.js?v=20261027_221448';
-import { GridEditor } from './editor/grid.js?v=20261027_221448';
-import { ArtStudio } from './editor/paint.js?v=20261027_221448';
-import { Inspector } from './editor/inspector.js?v=20261027_221448';
-import { VideoRecorder } from './recorder/recorder.js?v=20261027_221448';
-import { LevelStorage } from './storage/storage.js?v=20261027_221448';
-import { HistoryManager } from './editor/history.js?v=20261027_221448';
-import { sounds } from './audio/sound.js?v=20261027_221448';
-import { SidehopFile } from './storage/sidehop-format.js?v=20261027_221448';
-import { SidehopDemo } from './editor/demo.js?v=20261027_221448';
+import { Player, Bullet, SolidBlock, Collectible } from './engine/entities.js?v=20261028_075255';
+import { PhysicsEngine } from './engine/physics.js?v=20261028_075255';
+import { Camera } from './engine/camera.js?v=20261028_075255';
+import { GridEditor } from './editor/grid.js?v=20261028_075255';
+import { ArtStudio } from './editor/paint.js?v=20261028_075255';
+import { Inspector } from './editor/inspector.js?v=20261028_075255';
+import { VideoRecorder } from './recorder/recorder.js?v=20261028_075255';
+import { LevelStorage } from './storage/storage.js?v=20261028_075255';
+import { HistoryManager } from './editor/history.js?v=20261028_075255';
+import { sounds } from './audio/sound.js?v=20261028_075255';
+import { SidehopFile } from './storage/sidehop-format.js?v=20261028_075255';
+import { SidehopDemo } from './editor/demo.js?v=20261028_075255';
 
 class SidehopApp {
   constructor() {
@@ -3851,7 +3851,9 @@ class SidehopApp {
       // Collect solid collision objects (Blocks, Moving Platforms, and Springs)
       const solids = this.entities.filter(ent => ent.type === 'crate' || ent.type === 'block' || ent.type === 'moving_platform' || ent.type === 'springboard');
       for (const s of solids) {
-        if (s.update && (s.type === 'crate' || s.type === 'block')) s.update(dt);
+        if (s.update && (s.bumpTimer > 0 || s.variant === 'donut')) {
+          s.update(dt);
+        }
       }
       this.physics.updateEntity(this.player, solids, dt);
 
@@ -3925,6 +3927,11 @@ class SidehopApp {
 
           // Enemies (Walker, Winged Hopper, Armored Spiky)
           else if (ent.type === 'enemy') {
+            // Only simulate full enemy physics when within active range of player or camera
+            const inActiveRange = Math.abs(ent.x - this.player.x) < 1600 ||
+              (ent.x + ent.width >= this.camera.x - 400 && ent.x <= this.camera.x + this.canvas.width + 400);
+            if (!inActiveRange) continue;
+
             ent.update(dt, solids);
             // If dying or inactive, skip player collision check so rebounding doesn't trigger damage
             if (!ent.active || ent.isSquashed) continue;
@@ -4043,8 +4050,11 @@ class SidehopApp {
         this.updateActionCard(this.editor.selectedEntity);
       }
 
+      const editViewLeft = this.camera.x - 160;
+      const editViewRight = this.camera.x + this.canvas.width + 160;
       for (const ent of this.entities) {
-        if (ent.update && (ent.type === 'springboard' || ent.type === 'collectible' || ent.type === 'goal' || ent.type === 'crate' || ent.type === 'block')) {
+        if (ent.x + ent.width < editViewLeft || ent.x > editViewRight) continue;
+        if (ent.update && (ent.type === 'springboard' || ent.type === 'collectible' || ent.type === 'goal' || ent.bumpTimer > 0)) {
           ent.update(dt);
         }
       }
@@ -4123,7 +4133,11 @@ class SidehopApp {
   }
 
   render() {
-    this.updateCanvasDimensions();
+    const now = performance.now();
+    if (!this._lastDimCheck || now - this._lastDimCheck > 400) {
+      this._lastDimCheck = now;
+      this.updateCanvasDimensions();
+    }
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
     // Update terrain spatial map for seamless autotiling & neighbor detection
@@ -4132,12 +4146,26 @@ class SidehopApp {
     // 1. Draw Active Background Atmosphere / Custom Art
     this.renderBackground();
 
-    // 2. Draw World Entities
+    // 2. Draw World Entities (with Viewport Culling for smooth 60fps performance)
     this.ctx.save();
     try {
       this.ctx.translate(-this.camera.x, -this.camera.y);
 
+      const viewLeft = this.camera.x - 140;
+      const viewRight = this.camera.x + this.canvas.width + 140;
+      const viewTop = this.camera.y - 140;
+      const viewBottom = this.camera.y + this.canvas.height + 140;
+
       for (const ent of this.entities) {
+        if (!ent.active) continue;
+        if (
+          ent.x + ent.width < viewLeft ||
+          ent.x > viewRight ||
+          ent.y + ent.height < viewTop ||
+          ent.y > viewBottom
+        ) {
+          continue;
+        }
         try {
           ent.draw(this.ctx);
         } catch (entErr) {
