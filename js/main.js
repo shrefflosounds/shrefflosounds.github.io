@@ -1,17 +1,17 @@
 // Sidehop Master Application Coordinator — Enhanced Custom Backgrounds, Asset Library & Undo/Redo
 
-import { Player, Bullet, SolidBlock, Collectible } from './engine/entities.js?v=20261028_084631';
-import { PhysicsEngine } from './engine/physics.js?v=20261028_084631';
-import { Camera } from './engine/camera.js?v=20261028_084631';
-import { GridEditor } from './editor/grid.js?v=20261028_084631';
-import { ArtStudio } from './editor/paint.js?v=20261028_084631';
-import { Inspector } from './editor/inspector.js?v=20261028_084631';
-import { VideoRecorder } from './recorder/recorder.js?v=20261028_084631';
-import { LevelStorage } from './storage/storage.js?v=20261028_084631';
-import { HistoryManager } from './editor/history.js?v=20261028_084631';
-import { sounds } from './audio/sound.js?v=20261028_084631';
-import { SidehopFile } from './storage/sidehop-format.js?v=20261028_084631';
-import { SidehopDemo } from './editor/demo.js?v=20261028_084631';
+import { Player, Bullet, SolidBlock, Collectible } from './engine/entities.js?v=20261028_085918';
+import { PhysicsEngine } from './engine/physics.js?v=20261028_085918';
+import { Camera } from './engine/camera.js?v=20261028_085918';
+import { GridEditor } from './editor/grid.js?v=20261028_085918';
+import { ArtStudio } from './editor/paint.js?v=20261028_085918';
+import { Inspector } from './editor/inspector.js?v=20261028_085918';
+import { VideoRecorder } from './recorder/recorder.js?v=20261028_085918';
+import { LevelStorage } from './storage/storage.js?v=20261028_085918';
+import { HistoryManager } from './editor/history.js?v=20261028_085918';
+import { sounds } from './audio/sound.js?v=20261028_085918';
+import { SidehopFile } from './storage/sidehop-format.js?v=20261028_085918';
+import { SidehopDemo } from './editor/demo.js?v=20261028_085918';
 
 class SidehopApp {
   constructor() {
@@ -844,16 +844,16 @@ class SidehopApp {
   }
 
   updateStretchedDimensions() {
-    this.updateCanvasDimensions();
+    this.updateCanvasDimensions(true);
   }
 
-  updateCanvasDimensions() {
-    if (this.recorder && this.recorder.isRecording) return;
+  updateCanvasDimensions(force = false) {
+    if (!force && this.recorder && this.recorder.isRecording) return;
     if (this.isFrameStretched) {
       const header = document.querySelector('.neo-header');
       const headerH = header ? header.offsetHeight : 56;
-      const w = window.innerWidth;
-      const h = window.innerHeight - headerH;
+      const w = window.innerWidth & ~1;
+      const h = (window.innerHeight - headerH) & ~1;
 
       if (w > 0 && h > 0 && (this.canvas.width !== w || this.canvas.height !== h)) {
         this.canvas.width = w;
@@ -865,8 +865,8 @@ class SidehopApp {
 
     const wrapper = this.canvas.parentElement;
     if (wrapper) {
-      const w = wrapper.clientWidth;
-      const h = wrapper.clientHeight;
+      const w = wrapper.clientWidth & ~1;
+      const h = wrapper.clientHeight & ~1;
       if (w > 0 && h > 0 && (this.canvas.width !== w || this.canvas.height !== h)) {
         this.canvas.width = w;
         this.canvas.height = h;
@@ -3497,10 +3497,7 @@ class SidehopApp {
     });
 
     document.getElementById('victory-clip-btn').addEventListener('click', () => {
-      this.recorder.startRecording();
-      setTimeout(() => {
-        this.recorder.stopRecording();
-      }, 3000);
+      this.recorder.openReplayOrRecord();
     });
   }
 
@@ -3523,6 +3520,9 @@ class SidehopApp {
     this.player.respawn();
     this.player.hearts = this.player.maxHearts || 4;
     this.player.invulnerableTimer = 0;
+    if (this.recorder && this.mode === 'play') {
+      this.recorder.startAutoReplay();
+    }
   }
 
   toggleMode() {
@@ -3574,7 +3574,16 @@ class SidehopApp {
       if (stretchHeaderBtn) stretchHeaderBtn.style.display = 'inline-flex';
       const stageStretchBtn = document.getElementById('stage-stretch-btn');
       if (stageStretchBtn) stageStretchBtn.style.display = 'flex';
+
+      // Sync canvas dimensions for Play Mode layout and begin background replay capture
+      this.updateCanvasDimensions(true);
+      if (this.recorder) {
+        this.recorder.startAutoReplay();
+      }
     } else {
+      if (this.recorder) {
+        this.recorder.cancelAutoReplay();
+      }
       // Restore clean level snapshot from before play began, resetting drops, coins, and enemies
       if (this.playModeSnapshot) {
         LevelStorage.deserialize(this.playModeSnapshot, this.player, this.entities);
@@ -3602,6 +3611,7 @@ class SidehopApp {
       if (stretchHeaderBtn) stretchHeaderBtn.style.display = 'inline-flex';
       const stageStretchBtn = document.getElementById('stage-stretch-btn');
       if (stageStretchBtn) stageStretchBtn.style.display = 'flex';
+      this.updateCanvasDimensions(true);
     }
   }
 
@@ -4058,6 +4068,16 @@ class SidehopApp {
           ent.update(dt);
         }
       }
+    } else if (this.mode === 'play' && this.isLevelWon) {
+      // Keep ambient stage animations alive during the Victory celebration
+      const viewLeft = this.camera.x - 160;
+      const viewRight = this.camera.x + this.canvas.width + 160;
+      for (const ent of this.entities) {
+        if (!ent.active || ent.x + ent.width < viewLeft || ent.x > viewRight) continue;
+        if (ent.update && (ent.type === 'springboard' || ent.type === 'collectible' || ent.type === 'goal' || ent.bumpTimer > 0)) {
+          ent.update(dt);
+        }
+      }
     }
 
     // Update Confetti
@@ -4081,6 +4101,9 @@ class SidehopApp {
     sounds.playVictory();
     document.getElementById('victory-stats').textContent = `Total Score: ${this.score} PTS`;
     document.getElementById('victory-overlay').classList.add('active');
+    if (this.recorder) {
+      this.recorder.finalizeReplayOnVictory();
+    }
 
     this.confetti = [];
     const colors = ['#00E5FF', '#FFE600', '#FF3388', '#00E676', '#B388FF'];
@@ -4224,6 +4247,10 @@ class SidehopApp {
         this.ctx.restore();
       }
       this.ctx.restore();
+    }
+
+    if (this.recorder && this.recorder.isRecording) {
+      this.recorder.captureFrame();
     }
   }
 

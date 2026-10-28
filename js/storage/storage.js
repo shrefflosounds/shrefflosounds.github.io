@@ -1,6 +1,6 @@
 // Sidehop Level Persistence & Preset Levels Engine
 
-import { SolidBlock, Springboard, HazardSpikes, EnemyWalker, MovingPlatform, Collectible, GoalFlag } from '../engine/entities.js?v=20261028_084631';
+import { SolidBlock, Springboard, HazardSpikes, EnemyWalker, MovingPlatform, Collectible, GoalFlag } from '../engine/entities.js?v=20261028_085918';
 import { SidehopFile } from './sidehop-format.js';
 import { generateStandaloneGameHtml } from './standalone-game-builder.js';
 
