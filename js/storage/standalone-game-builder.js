@@ -541,10 +541,19 @@ ${serializedJson}
       osc.stop(t + 0.14);
     }
 
-    playMusicNote(pitchIndex = 0) {
+    playMusicNote(pitchIndex = null) {
       if (!this.ensureContext()) return;
-      const scale = [523.25, 587.33, 659.25, 698.46, 783.99, 880.00, 987.77, 1046.50];
-      const freq = scale[Math.abs(Math.round(pitchIndex)) % scale.length];
+      const melody = [
+        523.25, 659.25, 783.99, 1046.50,
+        880.00, 783.99, 659.25, 587.33,
+        698.46, 880.00, 987.77, 1174.66,
+        1046.50, 987.77, 783.99, 659.25
+      ];
+      if (typeof this.musicStep !== 'number') this.musicStep = 0;
+      const idx = (pitchIndex !== null && pitchIndex !== undefined)
+        ? Math.abs(Math.round(pitchIndex)) % melody.length
+        : (this.musicStep++ % melody.length);
+      const freq = melody[idx];
       const t = this.ctx.currentTime;
       const osc1 = this.ctx.createOscillator();
       const gain1 = this.ctx.createGain();
@@ -696,8 +705,14 @@ ${serializedJson}
         if (this.checkOverlap(entity, s)) {
           if (entity.vy > 0) {
             entity.y = s.y - entity.height;
-            entity.vy = 0;
-            entity.grounded = true;
+            if (s.variant === 'note') {
+              entity.vy = -860;
+              entity.grounded = false;
+              sounds.playMusicNote();
+            } else {
+              entity.vy = 0;
+              entity.grounded = true;
+            }
             entity.standingOnSolid = s;
           } else if (entity.vy < 0) {
             entity.y = s.y + s.height;
@@ -921,6 +936,8 @@ ${serializedJson}
         this.isUsed = true;
         sounds.playCoin();
         if (this.content === 'gun') player.hasGun = true;
+      } else if (this.variant === 'note') {
+        sounds.playMusicNote();
       }
     }
 

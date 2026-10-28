@@ -112,25 +112,40 @@ class SoundEngine {
     } catch (e) {}
   }
 
-  // Musical Note Block Sound (Mario Maker style melodic marimba/bell chime tone)
-  playMusicNote(pitchIndex = 0) {
+  // Musical Note Block Sound (Mario Maker style melodic marimba/bell chime progression)
+  playMusicNote(pitchIndex = null) {
     if (this.muted || !this.ensureContext()) return;
     try {
       const now = this.ctx.currentTime;
-      // C major diatonic musical scale frequencies
-      const scale = [
-        523.25, // C5
-        587.33, // D5
-        659.25, // E5
-        698.46, // F5
-        783.99, // G5
-        880.00, // A5
-        987.77, // B5
-        1046.50 // C6
+      // Upbeat 16-note platformer melody progression across C major / pentatonic
+      const melody = [
+        523.25,  // C5
+        659.25,  // E5
+        783.99,  // G5
+        1046.50, // C6
+        880.00,  // A5
+        783.99,  // G5
+        659.25,  // E5
+        587.33,  // D5
+        698.46,  // F5
+        880.00,  // A5
+        987.77,  // B5
+        1174.66, // D6
+        1046.50, // C6
+        987.77,  // B5
+        783.99,  // G5
+        659.25   // E5
       ];
 
-      const idx = Math.abs(Math.round(pitchIndex)) % scale.length;
-      const freq = scale[idx];
+      if (typeof this.musicStep !== 'number') {
+        this.musicStep = 0;
+      }
+
+      // Advance through the melody on every hit so repeated bounces play a real tune
+      const stepIdx = (pitchIndex !== null && pitchIndex !== undefined)
+        ? Math.abs(Math.round(pitchIndex)) % melody.length
+        : (this.musicStep++ % melody.length);
+      const freq = melody[stepIdx];
 
       // Primary tone: warm sine wave
       const osc1 = this.ctx.createOscillator();

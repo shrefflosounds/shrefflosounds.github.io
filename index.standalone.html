@@ -5089,25 +5089,40 @@ class SoundEngine {
     } catch (e) {}
   }
 
-  // Musical Note Block Sound (Mario Maker style melodic marimba/bell chime tone)
-  playMusicNote(pitchIndex = 0) {
+  // Musical Note Block Sound (Mario Maker style melodic marimba/bell chime progression)
+  playMusicNote(pitchIndex = null) {
     if (this.muted || !this.ensureContext()) return;
     try {
       const now = this.ctx.currentTime;
-      // C major diatonic musical scale frequencies
-      const scale = [
-        523.25, // C5
-        587.33, // D5
-        659.25, // E5
-        698.46, // F5
-        783.99, // G5
-        880.00, // A5
-        987.77, // B5
-        1046.50 // C6
+      // Upbeat 16-note platformer melody progression across C major / pentatonic
+      const melody = [
+        523.25,  // C5
+        659.25,  // E5
+        783.99,  // G5
+        1046.50, // C6
+        880.00,  // A5
+        783.99,  // G5
+        659.25,  // E5
+        587.33,  // D5
+        698.46,  // F5
+        880.00,  // A5
+        987.77,  // B5
+        1174.66, // D6
+        1046.50, // C6
+        987.77,  // B5
+        783.99,  // G5
+        659.25   // E5
       ];
 
-      const idx = Math.abs(Math.round(pitchIndex)) % scale.length;
-      const freq = scale[idx];
+      if (typeof this.musicStep !== 'number') {
+        this.musicStep = 0;
+      }
+
+      // Advance through the melody on every hit so repeated bounces play a real tune
+      const stepIdx = (pitchIndex !== null && pitchIndex !== undefined)
+        ? Math.abs(Math.round(pitchIndex)) % melody.length
+        : (this.musicStep++ % melody.length);
+      const freq = melody[stepIdx];
 
       // Primary tone: warm sine wave
       const osc1 = this.ctx.createOscillator();
@@ -6578,7 +6593,10 @@ class SolidBlock extends Entity {
         console.error('Mystery block bump error:', err);
       }
     } else if (this.variant === 'note') {
-      const notePitch = Math.floor(Math.abs(this.x) / 40) % 8;
+      // Advance melodic note counter on every bounce so it plays a varied musical progression
+      SolidBlock.noteSequenceIndex = ((SolidBlock.noteSequenceIndex || 0) + 1) % 16;
+      const heightOffset = Math.max(0, Math.round((480 - this.y) / 80));
+      const notePitch = (SolidBlock.noteSequenceIndex + heightOffset) % 16;
       sounds.playMusicNote(notePitch);
       if (typeof window !== 'undefined' && window.sidehop && window.sidehop.spawnMusicNoteParticle) {
         window.sidehop.spawnMusicNoteParticle(this.x + this.width / 2, this.y);
@@ -11031,10 +11049,19 @@ ${serializedJson}
       osc.stop(t + 0.14);
     }
 
-    playMusicNote(pitchIndex = 0) {
+    playMusicNote(pitchIndex = null) {
       if (!this.ensureContext()) return;
-      const scale = [523.25, 587.33, 659.25, 698.46, 783.99, 880.00, 987.77, 1046.50];
-      const freq = scale[Math.abs(Math.round(pitchIndex)) % scale.length];
+      const melody = [
+        523.25, 659.25, 783.99, 1046.50,
+        880.00, 783.99, 659.25, 587.33,
+        698.46, 880.00, 987.77, 1174.66,
+        1046.50, 987.77, 783.99, 659.25
+      ];
+      if (typeof this.musicStep !== 'number') this.musicStep = 0;
+      const idx = (pitchIndex !== null && pitchIndex !== undefined)
+        ? Math.abs(Math.round(pitchIndex)) % melody.length
+        : (this.musicStep++ % melody.length);
+      const freq = melody[idx];
       const t = this.ctx.currentTime;
       const osc1 = this.ctx.createOscillator();
       const gain1 = this.ctx.createGain();
@@ -11186,8 +11213,14 @@ ${serializedJson}
         if (this.checkOverlap(entity, s)) {
           if (entity.vy > 0) {
             entity.y = s.y - entity.height;
-            entity.vy = 0;
-            entity.grounded = true;
+            if (s.variant === 'note') {
+              entity.vy = -860;
+              entity.grounded = false;
+              sounds.playMusicNote();
+            } else {
+              entity.vy = 0;
+              entity.grounded = true;
+            }
             entity.standingOnSolid = s;
           } else if (entity.vy < 0) {
             entity.y = s.y + s.height;
@@ -11411,6 +11444,8 @@ ${serializedJson}
         this.isUsed = true;
         sounds.playCoin();
         if (this.content === 'gun') player.hasGun = true;
+      } else if (this.variant === 'note') {
+        sounds.playMusicNote();
       }
     }
 

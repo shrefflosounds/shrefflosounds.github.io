@@ -527,7 +527,10 @@ export class SolidBlock extends Entity {
         console.error('Mystery block bump error:', err);
       }
     } else if (this.variant === 'note') {
-      const notePitch = Math.floor(Math.abs(this.x) / 40) % 8;
+      // Advance melodic note counter on every bounce so it plays a varied musical progression
+      SolidBlock.noteSequenceIndex = ((SolidBlock.noteSequenceIndex || 0) + 1) % 16;
+      const heightOffset = Math.max(0, Math.round((480 - this.y) / 80));
+      const notePitch = (SolidBlock.noteSequenceIndex + heightOffset) % 16;
       sounds.playMusicNote(notePitch);
       if (typeof window !== 'undefined' && window.sidehop && window.sidehop.spawnMusicNoteParticle) {
         window.sidehop.spawnMusicNoteParticle(this.x + this.width / 2, this.y);
