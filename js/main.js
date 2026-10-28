@@ -1160,53 +1160,80 @@ class SidehopApp {
 
   drawMixedMediaBackground(w, h) {
     this.ctx.save();
+    const animTime = performance.now() * 0.001;
 
-    // 1. Warm craft paper / textured parchment gradient
+    // 1. Warm studio craft paper / pinboard gradient with authentic fibrous paper texture
     const paperGrad = this.ctx.createLinearGradient(0, 0, 0, h);
-    paperGrad.addColorStop(0, '#FAF4E8');
-    paperGrad.addColorStop(0.5, '#F4E5CA');
-    paperGrad.addColorStop(1, '#E9D2AC');
+    paperGrad.addColorStop(0, '#FAF3E3');
+    paperGrad.addColorStop(0.45, '#F4E3C5');
+    paperGrad.addColorStop(1, '#E6CCA4');
     this.ctx.fillStyle = paperGrad;
     this.ctx.fillRect(0, 0, w, h);
 
-    // Subtle paper deckle lines / fibers
-    this.ctx.strokeStyle = 'rgba(180, 150, 110, 0.08)';
+    // Subtle realistic paper fibers & weave lines
+    this.ctx.strokeStyle = 'rgba(160, 120, 80, 0.07)';
     this.ctx.lineWidth = 1;
-    for (let y = 30; y < h; y += 45) {
+    for (let y = 15; y < h; y += 32) {
       this.ctx.beginPath();
       this.ctx.moveTo(0, y);
-      this.ctx.lineTo(w, y + (Math.sin(y) * 4));
+      this.ctx.lineTo(w, y + Math.sin(y * 0.2) * 3);
       this.ctx.stroke();
     }
 
+    // 2. Brass Pushpins / Thumbtacks in top corners holding the canvas
+    [ [24, 24], [w - 24, 24] ].forEach(([tx, ty]) => {
+      // Pin drop shadow
+      this.ctx.fillStyle = 'rgba(0, 0, 0, 0.25)';
+      this.ctx.beginPath();
+      this.ctx.arc(tx + 2, ty + 3, 7, 0, Math.PI * 2);
+      this.ctx.fill();
+      // Metallic brass head
+      const brassGrad = this.ctx.createRadialGradient(tx - 2, ty - 2, 1, tx, ty, 7);
+      brassGrad.addColorStop(0, '#FEF08A');
+      brassGrad.addColorStop(0.5, '#CA8A04');
+      brassGrad.addColorStop(1, '#854D0E');
+      this.ctx.fillStyle = brassGrad;
+      this.ctx.beginPath();
+      this.ctx.arc(tx, ty, 7, 0, Math.PI * 2);
+      this.ctx.fill();
+      this.ctx.strokeStyle = '#713F12';
+      this.ctx.lineWidth = 1;
+      this.ctx.stroke();
+      // Specular highlight
+      this.ctx.fillStyle = '#FFFFFF';
+      this.ctx.beginPath();
+      this.ctx.arc(tx - 2, ty - 2, 2, 0, Math.PI * 2);
+      this.ctx.fill();
+    });
+
     const horizon = h * 0.72;
 
-    // 2. Distant torn-paper collage horizon layer (soft vintage sage #D4DFD8)
-    this.ctx.fillStyle = '#D4DFD8';
+    // 3. Distant torn corrugated cardboard horizon with exposed fluting ridges (Layer 1 - slow parallax)
+    this.ctx.fillStyle = '#D6BFA0';
     this.ctx.beginPath();
     this.ctx.moveTo(0, h);
-    const loop1 = 900;
-    const off1 = (this.camera.x * 0.06) % loop1;
+    const loop1 = 1000;
+    const off1 = (this.camera.x * 0.05) % loop1;
     for (let x = -200; x <= w + 200; x += 40) {
       const rx = x - off1;
-      const tear = Math.sin(x * 0.05) * 14 + Math.cos(x * 0.02) * 22;
-      this.ctx.lineTo(rx, horizon - 50 + tear);
+      const tear = Math.sin(x * 0.04) * 16 + Math.cos(x * 0.015) * 26;
+      this.ctx.lineTo(rx, horizon - 60 + tear);
     }
     this.ctx.lineTo(w, h);
     this.ctx.closePath();
     this.ctx.fill();
 
-    // 3. Closer hand-torn kraft paper layer with exposed white paper fibers along tear
-    this.ctx.fillStyle = '#D6B894';
+    // 4. Closer hand-torn kraft cardboard layer with exposed white paper fibers along deckle tear
+    this.ctx.fillStyle = '#C4A47C';
     this.ctx.beginPath();
     this.ctx.moveTo(0, h);
-    const loop2 = 750;
-    const off2 = (this.camera.x * 0.14) % loop2;
+    const loop2 = 800;
+    const off2 = (this.camera.x * 0.12) % loop2;
     const tearPoints = [];
     for (let x = -200; x <= w + 200; x += 30) {
       const rx = x - off2;
-      const tear = Math.sin(x * 0.07) * 12 + Math.sin(x * 0.015) * 35;
-      const ty = horizon + 5 + tear;
+      const tear = Math.sin(x * 0.06) * 14 + Math.sin(x * 0.02) * 32;
+      const ty = horizon - 10 + tear;
       tearPoints.push({ x: rx, y: ty });
       this.ctx.lineTo(rx, ty);
     }
@@ -1214,9 +1241,9 @@ class SidehopApp {
     this.ctx.closePath();
     this.ctx.fill();
 
-    // White torn paper fiber deckle edge highlight
+    // Exposed white torn paper deckle fibers
     this.ctx.strokeStyle = '#FFFDF5';
-    this.ctx.lineWidth = 2.5;
+    this.ctx.lineWidth = 3;
     this.ctx.beginPath();
     tearPoints.forEach((pt, idx) => {
       if (idx === 0) this.ctx.moveTo(pt.x, pt.y);
@@ -1224,29 +1251,162 @@ class SidehopApp {
     });
     this.ctx.stroke();
 
-    // 4. Floating collage paper cutouts & washi tape accents
-    const collageItems = [
-      { colX: 140, y: 90, type: 'tape', w: 60, h: 22, rot: -0.15, color: 'rgba(231, 111, 81, 0.45)' },
-      { colX: 380, y: 140, type: 'dot', r: 18, color: '#2A9D8F' },
-      { colX: 620, y: 80, type: 'tape', w: 70, h: 24, rot: 0.12, color: 'rgba(244, 162, 97, 0.5)' },
-      { colX: 860, y: 130, type: 'rhombus', size: 24, rot: 0.25, color: '#E9C46A' },
-      { colX: 1100, y: 95, type: 'tape', w: 55, h: 20, rot: -0.08, color: 'rgba(231, 111, 81, 0.45)' },
-      { colX: 1340, y: 150, type: 'dot', r: 14, color: '#E76F51' }
+    // 5. Floating Mixed Media Decals with Realistic Drop Shadows & Gentle Animation
+    const decalItems = [
+      { colX: 130, y: 95, type: 'airmail', rot: -0.12, w: 74, h: 48 },
+      { colX: 360, y: 145, type: 'polaroid', rot: 0.10, w: 60, h: 72 },
+      { colX: 620, y: 80, type: 'tape', rot: 0.06, w: 85, h: 26, color: 'rgba(234, 88, 12, 0.65)' },
+      { colX: 860, y: 135, type: 'barcode', rot: -0.08, w: 70, h: 42 },
+      { colX: 1100, y: 90, type: 'hologram', rot: 0.15, r: 24 },
+      { colX: 1340, y: 140, type: 'fragile', rot: -0.16, w: 64, h: 36 }
     ];
 
-    const collLoop = 1400;
-    const collOff = (this.camera.x * 0.09) % collLoop;
-    collageItems.forEach(item => {
-      const ix = ((item.colX - collOff) % collLoop + collLoop) % collLoop - 80;
-      this.ctx.save();
-      this.ctx.translate(ix, item.y);
-      if (item.rot) this.ctx.rotate(item.rot);
+    const collLoop = 1500;
+    const collOff = (this.camera.x * 0.08) % collLoop;
 
-      if (item.type === 'tape') {
+    decalItems.forEach((item, idx) => {
+      const ix = ((item.colX - collOff) % collLoop + collLoop) % collLoop - 90;
+      // Gentle animated floating bob
+      const bobY = item.y + Math.sin(animTime * 1.5 + idx * 1.2) * 4;
+      const curRot = item.rot + Math.sin(animTime * 1.2 + idx) * 0.03;
+
+      this.ctx.save();
+      this.ctx.translate(ix, bobY);
+      this.ctx.rotate(curRot);
+
+      if (item.type === 'airmail') {
+        // Decal: Vintage Air Mail Envelope Stamp with Perforations & Postmark
+        // Drop shadow
+        this.ctx.fillStyle = 'rgba(0, 0, 0, 0.22)';
+        this.ctx.fillRect(-item.w / 2 + 3, -item.h / 2 + 4, item.w, item.h);
+        // Cream stamp paper
+        this.ctx.fillStyle = '#FFFDF5';
+        this.ctx.fillRect(-item.w / 2, -item.h / 2, item.w, item.h);
+        // Airmail border stripes
+        for (let bx = -item.w / 2 + 2; bx < item.w / 2 - 4; bx += 8) {
+          this.ctx.fillStyle = '#2563EB';
+          this.ctx.fillRect(bx, -item.h / 2, 4, 3);
+          this.ctx.fillRect(bx + 4, item.h / 2 - 3, 4, 3);
+          this.ctx.fillStyle = '#DC2626';
+          this.ctx.fillRect(bx + 4, -item.h / 2, 4, 3);
+          this.ctx.fillRect(bx, item.h / 2 - 3, 4, 3);
+        }
+        // Stamp insignia & text
+        this.ctx.fillStyle = '#1E3A8A';
+        this.ctx.font = 'bold 9px "Space Grotesk", sans-serif';
+        this.ctx.textAlign = 'center';
+        this.ctx.fillText('PAR AVION', 0, -4);
+        this.ctx.font = '700 7px "Space Grotesk", sans-serif';
+        this.ctx.fillText('AIR MAIL', 0, 8);
+
+        // Circular postmark overlay
+        this.ctx.strokeStyle = 'rgba(30, 41, 59, 0.55)';
+        this.ctx.lineWidth = 1.2;
+        this.ctx.beginPath();
+        this.ctx.arc(item.w / 2 - 14, -item.h / 2 + 14, 11, 0, Math.PI * 2);
+        this.ctx.stroke();
+      } else if (item.type === 'polaroid') {
+        // Decal: Polaroid Photo Cutout with Washi Tape at Top
+        // Drop shadow
+        this.ctx.fillStyle = 'rgba(0, 0, 0, 0.24)';
+        this.ctx.fillRect(-item.w / 2 + 3, -item.h / 2 + 4, item.w, item.h);
+        // White polaroid frame
+        this.ctx.fillStyle = '#FFFFFF';
+        this.ctx.fillRect(-item.w / 2, -item.h / 2, item.w, item.h);
+        // Photo image area inside
+        const imgW = item.w - 10;
+        const imgH = item.h - 22;
+        const skyGrad = this.ctx.createLinearGradient(0, -item.h / 2 + 5, 0, -item.h / 2 + 5 + imgH);
+        skyGrad.addColorStop(0, '#60A5FA');
+        skyGrad.addColorStop(0.7, '#FDE047');
+        skyGrad.addColorStop(1, '#22C55E');
+        this.ctx.fillStyle = skyGrad;
+        this.ctx.fillRect(-item.w / 2 + 5, -item.h / 2 + 5, imgW, imgH);
+        // Polaroid hand-drawn bunny mascot silhouette inside
+        this.ctx.fillStyle = '#1E293B';
+        this.ctx.beginPath();
+        this.ctx.arc(0, 2, 7, 0, Math.PI * 2);
+        this.ctx.fill();
+        this.ctx.fillRect(-5, -12, 3, 8);
+        this.ctx.fillRect(2, -12, 3, 8);
+
+        // Masking tape holding the polaroid at top
+        this.ctx.fillStyle = 'rgba(251, 191, 36, 0.75)';
+        this.ctx.fillRect(-18, -item.h / 2 - 6, 36, 12);
+      } else if (item.type === 'barcode') {
+        // Decal: Shipping Barcode & Serial Label
+        this.ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
+        this.ctx.fillRect(-item.w / 2 + 2, -item.h / 2 + 3, item.w, item.h);
+        this.ctx.fillStyle = '#FFFFFF';
+        this.ctx.fillRect(-item.w / 2, -item.h / 2, item.w, item.h);
+        // Barcode lines
+        this.ctx.fillStyle = '#111827';
+        const bars = [2, 1, 3, 1, 2, 4, 1, 2, 1, 3, 2, 1, 3];
+        let bx = -item.w / 2 + 6;
+        bars.forEach(bw => {
+          this.ctx.fillRect(bx, -item.h / 2 + 5, bw, 20);
+          bx += bw + 2;
+        });
+        this.ctx.font = 'bold 7px ui-monospace, monospace';
+        this.ctx.textAlign = 'center';
+        this.ctx.fillText('* SIDEHOP-94 *', 0, item.h / 2 - 5);
+      } else if (item.type === 'hologram') {
+        // Decal: Glossy Holographic Foil Sticker Badge with Spectrum Sheen
+        // Drop shadow
+        this.ctx.fillStyle = 'rgba(0, 0, 0, 0.25)';
+        this.ctx.beginPath();
+        this.ctx.arc(2, 3, item.r, 0, Math.PI * 2);
+        this.ctx.fill();
+
+        // Rainbow holographic gradient that shifts with time
+        const holoGrad = this.ctx.createLinearGradient(-item.r, -item.r, item.r, item.r);
+        const shift = (animTime * 0.3) % 1;
+        holoGrad.addColorStop((0 + shift) % 1, '#F43F5E');
+        holoGrad.addColorStop((0.25 + shift) % 1, '#FBBF24');
+        holoGrad.addColorStop((0.5 + shift) % 1, '#34D399');
+        holoGrad.addColorStop((0.75 + shift) % 1, '#38BDF8');
+        holoGrad.addColorStop((1 + shift) % 1, '#A855F7');
+        this.ctx.fillStyle = holoGrad;
+        this.ctx.beginPath();
+        this.ctx.arc(0, 0, item.r, 0, Math.PI * 2);
+        this.ctx.fill();
+
+        // Star badge stamp in center
+        this.ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
+        this.ctx.font = 'bold 18px "Fredoka", sans-serif';
+        this.ctx.textAlign = 'center';
+        this.ctx.textBaseline = 'middle';
+        this.ctx.fillText('★', 0, 0);
+
+        // Specular curved glare
+        this.ctx.strokeStyle = 'rgba(255, 255, 255, 0.7)';
+        this.ctx.lineWidth = 2.5;
+        this.ctx.beginPath();
+        this.ctx.arc(0, 0, item.r - 3, Math.PI * 1.1, Math.PI * 1.6);
+        this.ctx.stroke();
+      } else if (item.type === 'fragile') {
+        // Decal: Red "FRAGILE / HANDLE WITH CARE" Decal
+        this.ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
+        this.ctx.fillRect(-item.w / 2 + 2, -item.h / 2 + 3, item.w, item.h);
+        this.ctx.fillStyle = '#DC2626';
+        this.ctx.fillRect(-item.w / 2, -item.h / 2, item.w, item.h);
+        this.ctx.fillStyle = '#FFFFFF';
+        this.ctx.font = 'bold 9px "Space Grotesk", sans-serif';
+        this.ctx.textAlign = 'center';
+        this.ctx.fillText('FRAGILE', 0, -2);
+        this.ctx.font = '600 5px "Space Grotesk", sans-serif';
+        this.ctx.fillText('HANDLE WITH CARE', 0, 7);
+      } else if (item.type === 'tape') {
+        // Decal: Translucent Washi Tape Strip with Serrated Ends
+        this.ctx.fillStyle = 'rgba(0, 0, 0, 0.12)';
+        this.ctx.fillRect(-item.w / 2 + 2, -item.h / 2 + 3, item.w, item.h);
         this.ctx.fillStyle = item.color;
         this.ctx.fillRect(-item.w / 2, -item.h / 2, item.w, item.h);
+        // Tape fibers
+        this.ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+        this.ctx.fillRect(-item.w / 2, -item.h / 2 + 2, item.w, 2);
         // Serrated tape edge ends
-        this.ctx.fillStyle = '#FAF4E8';
+        this.ctx.fillStyle = '#FAF3E3';
         this.ctx.beginPath();
         this.ctx.moveTo(-item.w / 2, -item.h / 2);
         this.ctx.lineTo(-item.w / 2 + 4, -item.h / 4);
@@ -1255,23 +1415,16 @@ class SidehopApp {
         this.ctx.lineTo(-item.w / 2, item.h / 2);
         this.ctx.closePath();
         this.ctx.fill();
-      } else if (item.type === 'dot') {
-        this.ctx.fillStyle = item.color;
-        this.ctx.globalAlpha = 0.8;
         this.ctx.beginPath();
-        this.ctx.arc(0, 0, item.r, 0, Math.PI * 2);
-        this.ctx.fill();
-      } else if (item.type === 'rhombus') {
-        this.ctx.fillStyle = item.color;
-        this.ctx.globalAlpha = 0.8;
-        this.ctx.beginPath();
-        this.ctx.moveTo(0, -item.size);
-        this.ctx.lineTo(item.size, 0);
-        this.ctx.lineTo(0, item.size);
-        this.ctx.lineTo(-item.size, 0);
+        this.ctx.moveTo(item.w / 2, -item.h / 2);
+        this.ctx.lineTo(item.w / 2 - 4, -item.h / 4);
+        this.ctx.lineTo(item.w / 2, 0);
+        this.ctx.lineTo(item.w / 2 - 4, item.h / 4);
+        this.ctx.lineTo(item.w / 2, item.h / 2);
         this.ctx.closePath();
         this.ctx.fill();
       }
+
       this.ctx.restore();
     });
 
@@ -1340,18 +1493,73 @@ class SidehopApp {
 
     const horizon = h * 0.70;
 
-    // 2. Volumetric Holographic Laser Sensor Pillars ascending into the sky
-    for (let i = 0; i < 5; i++) {
-      const lx = ((i * 240 + Math.sin(time * 0.75 + i * 1.3) * 25 - this.camera.x * 0.05) % w + w) % w;
-      const lGrad = this.ctx.createLinearGradient(lx, 0, lx, horizon);
-      lGrad.addColorStop(0, 'rgba(56, 189, 248, 0)');
-      lGrad.addColorStop(0.5, 'rgba(56, 189, 248, 0.05)');
-      lGrad.addColorStop(1, 'rgba(56, 189, 248, 0.22)');
-      this.ctx.fillStyle = lGrad;
-      this.ctx.fillRect(lx - 15, 0, 30, horizon);
-    }
+    // 2. Sweeping Animated Volumetric Cyber Searchlights across the night sky
+    const searchlights = [-0.25, 0.35, -0.15];
+    searchlights.forEach((baseAngle, sIdx) => {
+      const sweep = Math.sin(time * 0.6 + sIdx * 2.1) * 0.45;
+      const angle = baseAngle + sweep;
+      const originX = (w * 0.25) + sIdx * (w * 0.3) - (this.camera.x * 0.03);
+      this.ctx.save();
+      this.ctx.translate(originX, horizon);
+      this.ctx.rotate(angle);
+      const beamGrad = this.ctx.createLinearGradient(0, 0, 0, -h * 1.2);
+      beamGrad.addColorStop(0, 'rgba(0, 229, 255, 0.25)');
+      beamGrad.addColorStop(0.5, 'rgba(56, 189, 248, 0.08)');
+      beamGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+      this.ctx.fillStyle = beamGrad;
+      this.ctx.beginPath();
+      this.ctx.moveTo(-10, 0);
+      this.ctx.lineTo(-70, -h * 1.2);
+      this.ctx.lineTo(70, -h * 1.2);
+      this.ctx.lineTo(10, 0);
+      this.ctx.closePath();
+      this.ctx.fill();
+      this.ctx.restore();
+    });
 
-    // 3. Distant Industrial Megastructures with Blinking Beacon Lights (Layer 1 - slow parallax)
+    // 3. Floating 3D Chrome Gyroscopic Rings in Upper Sky (Liquid Mercury Gyroscope)
+    const gyroX = ((w * 0.78 - (this.camera.x * 0.03)) % (w + 200) + (w + 200)) % (w + 200) - 100;
+    const gyroY = h * 0.26;
+    this.ctx.save();
+    this.ctx.translate(gyroX, gyroY);
+    // Outer rotating chrome ring
+    this.ctx.rotate(time * 0.4);
+    const ringGrad1 = this.ctx.createLinearGradient(-45, -45, 45, 45);
+    ringGrad1.addColorStop(0, '#FFFFFF');
+    ringGrad1.addColorStop(0.3, '#64748B');
+    ringGrad1.addColorStop(0.6, '#F8FAFC');
+    ringGrad1.addColorStop(1, '#1E293B');
+    this.ctx.strokeStyle = ringGrad1;
+    this.ctx.lineWidth = 4.5;
+    this.ctx.beginPath();
+    this.ctx.ellipse(0, 0, 48, 22, 0, 0, Math.PI * 2);
+    this.ctx.stroke();
+
+    // Inner counter-rotating ring
+    this.ctx.rotate(-time * 0.85);
+    const ringGrad2 = this.ctx.createLinearGradient(-30, 30, 30, -30);
+    ringGrad2.addColorStop(0, '#38BDF8');
+    ringGrad2.addColorStop(0.5, '#FFFFFF');
+    ringGrad2.addColorStop(1, '#0F172A');
+    this.ctx.strokeStyle = ringGrad2;
+    this.ctx.lineWidth = 3;
+    this.ctx.beginPath();
+    this.ctx.ellipse(0, 0, 32, 14, 0, 0, Math.PI * 2);
+    this.ctx.stroke();
+
+    // Core liquid chrome sphere with reflection
+    const sphereGrad = this.ctx.createRadialGradient(-4, -4, 2, 0, 0, 14);
+    sphereGrad.addColorStop(0, '#FFFFFF');
+    sphereGrad.addColorStop(0.4, '#CBD5E1');
+    sphereGrad.addColorStop(0.85, '#334155');
+    sphereGrad.addColorStop(1, '#0F172A');
+    this.ctx.fillStyle = sphereGrad;
+    this.ctx.beginPath();
+    this.ctx.arc(0, 0, 13, 0, Math.PI * 2);
+    this.ctx.fill();
+    this.ctx.restore();
+
+    // 4. Distant Industrial Megastructures with Blinking Beacon Lights (Layer 1 - slow parallax)
     this.ctx.fillStyle = '#1A2333';
     const structLoop = 900;
     const structOff = (this.camera.x * 0.04) % structLoop;
@@ -1378,7 +1586,7 @@ class SidehopApp {
       this.ctx.fillStyle = '#1A2333';
     }
 
-    // 4. Midground Heavy Industrial Chrome Cogwheels & Truss Girders (Layer 2 - parallax)
+    // 5. Midground Heavy Industrial Chrome Cogwheels & Truss Girders (Layer 2 - parallax)
     const gearLoop = 700;
     const gearOff = (this.camera.x * 0.08) % gearLoop;
     [180, 520].forEach((gx, idx) => {
@@ -1424,7 +1632,7 @@ class SidehopApp {
       this.ctx.restore();
     });
 
-    // 5. Polished Chrome Horizon Line with Moving Specular Sheen
+    // 6. Polished Chrome Horizon Line with Moving Specular Sheen
     const sheenX = ((time * 180) % (w + 400)) - 200;
     const sheenGrad = this.ctx.createRadialGradient(sheenX, horizon, 0, sheenX, horizon, 150);
     sheenGrad.addColorStop(0, 'rgba(255, 255, 255, 0.85)');
@@ -1440,7 +1648,7 @@ class SidehopApp {
     this.ctx.lineTo(w, horizon);
     this.ctx.stroke();
 
-    // 6. Perspective Cybernetic Ground Plane
+    // 7. Perspective Cybernetic Ground Plane
     const groundLines = 10;
     for (let i = 1; i <= groundLines; i++) {
       const t = Math.pow(i / groundLines, 2.2);
@@ -1453,7 +1661,7 @@ class SidehopApp {
       this.ctx.stroke();
     }
 
-    // 7. Animated Chrome Sparks & Starburst Gleams
+    // 8. Animated Chrome Sparks & Starburst Gleams
     if (this.chromeSparks) {
       this.chromeSparks.forEach(p => {
         p.y -= p.speed;
@@ -1482,6 +1690,32 @@ class SidehopApp {
         this.ctx.restore();
       });
     }
+
+    // 8. Low-Lying Rolling Jungle Mist / Forest Fog
+    const mistLoop = 800;
+    const mistOff = ((time * 25) + (this.camera.x * 0.15)) % mistLoop;
+    this.ctx.fillStyle = 'rgba(209, 250, 229, 0.18)';
+    for (let mx = -200; mx < w + 300; mx += 140) {
+      const px = mx - mistOff;
+      this.ctx.beginPath();
+      this.ctx.arc(px + 60, h - 20, 65, Math.PI, 0);
+      this.ctx.fill();
+    }
+
+    // 9. Fluttering Tropical Butterflies
+    [ [180, horizon - 80, '#FFD166'], [540, horizon - 120, '#00E5FF'], [820, horizon - 60, '#FF3388'] ].forEach(([bx, by, col], idx) => {
+      const bX = ((bx + Math.sin(time * 1.5 + idx * 2) * 50 - this.camera.x * 0.1) % (w + 200) + (w + 200)) % (w + 200) - 100;
+      const bY = by + Math.cos(time * 2 + idx) * 20;
+      const flap = Math.abs(Math.sin(time * 8 + idx * 3));
+      this.ctx.save();
+      this.ctx.translate(bX, bY);
+      this.ctx.fillStyle = col;
+      this.ctx.beginPath();
+      this.ctx.ellipse(-3 * flap, 0, 4 * flap, 3, -0.4, 0, Math.PI * 2);
+      this.ctx.ellipse(3 * flap, 0, 4 * flap, 3, 0.4, 0, Math.PI * 2);
+      this.ctx.fill();
+      this.ctx.restore();
+    });
 
     this.ctx.restore();
   }
@@ -1793,7 +2027,7 @@ class SidehopApp {
     this.ctx.fillStyle = '#083D2D';
     this.ctx.fillRect(pyrX - 8, horizon - 96, 16, 96);
 
-    // 4. Distant Jungle Ridge Silhouettes
+    // 4. Distant Jungle Ridge Silhouettes & Cascading Waterfall
     this.ctx.fillStyle = '#083E2C';
     const ridgeLoop = 800;
     const ridgeOff = (this.camera.x * 0.06) % ridgeLoop;
@@ -1806,6 +2040,27 @@ class SidehopApp {
     }
     this.ctx.lineTo(w, h);
     this.ctx.closePath();
+    this.ctx.fill();
+
+    // Cascading distant waterfall flowing between ridges
+    const wfX = ((320 - ridgeOff) % (w + 400) + (w + 400)) % (w + 400) - 100;
+    const wfGrad = this.ctx.createLinearGradient(wfX, horizon - 15, wfX, horizon + 45);
+    wfGrad.addColorStop(0, '#A7F3D0');
+    wfGrad.addColorStop(0.5, '#6EE7B7');
+    wfGrad.addColorStop(1, '#059669');
+    this.ctx.fillStyle = wfGrad;
+    this.ctx.fillRect(wfX - 6, horizon - 15, 12, 60);
+
+    // Animated foaming water highlights
+    this.ctx.fillStyle = 'rgba(255, 255, 255, 0.75)';
+    const streamY = ((time * 80) % 20);
+    this.ctx.fillRect(wfX - 4, horizon - 10 + streamY, 8, 4);
+    this.ctx.fillRect(wfX - 3, horizon + 10 + streamY, 6, 5);
+
+    // Waterfall mist spray at base
+    this.ctx.fillStyle = 'rgba(209, 250, 229, 0.4)';
+    this.ctx.beginPath();
+    this.ctx.arc(wfX, horizon + 45, 16 + Math.sin(time * 3) * 3, 0, Math.PI * 2);
     this.ctx.fill();
 
     // 5. Midground Lush Banyan Tree Trunks & Swaying Jungle Vines (Layer 2)
@@ -1879,6 +2134,32 @@ class SidehopApp {
         this.ctx.restore();
       });
     }
+
+    // 8. Low-Lying Rolling Jungle Mist / Forest Fog
+    const mistLoop = 800;
+    const mistOff = ((time * 25) + (this.camera.x * 0.15)) % mistLoop;
+    this.ctx.fillStyle = 'rgba(209, 250, 229, 0.18)';
+    for (let mx = -200; mx < w + 300; mx += 140) {
+      const px = mx - mistOff;
+      this.ctx.beginPath();
+      this.ctx.arc(px + 60, h - 20, 65, Math.PI, 0);
+      this.ctx.fill();
+    }
+
+    // 9. Fluttering Tropical Butterflies
+    [ [180, horizon - 80, '#FFD166'], [540, horizon - 120, '#00E5FF'], [820, horizon - 60, '#FF3388'] ].forEach(([bx, by, col], idx) => {
+      const bX = ((bx + Math.sin(time * 1.5 + idx * 2) * 50 - this.camera.x * 0.1) % (w + 200) + (w + 200)) % (w + 200) - 100;
+      const bY = by + Math.cos(time * 2 + idx) * 20;
+      const flap = Math.abs(Math.sin(time * 8 + idx * 3));
+      this.ctx.save();
+      this.ctx.translate(bX, bY);
+      this.ctx.fillStyle = col;
+      this.ctx.beginPath();
+      this.ctx.ellipse(-3 * flap, 0, 4 * flap, 3, -0.4, 0, Math.PI * 2);
+      this.ctx.ellipse(3 * flap, 0, 4 * flap, 3, 0.4, 0, Math.PI * 2);
+      this.ctx.fill();
+      this.ctx.restore();
+    });
 
     this.ctx.restore();
   }
@@ -2278,6 +2559,27 @@ class SidehopApp {
         rotation: Math.random() * Math.PI,
         vRot: (Math.random() - 0.5) * 0.3,
         life: 0.6
+      });
+    }
+  }
+
+  // Musical Note floating particles when bouncing on a Note Block
+  spawnMusicNoteParticle(x, y) {
+    const symbols = ['♪', '♫', '♬', '♩'];
+    const colors = ['#FF2A85', '#00E5FF', '#FFE600', '#00E676', '#B388FF'];
+    const count = 3;
+    for (let i = 0; i < count; i++) {
+      this.confetti.push({
+        x: x + (Math.random() - 0.5) * 20,
+        y: y - 10,
+        vx: (Math.random() - 0.5) * 3.5,
+        vy: -Math.random() * 4.5 - 3,
+        char: symbols[Math.floor(Math.random() * symbols.length)],
+        color: colors[Math.floor(Math.random() * colors.length)],
+        size: Math.random() * 6 + 18,
+        rotation: (Math.random() - 0.5) * 0.4,
+        vRot: (Math.random() - 0.5) * 0.1,
+        life: 0.95
       });
     }
   }
@@ -3881,8 +4183,16 @@ class SidehopApp {
         const drawY = p.isScreen ? p.y : (p.y - this.camera.y);
         this.ctx.translate(drawX, drawY);
         this.ctx.rotate(p.rotation);
-        this.ctx.fillStyle = p.color;
-        this.ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size);
+        if (p.char) {
+          this.ctx.font = `bold ${Math.round(p.size)}px "Fredoka", sans-serif`;
+          this.ctx.textAlign = 'center';
+          this.ctx.textBaseline = 'middle';
+          this.ctx.fillStyle = p.color;
+          this.ctx.fillText(p.char, 0, 0);
+        } else {
+          this.ctx.fillStyle = p.color;
+          this.ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size);
+        }
         this.ctx.restore();
       }
       this.ctx.restore();

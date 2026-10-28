@@ -1070,7 +1070,7 @@ body[data-theme="atlantis"] .neo-btn:disabled span {
   border: var(--border-thick);
   box-shadow: var(--shadow-hard);
   background-color: var(--canary-yellow);
-  color: var(--ink-black);
+  color: #050508 !important;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -1631,10 +1631,11 @@ input:checked + .toggle-knob:before {
 .component-flyout-menu {
   position: fixed;
   z-index: 1000;
-  background: #FFF;
-  border: 3px solid var(--ink-black);
+  background: var(--bg-panel);
+  border: 3px solid var(--border-color);
   border-radius: 12px;
-  box-shadow: 4px 4px 0 var(--ink-black);
+  box-shadow: 4px 4px 0 var(--shadow-color);
+  color: var(--ink-black);
   min-width: 270px;
   max-width: 320px;
   max-height: calc(100vh - 32px);
@@ -1838,11 +1839,11 @@ input:checked + .toggle-knob:before {
   bottom: 24px;
   right: 24px;
   background: var(--canary-yellow);
-  color: var(--ink-black);
+  color: #050508 !important;
   padding: 10px 18px;
-  border: 3px solid var(--ink-black);
+  border: 3px solid #050508;
   border-radius: 12px;
-  box-shadow: 4px 4px 0 var(--ink-black);
+  box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.45);
   font-size: 14px;
   font-weight: 700;
   z-index: 9999;
@@ -2113,7 +2114,7 @@ input:checked + .toggle-knob:before {
 .drag-drop-title {
   font-size: 22px;
   font-weight: 800;
-  color: var(--ink-black);
+  color: #050508 !important;
   text-transform: uppercase;
   letter-spacing: -0.5px;
 }
@@ -2121,7 +2122,7 @@ input:checked + .toggle-knob:before {
 .drag-drop-sub {
   font-size: 13px;
   font-weight: 700;
-  color: var(--ink-black);
+  color: #050508 !important;
   margin-top: 4px;
 }
 
@@ -2179,12 +2180,14 @@ dialog.neo-dialog::backdrop {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  color: #050508 !important;
 }
 
 .neo-dialog-title {
   font-size: 18px;
   font-weight: 700;
   text-transform: uppercase;
+  color: #050508 !important;
 }
 
 .neo-dialog-close {
@@ -2194,6 +2197,7 @@ dialog.neo-dialog::backdrop {
   cursor: pointer;
   line-height: 1;
   font-weight: 700;
+  color: #050508 !important;
 }
 
 .neo-dialog-body {
@@ -2209,12 +2213,17 @@ dialog.neo-dialog::backdrop {
   font-size: 14px;
   font-family: inherit;
   font-weight: 600;
-  border: 2px solid var(--ink-black);
+  border: 2px solid var(--border-color);
   border-radius: 10px;
-  background: #FFF;
-  box-shadow: 2px 2px 0px var(--ink-black);
+  background: var(--bg-cream);
+  color: var(--ink-black);
+  box-shadow: 2px 2px 0px var(--shadow-color);
   outline: none;
   margin-bottom: 12px;
+}
+
+.help-search-input::placeholder {
+  color: var(--text-muted);
 }
 
 .help-search-input:focus {
@@ -2234,18 +2243,24 @@ dialog.neo-dialog::backdrop {
   width: 100%;
   padding: 10px 14px;
   text-align: left;
-  background: #FFF;
-  border: 2px solid var(--ink-black);
+  background: var(--bg-panel);
+  border: 2px solid var(--border-color);
   border-radius: 10px;
-  box-shadow: 2px 2px 0px var(--ink-black);
+  box-shadow: 2px 2px 0px var(--shadow-color);
   cursor: pointer;
   transition: transform 0.08s ease, background 0.08s ease;
+  color: var(--ink-black);
 }
 
 .help-row-btn:hover {
-  background: #FFFDE7;
+  background: var(--canary-yellow);
   transform: translate(-1px, -1px);
-  box-shadow: 3px 3px 0px var(--ink-black);
+  box-shadow: 3px 3px 0px var(--shadow-color);
+}
+
+.help-row-btn:hover .help-row-title,
+.help-row-btn:hover .help-row-body {
+  color: #050508 !important;
 }
 
 .help-row-left {
@@ -2610,6 +2625,767 @@ body[data-theme="night"] .about-colophon-sub {
   color: #94A3B8;
 }
 
+/* ─────────────────────────────────────────────────────────────
+   ART STUDIO COMPONENT COLOR TINTING (RECOLOR STARTER PIECES)
+   ───────────────────────────────────────────────────────────── */
+.art-component-color-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: var(--bg-panel);
+  border: 2px solid var(--border-color);
+  border-radius: 8px;
+  padding: 10px;
+  margin-top: 6px;
+}
+
+.art-comp-color-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.art-comp-color-title {
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+  color: var(--ink-black);
+}
+
+.art-comp-color-pill {
+  font-size: 11px;
+  font-weight: 800;
+  padding: 2px 8px;
+  border-radius: 6px;
+  border: 1.5px solid var(--border-color);
+  background: var(--bg-cream);
+  color: var(--ink-black);
+  text-align: center;
+}
+
+.art-comp-color-swatches {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.art-comp-color-btn {
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  border: 2px solid var(--border-color);
+  cursor: pointer;
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+  box-shadow: 1.5px 1.5px 0 var(--shadow-color);
+}
+
+.art-comp-color-btn:hover {
+  transform: scale(1.15);
+  box-shadow: 2px 2px 0 var(--shadow-color);
+}
+
+.art-comp-color-btn.active {
+  outline: 3px solid var(--canary-yellow);
+  outline-offset: 1px;
+  transform: scale(1.15);
+}
+
+.art-comp-color-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 2px;
+}
+
+.art-comp-custom-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--ink-black);
+  cursor: pointer;
+}
+
+.art-comp-custom-label input[type="color"] {
+  width: 28px;
+  height: 24px;
+  border: 2px solid var(--border-color);
+  border-radius: 4px;
+  cursor: pointer;
+  background: none;
+  padding: 0;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   LANDING PAGE (WELCOME, OVERVIEW, BIO, LICENSING, ROADMAP)
+   ───────────────────────────────────────────────────────────── */
+.landing-page-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 99990;
+  background: var(--bg-cream);
+  color: var(--ink-black);
+  overflow-y: auto;
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: opacity 0.25s ease, visibility 0.25s ease;
+}
+
+.landing-page-overlay.hidden {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+/* Landing Nav */
+.landing-nav {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 28px;
+  background: var(--header-bg);
+  border-bottom: var(--border-thick);
+  box-shadow: var(--shadow-hard);
+}
+
+.landing-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+}
+
+.landing-brand-logo {
+  width: 36px;
+  height: 36px;
+  object-fit: contain;
+}
+
+.landing-brand-title {
+  font-size: 24px;
+  font-weight: 900;
+  letter-spacing: -0.5px;
+  color: var(--ink-black);
+  text-transform: uppercase;
+}
+
+.landing-brand-tag {
+  font-size: 11px;
+  font-weight: 800;
+  background: var(--canary-yellow);
+  color: #050508 !important;
+  padding: 2px 8px;
+  border-radius: 6px;
+  border: 1.5px solid var(--border-color);
+  letter-spacing: 0.5px;
+}
+
+.landing-nav-links {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.landing-nav-link {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ink-black);
+  text-decoration: none;
+  padding: 4px 8px;
+  border-radius: 6px;
+  transition: all 0.12s ease;
+}
+
+.landing-nav-link:hover {
+  background: var(--canary-yellow);
+  color: #050508 !important;
+}
+
+.landing-launch-btn {
+  font-size: 14px;
+  font-weight: 900;
+  padding: 8px 18px;
+  background: var(--canary-yellow);
+  color: #050508 !important;
+  border: var(--border-thick);
+  border-radius: 10px;
+  box-shadow: 3px 3px 0 var(--shadow-color);
+  cursor: pointer;
+  transition: all 0.12s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.landing-launch-btn:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 5px 5px 0 var(--shadow-color);
+  background: #FFDF00;
+}
+
+.landing-launch-btn:active {
+  transform: translate(1px, 1px);
+  box-shadow: 1px 1px 0 var(--shadow-color);
+}
+
+/* Landing Container */
+.landing-container {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 40px 24px 80px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 60px;
+  box-sizing: border-box;
+}
+
+/* Hero Section */
+.landing-hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 20px;
+  padding: 40px 20px;
+  background: var(--bg-panel);
+  border: var(--border-thick);
+  border-radius: 20px;
+  box-shadow: var(--shadow-hard);
+  position: relative;
+  overflow: hidden;
+}
+
+.landing-hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--cyber-cyan);
+  color: #050508 !important;
+  font-size: 12px;
+  font-weight: 800;
+  padding: 4px 12px;
+  border-radius: 20px;
+  border: 2px solid var(--border-color);
+  text-transform: uppercase;
+}
+
+.landing-hero-h1 {
+  font-size: 42px;
+  font-weight: 900;
+  line-height: 1.15;
+  letter-spacing: -1px;
+  color: var(--ink-black);
+  max-width: 820px;
+  margin: 0;
+}
+
+.landing-hero-h1 span.highlight {
+  background: var(--canary-yellow);
+  color: #050508 !important;
+  padding: 0 8px;
+  border-radius: 6px;
+  border: 2px solid var(--border-color);
+  display: inline-block;
+}
+
+.landing-hero-sub {
+  font-size: 18px;
+  font-weight: 500;
+  color: var(--text-muted);
+  max-width: 740px;
+  line-height: 1.55;
+  margin: 0;
+}
+
+.landing-hero-ctas {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-top: 10px;
+}
+
+.landing-hero-btn-primary {
+  font-size: 16px;
+  font-weight: 900;
+  padding: 12px 28px;
+  background: var(--canary-yellow);
+  color: #050508 !important;
+  border: 3px solid var(--border-color);
+  border-radius: 12px;
+  box-shadow: 4px 4px 0 var(--shadow-color);
+  cursor: pointer;
+  transition: all 0.12s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.landing-hero-btn-primary:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0 var(--shadow-color);
+}
+
+.landing-hero-btn-secondary {
+  font-size: 15px;
+  font-weight: 800;
+  padding: 12px 22px;
+  background: var(--bg-cream);
+  color: var(--ink-black);
+  border: 2.5px solid var(--border-color);
+  border-radius: 12px;
+  box-shadow: 3px 3px 0 var(--shadow-color);
+  cursor: pointer;
+  transition: all 0.12s ease;
+  text-decoration: none;
+}
+
+.landing-hero-btn-secondary:hover {
+  background: var(--bubblegum-pink);
+  color: #FFF !important;
+  transform: translate(-1px, -1px);
+}
+
+.landing-hero-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+  margin-top: 12px;
+}
+
+.landing-hero-pill {
+  font-size: 12px;
+  font-weight: 700;
+  padding: 6px 12px;
+  background: var(--bg-cream);
+  border: 2px solid var(--border-color);
+  border-radius: 8px;
+  color: var(--ink-black);
+}
+
+/* Sections */
+.landing-section {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.landing-section-header {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.landing-section-tag {
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--accent-rose);
+}
+
+.landing-section-title {
+  font-size: 32px;
+  font-weight: 900;
+  letter-spacing: -0.5px;
+  color: var(--ink-black);
+  margin: 0;
+}
+
+.landing-section-desc {
+  font-size: 16px;
+  color: var(--text-muted);
+  line-height: 1.6;
+  max-width: 800px;
+  margin: 0;
+}
+
+/* What App Does Callout Box */
+.landing-what-box {
+  background: var(--bg-panel);
+  border: var(--border-thick);
+  border-radius: 16px;
+  padding: 28px;
+  box-shadow: var(--shadow-hard);
+  font-size: 16px;
+  line-height: 1.7;
+  color: var(--ink-black);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Feature Grid */
+.landing-feature-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.landing-feature-card {
+  background: var(--bg-panel);
+  border: var(--border-thick);
+  border-radius: 14px;
+  padding: 22px;
+  box-shadow: var(--shadow-hard);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  transition: transform 0.12s ease;
+}
+
+.landing-feature-card:hover {
+  transform: translateY(-2px);
+}
+
+.landing-feature-icon {
+  font-size: 28px;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  border: 2px solid var(--border-color);
+  background: var(--canary-yellow);
+  color: #050508 !important;
+}
+
+.landing-feature-name {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--ink-black);
+  margin: 0;
+}
+
+.landing-feature-body {
+  font-size: 14px;
+  color: var(--text-muted);
+  line-height: 1.55;
+  margin: 0;
+}
+
+/* Getting Started Steps */
+.landing-steps-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 18px;
+}
+
+.landing-step-card {
+  background: var(--bg-panel);
+  border: var(--border-thick);
+  border-radius: 14px;
+  padding: 20px;
+  box-shadow: var(--shadow-hard);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  position: relative;
+}
+
+.landing-step-num {
+  font-size: 12px;
+  font-weight: 900;
+  padding: 3px 8px;
+  border-radius: 6px;
+  border: 1.5px solid var(--border-color);
+  background: var(--cyber-cyan);
+  color: #050508 !important;
+  display: inline-block;
+  align-self: flex-start;
+}
+
+.landing-step-title {
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--ink-black);
+  margin: 0;
+}
+
+.landing-step-desc {
+  font-size: 13px;
+  color: var(--text-muted);
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* Creator & Bio Section */
+.landing-creator-card {
+  background: var(--bg-panel);
+  border: var(--border-thick);
+  border-radius: 18px;
+  padding: 32px;
+  box-shadow: var(--shadow-hard);
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.landing-bio-quote {
+  font-size: 19px;
+  font-weight: 600;
+  font-style: italic;
+  color: var(--ink-black);
+  line-height: 1.6;
+  padding: 16px 20px;
+  background: var(--bg-cream);
+  border-left: 5px solid var(--bubblegum-pink);
+  border-radius: 0 12px 12px 0;
+  margin: 0;
+}
+
+.landing-bio-link-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.landing-bio-link {
+  font-size: 16px;
+  font-weight: 800;
+  color: #0077CC;
+  text-decoration: underline;
+  transition: color 0.12s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.landing-bio-link:hover {
+  color: var(--bubblegum-pink);
+}
+
+.landing-flyer-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 0;
+}
+
+.landing-flyer-img {
+  max-width: 100%;
+  width: 580px;
+  height: auto;
+  border: 3px solid var(--border-color);
+  border-radius: 12px;
+  box-shadow: var(--shadow-hard);
+  background: transparent;
+}
+
+/* Open Source & License Section */
+.landing-license-box {
+  background: var(--bg-panel);
+  border: var(--border-thick);
+  border-radius: 16px;
+  padding: 26px;
+  box-shadow: var(--shadow-hard);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.landing-license-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 0;
+  padding-left: 20px;
+  color: var(--text-muted);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.landing-license-list strong {
+  color: var(--ink-black);
+}
+
+/* Future Plans Roadmap */
+.landing-roadmap-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 18px;
+}
+
+.landing-roadmap-card {
+  background: var(--bg-panel);
+  border: var(--border-thick);
+  border-radius: 14px;
+  padding: 20px;
+  box-shadow: var(--shadow-hard);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.landing-roadmap-badge {
+  font-size: 11px;
+  font-weight: 800;
+  padding: 3px 8px;
+  border-radius: 6px;
+  background: var(--accent-mint);
+  color: #050508 !important;
+  align-self: flex-start;
+  border: 1.5px solid var(--border-color);
+}
+
+.landing-roadmap-title {
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--ink-black);
+  margin: 0;
+}
+
+.landing-roadmap-desc {
+  font-size: 13px;
+  color: var(--text-muted);
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* Bottom Launch CTA Bar */
+.landing-bottom-cta {
+  background: var(--canary-yellow);
+  color: #050508 !important;
+  border: 3px solid var(--border-color);
+  border-radius: 18px;
+  padding: 36px 24px;
+  box-shadow: var(--shadow-hard);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.landing-bottom-h2 {
+  font-size: 28px;
+  font-weight: 900;
+  color: #050508 !important;
+  margin: 0;
+}
+
+.landing-bottom-p {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1E293B !important;
+  max-width: 600px;
+  margin: 0;
+}
+
+/* Theme contrast guarantees across all dark themes */
+body[data-theme="night"] .landing-page-overlay,
+body[data-theme="neon"] .landing-page-overlay,
+body[data-theme="atlantis"] .landing-page-overlay {
+  background: var(--bg-cream);
+  color: #F8FAFC;
+}
+
+body[data-theme="night"] .landing-hero-h1,
+body[data-theme="neon"] .landing-hero-h1,
+body[data-theme="atlantis"] .landing-hero-h1,
+body[data-theme="night"] .landing-section-title,
+body[data-theme="neon"] .landing-section-title,
+body[data-theme="atlantis"] .landing-section-title,
+body[data-theme="night"] .landing-feature-name,
+body[data-theme="neon"] .landing-feature-name,
+body[data-theme="atlantis"] .landing-feature-name,
+body[data-theme="night"] .landing-step-title,
+body[data-theme="neon"] .landing-step-title,
+body[data-theme="atlantis"] .landing-step-title,
+body[data-theme="night"] .landing-roadmap-title,
+body[data-theme="neon"] .landing-roadmap-title,
+body[data-theme="atlantis"] .landing-roadmap-title,
+body[data-theme="night"] .landing-brand-title,
+body[data-theme="neon"] .landing-brand-title,
+body[data-theme="atlantis"] .landing-brand-title,
+body[data-theme="night"] .modal-title,
+body[data-theme="neon"] .modal-title,
+body[data-theme="atlantis"] .modal-title,
+body[data-theme="night"] .art-comp-color-title,
+body[data-theme="neon"] .art-comp-color-title,
+body[data-theme="atlantis"] .art-comp-color-title {
+  color: #FFFFFF !important;
+}
+
+body[data-theme="night"] .landing-hero-sub,
+body[data-theme="neon"] .landing-hero-sub,
+body[data-theme="atlantis"] .landing-hero-sub,
+body[data-theme="night"] .landing-section-desc,
+body[data-theme="neon"] .landing-section-desc,
+body[data-theme="atlantis"] .landing-section-desc,
+body[data-theme="night"] .landing-feature-body,
+body[data-theme="neon"] .landing-feature-body,
+body[data-theme="atlantis"] .landing-feature-body,
+body[data-theme="night"] .landing-step-desc,
+body[data-theme="neon"] .landing-step-desc,
+body[data-theme="atlantis"] .landing-step-desc,
+body[data-theme="night"] .landing-roadmap-desc,
+body[data-theme="neon"] .landing-roadmap-desc,
+body[data-theme="atlantis"] .landing-roadmap-desc,
+body[data-theme="night"] .landing-license-list,
+body[data-theme="neon"] .landing-license-list,
+body[data-theme="atlantis"] .landing-license-list {
+  color: #CBD5E1 !important;
+}
+
+body[data-theme="night"] .landing-what-box,
+body[data-theme="neon"] .landing-what-box,
+body[data-theme="atlantis"] .landing-what-box,
+body[data-theme="night"] .landing-bio-quote,
+body[data-theme="neon"] .landing-bio-quote,
+body[data-theme="atlantis"] .landing-bio-quote {
+  color: #F8FAFC !important;
+}
+
+body[data-theme="night"] .landing-bio-link,
+body[data-theme="neon"] .landing-bio-link,
+body[data-theme="atlantis"] .landing-bio-link {
+  color: #38BDF8 !important;
+}
+
+body[data-theme="night"] .about-section,
+body[data-theme="neon"] .about-section,
+body[data-theme="atlantis"] .about-section {
+  color: #F8FAFC !important;
+}
+
+body[data-theme="night"] .about-tab-panel p,
+body[data-theme="neon"] .about-tab-panel p,
+body[data-theme="atlantis"] .about-tab-panel p {
+  color: #CBD5E1 !important;
+}
+
+body[data-theme="night"] .about-credit-title,
+body[data-theme="neon"] .about-credit-title,
+body[data-theme="atlantis"] .about-credit-title {
+  color: #FFFFFF !important;
+}
+
+body[data-theme="night"] .about-credit-role,
+body[data-theme="neon"] .about-credit-role,
+body[data-theme="atlantis"] .about-credit-role {
+  color: #94A3B8 !important;
+}
+
+body[data-theme="night"] .about-privacy-badge,
+body[data-theme="neon"] .about-privacy-badge,
+body[data-theme="atlantis"] .about-privacy-badge {
+  background-color: #1E293B !important;
+  color: #F8FAFC !important;
+  border-color: #475569 !important;
+}
+
 
 
 
@@ -2617,6 +3393,356 @@ body[data-theme="night"] .about-colophon-sub {
 </style>
 </head>
 <body>
+
+  <!-- ============================================================
+       ROBUST WELCOME & LANDING PAGE (OPENS BEFORE STUDIO LAUNCH)
+       ============================================================ -->
+  <div id="landing-page" class="landing-page-overlay">
+    <!-- Sticky Landing Nav -->
+    <nav class="landing-nav">
+      <div class="landing-brand">
+        <img src="assets/logo.png" alt="Sidehop Logo" class="landing-brand-logo">
+        <span class="landing-brand-title">Sidehop</span>
+        <span class="landing-brand-tag">Platformer Studio</span>
+      </div>
+      <div class="landing-nav-links">
+        <a href="#landing-what" class="landing-nav-link">About</a>
+        <a href="#landing-features" class="landing-nav-link">Features</a>
+        <a href="#landing-start" class="landing-nav-link">How to Start</a>
+        <a href="#landing-creator" class="landing-nav-link">Smitty Fantastic</a>
+        <a href="#landing-license" class="landing-nav-link">Open Source</a>
+        <a href="#landing-roadmap" class="landing-nav-link">Roadmap</a>
+        <button id="landing-launch-btn-nav" class="landing-launch-btn" type="button">
+          <span>Launch Sidehop</span> <span>▶</span>
+        </button>
+      </div>
+    </nav>
+
+    <!-- Main Landing Container -->
+    <div class="landing-container">
+
+      <!-- Hero Banner -->
+      <section class="landing-hero">
+        <div class="landing-hero-badge">✨ Browser-Based 2D Game Creator &amp; Art Studio</div>
+        <h1 class="landing-hero-h1">
+          Build, Paint, and Hop Through Your Very Own <span class="highlight">2D Platformers</span>.
+        </h1>
+        <p class="landing-hero-sub">
+          Sidehop is a tactile, playful creative sandbox where anyone can craft obstacle courses, paint custom characters and blocks, play musical note blocks, tweak springy physics, and jump right into the game. No accounts, no downloads, and no coding required.
+        </p>
+        <div class="landing-hero-ctas">
+          <button id="landing-launch-btn-hero" class="landing-hero-btn-primary" type="button">
+            <span>🚀 Launch Sidehop Studio</span>
+          </button>
+          <a href="#landing-creator" class="landing-hero-btn-secondary">
+            <span>🎨 Meet the Artist</span>
+          </a>
+        </div>
+        <div class="landing-hero-pills">
+          <span class="landing-hero-pill">⚡ 1-Click Playtesting (Spacebar)</span>
+          <span class="landing-hero-pill">🎨 Paint Studio &amp; Color Tinting</span>
+          <span class="landing-hero-pill">🎵 Musical Note Blocks</span>
+          <span class="landing-hero-pill">🌍 9 Living Worlds</span>
+          <span class="landing-hero-pill">🔒 100% Private &amp; Offline</span>
+        </div>
+      </section>
+
+      <!-- Section: What does this app do? -->
+      <section id="landing-what" class="landing-section">
+        <div class="landing-section-header">
+          <span class="landing-section-tag">Overview</span>
+          <h2 class="landing-section-title">What Does Sidehop Do?</h2>
+          <p class="landing-section-desc">
+            An approachable, joyful video game creation studio built right into your web browser.
+          </p>
+        </div>
+        <div class="landing-what-box">
+          <p>
+            Have you ever wanted to build your own Mario-style video game, but found game engines too complex, confusing, or full of technical jargon? <strong>Sidehop is designed for you.</strong>
+          </p>
+          <p>
+            Sidehop turns your web browser into an open canvas. You can click and place ground tiles, slippery ice ramps, musical note blocks, floating platforms, springboards, spikes, and goal flags onto a clean grid. At any moment, pressing the <strong>Spacebar</strong> drops you straight into your level as the hero, letting you test your jumps and obstacles instantly.
+          </p>
+          <p>
+            Inside the built-in <strong>Art Studio</strong>, you can sketch your own custom characters and tiles with markers, brushes, and stamps—or simply tint any starter component (like turning an ice block into a fiery red gem or coloring your victory flag gold). When your level is ready, you can save it as a lightweight file or export a standalone HTML game that your friends and family can play on any computer, anywhere, without needing an internet connection.
+          </p>
+        </div>
+      </section>
+
+      <!-- Section: Particular Features -->
+      <section id="landing-features" class="landing-section">
+        <div class="landing-section-header">
+          <span class="landing-section-tag">Capabilities</span>
+          <h2 class="landing-section-title">Particular Features</h2>
+          <p class="landing-section-desc">
+            Everything you need to craft, customize, and share imaginative platforming adventures.
+          </p>
+        </div>
+
+        <div class="landing-feature-grid">
+          <div class="landing-feature-card">
+            <div class="landing-feature-icon">⚡</div>
+            <h3 class="landing-feature-name">Seamless Playtesting</h3>
+            <p class="landing-feature-body">
+              Switch back and forth between building and playing in a split second by tapping the Spacebar. Tweak a jump, test it immediately, and keep creating with zero loading screens.
+            </p>
+          </div>
+
+          <div class="landing-feature-card">
+            <div class="landing-feature-icon">🎨</div>
+            <h3 class="landing-feature-name">Tactile Art Studio</h3>
+            <p class="landing-feature-body">
+              Draw directly onto your characters, blocks, and backgrounds with high-flow brushes, chisel markers, eraser tools, and playful stamps, or drag-and-drop your favorite PNGs and animated GIFs.
+            </p>
+          </div>
+
+          <div class="landing-feature-card">
+            <div class="landing-feature-icon">🌈</div>
+            <h3 class="landing-feature-name">Starter Component Recoloring</h3>
+            <p class="landing-feature-body">
+              You don't need to draw from scratch to make your level unique. Choose from fresh color swatches or any custom tint to recolor ice blocks, hazard spikes, springboards, enemies, and goal flags.
+            </p>
+          </div>
+
+          <div class="landing-feature-card">
+            <div class="landing-feature-icon">🎵</div>
+            <h3 class="landing-feature-name">Musical Note Blocks</h3>
+            <p class="landing-feature-body">
+              Place interactive music note blocks that chime melodic scale notes when jumped or bumped on. Line them up across gaps to compose interactive songs as you leap through your course.
+            </p>
+          </div>
+
+          <div class="landing-feature-card">
+            <div class="landing-feature-icon">🌍</div>
+            <h3 class="landing-feature-name">9 Living World Themes</h3>
+            <p class="landing-feature-body">
+              Transform your scenery instantly! Choose from Sunny Meadows, Snowy Peaks, Starlit Night, Cyber Chrome, Lush Jungle, and our authentic <strong>Mixed Media</strong> theme packed with photorealistic torn cardboard, washi tape, and vintage postmark decals.
+            </p>
+          </div>
+
+          <div class="landing-feature-card">
+            <div class="landing-feature-icon">⚙️</div>
+            <h3 class="landing-feature-name">Live Physics Sliders</h3>
+            <p class="landing-feature-body">
+              Fine-tune gravity, jumping power, running speed, air control, and slippery ice momentum using friendly sliders to create floaty moon worlds or fast, high-speed sprint tracks.
+            </p>
+          </div>
+
+          <div class="landing-feature-card">
+            <div class="landing-feature-icon">📹</div>
+            <h3 class="landing-feature-name">1-Click Gameplay Recording</h3>
+            <p class="landing-feature-body">
+              Capture your speedruns, level showcases, and funny gameplay moments directly from the browser as smooth WebM video files ready to share online.
+            </p>
+          </div>
+
+          <div class="landing-feature-card">
+            <div class="landing-feature-icon">🌐</div>
+            <h3 class="landing-feature-name">Standalone Game Exporter</h3>
+            <p class="landing-feature-body">
+              Package your finished level into a single, self-contained HTML file. Anyone can double-click it to play your game in any web browser with no dependencies.
+            </p>
+          </div>
+
+          <div class="landing-feature-card">
+            <div class="landing-feature-icon">🔒</div>
+            <h3 class="landing-feature-name">100% Private &amp; Local-First</h3>
+            <p class="landing-feature-body">
+              No logins, no tracking scripts, no cookies, and no servers. All your artwork and level creations stay safely on your personal device.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section: How should someone get started? -->
+      <section id="landing-start" class="landing-section">
+        <div class="landing-section-header">
+          <span class="landing-section-tag">Quickstart</span>
+          <h2 class="landing-section-title">How Should Someone Get Started?</h2>
+          <p class="landing-section-desc">
+            Creating your first playable stage takes less than two minutes. Follow these four simple steps:
+          </p>
+        </div>
+
+        <div class="landing-steps-grid">
+          <div class="landing-step-card">
+            <span class="landing-step-num">Step 1</span>
+            <h3 class="landing-step-title">Pick Your Pieces</h3>
+            <p class="landing-step-desc">
+              Select any component from the bottom drawer—solid blocks, ice ramps, music note boxes, springs, or walkers—and click to place them on the grid.
+            </p>
+          </div>
+
+          <div class="landing-step-card">
+            <span class="landing-step-num">Step 2</span>
+            <h3 class="landing-step-title">Paint &amp; Recolor</h3>
+            <p class="landing-step-desc">
+              Double-click any object to open the Art Studio. Paint your own visuals, draw silly faces with stamps, or pick a vibrant color tint for starter blocks.
+            </p>
+          </div>
+
+          <div class="landing-step-card">
+            <span class="landing-step-num">Step 3</span>
+            <h3 class="landing-step-title">Press Space to Hop</h3>
+            <p class="landing-step-desc">
+              Tap the Spacebar to jump into Play mode immediately! Move with Arrow keys or A/D, leap with W or Space, bounce on note boxes, and reach the goal flag.
+            </p>
+          </div>
+
+          <div class="landing-step-card">
+            <span class="landing-step-num">Step 4</span>
+            <h3 class="landing-step-title">Save &amp; Share</h3>
+            <p class="landing-step-desc">
+              Click "Export Level" to save your .sidehop file, or export a standalone HTML game that your friends can play on any computer without installing anything.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section: Who made this and how and why? -->
+      <section id="landing-creator" class="landing-section">
+        <div class="landing-section-header">
+          <span class="landing-section-tag">Creator &amp; Story</span>
+          <h2 class="landing-section-title">Who Made This, How &amp; Why?</h2>
+          <p class="landing-section-desc">
+            A college creative project exploring the joy of tactile, accessible digital making.
+          </p>
+        </div>
+
+        <div class="landing-creator-card">
+          <p style="font-size: 16px; line-height: 1.7; color: var(--ink-black); margin: 0;">
+            I created Sidehop for a <strong>college project</strong> centered on interactive media, visual expression, and making creative game tools accessible to everyone.
+            Many modern game-making platforms come with steep learning curves, dense configuration menus, and complicated programming hurdles that discourage people from simply having fun.
+            I wanted to create something that feels as immediate, friendly, and joyful as opening a fresh sketchbook and doodling with markers, while offering real interactive physics and audio feedback.
+          </p>
+
+          <div>
+            <h3 style="font-size: 18px; font-weight: 800; text-transform: uppercase; margin: 0 0 10px 0; color: var(--ink-black);">
+              About the Creator
+            </h3>
+            <blockquote class="landing-bio-quote">
+              &ldquo;I go by Smitty Fantastic online and I am an artist in multiple mediums, but primarily audio and visual art, such as themed albums, photoshop creations, and now, video games&rdquo;
+            </blockquote>
+          </div>
+
+          <div class="landing-bio-link-group">
+            <span style="font-weight: 700; font-size: 15px; color: var(--ink-black);">Explore my art &amp; music:</span>
+            <a href="https://smittyfantastic.neocities.org" target="_blank" rel="noopener noreferrer" class="landing-bio-link">
+              <span>smittyfantastic.neocities.org</span> <span>↗</span>
+            </a>
+          </div>
+
+          <div class="landing-flyer-container">
+            <img src="assets/flyer.png" alt="Smitty Fantastic Art and Events Flyer" class="landing-flyer-img">
+          </div>
+        </div>
+      </section>
+
+      <!-- Section: Are you crediting/respecting open source license terms? -->
+      <section id="landing-license" class="landing-section">
+        <div class="landing-section-header">
+          <span class="landing-section-tag">Open Source &amp; Rights</span>
+          <h2 class="landing-section-title">Open Source Licensing &amp; Respect for Terms</h2>
+          <p class="landing-section-desc">
+            Honoring creators, software freedom, and standard open web technology.
+          </p>
+        </div>
+
+        <div class="landing-license-box">
+          <p style="font-size: 15px; line-height: 1.6; color: var(--ink-black); margin: 0;">
+            Sidehop is fully committed to ethical, transparent open-source practices. It is built strictly on open web standards and honors all software licenses and creator attributions:
+          </p>
+          <ul class="landing-license-list">
+            <li>
+              <strong>MIT Open Source License:</strong> Sidehop's core application code is released under the permissive MIT License. You are free to inspect the code, learn from its architecture, adapt it, and build upon it.
+            </li>
+            <li>
+              <strong>SIL Open Font License:</strong> All interface and display typography utilizes fonts released under the SIL Open Font License, respecting the craftsmanship and licensing of independent type designers.
+            </li>
+            <li>
+              <strong>Native Browser Web APIs:</strong> All rendering and sound generation are built directly on native browser standards—HTML5 2D Canvas for high-performance graphics, Web Audio API for synthetic sound effects and diatonic music notes, and MediaStream Recording API for video capture. No proprietary third-party analytics, locked SDKs, or cloud telemetry libraries are used.
+            </li>
+            <li>
+              <strong>Complete User Ownership:</strong> Everything you make in Sidehop belongs entirely to you. You hold 100% ownership over all levels, artwork, and exported games you create.
+            </li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- Section: Future Plans & Roadmap -->
+      <section id="landing-roadmap" class="landing-section">
+        <div class="landing-section-header">
+          <span class="landing-section-tag">Looking Ahead</span>
+          <h2 class="landing-section-title">Future Plans &amp; What's Coming</h2>
+          <p class="landing-section-desc">
+            Exciting creative tools and features planned for upcoming updates.
+          </p>
+        </div>
+
+        <div class="landing-roadmap-grid">
+          <div class="landing-roadmap-card">
+            <span class="landing-roadmap-badge">In Development</span>
+            <h3 class="landing-roadmap-title">Connected Multi-Room Worlds</h3>
+            <p class="landing-roadmap-desc">
+              Connect multiple stages together with doors, warp pipes, and world maps so players can build sprawling adventures.
+            </p>
+          </div>
+
+          <div class="landing-roadmap-card">
+            <span class="landing-roadmap-badge">Planned</span>
+            <h3 class="landing-roadmap-title">In-Studio Chiptune Synthesizer</h3>
+            <p class="landing-roadmap-desc">
+              An easy-to-use 8-bit sound tracker inside the Art Studio so you can compose your own custom looping background music.
+            </p>
+          </div>
+
+          <div class="landing-roadmap-card">
+            <span class="landing-roadmap-badge">Planned</span>
+            <h3 class="landing-roadmap-title">Interactive Traps &amp; Gizmos</h3>
+            <p class="landing-roadmap-desc">
+              Conveyor belts, swinging spike pendulums, fan gusts, and locked doors that open when you collect secret keys.
+            </p>
+          </div>
+
+          <div class="landing-roadmap-card">
+            <span class="landing-roadmap-badge">Planned</span>
+            <h3 class="landing-roadmap-title">Custom Boss Maker</h3>
+            <p class="landing-roadmap-desc">
+              Design your own stage bosses with customizable movement patterns, attack telegraphs, and health meters.
+            </p>
+          </div>
+
+          <div class="landing-roadmap-card">
+            <span class="landing-roadmap-badge">Planned</span>
+            <h3 class="landing-roadmap-title">Enhanced Mobile Touch Controls</h3>
+            <p class="landing-roadmap-desc">
+              Refined responsive on-screen gamepad layouts for effortless platforming on tablets and smartphones.
+            </p>
+          </div>
+
+          <div class="landing-roadmap-card">
+            <span class="landing-roadmap-badge">Planned</span>
+            <h3 class="landing-roadmap-title">Level Remixing &amp; Bundles</h3>
+            <p class="landing-roadmap-desc">
+              Package multi-stage game campaigns into a single .sidehop bundle to share with other creators.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Bottom Launch CTA Bar -->
+      <section class="landing-bottom-cta">
+        <h2 class="landing-bottom-h2">Ready to Start Creating?</h2>
+        <p class="landing-bottom-p">
+          Jump right into the studio, place your first blocks, and play your very own 2D platformer today.
+        </p>
+        <button id="landing-launch-btn-bottom" class="landing-hero-btn-primary" type="button">
+          <span>🚀 Launch Sidehop Studio</span>
+        </button>
+      </section>
+
+    </div>
+  </div>
 
   <!-- TOP NEO-BRUTALIST HEADER -->
   <header class="neo-header">
@@ -2630,6 +3756,11 @@ body[data-theme="night"] .about-colophon-sub {
       <button id="mode-toggle-btn" class="neo-btn neo-btn-primary" title="Press Space to toggle mode">
         <span id="mode-icon">▶</span>
         <span id="mode-text">PLAY TEST</span>
+      </button>
+
+      <!-- Landing Page & Creator Bio Button -->
+      <button id="landing-toggle-btn" class="neo-btn neo-btn-cyan" title="Landing Page, Bio &amp; About">
+        <span>🏠 Home &amp; Bio</span>
       </button>
 
       <!-- Searchable Help & About Modals -->
@@ -2933,6 +4064,33 @@ body[data-theme="night"] .about-colophon-sub {
             <div class="color-swatch" data-color="#FFFFFF" style="background-color: #FFFFFF;"></div>
           </div>
 
+          <!-- Component Color Tint Section (Recolor Starter Pieces) -->
+          <div id="art-component-color-section" class="art-component-color-section">
+            <div class="art-comp-color-header">
+              <span class="art-comp-color-title">🎨 Component Color Tint:</span>
+              <span id="art-color-pill" class="art-comp-color-pill">Default</span>
+            </div>
+            <div class="art-comp-color-swatches">
+              <button type="button" class="art-comp-color-btn" data-comp-color="#00E5FF" style="background:#00E5FF;" title="Ice Cyan"></button>
+              <button type="button" class="art-comp-color-btn" data-comp-color="#FF1744" style="background:#FF1744;" title="Ruby Red"></button>
+              <button type="button" class="art-comp-color-btn" data-comp-color="#00E676" style="background:#00E676;" title="Emerald Green"></button>
+              <button type="button" class="art-comp-color-btn" data-comp-color="#FFE600" style="background:#FFE600;" title="Canary Yellow"></button>
+              <button type="button" class="art-comp-color-btn" data-comp-color="#B388FF" style="background:#B388FF;" title="Lavender Violet"></button>
+              <button type="button" class="art-comp-color-btn" data-comp-color="#FF4081" style="background:#FF4081;" title="Hot Pink"></button>
+              <button type="button" class="art-comp-color-btn" data-comp-color="#FF9100" style="background:#FF9100;" title="Sunset Orange"></button>
+              <button type="button" class="art-comp-color-btn" data-comp-color="#607D8B" style="background:#607D8B;" title="Chrome Slate"></button>
+              <button type="button" class="art-comp-color-btn" data-comp-color="#121212" style="background:#121212;" title="Pitch Dark"></button>
+              <button type="button" class="art-comp-color-btn" data-comp-color="#FFFFFF" style="background:#FFFFFF; border: 2px solid #121212;" title="Snow White"></button>
+            </div>
+            <div class="art-comp-color-controls">
+              <label class="art-comp-custom-label">
+                <span>Custom:</span>
+                <input type="color" id="art-custom-comp-color" value="#00E5FF">
+              </label>
+              <button type="button" id="art-reset-color-btn" class="neo-btn" style="padding: 3px 8px; font-size: 11px;">Default Color</button>
+            </div>
+          </div>
+
           <div style="margin-top: 6px;">
             <label style="font-size: 13px; font-weight: 700;">Brush Size</label>
             <input type="range" id="paint-brush-size" min="3" max="24" value="8" class="neo-slider" style="width: 100%;">
@@ -3028,10 +4186,10 @@ body[data-theme="night"] .about-colophon-sub {
         </div>
 
         <!-- Active Background Status & Preview Box -->
-        <div id="bg-preview-card" style="border: 2px solid #121212; border-radius: 8px; padding: 12px; background: #F8FAFC;">
+        <div id="bg-preview-card" style="border: 2px solid var(--border-color); border-radius: 8px; padding: 12px; background: var(--bg-panel); color: var(--ink-black);">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-            <span style="font-size: 12px; font-weight: 800; text-transform: uppercase;">Active Background</span>
-            <span id="bg-status-badge" style="font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 4px; border: 1.5px solid #121212; background: #E2E8F0;">Theme</span>
+            <span style="font-size: 12px; font-weight: 800; text-transform: uppercase; color: var(--ink-black);">Active Background</span>
+            <span id="bg-status-badge" style="font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 4px; border: 1.5px solid var(--border-color); background: var(--bg-cream); color: var(--ink-black);">Theme</span>
           </div>
 
           <div id="bg-preview-container" style="height: 120px; border: 2px solid #121212; border-radius: 6px; overflow: hidden; background: #000; display: flex; align-items: center; justify-content: center; position: relative;">
@@ -3573,6 +4731,27 @@ body[data-theme="night"] .about-colophon-sub {
     document.getElementById("about-modal-btn")?.addEventListener("click", () => aboutDialog.showModal());
     document.getElementById("about-close-btn")?.addEventListener("click", () => aboutDialog.close());
 
+    // Landing Page Controls
+    const landingOverlay = document.getElementById("landing-page");
+    const launchBtns = [
+      document.getElementById("landing-launch-btn-nav"),
+      document.getElementById("landing-launch-btn-hero"),
+      document.getElementById("landing-launch-btn-bottom")
+    ];
+
+    launchBtns.forEach(btn => {
+      btn?.addEventListener("click", () => {
+        landingOverlay?.classList.add("hidden");
+        window.sidehop?.soundEngine?.playClick();
+      });
+    });
+
+    document.getElementById("landing-toggle-btn")?.addEventListener("click", () => {
+      landingOverlay?.classList.remove("hidden");
+      landingOverlay?.scrollTo({ top: 0, behavior: "smooth" });
+      window.sidehop?.soundEngine?.playClick();
+    });
+
     // About Dialog Tabs switching
     const aboutTabBtns = document.querySelectorAll(".about-tab-btn");
     const aboutPanels = document.querySelectorAll(".about-tab-panel");
@@ -3733,6 +4912,59 @@ class SoundEngine {
       gain.connect(this.masterGain);
       osc.start(now);
       osc.stop(now + 0.3);
+    } catch (e) {}
+  }
+
+  // Musical Note Block Sound (Mario Maker style melodic marimba/bell chime tone)
+  playMusicNote(pitchIndex = 0) {
+    if (this.muted || !this.ensureContext()) return;
+    try {
+      const now = this.ctx.currentTime;
+      // C major diatonic musical scale frequencies
+      const scale = [
+        523.25, // C5
+        587.33, // D5
+        659.25, // E5
+        698.46, // F5
+        783.99, // G5
+        880.00, // A5
+        987.77, // B5
+        1046.50 // C6
+      ];
+
+      const idx = Math.abs(Math.round(pitchIndex)) % scale.length;
+      const freq = scale[idx];
+
+      // Primary tone: warm sine wave
+      const osc1 = this.ctx.createOscillator();
+      const gain1 = this.ctx.createGain();
+      osc1.type = 'sine';
+      osc1.frequency.setValueAtTime(freq, now);
+
+      // Secondary tone: bright chime harmonic (1 octave up, soft triangle)
+      const osc2 = this.ctx.createOscillator();
+      const gain2 = this.ctx.createGain();
+      osc2.type = 'triangle';
+      osc2.frequency.setValueAtTime(freq * 2, now);
+
+      // Sweet vibraphone/chime ADSR envelope
+      gain1.gain.setValueAtTime(0.38, now);
+      gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.38);
+
+      gain2.gain.setValueAtTime(0.14, now);
+      gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.22);
+
+      osc1.connect(gain1);
+      gain1.connect(this.masterGain);
+
+      osc2.connect(gain2);
+      gain2.connect(this.masterGain);
+
+      osc1.start(now);
+      osc1.stop(now + 0.4);
+
+      osc2.start(now);
+      osc2.stop(now + 0.25);
     } catch (e) {}
   }
 
@@ -4659,8 +5891,13 @@ class Entity {
     this.width = width;
     this.height = height;
     this.active = true;
+    this.color = null; // Custom starter component color (e.g. red ice block, custom goal flag)
     this.customVisual = null; // dataURL or Image object for custom painted art / GIF
     this.customImageElement = null;
+  }
+
+  setColor(color) {
+    this.color = color;
   }
 
   setCustomVisual(dataUrl) {
@@ -4923,8 +6160,8 @@ class Player extends Entity {
 
       this.renderCustomOrFallback(ctx, () => {
         // Default Sidehop Playful Mascot
-        // Body (electric cyan rounded rectangle with neo-brutalist border)
-        ctx.fillStyle = '#00E5FF';
+        // Body (electric cyan rounded rectangle with neo-brutalist border, or custom component color)
+        ctx.fillStyle = this.color || '#00E5FF';
         ctx.strokeStyle = '#121212';
         ctx.lineWidth = 3;
 
@@ -5143,7 +6380,11 @@ class SolidBlock extends Entity {
         console.error('Mystery block bump error:', err);
       }
     } else if (this.variant === 'note') {
-      sounds.playBounce();
+      const notePitch = Math.floor(Math.abs(this.x) / 40) % 8;
+      sounds.playMusicNote(notePitch);
+      if (typeof window !== 'undefined' && window.sidehop && window.sidehop.spawnMusicNoteParticle) {
+        window.sidehop.spawnMusicNoteParticle(this.x + this.width / 2, this.y);
+      }
     }
   }
 
@@ -5279,14 +6520,14 @@ class SolidBlock extends Entity {
       case 'chrome':
         return {
           theme: 'chrome',
-          dirtBase: '#64748B',
-          speckDark: '#334155',
-          speckLight: '#E2E8F0',
+          dirtBase: '#475569',
+          speckDark: '#1E293B',
+          speckLight: '#F1F5F9',
           speckMid: '#94A3B8',
-          turfMain: '#F1F5F9',
+          turfMain: '#CBD5E1',
           turfHighlight: '#FFFFFF',
-          turfShadow: '#CBD5E1',
-          speckAccent: '#38BDF8'
+          turfShadow: '#334155',
+          speckAccent: '#00E5FF'
         };
       case '8-bit':
         return {
@@ -5303,14 +6544,14 @@ class SolidBlock extends Entity {
       case 'jungle':
         return {
           theme: 'jungle',
-          dirtBase: '#334D41',
-          speckDark: '#1B2E26',
+          dirtBase: '#1B382B',
+          speckDark: '#0D1F17',
           speckLight: '#74C69D',
-          speckMid: '#406A57',
-          turfMain: '#1B4D3E',
-          turfHighlight: '#40916C',
+          speckMid: '#2D6A4F',
+          turfMain: '#105238',
+          turfHighlight: '#52B788',
           turfShadow: '#081C15',
-          speckAccent: '#FF6B6B'
+          speckAccent: '#FFD166'
         };
       case 'neon':
         return {
@@ -5339,14 +6580,14 @@ class SolidBlock extends Entity {
       case 'mixed':
         return {
           theme: 'mixed',
-          dirtBase: '#E5D5B8',
-          speckDark: '#C7B28E',
+          dirtBase: '#D4B996',
+          speckDark: '#8C6D4F',
           speckLight: '#FFFDF5',
-          speckMid: '#D6BF96',
-          turfMain: '#F59E0B',
-          turfHighlight: '#FBBF24',
-          turfShadow: '#B45309',
-          speckAccent: '#E11D48'
+          speckMid: '#B89B74',
+          turfMain: '#E8A838',
+          turfHighlight: '#FDE68A',
+          turfShadow: '#9A5B0B',
+          speckAccent: '#EF4444'
         };
       case 'grass':
       default:
@@ -5572,7 +6813,7 @@ class SolidBlock extends Entity {
           ctx.lineTo(xRight, yBottom);
           ctx.lineTo(0, yBottom);
           ctx.closePath();
-          ctx.fillStyle = '#B2EBF2'; // Matching Ice Block base
+          ctx.fillStyle = this.color || '#B2EBF2'; // Matching Ice Block base
           ctx.fill();
 
           // Angled Top Glossy Sheen Band:
@@ -5767,7 +7008,7 @@ class SolidBlock extends Entity {
           ctx.lineTo(this.width, yBottom);
           ctx.lineTo(this.width, this.height);
           ctx.closePath();
-          ctx.fillStyle = '#B2EBF2'; // Matching Ice Block base
+          ctx.fillStyle = this.color || '#B2EBF2'; // Matching Ice Block base
           ctx.fill();
 
           // Angled Top Glossy Sheen Band:
@@ -5965,7 +7206,7 @@ class SolidBlock extends Entity {
           ctx.lineTo(this.width, yTop);
           ctx.lineTo(this.width, 0);
           ctx.closePath();
-          ctx.fillStyle = '#B2EBF2'; // Matching Ice Block base
+          ctx.fillStyle = this.color || '#B2EBF2'; // Matching Ice Block base
           ctx.fill();
 
           // Underside Glossy Sheen Band:
@@ -6154,7 +7395,7 @@ class SolidBlock extends Entity {
           ctx.lineTo(xRight, this.height);
           ctx.lineTo(this.width, this.height);
           ctx.closePath();
-          ctx.fillStyle = '#B2EBF2'; // Matching Ice Block base
+          ctx.fillStyle = this.color || '#B2EBF2'; // Matching Ice Block base
           ctx.fill();
 
           // Underside Glossy Sheen Band:
@@ -6584,7 +7825,7 @@ class SolidBlock extends Entity {
         const yStart = hasTop ? -0.5 : 0;
         const fillW = this.width + (hasRight ? 0.5 : 0) - xStart;
         const fillH = this.height + (hasBottom ? 0.5 : 0) - yStart;
-        ctx.fillStyle = '#B2EBF2';
+        ctx.fillStyle = this.color || '#B2EBF2';
         ctx.fillRect(xStart, yStart, fillW, fillH);
 
         // Top glossy ice sheen if not covered from above
@@ -6691,17 +7932,41 @@ class SolidBlock extends Entity {
 
         // Theme-Specific Distinctive Inlays
         if (pal.theme === 'chrome') {
-          // Brushed metallic horizontal specular streak
-          ctx.fillStyle = 'rgba(255, 255, 255, 0.18)';
-          ctx.fillRect(2, 10, this.width - 4, 4);
-          ctx.fillStyle = 'rgba(0, 0, 0, 0.15)';
-          ctx.fillRect(2, 14, this.width - 4, 2);
-          // High-tech corner rivets
-          ctx.fillStyle = '#E2E8F0';
-          ctx.fillRect(4, 5, 2, 2);
-          ctx.fillRect(this.width - 6, 5, 2, 2);
-          ctx.fillRect(4, this.height - 7, 2, 2);
-          ctx.fillRect(this.width - 6, this.height - 7, 2, 2);
+          const animTime = performance.now() * 0.001;
+          // Polished brushed titanium specular wave sweeping across surface
+          const sweepPhase = Math.sin(animTime * 2.2 + (this.x * 0.04));
+          const sweepAlpha = Math.max(0, sweepPhase) * 0.35;
+          ctx.fillStyle = `rgba(255, 255, 255, ${0.12 + sweepAlpha})`;
+          ctx.fillRect(2, 6, this.width - 4, 6);
+          ctx.fillStyle = 'rgba(0, 0, 0, 0.22)';
+          ctx.fillRect(2, 12, this.width - 4, 3);
+
+          // Chamfered metallic diagonal sheen
+          ctx.fillStyle = `rgba(255, 255, 255, ${0.08 + sweepAlpha * 0.5})`;
+          ctx.beginPath();
+          ctx.moveTo(4, 20); ctx.lineTo(this.width - 4, 14); ctx.lineTo(this.width - 4, 18); ctx.lineTo(4, 24);
+          ctx.closePath();
+          ctx.fill();
+
+          // Cybernetic glowing circuit trace
+          ctx.fillStyle = 'rgba(0, 229, 255, 0.65)';
+          ctx.fillRect(14, this.height - 8, this.width - 28, 2);
+          ctx.fillRect(this.width / 2 - 1, this.height - 14, 2, 6);
+          ctx.fillStyle = '#00E5FF';
+          ctx.fillRect(this.width / 2 - 2, this.height - 15, 4, 4);
+
+          // Heavy industrial corner rivets with metallic highlights & drop shadows
+          [
+            [5, 5], [this.width - 8, 5],
+            [5, this.height - 8], [this.width - 8, this.height - 8]
+          ].forEach(([rx, ry]) => {
+            ctx.fillStyle = '#1E293B';
+            ctx.fillRect(rx, ry + 1, 4, 3);
+            ctx.fillStyle = '#CBD5E1';
+            ctx.fillRect(rx, ry, 3.5, 3);
+            ctx.fillStyle = '#FFFFFF';
+            ctx.fillRect(rx, ry, 1.5, 1.5);
+          });
         } else if (pal.theme === '8-bit') {
           // Chunky 8-bit retro pixel grout lines
           ctx.fillStyle = '#000000';
@@ -6714,6 +7979,27 @@ class SolidBlock extends Entity {
           ctx.fillStyle = pal.speckAccent;
           ctx.fillRect(12 + speckShift, 18, 2.5, 2.5);
           ctx.fillRect(26 - speckShift, 12, 2.5, 2.5);
+        } else if (pal.theme === 'jungle') {
+          const animTime = performance.now() * 0.001;
+          // Ancient carved Mayan stone glyph in center
+          ctx.fillStyle = 'rgba(8, 28, 21, 0.45)';
+          ctx.fillRect(this.width / 2 - 8, this.height / 2 - 8, 16, 16);
+          ctx.fillStyle = 'rgba(82, 183, 136, 0.35)';
+          ctx.fillRect(this.width / 2 - 5, this.height / 2 - 5, 10, 10);
+          ctx.fillStyle = '#FFD166';
+          ctx.fillRect(this.width / 2 - 2, this.height / 2 - 2, 4, 4);
+
+          // Living ivy sprigs creeping along stone
+          ctx.fillStyle = '#2D6A4F';
+          ctx.beginPath();
+          ctx.ellipse(8, 24, 4, 2.5, 0.5, 0, Math.PI * 2);
+          ctx.ellipse(this.width - 8, 22, 4, 2.5, -0.5, 0, Math.PI * 2);
+          ctx.fill();
+
+          // Lichen speckles
+          ctx.fillStyle = pal.speckAccent;
+          ctx.fillRect(10 + speckShift, 12, 2.5, 2.5);
+          ctx.fillRect(26 - speckShift, 26, 2, 2);
         } else if (pal.theme === 'neon') {
           // Vibrant glowing neon accents
           ctx.fillStyle = '#00E5FF';
@@ -6728,11 +8014,128 @@ class SolidBlock extends Entity {
           ctx.fillStyle = '#2DD4BF';
           ctx.fillRect(this.width - 7, 24, 3, 2);
         } else if (pal.theme === 'mixed') {
-          // Newsprint / collage flecks
-          ctx.fillStyle = '#F59E0B';
-          ctx.fillRect(6, 16, 4, 2);
-          ctx.fillStyle = '#E11D48';
-          ctx.fillRect(this.width - 8, 22, 3, 2);
+          // 1. Photorealistic Corrugated Cardboard Fluting Texture
+          for (let gy = 4; gy < this.height - 4; gy += 6) {
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.12)';
+            ctx.fillRect(1, gy, this.width - 2, 1.5);
+            ctx.fillStyle = 'rgba(70, 45, 25, 0.15)';
+            ctx.fillRect(1, gy + 1.5, this.width - 2, 2);
+          }
+
+          // 2. Realistic Mixed Media Decals
+          const decalType = Math.abs(Math.floor(this.x / 40) + Math.floor(this.y / 40) * 3) % 4;
+
+          if (decalType === 0) {
+            // Decal A: Vintage Postal Cancellation Stamp
+            ctx.save();
+            ctx.translate(this.width / 2, this.height / 2 + 2);
+            ctx.rotate(-0.15);
+            ctx.strokeStyle = 'rgba(30, 41, 59, 0.45)';
+            ctx.lineWidth = 1.2;
+            ctx.beginPath();
+            ctx.arc(0, 0, 11, 0, Math.PI * 2);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.arc(0, 0, 8.5, 0, Math.PI * 2);
+            ctx.stroke();
+            ctx.fillStyle = 'rgba(30, 41, 59, 0.45)';
+            ctx.font = 'bold 5px ui-monospace, monospace';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('POST', 0, -2);
+            ctx.fillText('1994', 0, 3);
+            ctx.beginPath();
+            ctx.moveTo(11, -3); ctx.quadraticCurveTo(15, -6, 18, -3);
+            ctx.moveTo(11, 2);  ctx.quadraticCurveTo(15, -1, 18, 2);
+            ctx.stroke();
+            ctx.restore();
+          } else if (decalType === 1) {
+            // Decal B: Vintage Air Mail Chevron Decal
+            ctx.save();
+            ctx.translate(this.width / 2 - 12, this.height / 2 - 6);
+            ctx.rotate(0.08);
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.18)';
+            ctx.fillRect(1, 1, 24, 14);
+            ctx.fillStyle = '#FFFDF5';
+            ctx.fillRect(0, 0, 24, 14);
+            for (let cx = 1; cx < 23; cx += 5) {
+              ctx.fillStyle = '#2563EB';
+              ctx.fillRect(cx, 0, 2, 2.5);
+              ctx.fillRect(cx + 2, 11.5, 2, 2.5);
+              ctx.fillStyle = '#DC2626';
+              ctx.fillRect(cx + 2, 0, 2, 2.5);
+              ctx.fillRect(cx, 11.5, 2, 2.5);
+            }
+            ctx.fillStyle = '#1E3A8A';
+            ctx.font = 'bold 5px "Space Grotesk", sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('AIR MAIL', 12, 8);
+            ctx.restore();
+          } else if (decalType === 2) {
+            // Decal C: Photorealistic Barcode & Serial Decal Sticker
+            ctx.save();
+            ctx.translate(this.width / 2 - 13, this.height / 2 - 7);
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.15)';
+            ctx.fillRect(1, 1, 26, 15);
+            ctx.fillStyle = '#FFFFFF';
+            ctx.fillRect(0, 0, 26, 15);
+            ctx.fillStyle = '#111827';
+            const barPattern = [1, 2, 1, 3, 1, 1, 2, 1, 3, 1, 2];
+            let bx = 3;
+            barPattern.forEach(w => {
+              ctx.fillRect(bx, 2, w, 8);
+              bx += w + 1;
+            });
+            ctx.font = '4.5px ui-monospace, monospace';
+            ctx.textAlign = 'center';
+            ctx.fillText('SH-940', 13, 13);
+            ctx.restore();
+          } else {
+            // Decal D: Glossy Retro Vinyl Decal with peeled corner highlight
+            ctx.save();
+            ctx.translate(this.width / 2, this.height / 2 + 2);
+            ctx.rotate(-0.06);
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.18)';
+            ctx.beginPath();
+            ctx.arc(1, 1, 9, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = '#FFE600';
+            ctx.beginPath();
+            ctx.arc(0, 0, 9, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.strokeStyle = '#121212';
+            ctx.lineWidth = 1;
+            ctx.stroke();
+            ctx.fillStyle = '#121212';
+            ctx.fillRect(-4, -3, 2, 3);
+            ctx.fillRect(2, -3, 2, 3);
+            ctx.beginPath();
+            ctx.arc(0, 1, 4.5, 0.2, Math.PI - 0.2);
+            ctx.stroke();
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.65)';
+            ctx.beginPath();
+            ctx.arc(0, 0, 7.5, Math.PI * 1.05, Math.PI * 1.65);
+            ctx.lineWidth = 1.8;
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.65)';
+            ctx.stroke();
+            ctx.restore();
+          }
+
+          // 3. Metallic Brass Paperclip or Industrial Staple Pin
+          if ((Math.floor(this.x / 40) + Math.floor(this.y / 40)) % 2 === 0) {
+            ctx.save();
+            ctx.translate(4, 5);
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.25)';
+            ctx.fillRect(1, 1, 8, 2.5);
+            ctx.fillStyle = '#D97706';
+            ctx.fillRect(0, 0, 8, 2);
+            ctx.fillStyle = '#FDE68A';
+            ctx.fillRect(1, 0, 6, 1);
+            ctx.fillStyle = '#451A03';
+            ctx.fillRect(0, 2, 1.5, 1.5);
+            ctx.fillRect(6.5, 2, 1.5, 1.5);
+            ctx.restore();
+          }
         }
 
         // LUSH THEMED SURFACE CAP (ONLY ON EXPOSED TOP LAYER!)
@@ -6763,15 +8166,62 @@ class SolidBlock extends Entity {
             ctx.fillStyle = '#E0F2FE';
             ctx.fillRect(12, 9, 3, 4);
             ctx.fillRect(26, 9, 2, 3);
+          } else if (pal.theme === 'chrome') {
+            // Polished Liquid Mirror Chrome Top Cap with Real-Time Reflection
+            const animTime = performance.now() * 0.001;
+            const sweep = ((animTime * 60 + this.x) % 180) / 180;
+            ctx.fillStyle = '#E2E8F0';
+            ctx.fillRect(0, 0, grassW, 8);
+            ctx.fillStyle = '#FFFFFF';
+            ctx.fillRect(0, 0, grassW, 2.5);
+            // Moving specular glare
+            const glareX = (sweep * grassW);
+            const glareGrad = ctx.createLinearGradient(glareX - 12, 0, glareX + 12, 0);
+            glareGrad.addColorStop(0, 'rgba(255, 255, 255, 0)');
+            glareGrad.addColorStop(0.5, 'rgba(255, 255, 255, 0.85)');
+            glareGrad.addColorStop(1, 'rgba(255, 255, 255, 0)');
+            ctx.fillStyle = glareGrad;
+            ctx.fillRect(0, 0, grassW, 8);
+            ctx.fillStyle = '#334155';
+            ctx.fillRect(0, 8, grassW, 2);
           } else if (pal.theme === 'jungle') {
-            // Dangling vine tendrils
-            ctx.fillStyle = '#2D6A4F';
-            ctx.fillRect(6, 8, 3, 7);
-            ctx.fillRect(18, 8, 4, 10);
-            ctx.fillRect(30, 8, 3, 6);
-            // Little jungle flower dots
-            ctx.fillStyle = '#FF6B6B';
-            ctx.fillRect(19, 17, 2, 2);
+            const animTime = performance.now() * 0.001;
+            // Lush fern moss top cap
+            ctx.fillStyle = '#105238';
+            ctx.fillRect(0, 0, grassW, 8);
+            ctx.fillStyle = '#52B788';
+            ctx.fillRect(0, 0, grassW, 3);
+            ctx.fillStyle = '#081C15';
+            ctx.fillRect(0, 8, grassW, 2);
+
+            // Dynamic swaying vine tendrils with realistic leaves
+            const sway1 = Math.sin(animTime * 2.8 + (this.x * 0.06)) * 4;
+            const sway2 = Math.cos(animTime * 2.4 + (this.x * 0.08)) * 3.5;
+            ctx.fillStyle = '#1B4332';
+            ctx.fillRect(6 + sway1 * 0.3, 8, 3.5, 8);
+            ctx.fillRect(18 + sway2 * 0.3, 8, 4, 13);
+            ctx.fillRect(30 + sway1 * 0.4, 8, 3.5, 7);
+
+            // Fern leaf leaflets swaying
+            ctx.fillStyle = '#40916C';
+            ctx.beginPath();
+            ctx.ellipse(7 + sway1, 15, 3.5, 2, 0.3, 0, Math.PI * 2);
+            ctx.ellipse(20 + sway2, 20, 4, 2.5, -0.3, 0, Math.PI * 2);
+            ctx.ellipse(31 + sway1, 14, 3.5, 2, 0.4, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Vibrant tropical red hibiscus flower blooming
+            ctx.fillStyle = '#EF4444';
+            ctx.beginPath();
+            ctx.arc(20 + sway2, 22, 3, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = '#FFE600';
+            ctx.fillRect(19.5 + sway2, 21.5, 1.5, 1.5);
+
+            // Glistening dew drops
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
+            ctx.fillRect(8, 2, 1.5, 1.5);
+            ctx.fillRect(24, 2, 1.5, 1.5);
           } else if (pal.theme === 'neon') {
             // Crisp electric neon edge
             ctx.fillStyle = '#00E5FF';
@@ -6786,12 +8236,25 @@ class SolidBlock extends Entity {
             ctx.fillRect(8, 8, 3, 3);
             ctx.fillRect(24, 8, 3, 4);
           } else if (pal.theme === 'mixed') {
-            // Textured paper torn edge
-            ctx.fillStyle = '#F59E0B';
-            ctx.fillRect(0, 0, grassW, 4);
-            ctx.fillStyle = '#E11D48';
-            ctx.fillRect(10, 7, 3, 3);
-            ctx.fillRect(26, 7, 3, 2);
+            // Authentic Photorealistic Torn Washi Tape / Masking Tape Decal
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.15)';
+            ctx.fillRect(0, 9, grassW, 1.5);
+            ctx.fillStyle = 'rgba(245, 158, 11, 0.88)';
+            ctx.fillRect(0, 0, grassW, 8);
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.35)';
+            ctx.fillRect(0, 1, grassW, 1.5);
+            ctx.fillStyle = 'rgba(254, 243, 199, 0.5)';
+            for (let tx = 3; tx < grassW; tx += 7) {
+              ctx.fillRect(tx, 0, 1, 8);
+            }
+            ctx.fillStyle = '#B45309';
+            ctx.fillRect(0, 7.5, grassW, 1.5);
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
+            for (let px = 4; px < grassW; px += 8) {
+              ctx.beginPath();
+              ctx.arc(px, 4, 1.2, 0, Math.PI * 2);
+              ctx.fill();
+            }
           } else {
             // Drooping blades / fringe into dirt
             ctx.fillStyle = pal.turfMain;
@@ -6948,7 +8411,7 @@ class Springboard extends Entity {
         ctx.stroke();
 
         // Bouncy Top Cap
-        ctx.fillStyle = this.variant === 'mega' ? '#FFE600' : '#00E676';
+        ctx.fillStyle = this.color || (this.variant === 'mega' ? '#FFE600' : '#00E676');
         ctx.strokeStyle = '#121212';
         ctx.lineWidth = 3;
         ctx.beginPath();
@@ -6995,7 +8458,7 @@ class HazardSpikes extends Entity {
         else if (theme === 'atlantis') spikeFill = '#06B6D4'; // Aquatic cyan
         else if (theme === 'mixed') spikeFill = '#F43F5E'; // Collage rose
 
-        ctx.fillStyle = spikeFill;
+        ctx.fillStyle = this.color || spikeFill;
         ctx.strokeStyle = '#121212';
         ctx.lineWidth = 3;
 
@@ -7199,7 +8662,7 @@ class EnemyWalker extends Entity {
         ctx.fillRect(25, 19, 2.5, 4);
       } else {
         // Standard Walker
-        ctx.fillStyle = '#B388FF'; // Lavender purple
+        ctx.fillStyle = this.color || '#B388FF'; // Lavender purple or custom component color
         ctx.strokeStyle = '#121212';
         ctx.lineWidth = 3;
 
@@ -7278,7 +8741,7 @@ class MovingPlatform extends Entity {
       ctx.translate(this.x, this.y);
 
       this.renderCustomOrFallback(ctx, () => {
-        ctx.fillStyle = '#00E5FF';
+        ctx.fillStyle = this.color || '#00E5FF';
         ctx.strokeStyle = '#121212';
         ctx.lineWidth = 3;
 
@@ -7538,7 +9001,7 @@ class Collectible extends Entity {
         ctx.restore();
       } else if (this.variant === 'star') {
         // Glowing Star Gem (+500 pts)
-        ctx.fillStyle = '#FFE600';
+        ctx.fillStyle = this.color || '#FFE600';
         ctx.strokeStyle = '#121212';
         ctx.lineWidth = 2.5;
 
@@ -7571,7 +9034,7 @@ class Collectible extends Entity {
         ctx.scale(Math.max(0.25, spin), 1);
         ctx.translate(-this.width / 2, -this.height / 2);
 
-        ctx.fillStyle = '#FFE600';
+        ctx.fillStyle = this.color || '#FFE600';
         ctx.strokeStyle = '#121212';
         ctx.lineWidth = 3;
 
@@ -7624,7 +9087,7 @@ class GoalFlag extends Entity {
 
       // Waving Flag
       const wave = Math.sin(this.waveTimer) * 4;
-      ctx.fillStyle = '#00E676'; // Mint green
+      ctx.fillStyle = this.color || '#00E676'; // Mint green or custom component color
       ctx.beginPath();
       ctx.moveTo(10, 6);
       ctx.quadraticCurveTo(24, 2 + wave, 44, 14);
@@ -8101,9 +9564,320 @@ class ArtStudio {
     this.currentStamp = 'star'; // 'star', 'smile', 'heart', 'doodle'
     this.targetEntity = null;
     this.onApplyCallback = null;
+    this.componentColor = null;
+    this.hasCustomDrawing = false;
 
     this.initCanvas();
     this.bindEvents();
+    this.bindComponentColorEvents();
+  }
+
+  bindComponentColorEvents() {
+    // Swatches for starter component color tinting
+    const colorSection = this.modal?.querySelector('#art-component-color-section');
+    if (!colorSection) return;
+
+    colorSection.querySelectorAll('.art-comp-color-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const c = btn.getAttribute('data-comp-color');
+        this.setComponentColor(c);
+      });
+    });
+
+    const picker = this.modal?.querySelector('#art-custom-comp-color');
+    if (picker) {
+      picker.addEventListener('input', (e) => {
+        this.setComponentColor(e.target.value);
+      });
+    }
+
+    const resetBtn = this.modal?.querySelector('#art-reset-color-btn');
+    if (resetBtn) {
+      resetBtn.addEventListener('click', () => {
+        this.setComponentColor(null);
+      });
+    }
+  }
+
+  setComponentColor(color) {
+    this.componentColor = color;
+    this.hasCustomDrawing = false;
+    if (this.targetEntity) {
+      this.targetEntity.setColor(color);
+      this.clearCanvas();
+      this.renderStarterComponentOnCanvas(this.targetEntity, color);
+    }
+    this.updateColorPickerUI();
+    sounds.playPaintSquish();
+  }
+
+  updateColorPickerUI() {
+    const colorSection = this.modal?.querySelector('#art-component-color-section');
+    if (!colorSection) return;
+
+    if (this.isBackgroundMode) {
+      colorSection.style.display = 'none';
+      return;
+    }
+    colorSection.style.display = 'flex';
+
+    const pill = this.modal?.querySelector('#art-color-pill');
+    if (pill) {
+      if (this.componentColor) {
+        pill.textContent = this.componentColor.toUpperCase();
+        pill.style.background = this.componentColor;
+        pill.style.color = '#FFFFFF';
+        pill.style.textShadow = '1px 1px 2px #000';
+      } else {
+        pill.textContent = 'Default';
+        pill.style.background = 'var(--bg-cream)';
+        pill.style.color = 'var(--ink-black)';
+        pill.style.textShadow = 'none';
+      }
+    }
+
+    colorSection.querySelectorAll('.art-comp-color-btn').forEach(btn => {
+      const c = btn.getAttribute('data-comp-color');
+      btn.classList.toggle('active', c === this.componentColor);
+    });
+
+    const picker = this.modal?.querySelector('#art-custom-comp-color');
+    if (picker && this.componentColor) {
+      picker.value = this.componentColor;
+    }
+  }
+
+  renderStarterComponentOnCanvas(entity, color) {
+    if (!entity) return;
+    this.ctx.save();
+    const w = this.canvas.width;
+    const h = this.canvas.height;
+    this.ctx.clearRect(0, 0, w, h);
+
+    const type = entity.type;
+    const variant = entity.variant;
+
+    if (variant === 'ice' || (type === 'crate' && variant === 'ice')) {
+      // 1. Ice Block in Art Studio (Center: 160x160)
+      const bx = 30, by = 30, bw = 160, bh = 160;
+      const baseCol = color || '#B2EBF2';
+      this.ctx.fillStyle = baseCol;
+      this.ctx.fillRect(bx, by, bw, bh);
+
+      // Top glossy sheen
+      this.ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
+      this.ctx.beginPath();
+      this.ctx.moveTo(bx + 12, by + 10);
+      this.ctx.lineTo(bx + bw - 12, by + 10);
+      this.ctx.lineTo(bx + bw - 30, by + 36);
+      this.ctx.lineTo(bx + 30, by + 36);
+      this.ctx.closePath();
+      this.ctx.fill();
+
+      // Crystalline ice chevron facets
+      this.ctx.strokeStyle = color ? 'rgba(0, 0, 0, 0.28)' : 'rgba(0, 184, 212, 0.75)';
+      this.ctx.lineWidth = 6;
+      this.ctx.beginPath();
+      this.ctx.moveTo(bx + 26, by + bh - 26);
+      this.ctx.lineTo(bx + bw / 2, by + bh / 2);
+      this.ctx.lineTo(bx + bw - 26, by + bh - 48);
+      this.ctx.stroke();
+
+      // Outer border
+      this.ctx.strokeStyle = '#121212';
+      this.ctx.lineWidth = 5;
+      this.ctx.strokeRect(bx, by, bw, bh);
+    } else if (type === 'goal') {
+      // 2. Goal Flag in Art Studio
+      const flagCol = color || '#00E676';
+      // Flagpole
+      this.ctx.strokeStyle = '#121212';
+      this.ctx.lineWidth = 8;
+      this.ctx.beginPath();
+      this.ctx.moveTo(56, 26);
+      this.ctx.lineTo(56, 196);
+      this.ctx.stroke();
+
+      // Golden Finial Ball at top
+      this.ctx.fillStyle = '#FFE600';
+      this.ctx.beginPath();
+      this.ctx.arc(56, 26, 9, 0, Math.PI * 2);
+      this.ctx.fill();
+      this.ctx.strokeStyle = '#121212';
+      this.ctx.lineWidth = 3;
+      this.ctx.stroke();
+
+      // Waving Flag
+      this.ctx.fillStyle = flagCol;
+      this.ctx.beginPath();
+      this.ctx.moveTo(60, 38);
+      this.ctx.quadraticCurveTo(120, 26, 178, 62);
+      this.ctx.lineTo(60, 108);
+      this.ctx.closePath();
+      this.ctx.fill();
+      this.ctx.stroke();
+
+      // Flag Wave Highlight
+      this.ctx.fillStyle = 'rgba(255, 255, 255, 0.35)';
+      this.ctx.beginPath();
+      this.ctx.moveTo(60, 38);
+      this.ctx.quadraticCurveTo(100, 32, 130, 50);
+      this.ctx.lineTo(60, 68);
+      this.ctx.closePath();
+      this.ctx.fill();
+
+      // Base
+      this.ctx.fillStyle = '#121212';
+      this.ctx.fillRect(36, 186, 40, 14);
+    } else if (type === 'hazard') {
+      // 3. Spikes
+      const spikeCol = color || '#EF4444';
+      this.ctx.fillStyle = spikeCol;
+      this.ctx.strokeStyle = '#121212';
+      this.ctx.lineWidth = 5;
+      this.ctx.beginPath();
+      this.ctx.moveTo(25, 180);
+      this.ctx.lineTo(55, 45);
+      this.ctx.lineTo(85, 180);
+      this.ctx.lineTo(110, 45);
+      this.ctx.lineTo(135, 180);
+      this.ctx.lineTo(165, 45);
+      this.ctx.lineTo(195, 180);
+      this.ctx.closePath();
+      this.ctx.fill();
+      this.ctx.stroke();
+    } else if (type === 'springboard') {
+      // 4. Springboard
+      const capCol = color || (variant === 'mega' ? '#FFE600' : '#00E676');
+      this.ctx.fillStyle = '#121212';
+      this.ctx.fillRect(30, 180, 160, 20);
+
+      this.ctx.strokeStyle = variant === 'mega' ? '#00E5FF' : '#FF3388';
+      this.ctx.lineWidth = 8;
+      this.ctx.beginPath();
+      this.ctx.moveTo(45, 180);
+      this.ctx.lineTo(175, 130);
+      this.ctx.lineTo(45, 80);
+      this.ctx.lineTo(175, 60);
+      this.ctx.stroke();
+
+      this.ctx.fillStyle = capCol;
+      this.ctx.strokeStyle = '#121212';
+      this.ctx.lineWidth = 5;
+      this.ctx.beginPath();
+      this.ctx.roundRect(25, 42, 170, 26, 8);
+      this.ctx.fill();
+      this.ctx.stroke();
+    } else if (type === 'enemy') {
+      // 5. Enemy Walker (Grumpy Potato)
+      const bodyCol = color || '#B388FF';
+      this.ctx.fillStyle = bodyCol;
+      this.ctx.strokeStyle = '#121212';
+      this.ctx.lineWidth = 5;
+      this.ctx.beginPath();
+      this.ctx.roundRect(40, 40, 140, 140, 36);
+      this.ctx.fill();
+      this.ctx.stroke();
+
+      // Eyes
+      this.ctx.fillStyle = '#FFFFFF';
+      this.ctx.beginPath();
+      this.ctx.arc(80, 95, 20, 0, Math.PI * 2);
+      this.ctx.arc(140, 95, 20, 0, Math.PI * 2);
+      this.ctx.fill();
+      this.ctx.stroke();
+
+      this.ctx.fillStyle = '#121212';
+      this.ctx.beginPath();
+      this.ctx.arc(88, 95, 9, 0, Math.PI * 2);
+      this.ctx.arc(148, 95, 9, 0, Math.PI * 2);
+      this.ctx.fill();
+
+      // Grumpy Eyebrows
+      this.ctx.lineWidth = 5;
+      this.ctx.beginPath();
+      this.ctx.moveTo(60, 68); this.ctx.lineTo(95, 80);
+      this.ctx.moveTo(160, 68); this.ctx.lineTo(125, 80);
+      this.ctx.stroke();
+    } else if (type === 'player') {
+      // 6. Player Mascot
+      const mascotCol = color || '#00E5FF';
+      this.ctx.fillStyle = mascotCol;
+      this.ctx.strokeStyle = '#121212';
+      this.ctx.lineWidth = 5;
+      this.ctx.beginPath();
+      this.ctx.roundRect(45, 45, 130, 130, 32);
+      this.ctx.fill();
+      this.ctx.stroke();
+
+      // Eyes
+      this.ctx.fillStyle = '#FFFFFF';
+      this.ctx.beginPath();
+      this.ctx.arc(85, 95, 22, 0, Math.PI * 2);
+      this.ctx.arc(135, 95, 22, 0, Math.PI * 2);
+      this.ctx.fill();
+      this.ctx.stroke();
+
+      this.ctx.fillStyle = '#121212';
+      this.ctx.beginPath();
+      this.ctx.arc(92, 95, 9, 0, Math.PI * 2);
+      this.ctx.arc(142, 95, 9, 0, Math.PI * 2);
+      this.ctx.fill();
+
+      // Smile
+      this.ctx.lineWidth = 5;
+      this.ctx.beginPath();
+      this.ctx.arc(110, 130, 24, 0.2, Math.PI - 0.2);
+      this.ctx.stroke();
+    } else if (type === 'moving_platform') {
+      // 7. Moving Platform
+      const platCol = color || '#00E5FF';
+      this.ctx.fillStyle = platCol;
+      this.ctx.strokeStyle = '#121212';
+      this.ctx.lineWidth = 5;
+      this.ctx.beginPath();
+      this.ctx.roundRect(20, 85, 180, 50, 12);
+      this.ctx.fill();
+      this.ctx.stroke();
+
+      this.ctx.fillStyle = '#121212';
+      for (let gx = 45; gx < 175; gx += 26) {
+        this.ctx.fillRect(gx, 95, 10, 30);
+      }
+    } else if (type === 'collectible') {
+      // 8. Collectible (Coin / Star)
+      const tokenCol = color || '#FFE600';
+      this.ctx.fillStyle = tokenCol;
+      this.ctx.strokeStyle = '#121212';
+      this.ctx.lineWidth = 5;
+      this.ctx.beginPath();
+      this.ctx.arc(110, 110, 68, 0, Math.PI * 2);
+      this.ctx.fill();
+      this.ctx.stroke();
+
+      this.ctx.strokeStyle = 'rgba(0, 0, 0, 0.25)';
+      this.ctx.lineWidth = 4;
+      this.ctx.beginPath();
+      this.ctx.arc(110, 110, 48, 0, Math.PI * 2);
+      this.ctx.stroke();
+    } else {
+      // Standard Ground / Solid Block
+      const blockCol = color || '#866043';
+      this.ctx.fillStyle = blockCol;
+      this.ctx.fillRect(30, 30, 160, 160);
+
+      // Turf cap on top
+      this.ctx.fillStyle = '#558B2F';
+      this.ctx.fillRect(30, 30, 160, 35);
+      this.ctx.fillStyle = '#7CB342';
+      this.ctx.fillRect(30, 30, 160, 12);
+
+      this.ctx.strokeStyle = '#121212';
+      this.ctx.lineWidth = 5;
+      this.ctx.strokeRect(30, 30, 160, 160);
+    }
+
+    this.ctx.restore();
   }
 
   initCanvas() {
@@ -8121,6 +9895,8 @@ class ArtStudio {
     this.targetBackground = null;
     this.isBackgroundMode = false;
     this.onApplyCallback = onApply;
+    this.componentColor = entity ? (entity.color || null) : null;
+    this.hasCustomDrawing = !!(entity && entity.customVisual);
     this.clearCanvas();
 
     const titleEl = this.modal?.querySelector('.modal-title');
@@ -8134,6 +9910,8 @@ class ArtStudio {
       }
     }
 
+    this.updateColorPickerUI();
+
     // If entity already has custom visual, draw it onto canvas
     if (entity && entity.customVisual) {
       const img = new Image();
@@ -8141,6 +9919,8 @@ class ArtStudio {
       img.onload = () => {
         this.ctx.drawImage(img, 0, 0, this.canvas.width, this.canvas.height);
       };
+    } else if (entity) {
+      this.renderStarterComponentOnCanvas(entity, this.componentColor);
     }
 
     this.modal.classList.add('active');
@@ -8210,6 +9990,7 @@ class ArtStudio {
 
   startDraw(e) {
     this.isDrawing = true;
+    this.hasCustomDrawing = true;
     const pos = this.getCanvasPos(e);
     this.lastX = pos.x;
     this.lastY = pos.y;
@@ -8327,6 +10108,7 @@ class ArtStudio {
   // Load custom image/GIF onto canvas preserving aspect ratio & block geometry
   loadImageFromUrl(dataUrl, callback) {
     if (!dataUrl) return;
+    this.hasCustomDrawing = true;
     const img = new Image();
     img.src = dataUrl;
     img.onload = () => {
@@ -8435,6 +10217,7 @@ class ArtStudio {
   // Handle Image/GIF File Upload
   handleFileUpload(file) {
     if (!file) return;
+    this.hasCustomDrawing = true;
     const reader = new FileReader();
     reader.onload = (e) => {
       const img = new Image();
@@ -8478,8 +10261,14 @@ class ArtStudio {
       return;
     }
     if (this.targetEntity && this.onApplyCallback) {
-      const dataUrl = this.canvas.toDataURL('image/png');
-      this.targetEntity.setCustomVisual(dataUrl);
+      if (this.hasCustomDrawing) {
+        const dataUrl = this.canvas.toDataURL('image/png');
+        this.targetEntity.setCustomVisual(dataUrl);
+      } else {
+        // Pure starter component recoloring - keep clean vector rendering with color tint!
+        this.targetEntity.setCustomVisual(null);
+        this.targetEntity.setColor(this.componentColor);
+      }
       this.onApplyCallback(this.targetEntity);
     }
     this.close();
@@ -8493,6 +10282,7 @@ class ArtStudio {
     }
     if (this.targetEntity && this.onApplyCallback) {
       this.targetEntity.setCustomVisual(null);
+      this.targetEntity.setColor(null);
       this.onApplyCallback(this.targetEntity);
     }
     this.close();
@@ -9041,6 +10831,34 @@ ${serializedJson}
       gain.connect(this.masterGain);
       osc.start(t);
       osc.stop(t + 0.14);
+    }
+
+    playMusicNote(pitchIndex = 0) {
+      if (!this.ensureContext()) return;
+      const scale = [523.25, 587.33, 659.25, 698.46, 783.99, 880.00, 987.77, 1046.50];
+      const freq = scale[Math.abs(Math.round(pitchIndex)) % scale.length];
+      const t = this.ctx.currentTime;
+      const osc1 = this.ctx.createOscillator();
+      const gain1 = this.ctx.createGain();
+      osc1.type = 'sine';
+      osc1.frequency.setValueAtTime(freq, t);
+      gain1.gain.setValueAtTime(0.38, t);
+      gain1.gain.exponentialRampToValueAtTime(0.001, t + 0.38);
+      osc1.connect(gain1);
+      gain1.connect(this.masterGain);
+      osc1.start(t);
+      osc1.stop(t + 0.4);
+
+      const osc2 = this.ctx.createOscillator();
+      const gain2 = this.ctx.createGain();
+      osc2.type = 'triangle';
+      osc2.frequency.setValueAtTime(freq * 2, t);
+      gain2.gain.setValueAtTime(0.14, t);
+      gain2.gain.exponentialRampToValueAtTime(0.001, t + 0.22);
+      osc2.connect(gain2);
+      gain2.connect(this.masterGain);
+      osc2.start(t);
+      osc2.stop(t + 0.25);
     }
 
     playVictory() {
@@ -10971,6 +12789,7 @@ class LevelStorage {
         gravityScale: player.gravityScale,
         maxHearts: player.maxHearts || 4,
         doubleJumpAllowed: player.doubleJumpAllowed,
+        color: player.color || null,
         customVisual: player.customVisual
       },
       entities: entities.map(ent => LevelStorage.serializeEntity(ent))
@@ -10985,6 +12804,7 @@ class LevelStorage {
       variant: ent.variant,
       material: ent.material || null,
       content: ent.content || null,
+      color: ent.color || null,
       x: ent.x,
       y: ent.y,
       width: ent.width,
@@ -11041,8 +12861,9 @@ class LevelStorage {
         break;
     }
 
-    if (ent && d.customVisual) {
-      ent.setCustomVisual(d.customVisual);
+    if (ent) {
+      if (d.color) ent.setColor(d.color);
+      if (d.customVisual) ent.setCustomVisual(d.customVisual);
     }
     return ent;
   }
@@ -11074,6 +12895,7 @@ class LevelStorage {
         player.doubleJumpAllowed = data.player.doubleJumpAllowed;
         player.hasDoubleJump = data.player.doubleJumpAllowed;
       }
+      if (data.player.color) player.setColor(data.player.color);
       if (data.player.customVisual) player.setCustomVisual(data.player.customVisual);
     }
 
@@ -13949,53 +15771,80 @@ class SidehopApp {
 
   drawMixedMediaBackground(w, h) {
     this.ctx.save();
+    const animTime = performance.now() * 0.001;
 
-    // 1. Warm craft paper / textured parchment gradient
+    // 1. Warm studio craft paper / pinboard gradient with authentic fibrous paper texture
     const paperGrad = this.ctx.createLinearGradient(0, 0, 0, h);
-    paperGrad.addColorStop(0, '#FAF4E8');
-    paperGrad.addColorStop(0.5, '#F4E5CA');
-    paperGrad.addColorStop(1, '#E9D2AC');
+    paperGrad.addColorStop(0, '#FAF3E3');
+    paperGrad.addColorStop(0.45, '#F4E3C5');
+    paperGrad.addColorStop(1, '#E6CCA4');
     this.ctx.fillStyle = paperGrad;
     this.ctx.fillRect(0, 0, w, h);
 
-    // Subtle paper deckle lines / fibers
-    this.ctx.strokeStyle = 'rgba(180, 150, 110, 0.08)';
+    // Subtle realistic paper fibers & weave lines
+    this.ctx.strokeStyle = 'rgba(160, 120, 80, 0.07)';
     this.ctx.lineWidth = 1;
-    for (let y = 30; y < h; y += 45) {
+    for (let y = 15; y < h; y += 32) {
       this.ctx.beginPath();
       this.ctx.moveTo(0, y);
-      this.ctx.lineTo(w, y + (Math.sin(y) * 4));
+      this.ctx.lineTo(w, y + Math.sin(y * 0.2) * 3);
       this.ctx.stroke();
     }
 
+    // 2. Brass Pushpins / Thumbtacks in top corners holding the canvas
+    [ [24, 24], [w - 24, 24] ].forEach(([tx, ty]) => {
+      // Pin drop shadow
+      this.ctx.fillStyle = 'rgba(0, 0, 0, 0.25)';
+      this.ctx.beginPath();
+      this.ctx.arc(tx + 2, ty + 3, 7, 0, Math.PI * 2);
+      this.ctx.fill();
+      // Metallic brass head
+      const brassGrad = this.ctx.createRadialGradient(tx - 2, ty - 2, 1, tx, ty, 7);
+      brassGrad.addColorStop(0, '#FEF08A');
+      brassGrad.addColorStop(0.5, '#CA8A04');
+      brassGrad.addColorStop(1, '#854D0E');
+      this.ctx.fillStyle = brassGrad;
+      this.ctx.beginPath();
+      this.ctx.arc(tx, ty, 7, 0, Math.PI * 2);
+      this.ctx.fill();
+      this.ctx.strokeStyle = '#713F12';
+      this.ctx.lineWidth = 1;
+      this.ctx.stroke();
+      // Specular highlight
+      this.ctx.fillStyle = '#FFFFFF';
+      this.ctx.beginPath();
+      this.ctx.arc(tx - 2, ty - 2, 2, 0, Math.PI * 2);
+      this.ctx.fill();
+    });
+
     const horizon = h * 0.72;
 
-    // 2. Distant torn-paper collage horizon layer (soft vintage sage #D4DFD8)
-    this.ctx.fillStyle = '#D4DFD8';
+    // 3. Distant torn corrugated cardboard horizon with exposed fluting ridges (Layer 1 - slow parallax)
+    this.ctx.fillStyle = '#D6BFA0';
     this.ctx.beginPath();
     this.ctx.moveTo(0, h);
-    const loop1 = 900;
-    const off1 = (this.camera.x * 0.06) % loop1;
+    const loop1 = 1000;
+    const off1 = (this.camera.x * 0.05) % loop1;
     for (let x = -200; x <= w + 200; x += 40) {
       const rx = x - off1;
-      const tear = Math.sin(x * 0.05) * 14 + Math.cos(x * 0.02) * 22;
-      this.ctx.lineTo(rx, horizon - 50 + tear);
+      const tear = Math.sin(x * 0.04) * 16 + Math.cos(x * 0.015) * 26;
+      this.ctx.lineTo(rx, horizon - 60 + tear);
     }
     this.ctx.lineTo(w, h);
     this.ctx.closePath();
     this.ctx.fill();
 
-    // 3. Closer hand-torn kraft paper layer with exposed white paper fibers along tear
-    this.ctx.fillStyle = '#D6B894';
+    // 4. Closer hand-torn kraft cardboard layer with exposed white paper fibers along deckle tear
+    this.ctx.fillStyle = '#C4A47C';
     this.ctx.beginPath();
     this.ctx.moveTo(0, h);
-    const loop2 = 750;
-    const off2 = (this.camera.x * 0.14) % loop2;
+    const loop2 = 800;
+    const off2 = (this.camera.x * 0.12) % loop2;
     const tearPoints = [];
     for (let x = -200; x <= w + 200; x += 30) {
       const rx = x - off2;
-      const tear = Math.sin(x * 0.07) * 12 + Math.sin(x * 0.015) * 35;
-      const ty = horizon + 5 + tear;
+      const tear = Math.sin(x * 0.06) * 14 + Math.sin(x * 0.02) * 32;
+      const ty = horizon - 10 + tear;
       tearPoints.push({ x: rx, y: ty });
       this.ctx.lineTo(rx, ty);
     }
@@ -14003,9 +15852,9 @@ class SidehopApp {
     this.ctx.closePath();
     this.ctx.fill();
 
-    // White torn paper fiber deckle edge highlight
+    // Exposed white torn paper deckle fibers
     this.ctx.strokeStyle = '#FFFDF5';
-    this.ctx.lineWidth = 2.5;
+    this.ctx.lineWidth = 3;
     this.ctx.beginPath();
     tearPoints.forEach((pt, idx) => {
       if (idx === 0) this.ctx.moveTo(pt.x, pt.y);
@@ -14013,29 +15862,162 @@ class SidehopApp {
     });
     this.ctx.stroke();
 
-    // 4. Floating collage paper cutouts & washi tape accents
-    const collageItems = [
-      { colX: 140, y: 90, type: 'tape', w: 60, h: 22, rot: -0.15, color: 'rgba(231, 111, 81, 0.45)' },
-      { colX: 380, y: 140, type: 'dot', r: 18, color: '#2A9D8F' },
-      { colX: 620, y: 80, type: 'tape', w: 70, h: 24, rot: 0.12, color: 'rgba(244, 162, 97, 0.5)' },
-      { colX: 860, y: 130, type: 'rhombus', size: 24, rot: 0.25, color: '#E9C46A' },
-      { colX: 1100, y: 95, type: 'tape', w: 55, h: 20, rot: -0.08, color: 'rgba(231, 111, 81, 0.45)' },
-      { colX: 1340, y: 150, type: 'dot', r: 14, color: '#E76F51' }
+    // 5. Floating Mixed Media Decals with Realistic Drop Shadows & Gentle Animation
+    const decalItems = [
+      { colX: 130, y: 95, type: 'airmail', rot: -0.12, w: 74, h: 48 },
+      { colX: 360, y: 145, type: 'polaroid', rot: 0.10, w: 60, h: 72 },
+      { colX: 620, y: 80, type: 'tape', rot: 0.06, w: 85, h: 26, color: 'rgba(234, 88, 12, 0.65)' },
+      { colX: 860, y: 135, type: 'barcode', rot: -0.08, w: 70, h: 42 },
+      { colX: 1100, y: 90, type: 'hologram', rot: 0.15, r: 24 },
+      { colX: 1340, y: 140, type: 'fragile', rot: -0.16, w: 64, h: 36 }
     ];
 
-    const collLoop = 1400;
-    const collOff = (this.camera.x * 0.09) % collLoop;
-    collageItems.forEach(item => {
-      const ix = ((item.colX - collOff) % collLoop + collLoop) % collLoop - 80;
-      this.ctx.save();
-      this.ctx.translate(ix, item.y);
-      if (item.rot) this.ctx.rotate(item.rot);
+    const collLoop = 1500;
+    const collOff = (this.camera.x * 0.08) % collLoop;
 
-      if (item.type === 'tape') {
+    decalItems.forEach((item, idx) => {
+      const ix = ((item.colX - collOff) % collLoop + collLoop) % collLoop - 90;
+      // Gentle animated floating bob
+      const bobY = item.y + Math.sin(animTime * 1.5 + idx * 1.2) * 4;
+      const curRot = item.rot + Math.sin(animTime * 1.2 + idx) * 0.03;
+
+      this.ctx.save();
+      this.ctx.translate(ix, bobY);
+      this.ctx.rotate(curRot);
+
+      if (item.type === 'airmail') {
+        // Decal: Vintage Air Mail Envelope Stamp with Perforations & Postmark
+        // Drop shadow
+        this.ctx.fillStyle = 'rgba(0, 0, 0, 0.22)';
+        this.ctx.fillRect(-item.w / 2 + 3, -item.h / 2 + 4, item.w, item.h);
+        // Cream stamp paper
+        this.ctx.fillStyle = '#FFFDF5';
+        this.ctx.fillRect(-item.w / 2, -item.h / 2, item.w, item.h);
+        // Airmail border stripes
+        for (let bx = -item.w / 2 + 2; bx < item.w / 2 - 4; bx += 8) {
+          this.ctx.fillStyle = '#2563EB';
+          this.ctx.fillRect(bx, -item.h / 2, 4, 3);
+          this.ctx.fillRect(bx + 4, item.h / 2 - 3, 4, 3);
+          this.ctx.fillStyle = '#DC2626';
+          this.ctx.fillRect(bx + 4, -item.h / 2, 4, 3);
+          this.ctx.fillRect(bx, item.h / 2 - 3, 4, 3);
+        }
+        // Stamp insignia & text
+        this.ctx.fillStyle = '#1E3A8A';
+        this.ctx.font = 'bold 9px "Space Grotesk", sans-serif';
+        this.ctx.textAlign = 'center';
+        this.ctx.fillText('PAR AVION', 0, -4);
+        this.ctx.font = '700 7px "Space Grotesk", sans-serif';
+        this.ctx.fillText('AIR MAIL', 0, 8);
+
+        // Circular postmark overlay
+        this.ctx.strokeStyle = 'rgba(30, 41, 59, 0.55)';
+        this.ctx.lineWidth = 1.2;
+        this.ctx.beginPath();
+        this.ctx.arc(item.w / 2 - 14, -item.h / 2 + 14, 11, 0, Math.PI * 2);
+        this.ctx.stroke();
+      } else if (item.type === 'polaroid') {
+        // Decal: Polaroid Photo Cutout with Washi Tape at Top
+        // Drop shadow
+        this.ctx.fillStyle = 'rgba(0, 0, 0, 0.24)';
+        this.ctx.fillRect(-item.w / 2 + 3, -item.h / 2 + 4, item.w, item.h);
+        // White polaroid frame
+        this.ctx.fillStyle = '#FFFFFF';
+        this.ctx.fillRect(-item.w / 2, -item.h / 2, item.w, item.h);
+        // Photo image area inside
+        const imgW = item.w - 10;
+        const imgH = item.h - 22;
+        const skyGrad = this.ctx.createLinearGradient(0, -item.h / 2 + 5, 0, -item.h / 2 + 5 + imgH);
+        skyGrad.addColorStop(0, '#60A5FA');
+        skyGrad.addColorStop(0.7, '#FDE047');
+        skyGrad.addColorStop(1, '#22C55E');
+        this.ctx.fillStyle = skyGrad;
+        this.ctx.fillRect(-item.w / 2 + 5, -item.h / 2 + 5, imgW, imgH);
+        // Polaroid hand-drawn bunny mascot silhouette inside
+        this.ctx.fillStyle = '#1E293B';
+        this.ctx.beginPath();
+        this.ctx.arc(0, 2, 7, 0, Math.PI * 2);
+        this.ctx.fill();
+        this.ctx.fillRect(-5, -12, 3, 8);
+        this.ctx.fillRect(2, -12, 3, 8);
+
+        // Masking tape holding the polaroid at top
+        this.ctx.fillStyle = 'rgba(251, 191, 36, 0.75)';
+        this.ctx.fillRect(-18, -item.h / 2 - 6, 36, 12);
+      } else if (item.type === 'barcode') {
+        // Decal: Shipping Barcode & Serial Label
+        this.ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
+        this.ctx.fillRect(-item.w / 2 + 2, -item.h / 2 + 3, item.w, item.h);
+        this.ctx.fillStyle = '#FFFFFF';
+        this.ctx.fillRect(-item.w / 2, -item.h / 2, item.w, item.h);
+        // Barcode lines
+        this.ctx.fillStyle = '#111827';
+        const bars = [2, 1, 3, 1, 2, 4, 1, 2, 1, 3, 2, 1, 3];
+        let bx = -item.w / 2 + 6;
+        bars.forEach(bw => {
+          this.ctx.fillRect(bx, -item.h / 2 + 5, bw, 20);
+          bx += bw + 2;
+        });
+        this.ctx.font = 'bold 7px ui-monospace, monospace';
+        this.ctx.textAlign = 'center';
+        this.ctx.fillText('* SIDEHOP-94 *', 0, item.h / 2 - 5);
+      } else if (item.type === 'hologram') {
+        // Decal: Glossy Holographic Foil Sticker Badge with Spectrum Sheen
+        // Drop shadow
+        this.ctx.fillStyle = 'rgba(0, 0, 0, 0.25)';
+        this.ctx.beginPath();
+        this.ctx.arc(2, 3, item.r, 0, Math.PI * 2);
+        this.ctx.fill();
+
+        // Rainbow holographic gradient that shifts with time
+        const holoGrad = this.ctx.createLinearGradient(-item.r, -item.r, item.r, item.r);
+        const shift = (animTime * 0.3) % 1;
+        holoGrad.addColorStop((0 + shift) % 1, '#F43F5E');
+        holoGrad.addColorStop((0.25 + shift) % 1, '#FBBF24');
+        holoGrad.addColorStop((0.5 + shift) % 1, '#34D399');
+        holoGrad.addColorStop((0.75 + shift) % 1, '#38BDF8');
+        holoGrad.addColorStop((1 + shift) % 1, '#A855F7');
+        this.ctx.fillStyle = holoGrad;
+        this.ctx.beginPath();
+        this.ctx.arc(0, 0, item.r, 0, Math.PI * 2);
+        this.ctx.fill();
+
+        // Star badge stamp in center
+        this.ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
+        this.ctx.font = 'bold 18px "Fredoka", sans-serif';
+        this.ctx.textAlign = 'center';
+        this.ctx.textBaseline = 'middle';
+        this.ctx.fillText('★', 0, 0);
+
+        // Specular curved glare
+        this.ctx.strokeStyle = 'rgba(255, 255, 255, 0.7)';
+        this.ctx.lineWidth = 2.5;
+        this.ctx.beginPath();
+        this.ctx.arc(0, 0, item.r - 3, Math.PI * 1.1, Math.PI * 1.6);
+        this.ctx.stroke();
+      } else if (item.type === 'fragile') {
+        // Decal: Red "FRAGILE / HANDLE WITH CARE" Decal
+        this.ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
+        this.ctx.fillRect(-item.w / 2 + 2, -item.h / 2 + 3, item.w, item.h);
+        this.ctx.fillStyle = '#DC2626';
+        this.ctx.fillRect(-item.w / 2, -item.h / 2, item.w, item.h);
+        this.ctx.fillStyle = '#FFFFFF';
+        this.ctx.font = 'bold 9px "Space Grotesk", sans-serif';
+        this.ctx.textAlign = 'center';
+        this.ctx.fillText('FRAGILE', 0, -2);
+        this.ctx.font = '600 5px "Space Grotesk", sans-serif';
+        this.ctx.fillText('HANDLE WITH CARE', 0, 7);
+      } else if (item.type === 'tape') {
+        // Decal: Translucent Washi Tape Strip with Serrated Ends
+        this.ctx.fillStyle = 'rgba(0, 0, 0, 0.12)';
+        this.ctx.fillRect(-item.w / 2 + 2, -item.h / 2 + 3, item.w, item.h);
         this.ctx.fillStyle = item.color;
         this.ctx.fillRect(-item.w / 2, -item.h / 2, item.w, item.h);
+        // Tape fibers
+        this.ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+        this.ctx.fillRect(-item.w / 2, -item.h / 2 + 2, item.w, 2);
         // Serrated tape edge ends
-        this.ctx.fillStyle = '#FAF4E8';
+        this.ctx.fillStyle = '#FAF3E3';
         this.ctx.beginPath();
         this.ctx.moveTo(-item.w / 2, -item.h / 2);
         this.ctx.lineTo(-item.w / 2 + 4, -item.h / 4);
@@ -14044,23 +16026,16 @@ class SidehopApp {
         this.ctx.lineTo(-item.w / 2, item.h / 2);
         this.ctx.closePath();
         this.ctx.fill();
-      } else if (item.type === 'dot') {
-        this.ctx.fillStyle = item.color;
-        this.ctx.globalAlpha = 0.8;
         this.ctx.beginPath();
-        this.ctx.arc(0, 0, item.r, 0, Math.PI * 2);
-        this.ctx.fill();
-      } else if (item.type === 'rhombus') {
-        this.ctx.fillStyle = item.color;
-        this.ctx.globalAlpha = 0.8;
-        this.ctx.beginPath();
-        this.ctx.moveTo(0, -item.size);
-        this.ctx.lineTo(item.size, 0);
-        this.ctx.lineTo(0, item.size);
-        this.ctx.lineTo(-item.size, 0);
+        this.ctx.moveTo(item.w / 2, -item.h / 2);
+        this.ctx.lineTo(item.w / 2 - 4, -item.h / 4);
+        this.ctx.lineTo(item.w / 2, 0);
+        this.ctx.lineTo(item.w / 2 - 4, item.h / 4);
+        this.ctx.lineTo(item.w / 2, item.h / 2);
         this.ctx.closePath();
         this.ctx.fill();
       }
+
       this.ctx.restore();
     });
 
@@ -14129,18 +16104,73 @@ class SidehopApp {
 
     const horizon = h * 0.70;
 
-    // 2. Volumetric Holographic Laser Sensor Pillars ascending into the sky
-    for (let i = 0; i < 5; i++) {
-      const lx = ((i * 240 + Math.sin(time * 0.75 + i * 1.3) * 25 - this.camera.x * 0.05) % w + w) % w;
-      const lGrad = this.ctx.createLinearGradient(lx, 0, lx, horizon);
-      lGrad.addColorStop(0, 'rgba(56, 189, 248, 0)');
-      lGrad.addColorStop(0.5, 'rgba(56, 189, 248, 0.05)');
-      lGrad.addColorStop(1, 'rgba(56, 189, 248, 0.22)');
-      this.ctx.fillStyle = lGrad;
-      this.ctx.fillRect(lx - 15, 0, 30, horizon);
-    }
+    // 2. Sweeping Animated Volumetric Cyber Searchlights across the night sky
+    const searchlights = [-0.25, 0.35, -0.15];
+    searchlights.forEach((baseAngle, sIdx) => {
+      const sweep = Math.sin(time * 0.6 + sIdx * 2.1) * 0.45;
+      const angle = baseAngle + sweep;
+      const originX = (w * 0.25) + sIdx * (w * 0.3) - (this.camera.x * 0.03);
+      this.ctx.save();
+      this.ctx.translate(originX, horizon);
+      this.ctx.rotate(angle);
+      const beamGrad = this.ctx.createLinearGradient(0, 0, 0, -h * 1.2);
+      beamGrad.addColorStop(0, 'rgba(0, 229, 255, 0.25)');
+      beamGrad.addColorStop(0.5, 'rgba(56, 189, 248, 0.08)');
+      beamGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+      this.ctx.fillStyle = beamGrad;
+      this.ctx.beginPath();
+      this.ctx.moveTo(-10, 0);
+      this.ctx.lineTo(-70, -h * 1.2);
+      this.ctx.lineTo(70, -h * 1.2);
+      this.ctx.lineTo(10, 0);
+      this.ctx.closePath();
+      this.ctx.fill();
+      this.ctx.restore();
+    });
 
-    // 3. Distant Industrial Megastructures with Blinking Beacon Lights (Layer 1 - slow parallax)
+    // 3. Floating 3D Chrome Gyroscopic Rings in Upper Sky (Liquid Mercury Gyroscope)
+    const gyroX = ((w * 0.78 - (this.camera.x * 0.03)) % (w + 200) + (w + 200)) % (w + 200) - 100;
+    const gyroY = h * 0.26;
+    this.ctx.save();
+    this.ctx.translate(gyroX, gyroY);
+    // Outer rotating chrome ring
+    this.ctx.rotate(time * 0.4);
+    const ringGrad1 = this.ctx.createLinearGradient(-45, -45, 45, 45);
+    ringGrad1.addColorStop(0, '#FFFFFF');
+    ringGrad1.addColorStop(0.3, '#64748B');
+    ringGrad1.addColorStop(0.6, '#F8FAFC');
+    ringGrad1.addColorStop(1, '#1E293B');
+    this.ctx.strokeStyle = ringGrad1;
+    this.ctx.lineWidth = 4.5;
+    this.ctx.beginPath();
+    this.ctx.ellipse(0, 0, 48, 22, 0, 0, Math.PI * 2);
+    this.ctx.stroke();
+
+    // Inner counter-rotating ring
+    this.ctx.rotate(-time * 0.85);
+    const ringGrad2 = this.ctx.createLinearGradient(-30, 30, 30, -30);
+    ringGrad2.addColorStop(0, '#38BDF8');
+    ringGrad2.addColorStop(0.5, '#FFFFFF');
+    ringGrad2.addColorStop(1, '#0F172A');
+    this.ctx.strokeStyle = ringGrad2;
+    this.ctx.lineWidth = 3;
+    this.ctx.beginPath();
+    this.ctx.ellipse(0, 0, 32, 14, 0, 0, Math.PI * 2);
+    this.ctx.stroke();
+
+    // Core liquid chrome sphere with reflection
+    const sphereGrad = this.ctx.createRadialGradient(-4, -4, 2, 0, 0, 14);
+    sphereGrad.addColorStop(0, '#FFFFFF');
+    sphereGrad.addColorStop(0.4, '#CBD5E1');
+    sphereGrad.addColorStop(0.85, '#334155');
+    sphereGrad.addColorStop(1, '#0F172A');
+    this.ctx.fillStyle = sphereGrad;
+    this.ctx.beginPath();
+    this.ctx.arc(0, 0, 13, 0, Math.PI * 2);
+    this.ctx.fill();
+    this.ctx.restore();
+
+    // 4. Distant Industrial Megastructures with Blinking Beacon Lights (Layer 1 - slow parallax)
     this.ctx.fillStyle = '#1A2333';
     const structLoop = 900;
     const structOff = (this.camera.x * 0.04) % structLoop;
@@ -14167,7 +16197,7 @@ class SidehopApp {
       this.ctx.fillStyle = '#1A2333';
     }
 
-    // 4. Midground Heavy Industrial Chrome Cogwheels & Truss Girders (Layer 2 - parallax)
+    // 5. Midground Heavy Industrial Chrome Cogwheels & Truss Girders (Layer 2 - parallax)
     const gearLoop = 700;
     const gearOff = (this.camera.x * 0.08) % gearLoop;
     [180, 520].forEach((gx, idx) => {
@@ -14213,7 +16243,7 @@ class SidehopApp {
       this.ctx.restore();
     });
 
-    // 5. Polished Chrome Horizon Line with Moving Specular Sheen
+    // 6. Polished Chrome Horizon Line with Moving Specular Sheen
     const sheenX = ((time * 180) % (w + 400)) - 200;
     const sheenGrad = this.ctx.createRadialGradient(sheenX, horizon, 0, sheenX, horizon, 150);
     sheenGrad.addColorStop(0, 'rgba(255, 255, 255, 0.85)');
@@ -14229,7 +16259,7 @@ class SidehopApp {
     this.ctx.lineTo(w, horizon);
     this.ctx.stroke();
 
-    // 6. Perspective Cybernetic Ground Plane
+    // 7. Perspective Cybernetic Ground Plane
     const groundLines = 10;
     for (let i = 1; i <= groundLines; i++) {
       const t = Math.pow(i / groundLines, 2.2);
@@ -14242,7 +16272,7 @@ class SidehopApp {
       this.ctx.stroke();
     }
 
-    // 7. Animated Chrome Sparks & Starburst Gleams
+    // 8. Animated Chrome Sparks & Starburst Gleams
     if (this.chromeSparks) {
       this.chromeSparks.forEach(p => {
         p.y -= p.speed;
@@ -14271,6 +16301,32 @@ class SidehopApp {
         this.ctx.restore();
       });
     }
+
+    // 8. Low-Lying Rolling Jungle Mist / Forest Fog
+    const mistLoop = 800;
+    const mistOff = ((time * 25) + (this.camera.x * 0.15)) % mistLoop;
+    this.ctx.fillStyle = 'rgba(209, 250, 229, 0.18)';
+    for (let mx = -200; mx < w + 300; mx += 140) {
+      const px = mx - mistOff;
+      this.ctx.beginPath();
+      this.ctx.arc(px + 60, h - 20, 65, Math.PI, 0);
+      this.ctx.fill();
+    }
+
+    // 9. Fluttering Tropical Butterflies
+    [ [180, horizon - 80, '#FFD166'], [540, horizon - 120, '#00E5FF'], [820, horizon - 60, '#FF3388'] ].forEach(([bx, by, col], idx) => {
+      const bX = ((bx + Math.sin(time * 1.5 + idx * 2) * 50 - this.camera.x * 0.1) % (w + 200) + (w + 200)) % (w + 200) - 100;
+      const bY = by + Math.cos(time * 2 + idx) * 20;
+      const flap = Math.abs(Math.sin(time * 8 + idx * 3));
+      this.ctx.save();
+      this.ctx.translate(bX, bY);
+      this.ctx.fillStyle = col;
+      this.ctx.beginPath();
+      this.ctx.ellipse(-3 * flap, 0, 4 * flap, 3, -0.4, 0, Math.PI * 2);
+      this.ctx.ellipse(3 * flap, 0, 4 * flap, 3, 0.4, 0, Math.PI * 2);
+      this.ctx.fill();
+      this.ctx.restore();
+    });
 
     this.ctx.restore();
   }
@@ -14582,7 +16638,7 @@ class SidehopApp {
     this.ctx.fillStyle = '#083D2D';
     this.ctx.fillRect(pyrX - 8, horizon - 96, 16, 96);
 
-    // 4. Distant Jungle Ridge Silhouettes
+    // 4. Distant Jungle Ridge Silhouettes & Cascading Waterfall
     this.ctx.fillStyle = '#083E2C';
     const ridgeLoop = 800;
     const ridgeOff = (this.camera.x * 0.06) % ridgeLoop;
@@ -14595,6 +16651,27 @@ class SidehopApp {
     }
     this.ctx.lineTo(w, h);
     this.ctx.closePath();
+    this.ctx.fill();
+
+    // Cascading distant waterfall flowing between ridges
+    const wfX = ((320 - ridgeOff) % (w + 400) + (w + 400)) % (w + 400) - 100;
+    const wfGrad = this.ctx.createLinearGradient(wfX, horizon - 15, wfX, horizon + 45);
+    wfGrad.addColorStop(0, '#A7F3D0');
+    wfGrad.addColorStop(0.5, '#6EE7B7');
+    wfGrad.addColorStop(1, '#059669');
+    this.ctx.fillStyle = wfGrad;
+    this.ctx.fillRect(wfX - 6, horizon - 15, 12, 60);
+
+    // Animated foaming water highlights
+    this.ctx.fillStyle = 'rgba(255, 255, 255, 0.75)';
+    const streamY = ((time * 80) % 20);
+    this.ctx.fillRect(wfX - 4, horizon - 10 + streamY, 8, 4);
+    this.ctx.fillRect(wfX - 3, horizon + 10 + streamY, 6, 5);
+
+    // Waterfall mist spray at base
+    this.ctx.fillStyle = 'rgba(209, 250, 229, 0.4)';
+    this.ctx.beginPath();
+    this.ctx.arc(wfX, horizon + 45, 16 + Math.sin(time * 3) * 3, 0, Math.PI * 2);
     this.ctx.fill();
 
     // 5. Midground Lush Banyan Tree Trunks & Swaying Jungle Vines (Layer 2)
@@ -14668,6 +16745,32 @@ class SidehopApp {
         this.ctx.restore();
       });
     }
+
+    // 8. Low-Lying Rolling Jungle Mist / Forest Fog
+    const mistLoop = 800;
+    const mistOff = ((time * 25) + (this.camera.x * 0.15)) % mistLoop;
+    this.ctx.fillStyle = 'rgba(209, 250, 229, 0.18)';
+    for (let mx = -200; mx < w + 300; mx += 140) {
+      const px = mx - mistOff;
+      this.ctx.beginPath();
+      this.ctx.arc(px + 60, h - 20, 65, Math.PI, 0);
+      this.ctx.fill();
+    }
+
+    // 9. Fluttering Tropical Butterflies
+    [ [180, horizon - 80, '#FFD166'], [540, horizon - 120, '#00E5FF'], [820, horizon - 60, '#FF3388'] ].forEach(([bx, by, col], idx) => {
+      const bX = ((bx + Math.sin(time * 1.5 + idx * 2) * 50 - this.camera.x * 0.1) % (w + 200) + (w + 200)) % (w + 200) - 100;
+      const bY = by + Math.cos(time * 2 + idx) * 20;
+      const flap = Math.abs(Math.sin(time * 8 + idx * 3));
+      this.ctx.save();
+      this.ctx.translate(bX, bY);
+      this.ctx.fillStyle = col;
+      this.ctx.beginPath();
+      this.ctx.ellipse(-3 * flap, 0, 4 * flap, 3, -0.4, 0, Math.PI * 2);
+      this.ctx.ellipse(3 * flap, 0, 4 * flap, 3, 0.4, 0, Math.PI * 2);
+      this.ctx.fill();
+      this.ctx.restore();
+    });
 
     this.ctx.restore();
   }
@@ -15067,6 +17170,27 @@ class SidehopApp {
         rotation: Math.random() * Math.PI,
         vRot: (Math.random() - 0.5) * 0.3,
         life: 0.6
+      });
+    }
+  }
+
+  // Musical Note floating particles when bouncing on a Note Block
+  spawnMusicNoteParticle(x, y) {
+    const symbols = ['♪', '♫', '♬', '♩'];
+    const colors = ['#FF2A85', '#00E5FF', '#FFE600', '#00E676', '#B388FF'];
+    const count = 3;
+    for (let i = 0; i < count; i++) {
+      this.confetti.push({
+        x: x + (Math.random() - 0.5) * 20,
+        y: y - 10,
+        vx: (Math.random() - 0.5) * 3.5,
+        vy: -Math.random() * 4.5 - 3,
+        char: symbols[Math.floor(Math.random() * symbols.length)],
+        color: colors[Math.floor(Math.random() * colors.length)],
+        size: Math.random() * 6 + 18,
+        rotation: (Math.random() - 0.5) * 0.4,
+        vRot: (Math.random() - 0.5) * 0.1,
+        life: 0.95
       });
     }
   }
@@ -16670,8 +18794,16 @@ class SidehopApp {
         const drawY = p.isScreen ? p.y : (p.y - this.camera.y);
         this.ctx.translate(drawX, drawY);
         this.ctx.rotate(p.rotation);
-        this.ctx.fillStyle = p.color;
-        this.ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size);
+        if (p.char) {
+          this.ctx.font = `bold ${Math.round(p.size)}px "Fredoka", sans-serif`;
+          this.ctx.textAlign = 'center';
+          this.ctx.textBaseline = 'middle';
+          this.ctx.fillStyle = p.color;
+          this.ctx.fillText(p.char, 0, 0);
+        } else {
+          this.ctx.fillStyle = p.color;
+          this.ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size);
+        }
         this.ctx.restore();
       }
       this.ctx.restore();

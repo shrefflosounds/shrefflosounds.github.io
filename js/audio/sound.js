@@ -112,6 +112,59 @@ class SoundEngine {
     } catch (e) {}
   }
 
+  // Musical Note Block Sound (Mario Maker style melodic marimba/bell chime tone)
+  playMusicNote(pitchIndex = 0) {
+    if (this.muted || !this.ensureContext()) return;
+    try {
+      const now = this.ctx.currentTime;
+      // C major diatonic musical scale frequencies
+      const scale = [
+        523.25, // C5
+        587.33, // D5
+        659.25, // E5
+        698.46, // F5
+        783.99, // G5
+        880.00, // A5
+        987.77, // B5
+        1046.50 // C6
+      ];
+
+      const idx = Math.abs(Math.round(pitchIndex)) % scale.length;
+      const freq = scale[idx];
+
+      // Primary tone: warm sine wave
+      const osc1 = this.ctx.createOscillator();
+      const gain1 = this.ctx.createGain();
+      osc1.type = 'sine';
+      osc1.frequency.setValueAtTime(freq, now);
+
+      // Secondary tone: bright chime harmonic (1 octave up, soft triangle)
+      const osc2 = this.ctx.createOscillator();
+      const gain2 = this.ctx.createGain();
+      osc2.type = 'triangle';
+      osc2.frequency.setValueAtTime(freq * 2, now);
+
+      // Sweet vibraphone/chime ADSR envelope
+      gain1.gain.setValueAtTime(0.38, now);
+      gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.38);
+
+      gain2.gain.setValueAtTime(0.14, now);
+      gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.22);
+
+      osc1.connect(gain1);
+      gain1.connect(this.masterGain);
+
+      osc2.connect(gain2);
+      gain2.connect(this.masterGain);
+
+      osc1.start(now);
+      osc1.stop(now + 0.4);
+
+      osc2.start(now);
+      osc2.stop(now + 0.25);
+    } catch (e) {}
+  }
+
   // Collectible Coin Chime
   playCollect() {
     if (this.muted || !this.ensureContext()) return;

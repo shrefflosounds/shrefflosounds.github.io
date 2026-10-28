@@ -541,6 +541,34 @@ ${serializedJson}
       osc.stop(t + 0.14);
     }
 
+    playMusicNote(pitchIndex = 0) {
+      if (!this.ensureContext()) return;
+      const scale = [523.25, 587.33, 659.25, 698.46, 783.99, 880.00, 987.77, 1046.50];
+      const freq = scale[Math.abs(Math.round(pitchIndex)) % scale.length];
+      const t = this.ctx.currentTime;
+      const osc1 = this.ctx.createOscillator();
+      const gain1 = this.ctx.createGain();
+      osc1.type = 'sine';
+      osc1.frequency.setValueAtTime(freq, t);
+      gain1.gain.setValueAtTime(0.38, t);
+      gain1.gain.exponentialRampToValueAtTime(0.001, t + 0.38);
+      osc1.connect(gain1);
+      gain1.connect(this.masterGain);
+      osc1.start(t);
+      osc1.stop(t + 0.4);
+
+      const osc2 = this.ctx.createOscillator();
+      const gain2 = this.ctx.createGain();
+      osc2.type = 'triangle';
+      osc2.frequency.setValueAtTime(freq * 2, t);
+      gain2.gain.setValueAtTime(0.14, t);
+      gain2.gain.exponentialRampToValueAtTime(0.001, t + 0.22);
+      osc2.connect(gain2);
+      gain2.connect(this.masterGain);
+      osc2.start(t);
+      osc2.stop(t + 0.25);
+    }
+
     playVictory() {
       if (!this.ensureContext()) return;
       const notes = [261.63, 329.63, 392.00, 523.25, 659.25, 783.99];

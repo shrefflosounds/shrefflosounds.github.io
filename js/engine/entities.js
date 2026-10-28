@@ -38,8 +38,13 @@ export class Entity {
     this.width = width;
     this.height = height;
     this.active = true;
+    this.color = null; // Custom starter component color (e.g. red ice block, custom goal flag)
     this.customVisual = null; // dataURL or Image object for custom painted art / GIF
     this.customImageElement = null;
+  }
+
+  setColor(color) {
+    this.color = color;
   }
 
   setCustomVisual(dataUrl) {
@@ -302,8 +307,8 @@ export class Player extends Entity {
 
       this.renderCustomOrFallback(ctx, () => {
         // Default Sidehop Playful Mascot
-        // Body (electric cyan rounded rectangle with neo-brutalist border)
-        ctx.fillStyle = '#00E5FF';
+        // Body (electric cyan rounded rectangle with neo-brutalist border, or custom component color)
+        ctx.fillStyle = this.color || '#00E5FF';
         ctx.strokeStyle = '#121212';
         ctx.lineWidth = 3;
 
@@ -522,7 +527,11 @@ export class SolidBlock extends Entity {
         console.error('Mystery block bump error:', err);
       }
     } else if (this.variant === 'note') {
-      sounds.playBounce();
+      const notePitch = Math.floor(Math.abs(this.x) / 40) % 8;
+      sounds.playMusicNote(notePitch);
+      if (typeof window !== 'undefined' && window.sidehop && window.sidehop.spawnMusicNoteParticle) {
+        window.sidehop.spawnMusicNoteParticle(this.x + this.width / 2, this.y);
+      }
     }
   }
 
@@ -658,14 +667,14 @@ export class SolidBlock extends Entity {
       case 'chrome':
         return {
           theme: 'chrome',
-          dirtBase: '#64748B',
-          speckDark: '#334155',
-          speckLight: '#E2E8F0',
+          dirtBase: '#475569',
+          speckDark: '#1E293B',
+          speckLight: '#F1F5F9',
           speckMid: '#94A3B8',
-          turfMain: '#F1F5F9',
+          turfMain: '#CBD5E1',
           turfHighlight: '#FFFFFF',
-          turfShadow: '#CBD5E1',
-          speckAccent: '#38BDF8'
+          turfShadow: '#334155',
+          speckAccent: '#00E5FF'
         };
       case '8-bit':
         return {
@@ -682,14 +691,14 @@ export class SolidBlock extends Entity {
       case 'jungle':
         return {
           theme: 'jungle',
-          dirtBase: '#334D41',
-          speckDark: '#1B2E26',
+          dirtBase: '#1B382B',
+          speckDark: '#0D1F17',
           speckLight: '#74C69D',
-          speckMid: '#406A57',
-          turfMain: '#1B4D3E',
-          turfHighlight: '#40916C',
+          speckMid: '#2D6A4F',
+          turfMain: '#105238',
+          turfHighlight: '#52B788',
           turfShadow: '#081C15',
-          speckAccent: '#FF6B6B'
+          speckAccent: '#FFD166'
         };
       case 'neon':
         return {
@@ -718,14 +727,14 @@ export class SolidBlock extends Entity {
       case 'mixed':
         return {
           theme: 'mixed',
-          dirtBase: '#E5D5B8',
-          speckDark: '#C7B28E',
+          dirtBase: '#D4B996',
+          speckDark: '#8C6D4F',
           speckLight: '#FFFDF5',
-          speckMid: '#D6BF96',
-          turfMain: '#F59E0B',
-          turfHighlight: '#FBBF24',
-          turfShadow: '#B45309',
-          speckAccent: '#E11D48'
+          speckMid: '#B89B74',
+          turfMain: '#E8A838',
+          turfHighlight: '#FDE68A',
+          turfShadow: '#9A5B0B',
+          speckAccent: '#EF4444'
         };
       case 'grass':
       default:
@@ -951,7 +960,7 @@ export class SolidBlock extends Entity {
           ctx.lineTo(xRight, yBottom);
           ctx.lineTo(0, yBottom);
           ctx.closePath();
-          ctx.fillStyle = '#B2EBF2'; // Matching Ice Block base
+          ctx.fillStyle = this.color || '#B2EBF2'; // Matching Ice Block base
           ctx.fill();
 
           // Angled Top Glossy Sheen Band:
@@ -1146,7 +1155,7 @@ export class SolidBlock extends Entity {
           ctx.lineTo(this.width, yBottom);
           ctx.lineTo(this.width, this.height);
           ctx.closePath();
-          ctx.fillStyle = '#B2EBF2'; // Matching Ice Block base
+          ctx.fillStyle = this.color || '#B2EBF2'; // Matching Ice Block base
           ctx.fill();
 
           // Angled Top Glossy Sheen Band:
@@ -1344,7 +1353,7 @@ export class SolidBlock extends Entity {
           ctx.lineTo(this.width, yTop);
           ctx.lineTo(this.width, 0);
           ctx.closePath();
-          ctx.fillStyle = '#B2EBF2'; // Matching Ice Block base
+          ctx.fillStyle = this.color || '#B2EBF2'; // Matching Ice Block base
           ctx.fill();
 
           // Underside Glossy Sheen Band:
@@ -1533,7 +1542,7 @@ export class SolidBlock extends Entity {
           ctx.lineTo(xRight, this.height);
           ctx.lineTo(this.width, this.height);
           ctx.closePath();
-          ctx.fillStyle = '#B2EBF2'; // Matching Ice Block base
+          ctx.fillStyle = this.color || '#B2EBF2'; // Matching Ice Block base
           ctx.fill();
 
           // Underside Glossy Sheen Band:
@@ -1963,7 +1972,7 @@ export class SolidBlock extends Entity {
         const yStart = hasTop ? -0.5 : 0;
         const fillW = this.width + (hasRight ? 0.5 : 0) - xStart;
         const fillH = this.height + (hasBottom ? 0.5 : 0) - yStart;
-        ctx.fillStyle = '#B2EBF2';
+        ctx.fillStyle = this.color || '#B2EBF2';
         ctx.fillRect(xStart, yStart, fillW, fillH);
 
         // Top glossy ice sheen if not covered from above
@@ -2070,17 +2079,41 @@ export class SolidBlock extends Entity {
 
         // Theme-Specific Distinctive Inlays
         if (pal.theme === 'chrome') {
-          // Brushed metallic horizontal specular streak
-          ctx.fillStyle = 'rgba(255, 255, 255, 0.18)';
-          ctx.fillRect(2, 10, this.width - 4, 4);
-          ctx.fillStyle = 'rgba(0, 0, 0, 0.15)';
-          ctx.fillRect(2, 14, this.width - 4, 2);
-          // High-tech corner rivets
-          ctx.fillStyle = '#E2E8F0';
-          ctx.fillRect(4, 5, 2, 2);
-          ctx.fillRect(this.width - 6, 5, 2, 2);
-          ctx.fillRect(4, this.height - 7, 2, 2);
-          ctx.fillRect(this.width - 6, this.height - 7, 2, 2);
+          const animTime = performance.now() * 0.001;
+          // Polished brushed titanium specular wave sweeping across surface
+          const sweepPhase = Math.sin(animTime * 2.2 + (this.x * 0.04));
+          const sweepAlpha = Math.max(0, sweepPhase) * 0.35;
+          ctx.fillStyle = `rgba(255, 255, 255, ${0.12 + sweepAlpha})`;
+          ctx.fillRect(2, 6, this.width - 4, 6);
+          ctx.fillStyle = 'rgba(0, 0, 0, 0.22)';
+          ctx.fillRect(2, 12, this.width - 4, 3);
+
+          // Chamfered metallic diagonal sheen
+          ctx.fillStyle = `rgba(255, 255, 255, ${0.08 + sweepAlpha * 0.5})`;
+          ctx.beginPath();
+          ctx.moveTo(4, 20); ctx.lineTo(this.width - 4, 14); ctx.lineTo(this.width - 4, 18); ctx.lineTo(4, 24);
+          ctx.closePath();
+          ctx.fill();
+
+          // Cybernetic glowing circuit trace
+          ctx.fillStyle = 'rgba(0, 229, 255, 0.65)';
+          ctx.fillRect(14, this.height - 8, this.width - 28, 2);
+          ctx.fillRect(this.width / 2 - 1, this.height - 14, 2, 6);
+          ctx.fillStyle = '#00E5FF';
+          ctx.fillRect(this.width / 2 - 2, this.height - 15, 4, 4);
+
+          // Heavy industrial corner rivets with metallic highlights & drop shadows
+          [
+            [5, 5], [this.width - 8, 5],
+            [5, this.height - 8], [this.width - 8, this.height - 8]
+          ].forEach(([rx, ry]) => {
+            ctx.fillStyle = '#1E293B';
+            ctx.fillRect(rx, ry + 1, 4, 3);
+            ctx.fillStyle = '#CBD5E1';
+            ctx.fillRect(rx, ry, 3.5, 3);
+            ctx.fillStyle = '#FFFFFF';
+            ctx.fillRect(rx, ry, 1.5, 1.5);
+          });
         } else if (pal.theme === '8-bit') {
           // Chunky 8-bit retro pixel grout lines
           ctx.fillStyle = '#000000';
@@ -2093,6 +2126,27 @@ export class SolidBlock extends Entity {
           ctx.fillStyle = pal.speckAccent;
           ctx.fillRect(12 + speckShift, 18, 2.5, 2.5);
           ctx.fillRect(26 - speckShift, 12, 2.5, 2.5);
+        } else if (pal.theme === 'jungle') {
+          const animTime = performance.now() * 0.001;
+          // Ancient carved Mayan stone glyph in center
+          ctx.fillStyle = 'rgba(8, 28, 21, 0.45)';
+          ctx.fillRect(this.width / 2 - 8, this.height / 2 - 8, 16, 16);
+          ctx.fillStyle = 'rgba(82, 183, 136, 0.35)';
+          ctx.fillRect(this.width / 2 - 5, this.height / 2 - 5, 10, 10);
+          ctx.fillStyle = '#FFD166';
+          ctx.fillRect(this.width / 2 - 2, this.height / 2 - 2, 4, 4);
+
+          // Living ivy sprigs creeping along stone
+          ctx.fillStyle = '#2D6A4F';
+          ctx.beginPath();
+          ctx.ellipse(8, 24, 4, 2.5, 0.5, 0, Math.PI * 2);
+          ctx.ellipse(this.width - 8, 22, 4, 2.5, -0.5, 0, Math.PI * 2);
+          ctx.fill();
+
+          // Lichen speckles
+          ctx.fillStyle = pal.speckAccent;
+          ctx.fillRect(10 + speckShift, 12, 2.5, 2.5);
+          ctx.fillRect(26 - speckShift, 26, 2, 2);
         } else if (pal.theme === 'neon') {
           // Vibrant glowing neon accents
           ctx.fillStyle = '#00E5FF';
@@ -2107,11 +2161,128 @@ export class SolidBlock extends Entity {
           ctx.fillStyle = '#2DD4BF';
           ctx.fillRect(this.width - 7, 24, 3, 2);
         } else if (pal.theme === 'mixed') {
-          // Newsprint / collage flecks
-          ctx.fillStyle = '#F59E0B';
-          ctx.fillRect(6, 16, 4, 2);
-          ctx.fillStyle = '#E11D48';
-          ctx.fillRect(this.width - 8, 22, 3, 2);
+          // 1. Photorealistic Corrugated Cardboard Fluting Texture
+          for (let gy = 4; gy < this.height - 4; gy += 6) {
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.12)';
+            ctx.fillRect(1, gy, this.width - 2, 1.5);
+            ctx.fillStyle = 'rgba(70, 45, 25, 0.15)';
+            ctx.fillRect(1, gy + 1.5, this.width - 2, 2);
+          }
+
+          // 2. Realistic Mixed Media Decals
+          const decalType = Math.abs(Math.floor(this.x / 40) + Math.floor(this.y / 40) * 3) % 4;
+
+          if (decalType === 0) {
+            // Decal A: Vintage Postal Cancellation Stamp
+            ctx.save();
+            ctx.translate(this.width / 2, this.height / 2 + 2);
+            ctx.rotate(-0.15);
+            ctx.strokeStyle = 'rgba(30, 41, 59, 0.45)';
+            ctx.lineWidth = 1.2;
+            ctx.beginPath();
+            ctx.arc(0, 0, 11, 0, Math.PI * 2);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.arc(0, 0, 8.5, 0, Math.PI * 2);
+            ctx.stroke();
+            ctx.fillStyle = 'rgba(30, 41, 59, 0.45)';
+            ctx.font = 'bold 5px ui-monospace, monospace';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('POST', 0, -2);
+            ctx.fillText('1994', 0, 3);
+            ctx.beginPath();
+            ctx.moveTo(11, -3); ctx.quadraticCurveTo(15, -6, 18, -3);
+            ctx.moveTo(11, 2);  ctx.quadraticCurveTo(15, -1, 18, 2);
+            ctx.stroke();
+            ctx.restore();
+          } else if (decalType === 1) {
+            // Decal B: Vintage Air Mail Chevron Decal
+            ctx.save();
+            ctx.translate(this.width / 2 - 12, this.height / 2 - 6);
+            ctx.rotate(0.08);
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.18)';
+            ctx.fillRect(1, 1, 24, 14);
+            ctx.fillStyle = '#FFFDF5';
+            ctx.fillRect(0, 0, 24, 14);
+            for (let cx = 1; cx < 23; cx += 5) {
+              ctx.fillStyle = '#2563EB';
+              ctx.fillRect(cx, 0, 2, 2.5);
+              ctx.fillRect(cx + 2, 11.5, 2, 2.5);
+              ctx.fillStyle = '#DC2626';
+              ctx.fillRect(cx + 2, 0, 2, 2.5);
+              ctx.fillRect(cx, 11.5, 2, 2.5);
+            }
+            ctx.fillStyle = '#1E3A8A';
+            ctx.font = 'bold 5px "Space Grotesk", sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('AIR MAIL', 12, 8);
+            ctx.restore();
+          } else if (decalType === 2) {
+            // Decal C: Photorealistic Barcode & Serial Decal Sticker
+            ctx.save();
+            ctx.translate(this.width / 2 - 13, this.height / 2 - 7);
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.15)';
+            ctx.fillRect(1, 1, 26, 15);
+            ctx.fillStyle = '#FFFFFF';
+            ctx.fillRect(0, 0, 26, 15);
+            ctx.fillStyle = '#111827';
+            const barPattern = [1, 2, 1, 3, 1, 1, 2, 1, 3, 1, 2];
+            let bx = 3;
+            barPattern.forEach(w => {
+              ctx.fillRect(bx, 2, w, 8);
+              bx += w + 1;
+            });
+            ctx.font = '4.5px ui-monospace, monospace';
+            ctx.textAlign = 'center';
+            ctx.fillText('SH-940', 13, 13);
+            ctx.restore();
+          } else {
+            // Decal D: Glossy Retro Vinyl Decal with peeled corner highlight
+            ctx.save();
+            ctx.translate(this.width / 2, this.height / 2 + 2);
+            ctx.rotate(-0.06);
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.18)';
+            ctx.beginPath();
+            ctx.arc(1, 1, 9, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = '#FFE600';
+            ctx.beginPath();
+            ctx.arc(0, 0, 9, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.strokeStyle = '#121212';
+            ctx.lineWidth = 1;
+            ctx.stroke();
+            ctx.fillStyle = '#121212';
+            ctx.fillRect(-4, -3, 2, 3);
+            ctx.fillRect(2, -3, 2, 3);
+            ctx.beginPath();
+            ctx.arc(0, 1, 4.5, 0.2, Math.PI - 0.2);
+            ctx.stroke();
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.65)';
+            ctx.beginPath();
+            ctx.arc(0, 0, 7.5, Math.PI * 1.05, Math.PI * 1.65);
+            ctx.lineWidth = 1.8;
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.65)';
+            ctx.stroke();
+            ctx.restore();
+          }
+
+          // 3. Metallic Brass Paperclip or Industrial Staple Pin
+          if ((Math.floor(this.x / 40) + Math.floor(this.y / 40)) % 2 === 0) {
+            ctx.save();
+            ctx.translate(4, 5);
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.25)';
+            ctx.fillRect(1, 1, 8, 2.5);
+            ctx.fillStyle = '#D97706';
+            ctx.fillRect(0, 0, 8, 2);
+            ctx.fillStyle = '#FDE68A';
+            ctx.fillRect(1, 0, 6, 1);
+            ctx.fillStyle = '#451A03';
+            ctx.fillRect(0, 2, 1.5, 1.5);
+            ctx.fillRect(6.5, 2, 1.5, 1.5);
+            ctx.restore();
+          }
         }
 
         // LUSH THEMED SURFACE CAP (ONLY ON EXPOSED TOP LAYER!)
@@ -2142,15 +2313,62 @@ export class SolidBlock extends Entity {
             ctx.fillStyle = '#E0F2FE';
             ctx.fillRect(12, 9, 3, 4);
             ctx.fillRect(26, 9, 2, 3);
+          } else if (pal.theme === 'chrome') {
+            // Polished Liquid Mirror Chrome Top Cap with Real-Time Reflection
+            const animTime = performance.now() * 0.001;
+            const sweep = ((animTime * 60 + this.x) % 180) / 180;
+            ctx.fillStyle = '#E2E8F0';
+            ctx.fillRect(0, 0, grassW, 8);
+            ctx.fillStyle = '#FFFFFF';
+            ctx.fillRect(0, 0, grassW, 2.5);
+            // Moving specular glare
+            const glareX = (sweep * grassW);
+            const glareGrad = ctx.createLinearGradient(glareX - 12, 0, glareX + 12, 0);
+            glareGrad.addColorStop(0, 'rgba(255, 255, 255, 0)');
+            glareGrad.addColorStop(0.5, 'rgba(255, 255, 255, 0.85)');
+            glareGrad.addColorStop(1, 'rgba(255, 255, 255, 0)');
+            ctx.fillStyle = glareGrad;
+            ctx.fillRect(0, 0, grassW, 8);
+            ctx.fillStyle = '#334155';
+            ctx.fillRect(0, 8, grassW, 2);
           } else if (pal.theme === 'jungle') {
-            // Dangling vine tendrils
-            ctx.fillStyle = '#2D6A4F';
-            ctx.fillRect(6, 8, 3, 7);
-            ctx.fillRect(18, 8, 4, 10);
-            ctx.fillRect(30, 8, 3, 6);
-            // Little jungle flower dots
-            ctx.fillStyle = '#FF6B6B';
-            ctx.fillRect(19, 17, 2, 2);
+            const animTime = performance.now() * 0.001;
+            // Lush fern moss top cap
+            ctx.fillStyle = '#105238';
+            ctx.fillRect(0, 0, grassW, 8);
+            ctx.fillStyle = '#52B788';
+            ctx.fillRect(0, 0, grassW, 3);
+            ctx.fillStyle = '#081C15';
+            ctx.fillRect(0, 8, grassW, 2);
+
+            // Dynamic swaying vine tendrils with realistic leaves
+            const sway1 = Math.sin(animTime * 2.8 + (this.x * 0.06)) * 4;
+            const sway2 = Math.cos(animTime * 2.4 + (this.x * 0.08)) * 3.5;
+            ctx.fillStyle = '#1B4332';
+            ctx.fillRect(6 + sway1 * 0.3, 8, 3.5, 8);
+            ctx.fillRect(18 + sway2 * 0.3, 8, 4, 13);
+            ctx.fillRect(30 + sway1 * 0.4, 8, 3.5, 7);
+
+            // Fern leaf leaflets swaying
+            ctx.fillStyle = '#40916C';
+            ctx.beginPath();
+            ctx.ellipse(7 + sway1, 15, 3.5, 2, 0.3, 0, Math.PI * 2);
+            ctx.ellipse(20 + sway2, 20, 4, 2.5, -0.3, 0, Math.PI * 2);
+            ctx.ellipse(31 + sway1, 14, 3.5, 2, 0.4, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Vibrant tropical red hibiscus flower blooming
+            ctx.fillStyle = '#EF4444';
+            ctx.beginPath();
+            ctx.arc(20 + sway2, 22, 3, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = '#FFE600';
+            ctx.fillRect(19.5 + sway2, 21.5, 1.5, 1.5);
+
+            // Glistening dew drops
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
+            ctx.fillRect(8, 2, 1.5, 1.5);
+            ctx.fillRect(24, 2, 1.5, 1.5);
           } else if (pal.theme === 'neon') {
             // Crisp electric neon edge
             ctx.fillStyle = '#00E5FF';
@@ -2165,12 +2383,25 @@ export class SolidBlock extends Entity {
             ctx.fillRect(8, 8, 3, 3);
             ctx.fillRect(24, 8, 3, 4);
           } else if (pal.theme === 'mixed') {
-            // Textured paper torn edge
-            ctx.fillStyle = '#F59E0B';
-            ctx.fillRect(0, 0, grassW, 4);
-            ctx.fillStyle = '#E11D48';
-            ctx.fillRect(10, 7, 3, 3);
-            ctx.fillRect(26, 7, 3, 2);
+            // Authentic Photorealistic Torn Washi Tape / Masking Tape Decal
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.15)';
+            ctx.fillRect(0, 9, grassW, 1.5);
+            ctx.fillStyle = 'rgba(245, 158, 11, 0.88)';
+            ctx.fillRect(0, 0, grassW, 8);
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.35)';
+            ctx.fillRect(0, 1, grassW, 1.5);
+            ctx.fillStyle = 'rgba(254, 243, 199, 0.5)';
+            for (let tx = 3; tx < grassW; tx += 7) {
+              ctx.fillRect(tx, 0, 1, 8);
+            }
+            ctx.fillStyle = '#B45309';
+            ctx.fillRect(0, 7.5, grassW, 1.5);
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
+            for (let px = 4; px < grassW; px += 8) {
+              ctx.beginPath();
+              ctx.arc(px, 4, 1.2, 0, Math.PI * 2);
+              ctx.fill();
+            }
           } else {
             // Drooping blades / fringe into dirt
             ctx.fillStyle = pal.turfMain;
@@ -2327,7 +2558,7 @@ export class Springboard extends Entity {
         ctx.stroke();
 
         // Bouncy Top Cap
-        ctx.fillStyle = this.variant === 'mega' ? '#FFE600' : '#00E676';
+        ctx.fillStyle = this.color || (this.variant === 'mega' ? '#FFE600' : '#00E676');
         ctx.strokeStyle = '#121212';
         ctx.lineWidth = 3;
         ctx.beginPath();
@@ -2374,7 +2605,7 @@ export class HazardSpikes extends Entity {
         else if (theme === 'atlantis') spikeFill = '#06B6D4'; // Aquatic cyan
         else if (theme === 'mixed') spikeFill = '#F43F5E'; // Collage rose
 
-        ctx.fillStyle = spikeFill;
+        ctx.fillStyle = this.color || spikeFill;
         ctx.strokeStyle = '#121212';
         ctx.lineWidth = 3;
 
@@ -2578,7 +2809,7 @@ export class EnemyWalker extends Entity {
         ctx.fillRect(25, 19, 2.5, 4);
       } else {
         // Standard Walker
-        ctx.fillStyle = '#B388FF'; // Lavender purple
+        ctx.fillStyle = this.color || '#B388FF'; // Lavender purple or custom component color
         ctx.strokeStyle = '#121212';
         ctx.lineWidth = 3;
 
@@ -2657,7 +2888,7 @@ export class MovingPlatform extends Entity {
       ctx.translate(this.x, this.y);
 
       this.renderCustomOrFallback(ctx, () => {
-        ctx.fillStyle = '#00E5FF';
+        ctx.fillStyle = this.color || '#00E5FF';
         ctx.strokeStyle = '#121212';
         ctx.lineWidth = 3;
 
@@ -2917,7 +3148,7 @@ export class Collectible extends Entity {
         ctx.restore();
       } else if (this.variant === 'star') {
         // Glowing Star Gem (+500 pts)
-        ctx.fillStyle = '#FFE600';
+        ctx.fillStyle = this.color || '#FFE600';
         ctx.strokeStyle = '#121212';
         ctx.lineWidth = 2.5;
 
@@ -2950,7 +3181,7 @@ export class Collectible extends Entity {
         ctx.scale(Math.max(0.25, spin), 1);
         ctx.translate(-this.width / 2, -this.height / 2);
 
-        ctx.fillStyle = '#FFE600';
+        ctx.fillStyle = this.color || '#FFE600';
         ctx.strokeStyle = '#121212';
         ctx.lineWidth = 3;
 
@@ -3003,7 +3234,7 @@ export class GoalFlag extends Entity {
 
       // Waving Flag
       const wave = Math.sin(this.waveTimer) * 4;
-      ctx.fillStyle = '#00E676'; // Mint green
+      ctx.fillStyle = this.color || '#00E676'; // Mint green or custom component color
       ctx.beginPath();
       ctx.moveTo(10, 6);
       ctx.quadraticCurveTo(24, 2 + wave, 44, 14);

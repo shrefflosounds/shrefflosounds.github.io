@@ -427,6 +427,7 @@ export class LevelStorage {
         gravityScale: player.gravityScale,
         maxHearts: player.maxHearts || 4,
         doubleJumpAllowed: player.doubleJumpAllowed,
+        color: player.color || null,
         customVisual: player.customVisual
       },
       entities: entities.map(ent => LevelStorage.serializeEntity(ent))
@@ -441,6 +442,7 @@ export class LevelStorage {
       variant: ent.variant,
       material: ent.material || null,
       content: ent.content || null,
+      color: ent.color || null,
       x: ent.x,
       y: ent.y,
       width: ent.width,
@@ -497,8 +499,9 @@ export class LevelStorage {
         break;
     }
 
-    if (ent && d.customVisual) {
-      ent.setCustomVisual(d.customVisual);
+    if (ent) {
+      if (d.color) ent.setColor(d.color);
+      if (d.customVisual) ent.setCustomVisual(d.customVisual);
     }
     return ent;
   }
@@ -530,6 +533,7 @@ export class LevelStorage {
         player.doubleJumpAllowed = data.player.doubleJumpAllowed;
         player.hasDoubleJump = data.player.doubleJumpAllowed;
       }
+      if (data.player.color) player.setColor(data.player.color);
       if (data.player.customVisual) player.setCustomVisual(data.player.customVisual);
     }
 

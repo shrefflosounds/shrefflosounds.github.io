@@ -16,6 +16,356 @@
 </head>
 <body>
 
+  <!-- ============================================================
+       ROBUST WELCOME & LANDING PAGE (OPENS BEFORE STUDIO LAUNCH)
+       ============================================================ -->
+  <div id="landing-page" class="landing-page-overlay">
+    <!-- Sticky Landing Nav -->
+    <nav class="landing-nav">
+      <div class="landing-brand">
+        <img src="assets/logo.png" alt="Sidehop Logo" class="landing-brand-logo">
+        <span class="landing-brand-title">Sidehop</span>
+        <span class="landing-brand-tag">Platformer Studio</span>
+      </div>
+      <div class="landing-nav-links">
+        <a href="#landing-what" class="landing-nav-link">About</a>
+        <a href="#landing-features" class="landing-nav-link">Features</a>
+        <a href="#landing-start" class="landing-nav-link">How to Start</a>
+        <a href="#landing-creator" class="landing-nav-link">Smitty Fantastic</a>
+        <a href="#landing-license" class="landing-nav-link">Open Source</a>
+        <a href="#landing-roadmap" class="landing-nav-link">Roadmap</a>
+        <button id="landing-launch-btn-nav" class="landing-launch-btn" type="button">
+          <span>Launch Sidehop</span> <span>▶</span>
+        </button>
+      </div>
+    </nav>
+
+    <!-- Main Landing Container -->
+    <div class="landing-container">
+
+      <!-- Hero Banner -->
+      <section class="landing-hero">
+        <div class="landing-hero-badge">✨ Browser-Based 2D Game Creator &amp; Art Studio</div>
+        <h1 class="landing-hero-h1">
+          Build, Paint, and Hop Through Your Very Own <span class="highlight">2D Platformers</span>.
+        </h1>
+        <p class="landing-hero-sub">
+          Sidehop is a tactile, playful creative sandbox where anyone can craft obstacle courses, paint custom characters and blocks, play musical note blocks, tweak springy physics, and jump right into the game. No accounts, no downloads, and no coding required.
+        </p>
+        <div class="landing-hero-ctas">
+          <button id="landing-launch-btn-hero" class="landing-hero-btn-primary" type="button">
+            <span>🚀 Launch Sidehop Studio</span>
+          </button>
+          <a href="#landing-creator" class="landing-hero-btn-secondary">
+            <span>🎨 Meet the Artist</span>
+          </a>
+        </div>
+        <div class="landing-hero-pills">
+          <span class="landing-hero-pill">⚡ 1-Click Playtesting (Spacebar)</span>
+          <span class="landing-hero-pill">🎨 Paint Studio &amp; Color Tinting</span>
+          <span class="landing-hero-pill">🎵 Musical Note Blocks</span>
+          <span class="landing-hero-pill">🌍 9 Living Worlds</span>
+          <span class="landing-hero-pill">🔒 100% Private &amp; Offline</span>
+        </div>
+      </section>
+
+      <!-- Section: What does this app do? -->
+      <section id="landing-what" class="landing-section">
+        <div class="landing-section-header">
+          <span class="landing-section-tag">Overview</span>
+          <h2 class="landing-section-title">What Does Sidehop Do?</h2>
+          <p class="landing-section-desc">
+            An approachable, joyful video game creation studio built right into your web browser.
+          </p>
+        </div>
+        <div class="landing-what-box">
+          <p>
+            Have you ever wanted to build your own Mario-style video game, but found game engines too complex, confusing, or full of technical jargon? <strong>Sidehop is designed for you.</strong>
+          </p>
+          <p>
+            Sidehop turns your web browser into an open canvas. You can click and place ground tiles, slippery ice ramps, musical note blocks, floating platforms, springboards, spikes, and goal flags onto a clean grid. At any moment, pressing the <strong>Spacebar</strong> drops you straight into your level as the hero, letting you test your jumps and obstacles instantly.
+          </p>
+          <p>
+            Inside the built-in <strong>Art Studio</strong>, you can sketch your own custom characters and tiles with markers, brushes, and stamps—or simply tint any starter component (like turning an ice block into a fiery red gem or coloring your victory flag gold). When your level is ready, you can save it as a lightweight file or export a standalone HTML game that your friends and family can play on any computer, anywhere, without needing an internet connection.
+          </p>
+        </div>
+      </section>
+
+      <!-- Section: Particular Features -->
+      <section id="landing-features" class="landing-section">
+        <div class="landing-section-header">
+          <span class="landing-section-tag">Capabilities</span>
+          <h2 class="landing-section-title">Particular Features</h2>
+          <p class="landing-section-desc">
+            Everything you need to craft, customize, and share imaginative platforming adventures.
+          </p>
+        </div>
+
+        <div class="landing-feature-grid">
+          <div class="landing-feature-card">
+            <div class="landing-feature-icon">⚡</div>
+            <h3 class="landing-feature-name">Seamless Playtesting</h3>
+            <p class="landing-feature-body">
+              Switch back and forth between building and playing in a split second by tapping the Spacebar. Tweak a jump, test it immediately, and keep creating with zero loading screens.
+            </p>
+          </div>
+
+          <div class="landing-feature-card">
+            <div class="landing-feature-icon">🎨</div>
+            <h3 class="landing-feature-name">Tactile Art Studio</h3>
+            <p class="landing-feature-body">
+              Draw directly onto your characters, blocks, and backgrounds with high-flow brushes, chisel markers, eraser tools, and playful stamps, or drag-and-drop your favorite PNGs and animated GIFs.
+            </p>
+          </div>
+
+          <div class="landing-feature-card">
+            <div class="landing-feature-icon">🌈</div>
+            <h3 class="landing-feature-name">Starter Component Recoloring</h3>
+            <p class="landing-feature-body">
+              You don't need to draw from scratch to make your level unique. Choose from fresh color swatches or any custom tint to recolor ice blocks, hazard spikes, springboards, enemies, and goal flags.
+            </p>
+          </div>
+
+          <div class="landing-feature-card">
+            <div class="landing-feature-icon">🎵</div>
+            <h3 class="landing-feature-name">Musical Note Blocks</h3>
+            <p class="landing-feature-body">
+              Place interactive music note blocks that chime melodic scale notes when jumped or bumped on. Line them up across gaps to compose interactive songs as you leap through your course.
+            </p>
+          </div>
+
+          <div class="landing-feature-card">
+            <div class="landing-feature-icon">🌍</div>
+            <h3 class="landing-feature-name">9 Living World Themes</h3>
+            <p class="landing-feature-body">
+              Transform your scenery instantly! Choose from Sunny Meadows, Snowy Peaks, Starlit Night, Cyber Chrome, Lush Jungle, and our authentic <strong>Mixed Media</strong> theme packed with photorealistic torn cardboard, washi tape, and vintage postmark decals.
+            </p>
+          </div>
+
+          <div class="landing-feature-card">
+            <div class="landing-feature-icon">⚙️</div>
+            <h3 class="landing-feature-name">Live Physics Sliders</h3>
+            <p class="landing-feature-body">
+              Fine-tune gravity, jumping power, running speed, air control, and slippery ice momentum using friendly sliders to create floaty moon worlds or fast, high-speed sprint tracks.
+            </p>
+          </div>
+
+          <div class="landing-feature-card">
+            <div class="landing-feature-icon">📹</div>
+            <h3 class="landing-feature-name">1-Click Gameplay Recording</h3>
+            <p class="landing-feature-body">
+              Capture your speedruns, level showcases, and funny gameplay moments directly from the browser as smooth WebM video files ready to share online.
+            </p>
+          </div>
+
+          <div class="landing-feature-card">
+            <div class="landing-feature-icon">🌐</div>
+            <h3 class="landing-feature-name">Standalone Game Exporter</h3>
+            <p class="landing-feature-body">
+              Package your finished level into a single, self-contained HTML file. Anyone can double-click it to play your game in any web browser with no dependencies.
+            </p>
+          </div>
+
+          <div class="landing-feature-card">
+            <div class="landing-feature-icon">🔒</div>
+            <h3 class="landing-feature-name">100% Private &amp; Local-First</h3>
+            <p class="landing-feature-body">
+              No logins, no tracking scripts, no cookies, and no servers. All your artwork and level creations stay safely on your personal device.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section: How should someone get started? -->
+      <section id="landing-start" class="landing-section">
+        <div class="landing-section-header">
+          <span class="landing-section-tag">Quickstart</span>
+          <h2 class="landing-section-title">How Should Someone Get Started?</h2>
+          <p class="landing-section-desc">
+            Creating your first playable stage takes less than two minutes. Follow these four simple steps:
+          </p>
+        </div>
+
+        <div class="landing-steps-grid">
+          <div class="landing-step-card">
+            <span class="landing-step-num">Step 1</span>
+            <h3 class="landing-step-title">Pick Your Pieces</h3>
+            <p class="landing-step-desc">
+              Select any component from the bottom drawer—solid blocks, ice ramps, music note boxes, springs, or walkers—and click to place them on the grid.
+            </p>
+          </div>
+
+          <div class="landing-step-card">
+            <span class="landing-step-num">Step 2</span>
+            <h3 class="landing-step-title">Paint &amp; Recolor</h3>
+            <p class="landing-step-desc">
+              Double-click any object to open the Art Studio. Paint your own visuals, draw silly faces with stamps, or pick a vibrant color tint for starter blocks.
+            </p>
+          </div>
+
+          <div class="landing-step-card">
+            <span class="landing-step-num">Step 3</span>
+            <h3 class="landing-step-title">Press Space to Hop</h3>
+            <p class="landing-step-desc">
+              Tap the Spacebar to jump into Play mode immediately! Move with Arrow keys or A/D, leap with W or Space, bounce on note boxes, and reach the goal flag.
+            </p>
+          </div>
+
+          <div class="landing-step-card">
+            <span class="landing-step-num">Step 4</span>
+            <h3 class="landing-step-title">Save &amp; Share</h3>
+            <p class="landing-step-desc">
+              Click "Export Level" to save your .sidehop file, or export a standalone HTML game that your friends can play on any computer without installing anything.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section: Who made this and how and why? -->
+      <section id="landing-creator" class="landing-section">
+        <div class="landing-section-header">
+          <span class="landing-section-tag">Creator &amp; Story</span>
+          <h2 class="landing-section-title">Who Made This, How &amp; Why?</h2>
+          <p class="landing-section-desc">
+            A college creative project exploring the joy of tactile, accessible digital making.
+          </p>
+        </div>
+
+        <div class="landing-creator-card">
+          <p style="font-size: 16px; line-height: 1.7; color: var(--ink-black); margin: 0;">
+            I created Sidehop for a <strong>college project</strong> centered on interactive media, visual expression, and making creative game tools accessible to everyone.
+            Many modern game-making platforms come with steep learning curves, dense configuration menus, and complicated programming hurdles that discourage people from simply having fun.
+            I wanted to create something that feels as immediate, friendly, and joyful as opening a fresh sketchbook and doodling with markers, while offering real interactive physics and audio feedback.
+          </p>
+
+          <div>
+            <h3 style="font-size: 18px; font-weight: 800; text-transform: uppercase; margin: 0 0 10px 0; color: var(--ink-black);">
+              About the Creator
+            </h3>
+            <blockquote class="landing-bio-quote">
+              &ldquo;I go by Smitty Fantastic online and I am an artist in multiple mediums, but primarily audio and visual art, such as themed albums, photoshop creations, and now, video games&rdquo;
+            </blockquote>
+          </div>
+
+          <div class="landing-bio-link-group">
+            <span style="font-weight: 700; font-size: 15px; color: var(--ink-black);">Explore my art &amp; music:</span>
+            <a href="https://smittyfantastic.neocities.org" target="_blank" rel="noopener noreferrer" class="landing-bio-link">
+              <span>smittyfantastic.neocities.org</span> <span>↗</span>
+            </a>
+          </div>
+
+          <div class="landing-flyer-container">
+            <img src="assets/flyer.png" alt="Smitty Fantastic Art and Events Flyer" class="landing-flyer-img">
+          </div>
+        </div>
+      </section>
+
+      <!-- Section: Are you crediting/respecting open source license terms? -->
+      <section id="landing-license" class="landing-section">
+        <div class="landing-section-header">
+          <span class="landing-section-tag">Open Source &amp; Rights</span>
+          <h2 class="landing-section-title">Open Source Licensing &amp; Respect for Terms</h2>
+          <p class="landing-section-desc">
+            Honoring creators, software freedom, and standard open web technology.
+          </p>
+        </div>
+
+        <div class="landing-license-box">
+          <p style="font-size: 15px; line-height: 1.6; color: var(--ink-black); margin: 0;">
+            Sidehop is fully committed to ethical, transparent open-source practices. It is built strictly on open web standards and honors all software licenses and creator attributions:
+          </p>
+          <ul class="landing-license-list">
+            <li>
+              <strong>MIT Open Source License:</strong> Sidehop's core application code is released under the permissive MIT License. You are free to inspect the code, learn from its architecture, adapt it, and build upon it.
+            </li>
+            <li>
+              <strong>SIL Open Font License:</strong> All interface and display typography utilizes fonts released under the SIL Open Font License, respecting the craftsmanship and licensing of independent type designers.
+            </li>
+            <li>
+              <strong>Native Browser Web APIs:</strong> All rendering and sound generation are built directly on native browser standards—HTML5 2D Canvas for high-performance graphics, Web Audio API for synthetic sound effects and diatonic music notes, and MediaStream Recording API for video capture. No proprietary third-party analytics, locked SDKs, or cloud telemetry libraries are used.
+            </li>
+            <li>
+              <strong>Complete User Ownership:</strong> Everything you make in Sidehop belongs entirely to you. You hold 100% ownership over all levels, artwork, and exported games you create.
+            </li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- Section: Future Plans & Roadmap -->
+      <section id="landing-roadmap" class="landing-section">
+        <div class="landing-section-header">
+          <span class="landing-section-tag">Looking Ahead</span>
+          <h2 class="landing-section-title">Future Plans &amp; What's Coming</h2>
+          <p class="landing-section-desc">
+            Exciting creative tools and features planned for upcoming updates.
+          </p>
+        </div>
+
+        <div class="landing-roadmap-grid">
+          <div class="landing-roadmap-card">
+            <span class="landing-roadmap-badge">In Development</span>
+            <h3 class="landing-roadmap-title">Connected Multi-Room Worlds</h3>
+            <p class="landing-roadmap-desc">
+              Connect multiple stages together with doors, warp pipes, and world maps so players can build sprawling adventures.
+            </p>
+          </div>
+
+          <div class="landing-roadmap-card">
+            <span class="landing-roadmap-badge">Planned</span>
+            <h3 class="landing-roadmap-title">In-Studio Chiptune Synthesizer</h3>
+            <p class="landing-roadmap-desc">
+              An easy-to-use 8-bit sound tracker inside the Art Studio so you can compose your own custom looping background music.
+            </p>
+          </div>
+
+          <div class="landing-roadmap-card">
+            <span class="landing-roadmap-badge">Planned</span>
+            <h3 class="landing-roadmap-title">Interactive Traps &amp; Gizmos</h3>
+            <p class="landing-roadmap-desc">
+              Conveyor belts, swinging spike pendulums, fan gusts, and locked doors that open when you collect secret keys.
+            </p>
+          </div>
+
+          <div class="landing-roadmap-card">
+            <span class="landing-roadmap-badge">Planned</span>
+            <h3 class="landing-roadmap-title">Custom Boss Maker</h3>
+            <p class="landing-roadmap-desc">
+              Design your own stage bosses with customizable movement patterns, attack telegraphs, and health meters.
+            </p>
+          </div>
+
+          <div class="landing-roadmap-card">
+            <span class="landing-roadmap-badge">Planned</span>
+            <h3 class="landing-roadmap-title">Enhanced Mobile Touch Controls</h3>
+            <p class="landing-roadmap-desc">
+              Refined responsive on-screen gamepad layouts for effortless platforming on tablets and smartphones.
+            </p>
+          </div>
+
+          <div class="landing-roadmap-card">
+            <span class="landing-roadmap-badge">Planned</span>
+            <h3 class="landing-roadmap-title">Level Remixing &amp; Bundles</h3>
+            <p class="landing-roadmap-desc">
+              Package multi-stage game campaigns into a single .sidehop bundle to share with other creators.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Bottom Launch CTA Bar -->
+      <section class="landing-bottom-cta">
+        <h2 class="landing-bottom-h2">Ready to Start Creating?</h2>
+        <p class="landing-bottom-p">
+          Jump right into the studio, place your first blocks, and play your very own 2D platformer today.
+        </p>
+        <button id="landing-launch-btn-bottom" class="landing-hero-btn-primary" type="button">
+          <span>🚀 Launch Sidehop Studio</span>
+        </button>
+      </section>
+
+    </div>
+  </div>
+
   <!-- TOP NEO-BRUTALIST HEADER -->
   <header class="neo-header">
     <div class="logo-group">
@@ -28,6 +378,11 @@
       <button id="mode-toggle-btn" class="neo-btn neo-btn-primary" title="Press Space to toggle mode">
         <span id="mode-icon">▶</span>
         <span id="mode-text">PLAY TEST</span>
+      </button>
+
+      <!-- Landing Page & Creator Bio Button -->
+      <button id="landing-toggle-btn" class="neo-btn neo-btn-cyan" title="Landing Page, Bio &amp; About">
+        <span>🏠 Home &amp; Bio</span>
       </button>
 
       <!-- Searchable Help & About Modals -->
@@ -331,6 +686,33 @@
             <div class="color-swatch" data-color="#FFFFFF" style="background-color: #FFFFFF;"></div>
           </div>
 
+          <!-- Component Color Tint Section (Recolor Starter Pieces) -->
+          <div id="art-component-color-section" class="art-component-color-section">
+            <div class="art-comp-color-header">
+              <span class="art-comp-color-title">🎨 Component Color Tint:</span>
+              <span id="art-color-pill" class="art-comp-color-pill">Default</span>
+            </div>
+            <div class="art-comp-color-swatches">
+              <button type="button" class="art-comp-color-btn" data-comp-color="#00E5FF" style="background:#00E5FF;" title="Ice Cyan"></button>
+              <button type="button" class="art-comp-color-btn" data-comp-color="#FF1744" style="background:#FF1744;" title="Ruby Red"></button>
+              <button type="button" class="art-comp-color-btn" data-comp-color="#00E676" style="background:#00E676;" title="Emerald Green"></button>
+              <button type="button" class="art-comp-color-btn" data-comp-color="#FFE600" style="background:#FFE600;" title="Canary Yellow"></button>
+              <button type="button" class="art-comp-color-btn" data-comp-color="#B388FF" style="background:#B388FF;" title="Lavender Violet"></button>
+              <button type="button" class="art-comp-color-btn" data-comp-color="#FF4081" style="background:#FF4081;" title="Hot Pink"></button>
+              <button type="button" class="art-comp-color-btn" data-comp-color="#FF9100" style="background:#FF9100;" title="Sunset Orange"></button>
+              <button type="button" class="art-comp-color-btn" data-comp-color="#607D8B" style="background:#607D8B;" title="Chrome Slate"></button>
+              <button type="button" class="art-comp-color-btn" data-comp-color="#121212" style="background:#121212;" title="Pitch Dark"></button>
+              <button type="button" class="art-comp-color-btn" data-comp-color="#FFFFFF" style="background:#FFFFFF; border: 2px solid #121212;" title="Snow White"></button>
+            </div>
+            <div class="art-comp-color-controls">
+              <label class="art-comp-custom-label">
+                <span>Custom:</span>
+                <input type="color" id="art-custom-comp-color" value="#00E5FF">
+              </label>
+              <button type="button" id="art-reset-color-btn" class="neo-btn" style="padding: 3px 8px; font-size: 11px;">Default Color</button>
+            </div>
+          </div>
+
           <div style="margin-top: 6px;">
             <label style="font-size: 13px; font-weight: 700;">Brush Size</label>
             <input type="range" id="paint-brush-size" min="3" max="24" value="8" class="neo-slider" style="width: 100%;">
@@ -426,10 +808,10 @@
         </div>
 
         <!-- Active Background Status & Preview Box -->
-        <div id="bg-preview-card" style="border: 2px solid #121212; border-radius: 8px; padding: 12px; background: #F8FAFC;">
+        <div id="bg-preview-card" style="border: 2px solid var(--border-color); border-radius: 8px; padding: 12px; background: var(--bg-panel); color: var(--ink-black);">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-            <span style="font-size: 12px; font-weight: 800; text-transform: uppercase;">Active Background</span>
-            <span id="bg-status-badge" style="font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 4px; border: 1.5px solid #121212; background: #E2E8F0;">Theme</span>
+            <span style="font-size: 12px; font-weight: 800; text-transform: uppercase; color: var(--ink-black);">Active Background</span>
+            <span id="bg-status-badge" style="font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 4px; border: 1.5px solid var(--border-color); background: var(--bg-cream); color: var(--ink-black);">Theme</span>
           </div>
 
           <div id="bg-preview-container" style="height: 120px; border: 2px solid #121212; border-radius: 6px; overflow: hidden; background: #000; display: flex; align-items: center; justify-content: center; position: relative;">
@@ -970,6 +1352,27 @@
 
     document.getElementById("about-modal-btn")?.addEventListener("click", () => aboutDialog.showModal());
     document.getElementById("about-close-btn")?.addEventListener("click", () => aboutDialog.close());
+
+    // Landing Page Controls
+    const landingOverlay = document.getElementById("landing-page");
+    const launchBtns = [
+      document.getElementById("landing-launch-btn-nav"),
+      document.getElementById("landing-launch-btn-hero"),
+      document.getElementById("landing-launch-btn-bottom")
+    ];
+
+    launchBtns.forEach(btn => {
+      btn?.addEventListener("click", () => {
+        landingOverlay?.classList.add("hidden");
+        window.sidehop?.soundEngine?.playClick();
+      });
+    });
+
+    document.getElementById("landing-toggle-btn")?.addEventListener("click", () => {
+      landingOverlay?.classList.remove("hidden");
+      landingOverlay?.scrollTo({ top: 0, behavior: "smooth" });
+      window.sidehop?.soundEngine?.playClick();
+    });
 
     // About Dialog Tabs switching
     const aboutTabBtns = document.querySelectorAll(".about-tab-btn");

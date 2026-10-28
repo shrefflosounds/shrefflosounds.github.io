@@ -13,9 +13,320 @@ export class ArtStudio {
     this.currentStamp = 'star'; // 'star', 'smile', 'heart', 'doodle'
     this.targetEntity = null;
     this.onApplyCallback = null;
+    this.componentColor = null;
+    this.hasCustomDrawing = false;
 
     this.initCanvas();
     this.bindEvents();
+    this.bindComponentColorEvents();
+  }
+
+  bindComponentColorEvents() {
+    // Swatches for starter component color tinting
+    const colorSection = this.modal?.querySelector('#art-component-color-section');
+    if (!colorSection) return;
+
+    colorSection.querySelectorAll('.art-comp-color-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const c = btn.getAttribute('data-comp-color');
+        this.setComponentColor(c);
+      });
+    });
+
+    const picker = this.modal?.querySelector('#art-custom-comp-color');
+    if (picker) {
+      picker.addEventListener('input', (e) => {
+        this.setComponentColor(e.target.value);
+      });
+    }
+
+    const resetBtn = this.modal?.querySelector('#art-reset-color-btn');
+    if (resetBtn) {
+      resetBtn.addEventListener('click', () => {
+        this.setComponentColor(null);
+      });
+    }
+  }
+
+  setComponentColor(color) {
+    this.componentColor = color;
+    this.hasCustomDrawing = false;
+    if (this.targetEntity) {
+      this.targetEntity.setColor(color);
+      this.clearCanvas();
+      this.renderStarterComponentOnCanvas(this.targetEntity, color);
+    }
+    this.updateColorPickerUI();
+    sounds.playPaintSquish();
+  }
+
+  updateColorPickerUI() {
+    const colorSection = this.modal?.querySelector('#art-component-color-section');
+    if (!colorSection) return;
+
+    if (this.isBackgroundMode) {
+      colorSection.style.display = 'none';
+      return;
+    }
+    colorSection.style.display = 'flex';
+
+    const pill = this.modal?.querySelector('#art-color-pill');
+    if (pill) {
+      if (this.componentColor) {
+        pill.textContent = this.componentColor.toUpperCase();
+        pill.style.background = this.componentColor;
+        pill.style.color = '#FFFFFF';
+        pill.style.textShadow = '1px 1px 2px #000';
+      } else {
+        pill.textContent = 'Default';
+        pill.style.background = 'var(--bg-cream)';
+        pill.style.color = 'var(--ink-black)';
+        pill.style.textShadow = 'none';
+      }
+    }
+
+    colorSection.querySelectorAll('.art-comp-color-btn').forEach(btn => {
+      const c = btn.getAttribute('data-comp-color');
+      btn.classList.toggle('active', c === this.componentColor);
+    });
+
+    const picker = this.modal?.querySelector('#art-custom-comp-color');
+    if (picker && this.componentColor) {
+      picker.value = this.componentColor;
+    }
+  }
+
+  renderStarterComponentOnCanvas(entity, color) {
+    if (!entity) return;
+    this.ctx.save();
+    const w = this.canvas.width;
+    const h = this.canvas.height;
+    this.ctx.clearRect(0, 0, w, h);
+
+    const type = entity.type;
+    const variant = entity.variant;
+
+    if (variant === 'ice' || (type === 'crate' && variant === 'ice')) {
+      // 1. Ice Block in Art Studio (Center: 160x160)
+      const bx = 30, by = 30, bw = 160, bh = 160;
+      const baseCol = color || '#B2EBF2';
+      this.ctx.fillStyle = baseCol;
+      this.ctx.fillRect(bx, by, bw, bh);
+
+      // Top glossy sheen
+      this.ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
+      this.ctx.beginPath();
+      this.ctx.moveTo(bx + 12, by + 10);
+      this.ctx.lineTo(bx + bw - 12, by + 10);
+      this.ctx.lineTo(bx + bw - 30, by + 36);
+      this.ctx.lineTo(bx + 30, by + 36);
+      this.ctx.closePath();
+      this.ctx.fill();
+
+      // Crystalline ice chevron facets
+      this.ctx.strokeStyle = color ? 'rgba(0, 0, 0, 0.28)' : 'rgba(0, 184, 212, 0.75)';
+      this.ctx.lineWidth = 6;
+      this.ctx.beginPath();
+      this.ctx.moveTo(bx + 26, by + bh - 26);
+      this.ctx.lineTo(bx + bw / 2, by + bh / 2);
+      this.ctx.lineTo(bx + bw - 26, by + bh - 48);
+      this.ctx.stroke();
+
+      // Outer border
+      this.ctx.strokeStyle = '#121212';
+      this.ctx.lineWidth = 5;
+      this.ctx.strokeRect(bx, by, bw, bh);
+    } else if (type === 'goal') {
+      // 2. Goal Flag in Art Studio
+      const flagCol = color || '#00E676';
+      // Flagpole
+      this.ctx.strokeStyle = '#121212';
+      this.ctx.lineWidth = 8;
+      this.ctx.beginPath();
+      this.ctx.moveTo(56, 26);
+      this.ctx.lineTo(56, 196);
+      this.ctx.stroke();
+
+      // Golden Finial Ball at top
+      this.ctx.fillStyle = '#FFE600';
+      this.ctx.beginPath();
+      this.ctx.arc(56, 26, 9, 0, Math.PI * 2);
+      this.ctx.fill();
+      this.ctx.strokeStyle = '#121212';
+      this.ctx.lineWidth = 3;
+      this.ctx.stroke();
+
+      // Waving Flag
+      this.ctx.fillStyle = flagCol;
+      this.ctx.beginPath();
+      this.ctx.moveTo(60, 38);
+      this.ctx.quadraticCurveTo(120, 26, 178, 62);
+      this.ctx.lineTo(60, 108);
+      this.ctx.closePath();
+      this.ctx.fill();
+      this.ctx.stroke();
+
+      // Flag Wave Highlight
+      this.ctx.fillStyle = 'rgba(255, 255, 255, 0.35)';
+      this.ctx.beginPath();
+      this.ctx.moveTo(60, 38);
+      this.ctx.quadraticCurveTo(100, 32, 130, 50);
+      this.ctx.lineTo(60, 68);
+      this.ctx.closePath();
+      this.ctx.fill();
+
+      // Base
+      this.ctx.fillStyle = '#121212';
+      this.ctx.fillRect(36, 186, 40, 14);
+    } else if (type === 'hazard') {
+      // 3. Spikes
+      const spikeCol = color || '#EF4444';
+      this.ctx.fillStyle = spikeCol;
+      this.ctx.strokeStyle = '#121212';
+      this.ctx.lineWidth = 5;
+      this.ctx.beginPath();
+      this.ctx.moveTo(25, 180);
+      this.ctx.lineTo(55, 45);
+      this.ctx.lineTo(85, 180);
+      this.ctx.lineTo(110, 45);
+      this.ctx.lineTo(135, 180);
+      this.ctx.lineTo(165, 45);
+      this.ctx.lineTo(195, 180);
+      this.ctx.closePath();
+      this.ctx.fill();
+      this.ctx.stroke();
+    } else if (type === 'springboard') {
+      // 4. Springboard
+      const capCol = color || (variant === 'mega' ? '#FFE600' : '#00E676');
+      this.ctx.fillStyle = '#121212';
+      this.ctx.fillRect(30, 180, 160, 20);
+
+      this.ctx.strokeStyle = variant === 'mega' ? '#00E5FF' : '#FF3388';
+      this.ctx.lineWidth = 8;
+      this.ctx.beginPath();
+      this.ctx.moveTo(45, 180);
+      this.ctx.lineTo(175, 130);
+      this.ctx.lineTo(45, 80);
+      this.ctx.lineTo(175, 60);
+      this.ctx.stroke();
+
+      this.ctx.fillStyle = capCol;
+      this.ctx.strokeStyle = '#121212';
+      this.ctx.lineWidth = 5;
+      this.ctx.beginPath();
+      this.ctx.roundRect(25, 42, 170, 26, 8);
+      this.ctx.fill();
+      this.ctx.stroke();
+    } else if (type === 'enemy') {
+      // 5. Enemy Walker (Grumpy Potato)
+      const bodyCol = color || '#B388FF';
+      this.ctx.fillStyle = bodyCol;
+      this.ctx.strokeStyle = '#121212';
+      this.ctx.lineWidth = 5;
+      this.ctx.beginPath();
+      this.ctx.roundRect(40, 40, 140, 140, 36);
+      this.ctx.fill();
+      this.ctx.stroke();
+
+      // Eyes
+      this.ctx.fillStyle = '#FFFFFF';
+      this.ctx.beginPath();
+      this.ctx.arc(80, 95, 20, 0, Math.PI * 2);
+      this.ctx.arc(140, 95, 20, 0, Math.PI * 2);
+      this.ctx.fill();
+      this.ctx.stroke();
+
+      this.ctx.fillStyle = '#121212';
+      this.ctx.beginPath();
+      this.ctx.arc(88, 95, 9, 0, Math.PI * 2);
+      this.ctx.arc(148, 95, 9, 0, Math.PI * 2);
+      this.ctx.fill();
+
+      // Grumpy Eyebrows
+      this.ctx.lineWidth = 5;
+      this.ctx.beginPath();
+      this.ctx.moveTo(60, 68); this.ctx.lineTo(95, 80);
+      this.ctx.moveTo(160, 68); this.ctx.lineTo(125, 80);
+      this.ctx.stroke();
+    } else if (type === 'player') {
+      // 6. Player Mascot
+      const mascotCol = color || '#00E5FF';
+      this.ctx.fillStyle = mascotCol;
+      this.ctx.strokeStyle = '#121212';
+      this.ctx.lineWidth = 5;
+      this.ctx.beginPath();
+      this.ctx.roundRect(45, 45, 130, 130, 32);
+      this.ctx.fill();
+      this.ctx.stroke();
+
+      // Eyes
+      this.ctx.fillStyle = '#FFFFFF';
+      this.ctx.beginPath();
+      this.ctx.arc(85, 95, 22, 0, Math.PI * 2);
+      this.ctx.arc(135, 95, 22, 0, Math.PI * 2);
+      this.ctx.fill();
+      this.ctx.stroke();
+
+      this.ctx.fillStyle = '#121212';
+      this.ctx.beginPath();
+      this.ctx.arc(92, 95, 9, 0, Math.PI * 2);
+      this.ctx.arc(142, 95, 9, 0, Math.PI * 2);
+      this.ctx.fill();
+
+      // Smile
+      this.ctx.lineWidth = 5;
+      this.ctx.beginPath();
+      this.ctx.arc(110, 130, 24, 0.2, Math.PI - 0.2);
+      this.ctx.stroke();
+    } else if (type === 'moving_platform') {
+      // 7. Moving Platform
+      const platCol = color || '#00E5FF';
+      this.ctx.fillStyle = platCol;
+      this.ctx.strokeStyle = '#121212';
+      this.ctx.lineWidth = 5;
+      this.ctx.beginPath();
+      this.ctx.roundRect(20, 85, 180, 50, 12);
+      this.ctx.fill();
+      this.ctx.stroke();
+
+      this.ctx.fillStyle = '#121212';
+      for (let gx = 45; gx < 175; gx += 26) {
+        this.ctx.fillRect(gx, 95, 10, 30);
+      }
+    } else if (type === 'collectible') {
+      // 8. Collectible (Coin / Star)
+      const tokenCol = color || '#FFE600';
+      this.ctx.fillStyle = tokenCol;
+      this.ctx.strokeStyle = '#121212';
+      this.ctx.lineWidth = 5;
+      this.ctx.beginPath();
+      this.ctx.arc(110, 110, 68, 0, Math.PI * 2);
+      this.ctx.fill();
+      this.ctx.stroke();
+
+      this.ctx.strokeStyle = 'rgba(0, 0, 0, 0.25)';
+      this.ctx.lineWidth = 4;
+      this.ctx.beginPath();
+      this.ctx.arc(110, 110, 48, 0, Math.PI * 2);
+      this.ctx.stroke();
+    } else {
+      // Standard Ground / Solid Block
+      const blockCol = color || '#866043';
+      this.ctx.fillStyle = blockCol;
+      this.ctx.fillRect(30, 30, 160, 160);
+
+      // Turf cap on top
+      this.ctx.fillStyle = '#558B2F';
+      this.ctx.fillRect(30, 30, 160, 35);
+      this.ctx.fillStyle = '#7CB342';
+      this.ctx.fillRect(30, 30, 160, 12);
+
+      this.ctx.strokeStyle = '#121212';
+      this.ctx.lineWidth = 5;
+      this.ctx.strokeRect(30, 30, 160, 160);
+    }
+
+    this.ctx.restore();
   }
 
   initCanvas() {
@@ -33,6 +344,8 @@ export class ArtStudio {
     this.targetBackground = null;
     this.isBackgroundMode = false;
     this.onApplyCallback = onApply;
+    this.componentColor = entity ? (entity.color || null) : null;
+    this.hasCustomDrawing = !!(entity && entity.customVisual);
     this.clearCanvas();
 
     const titleEl = this.modal?.querySelector('.modal-title');
@@ -46,6 +359,8 @@ export class ArtStudio {
       }
     }
 
+    this.updateColorPickerUI();
+
     // If entity already has custom visual, draw it onto canvas
     if (entity && entity.customVisual) {
       const img = new Image();
@@ -53,6 +368,8 @@ export class ArtStudio {
       img.onload = () => {
         this.ctx.drawImage(img, 0, 0, this.canvas.width, this.canvas.height);
       };
+    } else if (entity) {
+      this.renderStarterComponentOnCanvas(entity, this.componentColor);
     }
 
     this.modal.classList.add('active');
@@ -122,6 +439,7 @@ export class ArtStudio {
 
   startDraw(e) {
     this.isDrawing = true;
+    this.hasCustomDrawing = true;
     const pos = this.getCanvasPos(e);
     this.lastX = pos.x;
     this.lastY = pos.y;
@@ -239,6 +557,7 @@ export class ArtStudio {
   // Load custom image/GIF onto canvas preserving aspect ratio & block geometry
   loadImageFromUrl(dataUrl, callback) {
     if (!dataUrl) return;
+    this.hasCustomDrawing = true;
     const img = new Image();
     img.src = dataUrl;
     img.onload = () => {
@@ -347,6 +666,7 @@ export class ArtStudio {
   // Handle Image/GIF File Upload
   handleFileUpload(file) {
     if (!file) return;
+    this.hasCustomDrawing = true;
     const reader = new FileReader();
     reader.onload = (e) => {
       const img = new Image();
@@ -390,8 +710,14 @@ export class ArtStudio {
       return;
     }
     if (this.targetEntity && this.onApplyCallback) {
-      const dataUrl = this.canvas.toDataURL('image/png');
-      this.targetEntity.setCustomVisual(dataUrl);
+      if (this.hasCustomDrawing) {
+        const dataUrl = this.canvas.toDataURL('image/png');
+        this.targetEntity.setCustomVisual(dataUrl);
+      } else {
+        // Pure starter component recoloring - keep clean vector rendering with color tint!
+        this.targetEntity.setCustomVisual(null);
+        this.targetEntity.setColor(this.componentColor);
+      }
       this.onApplyCallback(this.targetEntity);
     }
     this.close();
@@ -405,6 +731,7 @@ export class ArtStudio {
     }
     if (this.targetEntity && this.onApplyCallback) {
       this.targetEntity.setCustomVisual(null);
+      this.targetEntity.setColor(null);
       this.onApplyCallback(this.targetEntity);
     }
     this.close();
