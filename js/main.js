@@ -1,17 +1,17 @@
 // Sidehop Master Application Coordinator — Enhanced Custom Backgrounds, Asset Library & Undo/Redo
 
-import { Player, Bullet, SolidBlock, Collectible } from './engine/entities.js?v=20261028_204423';
-import { PhysicsEngine } from './engine/physics.js?v=20261028_204423';
-import { Camera } from './engine/camera.js?v=20261028_204423';
-import { GridEditor } from './editor/grid.js?v=20261028_204423';
-import { ArtStudio } from './editor/paint.js?v=20261028_204423';
-import { Inspector } from './editor/inspector.js?v=20261028_204423';
-import { VideoRecorder } from './recorder/recorder.js?v=20261028_204423';
-import { LevelStorage } from './storage/storage.js?v=20261028_204423';
-import { HistoryManager } from './editor/history.js?v=20261028_204423';
-import { sounds } from './audio/sound.js?v=20261028_204423';
-import { SidehopFile } from './storage/sidehop-format.js?v=20261028_204423';
-import { SidehopDemo } from './editor/demo.js?v=20261028_204423';
+import { Player, Bullet, SolidBlock, Collectible } from './engine/entities.js?v=20261028_205041';
+import { PhysicsEngine } from './engine/physics.js?v=20261028_205041';
+import { Camera } from './engine/camera.js?v=20261028_205041';
+import { GridEditor } from './editor/grid.js?v=20261028_205041';
+import { ArtStudio } from './editor/paint.js?v=20261028_205041';
+import { Inspector } from './editor/inspector.js?v=20261028_205041';
+import { VideoRecorder } from './recorder/recorder.js?v=20261028_205041';
+import { LevelStorage } from './storage/storage.js?v=20261028_205041';
+import { HistoryManager } from './editor/history.js?v=20261028_205041';
+import { sounds } from './audio/sound.js?v=20261028_205041';
+import { SidehopFile } from './storage/sidehop-format.js?v=20261028_205041';
+import { SidehopDemo } from './editor/demo.js?v=20261028_205041';
 
 class SidehopApp {
   constructor() {
@@ -37,12 +37,12 @@ class SidehopApp {
     };
 
     // World & UI Theme State
-    const validThemes = ['grass', 'snowy', 'night', 'chrome', '8-bit', 'jungle', 'neon', 'atlantis', 'mixed'];
+    const validThemes = ['grass', 'snowy', 'night', 'chrome', '8-bit', 'jungle', 'neon', 'atlantis', 'uncanny', 'mixed'];
     let initialTheme = 'grass';
     try {
       const savedTheme = localStorage.getItem('sidehop_theme');
       if (savedTheme && validThemes.includes(savedTheme)) {
-        initialTheme = savedTheme;
+        initialTheme = savedTheme === 'mixed' ? 'uncanny' : savedTheme;
       }
     } catch (e) {}
     this.currentTheme = initialTheme;
@@ -622,11 +622,13 @@ class SidehopApp {
 
   getStageBounds() {
     const workbench = document.querySelector('.workbench-container');
+    const sidebarCol = document.getElementById('left-sidebar-column') || document.getElementById('tool-drawer');
     const toolDrawer = document.getElementById('tool-drawer');
     const wbW = workbench ? workbench.clientWidth : window.innerWidth;
     const wbH = workbench ? workbench.clientHeight : (window.innerHeight - 56);
     const drawerVisible = toolDrawer && !toolDrawer.classList.contains('minimized');
-    const minLeft = drawerVisible ? (toolDrawer.offsetLeft + toolDrawer.offsetWidth + 18) : 16;
+    const sidebarRight = sidebarCol ? (sidebarCol.offsetLeft + sidebarCol.offsetWidth) : 188;
+    const minLeft = drawerVisible ? (sidebarRight + 18) : 16;
     const minTop = 14;
     const maxRight = Math.max(minLeft + 480, wbW - 24);
     const maxBottom = Math.max(minTop + 320, wbH - 20);

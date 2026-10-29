@@ -1,7 +1,7 @@
 // Sidehop Personal Asset Library Engine
 // Manages personal custom visuals, skins, and stamps with .sidehop export/import
 
-import { SidehopFile } from './sidehop-format.js';
+import { SidehopFile } from './sidehop-format.js?v=20261028_205041';
 
 const STORAGE_KEY = 'sidehop_personal_assets_v1';
 

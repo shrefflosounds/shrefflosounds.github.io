@@ -1,7 +1,7 @@
 // Sidehop Web Audio Sound FX Engine
 // Pure procedural Web Audio API sounds — zero external assets required!
 
-class SoundEngine {
+export class SoundEngine {
   constructor() {
     this.ctx = null;
     this.muted = false;

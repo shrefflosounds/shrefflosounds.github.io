@@ -1,5 +1,5 @@
-import { sounds } from '../audio/sound.js';
-import { SidehopFile } from '../storage/sidehop-format.js';
+import { sounds } from '../audio/sound.js?v=20261028_205041';
+import { SidehopFile } from '../storage/sidehop-format.js?v=20261028_205041';
 
 export class ArtStudio {
   constructor(modalElement, canvasElement) {

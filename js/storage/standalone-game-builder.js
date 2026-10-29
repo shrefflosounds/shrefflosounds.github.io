@@ -2,9 +2,9 @@
 // Produces a 100% self-contained, offline-playable HTML5 game featuring the exact Sidehop engine,
 // physics, entity classes, autotiling, slopes, custom sprites, custom backgrounds, audio, and theme.
 
-import { SoundEngine } from '../audio/sound.js';
-import { Camera } from '../engine/camera.js';
-import { PhysicsEngine } from '../engine/physics.js';
+import { SoundEngine } from '../audio/sound.js?v=20261028_205041';
+import { Camera } from '../engine/camera.js?v=20261028_205041';
+import { PhysicsEngine } from '../engine/physics.js?v=20261028_205041';
 import {
   Entity,
   Player,
@@ -16,7 +16,7 @@ import {
   Bullet,
   Collectible,
   GoalFlag
-} from '../engine/entities.js?v=20261028_204423';
+} from '../engine/entities.js?v=20261028_205041';
 
 function escapeHtml(str) {
   return String(str || 'Sidehop Game')

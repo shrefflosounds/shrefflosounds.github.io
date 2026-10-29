@@ -1,7 +1,7 @@
 // Sidehop Snap-to-Grid Level Editor & Enhanced Interaction System
 
-import { CrateBlock, SolidBlock, Springboard, HazardSpikes, EnemyWalker, MovingPlatform, Collectible, GoalFlag } from '../engine/entities.js?v=20261028_204423';
-import { sounds } from '../audio/sound.js';
+import { CrateBlock, SolidBlock, Springboard, HazardSpikes, EnemyWalker, MovingPlatform, Collectible, GoalFlag } from '../engine/entities.js?v=20261028_205041';
+import { sounds } from '../audio/sound.js?v=20261028_205041';
 
 export class GridEditor {
   constructor(canvas, camera, tileSize = 40) {

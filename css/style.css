@@ -803,6 +803,11 @@ body[data-theme="atlantis"] .neo-btn:disabled span {
   max-height: 100%;
   z-index: 55;
   flex-shrink: 0;
+  pointer-events: none;
+}
+
+.left-sidebar-column > * {
+  pointer-events: auto;
 }
 
 .drawer-top-symbols {
@@ -874,7 +879,6 @@ body[data-theme="atlantis"] .neo-btn:disabled span {
   transform: translateX(-220px);
   opacity: 0;
   pointer-events: none;
-  position: absolute;
 }
 
 .drawer-title {
@@ -981,6 +985,10 @@ body[data-theme="atlantis"] .neo-btn:disabled span {
 /* CANVAS STAGE */
 .canvas-wrapper {
   position: absolute;
+  left: 204px;
+  top: 14px;
+  width: calc(100vw - 228px);
+  height: calc(100vh - 90px);
   border: var(--border-thick);
   border-radius: 14px;
   box-shadow: 5px 5px 0px var(--ink-black);

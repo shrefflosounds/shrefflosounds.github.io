@@ -818,6 +818,11 @@ body[data-theme="atlantis"] .neo-btn:disabled span {
   max-height: 100%;
   z-index: 55;
   flex-shrink: 0;
+  pointer-events: none;
+}
+
+.left-sidebar-column > * {
+  pointer-events: auto;
 }
 
 .drawer-top-symbols {
@@ -889,7 +894,6 @@ body[data-theme="atlantis"] .neo-btn:disabled span {
   transform: translateX(-220px);
   opacity: 0;
   pointer-events: none;
-  position: absolute;
 }
 
 .drawer-title {
@@ -996,6 +1000,10 @@ body[data-theme="atlantis"] .neo-btn:disabled span {
 /* CANVAS STAGE */
 .canvas-wrapper {
   position: absolute;
+  left: 204px;
+  top: 14px;
+  width: calc(100vw - 228px);
+  height: calc(100vh - 90px);
   border: var(--border-thick);
   border-radius: 14px;
   box-shadow: 5px 5px 0px var(--ink-black);
@@ -5232,7 +5240,6 @@ body[data-theme="atlantis"] .about-privacy-badge {
 // ── js/audio/sound.js ──
 // Sidehop Web Audio Sound FX Engine
 // Pure procedural Web Audio API sounds — zero external assets required!
-
 class SoundEngine {
   constructor() {
     this.ctx = null;
@@ -16012,12 +16019,12 @@ class SidehopApp {
     };
 
     // World & UI Theme State
-    const validThemes = ['grass', 'snowy', 'night', 'chrome', '8-bit', 'jungle', 'neon', 'atlantis', 'mixed'];
+    const validThemes = ['grass', 'snowy', 'night', 'chrome', '8-bit', 'jungle', 'neon', 'atlantis', 'uncanny', 'mixed'];
     let initialTheme = 'grass';
     try {
       const savedTheme = localStorage.getItem('sidehop_theme');
       if (savedTheme && validThemes.includes(savedTheme)) {
-        initialTheme = savedTheme;
+        initialTheme = savedTheme === 'mixed' ? 'uncanny' : savedTheme;
       }
     } catch (e) {}
     this.currentTheme = initialTheme;
@@ -16597,11 +16604,13 @@ class SidehopApp {
 
   getStageBounds() {
     const workbench = document.querySelector('.workbench-container');
+    const sidebarCol = document.getElementById('left-sidebar-column') || document.getElementById('tool-drawer');
     const toolDrawer = document.getElementById('tool-drawer');
     const wbW = workbench ? workbench.clientWidth : window.innerWidth;
     const wbH = workbench ? workbench.clientHeight : (window.innerHeight - 56);
     const drawerVisible = toolDrawer && !toolDrawer.classList.contains('minimized');
-    const minLeft = drawerVisible ? (toolDrawer.offsetLeft + toolDrawer.offsetWidth + 18) : 16;
+    const sidebarRight = sidebarCol ? (sidebarCol.offsetLeft + sidebarCol.offsetWidth) : 188;
+    const minLeft = drawerVisible ? (sidebarRight + 18) : 16;
     const minTop = 14;
     const maxRight = Math.max(minLeft + 480, wbW - 24);
     const maxBottom = Math.max(minTop + 320, wbH - 20);
