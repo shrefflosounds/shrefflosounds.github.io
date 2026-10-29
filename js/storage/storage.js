@@ -1,6 +1,6 @@
 // Sidehop Level Persistence & Preset Levels Engine
 
-import { SolidBlock, Springboard, HazardSpikes, EnemyWalker, MovingPlatform, Collectible, GoalFlag } from '../engine/entities.js?v=20261028_085918';
+import { SolidBlock, Springboard, HazardSpikes, EnemyWalker, MovingPlatform, Collectible, GoalFlag } from '../engine/entities.js?v=20261028_204423';
 import { SidehopFile } from './sidehop-format.js';
 import { generateStandaloneGameHtml } from './standalone-game-builder.js';
 
@@ -414,23 +414,29 @@ export class LevelStorage {
   // Serialize active level to JSON-compatible object
   static serialize(player, entities, background = { theme: 'sky', customImage: null }) {
     const activeTheme = (typeof window !== 'undefined' && window.sidehop?.currentTheme) || 'grass';
+    const activeName = (typeof window !== 'undefined' && window.sidehop?.currentLevelName) || 'Starter World';
     return {
       version: 2,
-      name: 'Starter World',
+      name: activeName,
       theme: activeTheme,
-      background: background,
+      background: {
+        theme: background?.theme || activeTheme,
+        customImage: background?.customImage || null
+      },
       player: {
         spawnX: player.spawnX,
         spawnY: player.spawnY,
+        width: player.width || 40,
+        height: player.height || 40,
         speed: player.speed,
         jumpForce: player.jumpForce,
         gravityScale: player.gravityScale,
         maxHearts: player.maxHearts || 4,
         doubleJumpAllowed: player.doubleJumpAllowed,
         color: player.color || null,
-        customVisual: player.customVisual
+        customVisual: player.customVisual || null
       },
-      entities: entities.map(ent => LevelStorage.serializeEntity(ent))
+      entities: entities.filter(ent => !ent.isSpawnedDrop).map(ent => LevelStorage.serializeEntity(ent))
     };
   }
 
@@ -521,7 +527,12 @@ export class LevelStorage {
 
     // Restore player
     if (data.player) {
-      player.setSpawn(data.player.spawnX || 120, data.player.spawnY || 360);
+      player.setSpawn(
+        data.player.spawnX !== undefined ? data.player.spawnX : 120,
+        data.player.spawnY !== undefined ? data.player.spawnY : 360
+      );
+      if (data.player.width) player.width = data.player.width;
+      if (data.player.height) player.height = data.player.height;
       if (data.player.speed) player.speed = data.player.speed;
       if (data.player.jumpForce) player.jumpForce = data.player.jumpForce;
       if (data.player.gravityScale !== undefined) player.gravityScale = data.player.gravityScale;
@@ -534,7 +545,9 @@ export class LevelStorage {
         player.hasDoubleJump = data.player.doubleJumpAllowed;
       }
       if (data.player.color) player.setColor(data.player.color);
+      else player.setColor(null);
       if (data.player.customVisual) player.setCustomVisual(data.player.customVisual);
+      else player.setCustomVisual(null);
     }
 
     // Clear and restore entities
@@ -587,36 +600,44 @@ export class LevelStorage {
 
   // Download Level as .sidehop package file
   static exportLevel(player, entities, background, customTitle) {
-    const data = this.serialize(player, entities, background);
-    const title = customTitle || data.name || 'Sidehop Level';
+    const app = typeof window !== 'undefined' ? window.sidehop : null;
+    const data = (app && app.mode === 'play' && app.playModeSnapshot)
+      ? JSON.parse(JSON.stringify(app.playModeSnapshot))
+      : this.serialize(player, entities, background);
+    const title = (customTitle || data.name || 'Sidehop Level').trim();
+    data.name = title;
     const pkg = SidehopFile.createLevelPackage(data, {
       title: title,
       description: 'Platformer level created with Sidehop'
     });
-    const slug = title
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/^-|-$/g, '') || 'sidehop-level';
-    SidehopFile.download(`${slug}-${Date.now()}.sidehop`, pkg);
+    const cleanFileBase = title
+      .replace(/\.sidehop$/i, '')
+      .replace(/[\\/:*?"<>|]+/g, '-')
+      .trim() || 'sidehop-level';
+    SidehopFile.download(`${cleanFileBase}.sidehop`, pkg);
     return pkg;
   }
 
-  // Export Level as a Standalone Playable Single-File HTML Game (Offline, No Editor UI)
+  // Export Level as a Standalone Playable Single-File HTML Game (Exact Engine, Level, Assets & Theme)
   static async exportStandaloneHtml(player, entities, background, theme = 'grass', customTitle) {
-    const data = this.serialize(player, entities, background);
-    data.theme = theme;
-    const title = customTitle || data.name || 'Sidehop Level';
-    const slug = title
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/^-|-$/g, '') || 'sidehop-game';
+    const app = typeof window !== 'undefined' ? window.sidehop : null;
+    const data = (app && app.mode === 'play' && app.playModeSnapshot)
+      ? JSON.parse(JSON.stringify(app.playModeSnapshot))
+      : this.serialize(player, entities, background);
+    data.theme = theme || data.theme || 'grass';
+    const title = (customTitle || data.name || 'Sidehop Game').trim();
+    data.name = title;
+    const cleanFileBase = title
+      .replace(/\.html?$/i, '')
+      .replace(/[\\/:*?"<>|]+/g, '-')
+      .trim() || 'sidehop-game';
 
     const standaloneHtml = generateStandaloneGameHtml(data, title);
     const blob = new Blob([standaloneHtml], { type: 'text/html;charset=utf-8' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `${slug}.html`;
+    a.download = `${cleanFileBase}.html`;
     document.body.appendChild(a);
     a.click();
     setTimeout(() => {
@@ -625,22 +646,26 @@ export class LevelStorage {
     }, 1500);
   }
 
-  // Import any .sidehop package (or legacy JSON level)
+  // Import any .sidehop package or standalone .html game file (or legacy JSON level)
   static importLevel(file, player, entities, callback) {
     const reader = new FileReader();
     reader.onload = (e) => {
       try {
         const parsed = SidehopFile.parse(e.target.result);
+        const isHtmlFile = parsed.sourceFormat === 'html' || /\.html?$/i.test(file?.name || '');
 
         if (parsed.kind === 'level' || parsed.level) {
           const levelData = parsed.level || parsed;
           const bg = this.deserialize(levelData, player, entities);
+          const resolvedTheme = levelData.theme || bg?.worldTheme || null;
           if (callback) {
             callback({
               kind: 'level',
+              sourceFormat: isHtmlFile ? 'html' : 'sidehop',
+              theme: resolvedTheme,
               background: bg,
               meta: parsed.meta,
-              levelName: parsed.meta?.title || levelData?.name || 'Sidehop Level'
+              levelName: parsed.meta?.title || levelData?.name || (file?.name ? file.name.replace(/\.(sidehop|html?|json)$/i, '') : 'Sidehop Level')
             });
           }
         } else if (parsed.kind === 'asset') {
@@ -670,7 +695,7 @@ export class LevelStorage {
         }
       } catch (err) {
         console.error('Sidehop file import error:', err);
-        alert('Invalid Sidehop file (.sidehop or .json): ' + (err.message || 'Parse error'));
+        alert('Invalid Sidehop file (.sidehop or .html): ' + (err.message || 'Parse error'));
       }
     };
     reader.readAsText(file);

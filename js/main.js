@@ -1,17 +1,17 @@
 // Sidehop Master Application Coordinator — Enhanced Custom Backgrounds, Asset Library & Undo/Redo
 
-import { Player, Bullet, SolidBlock, Collectible } from './engine/entities.js?v=20261028_085918';
-import { PhysicsEngine } from './engine/physics.js?v=20261028_085918';
-import { Camera } from './engine/camera.js?v=20261028_085918';
-import { GridEditor } from './editor/grid.js?v=20261028_085918';
-import { ArtStudio } from './editor/paint.js?v=20261028_085918';
-import { Inspector } from './editor/inspector.js?v=20261028_085918';
-import { VideoRecorder } from './recorder/recorder.js?v=20261028_085918';
-import { LevelStorage } from './storage/storage.js?v=20261028_085918';
-import { HistoryManager } from './editor/history.js?v=20261028_085918';
-import { sounds } from './audio/sound.js?v=20261028_085918';
-import { SidehopFile } from './storage/sidehop-format.js?v=20261028_085918';
-import { SidehopDemo } from './editor/demo.js?v=20261028_085918';
+import { Player, Bullet, SolidBlock, Collectible } from './engine/entities.js?v=20261028_204423';
+import { PhysicsEngine } from './engine/physics.js?v=20261028_204423';
+import { Camera } from './engine/camera.js?v=20261028_204423';
+import { GridEditor } from './editor/grid.js?v=20261028_204423';
+import { ArtStudio } from './editor/paint.js?v=20261028_204423';
+import { Inspector } from './editor/inspector.js?v=20261028_204423';
+import { VideoRecorder } from './recorder/recorder.js?v=20261028_204423';
+import { LevelStorage } from './storage/storage.js?v=20261028_204423';
+import { HistoryManager } from './editor/history.js?v=20261028_204423';
+import { sounds } from './audio/sound.js?v=20261028_204423';
+import { SidehopFile } from './storage/sidehop-format.js?v=20261028_204423';
+import { SidehopDemo } from './editor/demo.js?v=20261028_204423';
 
 class SidehopApp {
   constructor() {
@@ -593,33 +593,30 @@ class SidehopApp {
     this.isFrameStretched = stretched;
     const workbench = document.querySelector('.workbench-container');
     const stretchIcon = document.getElementById('stretch-frame-icon');
-    const stretchText = document.getElementById('stretch-frame-text');
     const stageStretchBtn = document.getElementById('stage-stretch-btn');
 
     if (this.isFrameStretched) {
       if (workbench) workbench.classList.add('frame-stretched');
       this.updateCanvasDimensions();
 
-      if (stretchIcon) stretchIcon.textContent = '⤡';
-      if (stretchText) stretchText.textContent = 'STANDARD FRAME';
+      if (stretchIcon) stretchIcon.textContent = '⛶';
       if (stageStretchBtn) {
-        stageStretchBtn.querySelector('span').textContent = '⤡';
+        stageStretchBtn.querySelector('span').textContent = '⛶';
         stageStretchBtn.title = 'Return to standard frame';
       }
       sounds.playClick();
-      this.showToast('⤢ Frame Stretched to Screen');
+      this.showToast('⛶ Fullscreen Frame Active');
     } else {
       if (workbench) workbench.classList.remove('frame-stretched');
       this.updateCanvasDimensions();
 
-      if (stretchIcon) stretchIcon.textContent = '⤢';
-      if (stretchText) stretchText.textContent = 'STRETCH FRAME';
+      if (stretchIcon) stretchIcon.textContent = '⛶';
       if (stageStretchBtn) {
-        stageStretchBtn.querySelector('span').textContent = '⤢';
-        stageStretchBtn.title = 'Stretch frame to fit screen minus header';
+        stageStretchBtn.querySelector('span').textContent = '⛶';
+        stageStretchBtn.title = 'Toggle Fullscreen / Fill Screen';
       }
       sounds.playClick();
-      this.showToast('⤡ Standard Frame Restored');
+      this.showToast('⛶ Standard Frame Restored');
     }
   }
 
@@ -637,7 +634,8 @@ class SidehopApp {
   }
 
   setTheme(themeName, isUserAction = false) {
-    const validThemes = ['grass', 'snowy', 'night', 'chrome', '8-bit', 'jungle', 'neon', 'atlantis', 'mixed'];
+    if (themeName === 'mixed') themeName = 'uncanny';
+    const validThemes = ['grass', 'snowy', 'night', 'chrome', '8-bit', 'jungle', 'neon', 'atlantis', 'uncanny'];
     if (!validThemes.includes(themeName)) themeName = 'grass';
     this.currentTheme = themeName;
     window.__SIDEHOP_THEME__ = themeName;
@@ -664,7 +662,7 @@ class SidehopApp {
       'jungle': '🌴',
       'neon': '⚡',
       'atlantis': '🌊',
-      'mixed': '🎨'
+      'uncanny': '👁️'
     };
     const themeDisplayNames = {
       'grass': 'Meadows',
@@ -675,7 +673,7 @@ class SidehopApp {
       'jungle': 'Jungle',
       'neon': 'Neon over Black',
       'atlantis': 'Atlantis Underwater',
-      'mixed': 'Mixed Media'
+      'uncanny': '3D / Uncanny'
     };
     const themeToastNames = {
       'grass': 'Meadows',
@@ -686,7 +684,7 @@ class SidehopApp {
       'jungle': 'Jungle',
       'neon': 'Neon over Black',
       'atlantis': 'Atlantis Underwater',
-      'mixed': 'Mixed Media'
+      'uncanny': '3D / Uncanny Realism'
     };
     if (themeIcon) themeIcon.textContent = themeIcons[themeName] || '🎨';
     if (themeLabel) themeLabel.textContent = `${themeDisplayNames[themeName] || 'Theme'} ▾`;
@@ -924,7 +922,7 @@ class SidehopApp {
   // --- Background Application & Rendering ---
   applyBackground(bg) {
     if (!bg) return;
-    this.background.theme = bg.theme || this.currentTheme || 'grass';
+    this.background.theme = bg.customImage ? 'custom' : (bg.theme || this.currentTheme || 'grass');
     this.background.customImage = bg.customImage || null;
     if (this.background.customImage) {
       const img = new Image();
@@ -981,7 +979,7 @@ class SidehopApp {
     const w = this.canvas.width;
     const h = this.canvas.height;
 
-    if (this.background.theme === 'custom' && this.background.customImageElement) {
+    if (this.background.customImageElement) {
       this.ctx.drawImage(this.background.customImageElement, 0, 0, w, h);
       return;
     }
@@ -993,8 +991,9 @@ class SidehopApp {
         this.drawAtlantisBackground(w, h);
         break;
       }
+      case 'uncanny':
       case 'mixed': {
-        this.drawMixedMediaBackground(w, h);
+        this.drawUncanny3DBackground(w, h);
         break;
       }
       case 'snowy': {
@@ -1158,277 +1157,173 @@ class SidehopApp {
     this.ctx.restore();
   }
 
-  drawMixedMediaBackground(w, h) {
+  drawUncanny3DBackground(w, h) {
     this.ctx.save();
     const animTime = performance.now() * 0.001;
 
-    // 1. Warm studio craft paper / pinboard gradient with authentic fibrous paper texture
-    const paperGrad = this.ctx.createLinearGradient(0, 0, 0, h);
-    paperGrad.addColorStop(0, '#FAF3E3');
-    paperGrad.addColorStop(0.45, '#F4E3C5');
-    paperGrad.addColorStop(1, '#E6CCA4');
-    this.ctx.fillStyle = paperGrad;
+    // Layer 0: SGI 90s Raytraced / Photorealistic Cerulean-to-Horizon Sky Gradient
+    const skyGrad = this.ctx.createLinearGradient(0, 0, 0, h);
+    skyGrad.addColorStop(0, '#1E5FA8');
+    skyGrad.addColorStop(0.38, '#4F94D4');
+    skyGrad.addColorStop(0.72, '#9BC8EE');
+    skyGrad.addColorStop(1, '#D4E9F9');
+    this.ctx.fillStyle = skyGrad;
     this.ctx.fillRect(0, 0, w, h);
 
-    // Subtle realistic paper fibers & weave lines
-    this.ctx.strokeStyle = 'rgba(160, 120, 80, 0.07)';
-    this.ctx.lineWidth = 1;
-    for (let y = 15; y < h; y += 32) {
-      this.ctx.beginPath();
+    // Embedded Blueprint / Coordinate Grid in the Sky (Signature detail from all 5 aesthetic register sketches!)
+    const gridSize = 40;
+    const gridOffX = -(this.camera.x * 0.18) % gridSize;
+    const gridOffY = -(this.camera.y * 0.18) % gridSize;
+
+    // Subtle minor 20px subdivisions
+    this.ctx.strokeStyle = 'rgba(255, 255, 255, 0.09)';
+    this.ctx.lineWidth = 0.75;
+    this.ctx.beginPath();
+    for (let x = gridOffX; x < w; x += 20) {
+      this.ctx.moveTo(x, 0);
+      this.ctx.lineTo(x, h);
+    }
+    for (let y = gridOffY; y < h; y += 20) {
       this.ctx.moveTo(0, y);
-      this.ctx.lineTo(w, y + Math.sin(y * 0.2) * 3);
-      this.ctx.stroke();
+      this.ctx.lineTo(w, y);
     }
-
-    // 2. Brass Pushpins / Thumbtacks in top corners holding the canvas
-    [ [24, 24], [w - 24, 24] ].forEach(([tx, ty]) => {
-      // Pin drop shadow
-      this.ctx.fillStyle = 'rgba(0, 0, 0, 0.25)';
-      this.ctx.beginPath();
-      this.ctx.arc(tx + 2, ty + 3, 7, 0, Math.PI * 2);
-      this.ctx.fill();
-      // Metallic brass head
-      const brassGrad = this.ctx.createRadialGradient(tx - 2, ty - 2, 1, tx, ty, 7);
-      brassGrad.addColorStop(0, '#FEF08A');
-      brassGrad.addColorStop(0.5, '#CA8A04');
-      brassGrad.addColorStop(1, '#854D0E');
-      this.ctx.fillStyle = brassGrad;
-      this.ctx.beginPath();
-      this.ctx.arc(tx, ty, 7, 0, Math.PI * 2);
-      this.ctx.fill();
-      this.ctx.strokeStyle = '#713F12';
-      this.ctx.lineWidth = 1;
-      this.ctx.stroke();
-      // Specular highlight
-      this.ctx.fillStyle = '#FFFFFF';
-      this.ctx.beginPath();
-      this.ctx.arc(tx - 2, ty - 2, 2, 0, Math.PI * 2);
-      this.ctx.fill();
-    });
-
-    const horizon = h * 0.72;
-
-    // 3. Distant torn corrugated cardboard horizon with exposed fluting ridges (Layer 1 - slow parallax)
-    this.ctx.fillStyle = '#D6BFA0';
-    this.ctx.beginPath();
-    this.ctx.moveTo(0, h);
-    const loop1 = 1000;
-    const off1 = (this.camera.x * 0.05) % loop1;
-    for (let x = -200; x <= w + 200; x += 40) {
-      const rx = x - off1;
-      const tear = Math.sin(x * 0.04) * 16 + Math.cos(x * 0.015) * 26;
-      this.ctx.lineTo(rx, horizon - 60 + tear);
-    }
-    this.ctx.lineTo(w, h);
-    this.ctx.closePath();
-    this.ctx.fill();
-
-    // 4. Closer hand-torn kraft cardboard layer with exposed white paper fibers along deckle tear
-    this.ctx.fillStyle = '#C4A47C';
-    this.ctx.beginPath();
-    this.ctx.moveTo(0, h);
-    const loop2 = 800;
-    const off2 = (this.camera.x * 0.12) % loop2;
-    const tearPoints = [];
-    for (let x = -200; x <= w + 200; x += 30) {
-      const rx = x - off2;
-      const tear = Math.sin(x * 0.06) * 14 + Math.sin(x * 0.02) * 32;
-      const ty = horizon - 10 + tear;
-      tearPoints.push({ x: rx, y: ty });
-      this.ctx.lineTo(rx, ty);
-    }
-    this.ctx.lineTo(w, h);
-    this.ctx.closePath();
-    this.ctx.fill();
-
-    // Exposed white torn paper deckle fibers
-    this.ctx.strokeStyle = '#FFFDF5';
-    this.ctx.lineWidth = 3;
-    this.ctx.beginPath();
-    tearPoints.forEach((pt, idx) => {
-      if (idx === 0) this.ctx.moveTo(pt.x, pt.y);
-      else this.ctx.lineTo(pt.x, pt.y);
-    });
     this.ctx.stroke();
 
-    // 5. Floating Mixed Media Decals with Realistic Drop Shadows & Gentle Animation
-    const decalItems = [
-      { colX: 130, y: 95, type: 'airmail', rot: -0.12, w: 74, h: 48 },
-      { colX: 360, y: 145, type: 'polaroid', rot: 0.10, w: 60, h: 72 },
-      { colX: 620, y: 80, type: 'tape', rot: 0.06, w: 85, h: 26, color: 'rgba(234, 88, 12, 0.65)' },
-      { colX: 860, y: 135, type: 'barcode', rot: -0.08, w: 70, h: 42 },
-      { colX: 1100, y: 90, type: 'hologram', rot: 0.15, r: 24 },
-      { colX: 1340, y: 140, type: 'fragile', rot: -0.16, w: 64, h: 36 }
+    // Primary 40px CAD / Raytracer Coordinate Grid
+    this.ctx.strokeStyle = 'rgba(255, 255, 255, 0.22)';
+    this.ctx.lineWidth = 1.1;
+    this.ctx.beginPath();
+    for (let x = gridOffX; x < w; x += gridSize) {
+      this.ctx.moveTo(x, 0);
+      this.ctx.lineTo(x, h);
+    }
+    for (let y = gridOffY; y < h; y += gridSize) {
+      this.ctx.moveTo(0, y);
+      this.ctx.lineTo(w, y);
+    }
+    this.ctx.stroke();
+
+    // Layer 2 (Upper Sky): Volumetric 3D Shaded Cumulus Clouds with Raytraced Ambient Occlusion Undersides
+    const cloudDefs = [
+      { baseCol: 90, y: 78, scale: 1.05, speed: 0.07 },
+      { baseCol: 420, y: 125, scale: 0.85, speed: 0.11 },
+      { baseCol: 780, y: 68, scale: 1.22, speed: 0.06 },
+      { baseCol: 1140, y: 138, scale: 0.95, speed: 0.09 }
     ];
-
-    const collLoop = 1500;
-    const collOff = (this.camera.x * 0.08) % collLoop;
-
-    decalItems.forEach((item, idx) => {
-      const ix = ((item.colX - collOff) % collLoop + collLoop) % collLoop - 90;
-      // Gentle animated floating bob
-      const bobY = item.y + Math.sin(animTime * 1.5 + idx * 1.2) * 4;
-      const curRot = item.rot + Math.sin(animTime * 1.2 + idx) * 0.03;
+    const cloudLoop = 1400;
+    cloudDefs.forEach((c, idx) => {
+      let cx = (c.baseCol - this.camera.x * c.speed + animTime * 4 * (idx % 2 === 0 ? 1 : 0.7)) % cloudLoop;
+      if (cx < -220) cx += cloudLoop;
 
       this.ctx.save();
-      this.ctx.translate(ix, bobY);
-      this.ctx.rotate(curRot);
+      this.ctx.translate(cx, c.y);
+      this.ctx.scale(c.scale, c.scale);
 
-      if (item.type === 'airmail') {
-        // Decal: Vintage Air Mail Envelope Stamp with Perforations & Postmark
-        // Drop shadow
-        this.ctx.fillStyle = 'rgba(0, 0, 0, 0.22)';
-        this.ctx.fillRect(-item.w / 2 + 3, -item.h / 2 + 4, item.w, item.h);
-        // Cream stamp paper
-        this.ctx.fillStyle = '#FFFDF5';
-        this.ctx.fillRect(-item.w / 2, -item.h / 2, item.w, item.h);
-        // Airmail border stripes
-        for (let bx = -item.w / 2 + 2; bx < item.w / 2 - 4; bx += 8) {
-          this.ctx.fillStyle = '#2563EB';
-          this.ctx.fillRect(bx, -item.h / 2, 4, 3);
-          this.ctx.fillRect(bx + 4, item.h / 2 - 3, 4, 3);
-          this.ctx.fillStyle = '#DC2626';
-          this.ctx.fillRect(bx + 4, -item.h / 2, 4, 3);
-          this.ctx.fillRect(bx, item.h / 2 - 3, 4, 3);
-        }
-        // Stamp insignia & text
-        this.ctx.fillStyle = '#1E3A8A';
-        this.ctx.font = 'bold 9px "Space Grotesk", sans-serif';
-        this.ctx.textAlign = 'center';
-        this.ctx.fillText('PAR AVION', 0, -4);
-        this.ctx.font = '700 7px "Space Grotesk", sans-serif';
-        this.ctx.fillText('AIR MAIL', 0, 8);
+      // Soft cast atmospheric shadow beneath cloud
+      this.ctx.fillStyle = 'rgba(26, 62, 108, 0.18)';
+      this.ctx.beginPath();
+      this.ctx.ellipse(82, 44, 62, 12, 0, 0, Math.PI * 2);
+      this.ctx.fill();
 
-        // Circular postmark overlay
-        this.ctx.strokeStyle = 'rgba(30, 41, 59, 0.55)';
-        this.ctx.lineWidth = 1.2;
+      const puffs = [
+        [38, 30, 24],
+        [66, 18, 32],
+        [98, 22, 28],
+        [124, 32, 21],
+        [78, 32, 26]
+      ];
+
+      // 3D shaded cloud puffs (cool slate-blue underside to pure sunlit white top)
+      puffs.forEach(([px, py, pr]) => {
+        const puffGrad = this.ctx.createRadialGradient(px - pr * 0.28, py - pr * 0.35, pr * 0.1, px, py, pr);
+        puffGrad.addColorStop(0, '#FFFFFF');
+        puffGrad.addColorStop(0.55, '#F1F5F9');
+        puffGrad.addColorStop(0.85, '#CBD5E1');
+        puffGrad.addColorStop(1, '#94A3B8');
+        this.ctx.fillStyle = puffGrad;
         this.ctx.beginPath();
-        this.ctx.arc(item.w / 2 - 14, -item.h / 2 + 14, 11, 0, Math.PI * 2);
-        this.ctx.stroke();
-      } else if (item.type === 'polaroid') {
-        // Decal: Polaroid Photo Cutout with Washi Tape at Top
-        // Drop shadow
-        this.ctx.fillStyle = 'rgba(0, 0, 0, 0.24)';
-        this.ctx.fillRect(-item.w / 2 + 3, -item.h / 2 + 4, item.w, item.h);
-        // White polaroid frame
-        this.ctx.fillStyle = '#FFFFFF';
-        this.ctx.fillRect(-item.w / 2, -item.h / 2, item.w, item.h);
-        // Photo image area inside
-        const imgW = item.w - 10;
-        const imgH = item.h - 22;
-        const skyGrad = this.ctx.createLinearGradient(0, -item.h / 2 + 5, 0, -item.h / 2 + 5 + imgH);
-        skyGrad.addColorStop(0, '#60A5FA');
-        skyGrad.addColorStop(0.7, '#FDE047');
-        skyGrad.addColorStop(1, '#22C55E');
-        this.ctx.fillStyle = skyGrad;
-        this.ctx.fillRect(-item.w / 2 + 5, -item.h / 2 + 5, imgW, imgH);
-        // Polaroid hand-drawn bunny mascot silhouette inside
-        this.ctx.fillStyle = '#1E293B';
-        this.ctx.beginPath();
-        this.ctx.arc(0, 2, 7, 0, Math.PI * 2);
+        this.ctx.arc(px, py, pr, 0, Math.PI * 2);
         this.ctx.fill();
-        this.ctx.fillRect(-5, -12, 3, 8);
-        this.ctx.fillRect(2, -12, 3, 8);
-
-        // Masking tape holding the polaroid at top
-        this.ctx.fillStyle = 'rgba(251, 191, 36, 0.75)';
-        this.ctx.fillRect(-18, -item.h / 2 - 6, 36, 12);
-      } else if (item.type === 'barcode') {
-        // Decal: Shipping Barcode & Serial Label
-        this.ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
-        this.ctx.fillRect(-item.w / 2 + 2, -item.h / 2 + 3, item.w, item.h);
-        this.ctx.fillStyle = '#FFFFFF';
-        this.ctx.fillRect(-item.w / 2, -item.h / 2, item.w, item.h);
-        // Barcode lines
-        this.ctx.fillStyle = '#111827';
-        const bars = [2, 1, 3, 1, 2, 4, 1, 2, 1, 3, 2, 1, 3];
-        let bx = -item.w / 2 + 6;
-        bars.forEach(bw => {
-          this.ctx.fillRect(bx, -item.h / 2 + 5, bw, 20);
-          bx += bw + 2;
-        });
-        this.ctx.font = 'bold 7px ui-monospace, monospace';
-        this.ctx.textAlign = 'center';
-        this.ctx.fillText('* SIDEHOP-94 *', 0, item.h / 2 - 5);
-      } else if (item.type === 'hologram') {
-        // Decal: Glossy Holographic Foil Sticker Badge with Spectrum Sheen
-        // Drop shadow
-        this.ctx.fillStyle = 'rgba(0, 0, 0, 0.25)';
-        this.ctx.beginPath();
-        this.ctx.arc(2, 3, item.r, 0, Math.PI * 2);
-        this.ctx.fill();
-
-        // Rainbow holographic gradient that shifts with time
-        const holoGrad = this.ctx.createLinearGradient(-item.r, -item.r, item.r, item.r);
-        const shift = (animTime * 0.3) % 1;
-        holoGrad.addColorStop((0 + shift) % 1, '#F43F5E');
-        holoGrad.addColorStop((0.25 + shift) % 1, '#FBBF24');
-        holoGrad.addColorStop((0.5 + shift) % 1, '#34D399');
-        holoGrad.addColorStop((0.75 + shift) % 1, '#38BDF8');
-        holoGrad.addColorStop((1 + shift) % 1, '#A855F7');
-        this.ctx.fillStyle = holoGrad;
-        this.ctx.beginPath();
-        this.ctx.arc(0, 0, item.r, 0, Math.PI * 2);
-        this.ctx.fill();
-
-        // Star badge stamp in center
-        this.ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
-        this.ctx.font = 'bold 18px "Fredoka", sans-serif';
-        this.ctx.textAlign = 'center';
-        this.ctx.textBaseline = 'middle';
-        this.ctx.fillText('★', 0, 0);
-
-        // Specular curved glare
-        this.ctx.strokeStyle = 'rgba(255, 255, 255, 0.7)';
-        this.ctx.lineWidth = 2.5;
-        this.ctx.beginPath();
-        this.ctx.arc(0, 0, item.r - 3, Math.PI * 1.1, Math.PI * 1.6);
-        this.ctx.stroke();
-      } else if (item.type === 'fragile') {
-        // Decal: Red "FRAGILE / HANDLE WITH CARE" Decal
-        this.ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
-        this.ctx.fillRect(-item.w / 2 + 2, -item.h / 2 + 3, item.w, item.h);
-        this.ctx.fillStyle = '#DC2626';
-        this.ctx.fillRect(-item.w / 2, -item.h / 2, item.w, item.h);
-        this.ctx.fillStyle = '#FFFFFF';
-        this.ctx.font = 'bold 9px "Space Grotesk", sans-serif';
-        this.ctx.textAlign = 'center';
-        this.ctx.fillText('FRAGILE', 0, -2);
-        this.ctx.font = '600 5px "Space Grotesk", sans-serif';
-        this.ctx.fillText('HANDLE WITH CARE', 0, 7);
-      } else if (item.type === 'tape') {
-        // Decal: Translucent Washi Tape Strip with Serrated Ends
-        this.ctx.fillStyle = 'rgba(0, 0, 0, 0.12)';
-        this.ctx.fillRect(-item.w / 2 + 2, -item.h / 2 + 3, item.w, item.h);
-        this.ctx.fillStyle = item.color;
-        this.ctx.fillRect(-item.w / 2, -item.h / 2, item.w, item.h);
-        // Tape fibers
-        this.ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
-        this.ctx.fillRect(-item.w / 2, -item.h / 2 + 2, item.w, 2);
-        // Serrated tape edge ends
-        this.ctx.fillStyle = '#FAF3E3';
-        this.ctx.beginPath();
-        this.ctx.moveTo(-item.w / 2, -item.h / 2);
-        this.ctx.lineTo(-item.w / 2 + 4, -item.h / 4);
-        this.ctx.lineTo(-item.w / 2, 0);
-        this.ctx.lineTo(-item.w / 2 + 4, item.h / 4);
-        this.ctx.lineTo(-item.w / 2, item.h / 2);
-        this.ctx.closePath();
-        this.ctx.fill();
-        this.ctx.beginPath();
-        this.ctx.moveTo(item.w / 2, -item.h / 2);
-        this.ctx.lineTo(item.w / 2 - 4, -item.h / 4);
-        this.ctx.lineTo(item.w / 2, 0);
-        this.ctx.lineTo(item.w / 2 - 4, item.h / 4);
-        this.ctx.lineTo(item.w / 2, item.h / 2);
-        this.ctx.closePath();
-        this.ctx.fill();
-      }
-
+      });
       this.ctx.restore();
     });
 
+    const horizon = h * 0.76;
+
+    // Layer 1A: Distant 3D Raytraced / Diorama Rolling Hills (0.06x parallax)
+    const hillLoop1 = 960;
+    const hillOff1 = (this.camera.x * 0.06) % hillLoop1;
+    for (let x = -320; x < w + 420; x += 280) {
+      const hx = x - hillOff1;
+      const domeR = 230;
+      const domeY = horizon + 125;
+      const hillGrad1 = this.ctx.createRadialGradient(hx - 55, domeY - domeR * 0.85, 18, hx, domeY, domeR);
+      hillGrad1.addColorStop(0, '#74C655');
+      hillGrad1.addColorStop(0.5, '#3E8E2E');
+      hillGrad1.addColorStop(0.88, '#1E561C');
+      hillGrad1.addColorStop(1, '#113411');
+      this.ctx.fillStyle = hillGrad1;
+      this.ctx.beginPath();
+      this.ctx.arc(hx, domeY, domeR, Math.PI, 0, false);
+      this.ctx.closePath();
+      this.ctx.fill();
+    }
+
+    // Layer 1B: Closer 3D Shaded Velvet-Turf Hills with Deep Raytraced Shadows & Out-of-Focus Wildflower Bokeh (0.12x parallax)
+    const hillLoop2 = 760;
+    const hillOff2 = (this.camera.x * 0.12) % hillLoop2;
+    for (let x = -260; x < w + 380; x += 220) {
+      const hx = x - hillOff2;
+      const domeR = 185;
+      const domeY = horizon + 120;
+
+      // Cast shadow onto distant hills
+      this.ctx.fillStyle = 'rgba(10, 32, 12, 0.28)';
+      this.ctx.beginPath();
+      this.ctx.arc(hx + 10, domeY + 4, domeR + 6, Math.PI, 0, false);
+      this.ctx.fill();
+
+      const hillGrad2 = this.ctx.createRadialGradient(hx - 45, domeY - domeR * 0.82, 14, hx, domeY, domeR);
+      hillGrad2.addColorStop(0, '#8CE063');
+      hillGrad2.addColorStop(0.42, '#4BA634');
+      hillGrad2.addColorStop(0.82, '#256B1E');
+      hillGrad2.addColorStop(1, '#133E10');
+      this.ctx.fillStyle = hillGrad2;
+      this.ctx.beginPath();
+      this.ctx.arc(hx, domeY, domeR, Math.PI, 0, false);
+      this.ctx.closePath();
+      this.ctx.fill();
+
+      // Depth-of-field bokeh wildflowers scattered on 3D hill surface (from 01_sidehop_50pct_realism_diorama.png)
+      const flowerColors = ['#FEF08A', '#FFFFFF', '#F472B6', '#C084FC', '#FBBF24'];
+      for (let f = 0; f < 9; f++) {
+        const ang = Math.PI + 0.35 + (f * 0.27);
+        const rad = domeR * (0.45 + ((f * 37) % 45) * 0.01);
+        const fx = hx + Math.cos(ang) * rad;
+        const fy = domeY + Math.sin(ang) * rad;
+        if (fy < h && fy > horizon - 70) {
+          const fCol = flowerColors[(f + Math.abs(Math.round(x / 220))) % flowerColors.length];
+          // Soft bokeh halo
+          this.ctx.fillStyle = fCol;
+          this.ctx.globalAlpha = 0.35;
+          this.ctx.beginPath();
+          this.ctx.arc(fx, fy, 4.5, 0, Math.PI * 2);
+          this.ctx.fill();
+          // Bright center petal dot
+          this.ctx.globalAlpha = 0.92;
+          this.ctx.beginPath();
+          this.ctx.arc(fx, fy, 2.1, 0, Math.PI * 2);
+          this.ctx.fill();
+        }
+      }
+      this.ctx.globalAlpha = 1.0;
+    }
+
     this.ctx.restore();
+  }
+
+  drawMixedMediaBackground(w, h) {
+    this.drawUncanny3DBackground(w, h);
   }
 
   drawSnowyBackground(w, h) {
@@ -2627,11 +2522,17 @@ class SidehopApp {
       if (!result) return;
 
       if (result.kind === 'level' || result.level) {
+        this.currentLevelName = result.levelName || 'Custom Level';
+        if (result.theme || result.background?.worldTheme) {
+          this.setTheme(result.theme || result.background.worldTheme);
+        }
         if (result.background) this.applyBackground(result.background);
+        this.camera.recenter(this.player.spawnX, this.player.spawnY);
         this.history.pushState(this.player, this.entities, this.background);
         LevelStorage.autoSave(this.player, this.entities, this.background);
         sounds.playCollect();
-        this.showToast(`🎮 Loaded Level: ${result.levelName || 'Custom Level'} (.sidehop)`);
+        const badge = result.sourceFormat === 'html' ? '(.html Game)' : '(.sidehop Project)';
+        this.showToast(`🎮 Loaded: ${this.currentLevelName} ${badge}`);
       } else if (result.kind === 'asset') {
         sounds.playCollect();
         this.showToast(`🎨 Imported Asset: ${result.asset.name} (.sidehop)`);
@@ -2898,6 +2799,7 @@ class SidehopApp {
 
     // Demo Mode Button (Interactive Feature Tour)
     document.getElementById('demo-btn')?.addEventListener('click', () => {
+      window.closeHeaderDrawers?.();
       this.demo.start();
     });
 
@@ -3105,17 +3007,26 @@ class SidehopApp {
       this.showToast('🔄 World Reset to Default');
     });
 
-    document.getElementById('export-level-btn').addEventListener('click', () => {
-      LevelStorage.exportLevel(this.player, this.entities, this.background);
+    document.getElementById('export-level-btn')?.addEventListener('click', () => {
+      window.closeHeaderDrawers?.();
+      LevelStorage.exportLevel(this.player, this.entities, this.background, this.currentLevelName);
       sounds.playCollect();
-      this.showToast('💾 Level Exported (.sidehop)');
+      this.showToast('💾 Editable Project Exported (.sidehop)');
     });
 
     document.getElementById('export-html-btn')?.addEventListener('click', async () => {
+      window.closeHeaderDrawers?.();
+      const defaultName = (this.currentLevelName && this.currentLevelName !== 'Starter World')
+        ? this.currentLevelName
+        : 'My Sidehop Game';
+      const enteredName = window.prompt('Enter a level / game name for your HTML file:', defaultName);
+      if (enteredName === null) return;
+      const gameTitle = enteredName.trim() || defaultName;
+      this.currentLevelName = gameTitle;
       sounds.playCollect();
-      this.showToast('🌐 Generating Standalone HTML Web Game...');
-      await LevelStorage.exportStandaloneHtml(this.player, this.entities, this.background, this.currentTheme, 'Sidehop Game');
-      this.showToast('✅ Downloaded Standalone HTML Web Game');
+      this.showToast(`🌐 Exporting "${gameTitle}.html"...`);
+      await LevelStorage.exportStandaloneHtml(this.player, this.entities, this.background, this.currentTheme, gameTitle);
+      this.showToast(`✅ Saved "${gameTitle}.html"`);
     });
 
     const importInput = document.getElementById('import-file-input');
@@ -3769,19 +3680,20 @@ class SidehopApp {
         }
       }
 
-      // Escape dismisses context menu, flyouts, and deselects entity
+      // Escape dismisses context menu, flyouts, header drawers, and deselects entity
       if (e.code === 'Escape' || e.key === 'Escape') {
         this.closeContextMenu();
         this.closeComponentFlyout();
+        window.closeHeaderDrawers?.();
         if (this.mode === 'edit') {
           this.editor.selectedEntity = null;
           document.getElementById('entity-action-card')?.classList.remove('active');
         }
       }
 
-      // Number keys switch tools in edit mode: 1=Select, 2=Place, 3=Pan, 4=Erase, 5=Box Select
+      // Number keys switch tools in edit mode: 1=Select/Move (also pans), 2=Place, 3=Erase, 4/5=Box Select
       if (this.mode === 'edit') {
-        const toolMap = { Digit1: 'select', Digit2: 'place', Digit3: 'pan', Digit4: 'erase', Digit5: 'boxselect' };
+        const toolMap = { Digit1: 'select', Digit2: 'place', Digit3: 'erase', Digit4: 'boxselect', Digit5: 'boxselect' };
         if (toolMap[e.code]) {
           const tool = toolMap[e.code];
           const btn = document.querySelector(`[data-tool="${tool}"]`);

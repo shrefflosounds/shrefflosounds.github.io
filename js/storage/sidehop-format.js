@@ -22,7 +22,8 @@ export class SidehopFile {
       },
       level: {
         version: levelData.version || 2,
-        name: levelData.name || 'Starter World',
+        name: metadata.title || levelData.name || 'Starter World',
+        theme: levelData.theme || 'grass',
         background: levelData.background || { theme: 'sky', customImage: null },
         player: levelData.player,
         entities: levelData.entities || []
@@ -79,14 +80,25 @@ export class SidehopFile {
     };
   }
 
-  // 4. Parse incoming file data (supporting .sidehop packages, legacy JSON, and raw assets)
+  // 4. Parse incoming file data (supporting .sidehop packages, standalone .html game files, legacy JSON, and raw assets)
   static parse(input) {
     let data;
+    let importedFromHtml = false;
     if (typeof input === 'string') {
+      let jsonText = input.trim();
+      if (jsonText.startsWith('<') || /<!doctype\s+html|<html/i.test(jsonText)) {
+        const scriptMatch = jsonText.match(/<script[^>]*id=["'](?:embedded-level-data|sidehop-embedded-level)["'][^>]*>([\s\S]*?)<\/script>/i);
+        if (scriptMatch && scriptMatch[1]) {
+          jsonText = scriptMatch[1].trim();
+          importedFromHtml = true;
+        } else {
+          throw new Error('This HTML file does not contain embedded Sidehop game data.');
+        }
+      }
       try {
-        data = JSON.parse(input);
+        data = JSON.parse(jsonText);
       } catch (err) {
-        throw new Error('File is not valid JSON content');
+        throw new Error('File is not a valid .sidehop or Sidehop HTML game file');
       }
     } else {
       data = input;
@@ -101,11 +113,14 @@ export class SidehopFile {
       const kind = data.kind || data.type || (data.level ? 'level' : data.asset ? 'asset' : 'bundle');
 
       if (kind === 'level') {
+        const lvl = data.level || {};
+        if (data.theme && !lvl.theme) lvl.theme = data.theme;
         return {
           valid: true,
           kind: 'level',
-          level: data.level,
-          meta: data.meta || data.metadata || { title: data.level?.name || 'Sidehop Level' }
+          sourceFormat: importedFromHtml ? 'html' : 'sidehop',
+          level: lvl,
+          meta: data.meta || data.metadata || { title: lvl.name || 'Sidehop Level' }
         };
       }
 
@@ -129,11 +144,27 @@ export class SidehopFile {
       }
     }
 
-    // B. Legacy or Direct Level JSON: has 'entities' or 'player'
+    // B. Legacy or Direct Level JSON (or HTML embedded payload): has 'entities' or 'player' or 'level'
+    if (data.level && (Array.isArray(data.level.entities) || data.level.player)) {
+      const lvl = data.level;
+      if (data.theme && !lvl.theme) lvl.theme = data.theme;
+      return {
+        valid: true,
+        kind: 'level',
+        sourceFormat: importedFromHtml ? 'html' : 'sidehop',
+        level: lvl,
+        meta: data.meta || {
+          title: lvl.name || data.title || 'Sidehop Level',
+          creator: "John O'Brien"
+        }
+      };
+    }
+
     if (Array.isArray(data.entities) || data.player) {
       return {
         valid: true,
         kind: 'level',
+        sourceFormat: importedFromHtml ? 'html' : 'sidehop',
         level: data,
         meta: {
           title: data.name || 'Sidehop Level',
@@ -196,4 +227,8 @@ export class SidehopFile {
     document.body.removeChild(a);
     setTimeout(() => URL.revokeObjectURL(url), 2000);
   }
+}
+
+if (typeof window !== 'undefined') {
+  window.SidehopFile = SidehopFile;
 }

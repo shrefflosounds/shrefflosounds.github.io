@@ -306,44 +306,191 @@ export class Player extends Entity {
       ctx.translate(-this.width / 2, -this.height);
 
       this.renderCustomOrFallback(ctx, () => {
-        // Default Sidehop Playful Mascot
-        // Body (electric cyan rounded rectangle with neo-brutalist border, or custom component color)
-        ctx.fillStyle = this.color || '#00E5FF';
-        ctx.strokeStyle = '#121212';
-        ctx.lineWidth = 3;
+        const activeTheme = (typeof window !== 'undefined' && (window.__SIDEHOP_THEME__ || window.sidehop?.currentTheme)) || 'grass';
+        const isUncanny = activeTheme === 'uncanny' || activeTheme === 'mixed';
 
-        ctx.beginPath();
-        ctx.roundRect(4, 8, this.width - 8, this.height - 14, 10);
-        ctx.fill();
-        ctx.stroke();
+        if (isUncanny) {
+          // 3D / UNCANNY REALISM HERO: Tactile 3D Red Silicone / Flesh-Vinyl Cube Creature
+          // with top horn/ear nubs, round wire-frame spectacles, and unblinking realistic human eyes!
+          // Soft 3D ground contact shadow
+          ctx.fillStyle = 'rgba(0, 0, 0, 0.34)';
+          ctx.beginPath();
+          ctx.ellipse(this.width / 2, this.height - 2, 16, 4.5, 0, 0, Math.PI * 2);
+          ctx.fill();
 
-        // Big Goofy Eyes
-        ctx.fillStyle = '#FFFFFF';
-        ctx.beginPath();
-        ctx.arc(16, 18, 6, 0, Math.PI * 2);
-        ctx.arc(28, 18, 6, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.stroke();
+          // Tiny stubby 3D crimson legs/feet
+          const legGrad = ctx.createLinearGradient(0, this.height - 9, 0, this.height);
+          legGrad.addColorStop(0, '#991B1B');
+          legGrad.addColorStop(1, '#450A0A');
+          ctx.fillStyle = legGrad;
+          ctx.beginPath();
+          ctx.roundRect(7, this.height - 8, 9, 8, 3.5);
+          ctx.roundRect(24, this.height - 8, 9, 8, 3.5);
+          ctx.fill();
 
-        // Pupils (looking forward)
-        ctx.fillStyle = '#121212';
-        ctx.beginPath();
-        ctx.arc(18, 18, 3, 0, Math.PI * 2);
-        ctx.arc(30, 18, 3, 0, Math.PI * 2);
-        ctx.fill();
+          // Top left & right 3D horn/ear nubs
+          [ [9, 6], [25, 6] ].forEach(([nx, ny]) => {
+            const nubGrad = ctx.createRadialGradient(nx + 2, ny + 1, 1, nx + 3, ny + 3, 6);
+            nubGrad.addColorStop(0, '#F87171');
+            nubGrad.addColorStop(0.55, '#DC2626');
+            nubGrad.addColorStop(1, '#7F1D1D');
+            ctx.fillStyle = nubGrad;
+            ctx.beginPath();
+            ctx.roundRect(nx, ny - 4, 6, 8, 3);
+            ctx.fill();
+          });
 
-        // Cheerful Smile
-        ctx.beginPath();
-        ctx.arc(22, 26, 6, 0.2, Math.PI - 0.2);
-        ctx.stroke();
+          // 3D Extruded Back/Side Bevel Depth of Cube
+          ctx.fillStyle = '#450A0A';
+          ctx.beginPath();
+          ctx.roundRect(2, 9, this.width - 6, this.height - 15, 7);
+          ctx.fill();
 
-        // Chunky Sneakers
-        ctx.fillStyle = '#FF3388';
-        ctx.beginPath();
-        ctx.roundRect(4, this.height - 8, 14, 8, 4);
-        ctx.roundRect(22, this.height - 8, 14, 8, 4);
-        ctx.fill();
-        ctx.stroke();
+          // Main 3D Raytraced / Subsurface-Scattered Crimson Cube Body
+          const bodyGrad = ctx.createRadialGradient(13, 14, 3, 20, 22, 24);
+          bodyGrad.addColorStop(0, this.color || '#FF6B6B');
+          bodyGrad.addColorStop(0.35, this.color || '#DC2626');
+          bodyGrad.addColorStop(0.78, '#991B1B');
+          bodyGrad.addColorStop(1, '#450A0A');
+          ctx.fillStyle = bodyGrad;
+          ctx.beginPath();
+          ctx.roundRect(4, 8, this.width - 8, this.height - 15, 7);
+          ctx.fill();
+
+          // Top 3D specular rim light & organic pore/Dimple highlights
+          const rimGrad = ctx.createLinearGradient(6, 9, 6, 15);
+          rimGrad.addColorStop(0, 'rgba(255, 255, 255, 0.52)');
+          rimGrad.addColorStop(1, 'rgba(255, 255, 255, 0)');
+          ctx.fillStyle = rimGrad;
+          ctx.beginPath();
+          ctx.roundRect(6, 9, this.width - 12, 5, 3);
+          ctx.fill();
+
+          ctx.strokeStyle = 'rgba(69, 10, 10, 0.85)';
+          ctx.lineWidth = 1.5;
+          ctx.beginPath();
+          ctx.roundRect(4, 8, this.width - 8, this.height - 15, 7);
+          ctx.stroke();
+
+          // UNCANNY REALISTIC HUMAN EYES with Sclera, Red Capillaries, Hazel/Blue Iris, Pupil & Wet Catchlight
+          const eyeCenters = [ [15, 19], [28, 19] ];
+          eyeCenters.forEach(([ex, ey]) => {
+            // Deep fleshy eye socket shadow
+            ctx.fillStyle = 'rgba(45, 5, 5, 0.65)';
+            ctx.beginPath();
+            ctx.arc(ex, ey + 0.5, 6.4, 0, Math.PI * 2);
+            ctx.fill();
+
+            // 3D Eyeball Sclera (spherical radial shading)
+            const scleraGrad = ctx.createRadialGradient(ex - 1.5, ey - 1.5, 1, ex, ey, 5.6);
+            scleraGrad.addColorStop(0, '#FFFFFF');
+            scleraGrad.addColorStop(0.7, '#F1F5F9');
+            scleraGrad.addColorStop(0.92, '#FECACA');
+            scleraGrad.addColorStop(1, '#991B1B');
+            ctx.fillStyle = scleraGrad;
+            ctx.beginPath();
+            ctx.arc(ex, ey, 5.5, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Tiny bloodshot capillary vein on outer sclera
+            ctx.strokeStyle = 'rgba(220, 38, 38, 0.45)';
+            ctx.lineWidth = 0.6;
+            ctx.beginPath();
+            ctx.moveTo(ex - 4.8, ey - 1);
+            ctx.lineTo(ex - 3.2, ey - 0.3);
+            ctx.stroke();
+
+            // Detailed Iris (icy blue-amber ring)
+            const irisGrad = ctx.createRadialGradient(ex + 1, ey, 0.5, ex + 1, ey, 3.1);
+            irisGrad.addColorStop(0, '#7DD3FC');
+            irisGrad.addColorStop(0.65, '#0284C7');
+            irisGrad.addColorStop(1, '#0F172A');
+            ctx.fillStyle = irisGrad;
+            ctx.beginPath();
+            ctx.arc(ex + 1, ey, 3.0, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Deep Black Pupil
+            ctx.fillStyle = '#020617';
+            ctx.beginPath();
+            ctx.arc(ex + 1.2, ey, 1.45, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Wet Cornea Specular Catchlights
+            ctx.fillStyle = '#FFFFFF';
+            ctx.beginPath();
+            ctx.arc(ex - 0.5, ey - 1.6, 1.25, 0, Math.PI * 2);
+            ctx.arc(ex + 2.2, ey + 1.2, 0.6, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Round Metallic Wire-Frame Spectacle Rim (from the sketches!)
+            ctx.strokeStyle = '#1E293B';
+            ctx.lineWidth = 1.6;
+            ctx.beginPath();
+            ctx.arc(ex, ey, 6.0, 0, Math.PI * 2);
+            ctx.stroke();
+            // Gold/silver wire highlight on glasses
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.65)';
+            ctx.lineWidth = 0.7;
+            ctx.beginPath();
+            ctx.arc(ex, ey, 6.0, Math.PI * 1.1, Math.PI * 1.65);
+            ctx.stroke();
+          });
+
+          // Spectacle bridge connecting the two lenses
+          ctx.strokeStyle = '#1E293B';
+          ctx.lineWidth = 1.6;
+          ctx.beginPath();
+          ctx.moveTo(21, 18.5);
+          ctx.lineTo(22, 18.5);
+          ctx.stroke();
+
+          // Uncanny subtle anatomical crease mouth
+          ctx.strokeStyle = '#450A0A';
+          ctx.lineWidth = 1.6;
+          ctx.beginPath();
+          ctx.arc(21.5, 27.5, 4.2, 0.15, Math.PI - 0.15);
+          ctx.stroke();
+        } else {
+          // Default Sidehop Playful Mascot
+          // Body (electric cyan rounded rectangle with neo-brutalist border, or custom component color)
+          ctx.fillStyle = this.color || '#00E5FF';
+          ctx.strokeStyle = '#121212';
+          ctx.lineWidth = 3;
+
+          ctx.beginPath();
+          ctx.roundRect(4, 8, this.width - 8, this.height - 14, 10);
+          ctx.fill();
+          ctx.stroke();
+
+          // Big Goofy Eyes
+          ctx.fillStyle = '#FFFFFF';
+          ctx.beginPath();
+          ctx.arc(16, 18, 6, 0, Math.PI * 2);
+          ctx.arc(28, 18, 6, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.stroke();
+
+          // Pupils (looking forward)
+          ctx.fillStyle = '#121212';
+          ctx.beginPath();
+          ctx.arc(18, 18, 3, 0, Math.PI * 2);
+          ctx.arc(30, 18, 3, 0, Math.PI * 2);
+          ctx.fill();
+
+          // Cheerful Smile
+          ctx.beginPath();
+          ctx.arc(22, 26, 6, 0.2, Math.PI - 0.2);
+          ctx.stroke();
+
+          // Chunky Sneakers
+          ctx.fillStyle = '#FF3388';
+          ctx.beginPath();
+          ctx.roundRect(4, this.height - 8, 14, 8, 4);
+          ctx.roundRect(22, this.height - 8, 14, 8, 4);
+          ctx.fill();
+          ctx.stroke();
+        }
 
         // Equipped Pistol (Kid Pix / Neo-brutalist sidearm)
         if (this.hasPistol) {
@@ -727,17 +874,18 @@ export class SolidBlock extends Entity {
           turfShadow: '#03456B',
           speckAccent: '#2DD4BF'
         };
+      case 'uncanny':
       case 'mixed':
         return {
-          theme: 'mixed',
-          dirtBase: '#D4B996',
-          speckDark: '#8C6D4F',
-          speckLight: '#FFFDF5',
-          speckMid: '#B89B74',
-          turfMain: '#E8A838',
-          turfHighlight: '#FDE68A',
-          turfShadow: '#9A5B0B',
-          speckAccent: '#EF4444'
+          theme: 'uncanny',
+          dirtBase: '#3A2314',
+          speckDark: '#1C0F07',
+          speckLight: '#8C6239',
+          speckMid: '#5C3A21',
+          turfMain: '#4D9E2A',
+          turfHighlight: '#8CE063',
+          turfShadow: '#1E4611',
+          speckAccent: '#A3E635'
         };
       case 'grass':
       default:
@@ -1659,32 +1807,96 @@ export class SolidBlock extends Entity {
         }
       }
 
-      // 3. SEMI-SOLID PLATFORM (Mario Maker Wood Boardwalk)
+      // 3. SEMI-SOLID PLATFORM (Mario Maker Wood Boardwalk / 3D Trestle Workbench)
       else if (this.variant === 'semisolid') {
-        // Wooden top deck
-        ctx.fillStyle = '#D7CCC8';
-        ctx.strokeStyle = '#121212';
-        ctx.lineWidth = 3;
-        ctx.fillRect(0, 0, this.width, 12);
-        ctx.strokeRect(0, 0, this.width, 12);
+        if (pal.theme === 'uncanny') {
+          // 3D Diorama Wooden Trestle Workbench Platform with Glowing Red LED Indicator Dots!
+          // Soft 3D cast drop shadow underneath top beam
+          ctx.fillStyle = 'rgba(0, 0, 0, 0.32)';
+          ctx.fillRect(2, 12, this.width - 2, 5);
 
-        // Support vertical pilings
-        ctx.fillStyle = '#A1887F';
-        ctx.fillRect(5, 12, 8, this.height - 12);
-        ctx.strokeRect(5, 12, 8, this.height - 12);
-        ctx.fillRect(this.width - 13, 12, 8, this.height - 12);
-        ctx.strokeRect(this.width - 13, 12, 8, this.height - 12);
+          // 3D cylindrical wooden trestle legs with shaded grain
+          const legGradL = ctx.createLinearGradient(5, 12, 13, 12);
+          legGradL.addColorStop(0, '#B4845C');
+          legGradL.addColorStop(0.5, '#7C4D2B');
+          legGradL.addColorStop(1, '#3E2211');
+          ctx.fillStyle = legGradL;
+          ctx.fillRect(5, 12, 8, this.height - 12);
 
-        // Cross timber
-        ctx.fillStyle = '#8D6E63';
-        ctx.fillRect(5, this.height - 10, this.width - 10, 6);
-        ctx.strokeRect(5, this.height - 10, this.width - 10, 6);
+          const legGradR = ctx.createLinearGradient(this.width - 13, 12, this.width - 5, 12);
+          legGradR.addColorStop(0, '#B4845C');
+          legGradR.addColorStop(0.5, '#7C4D2B');
+          legGradR.addColorStop(1, '#3E2211');
+          ctx.fillStyle = legGradR;
+          ctx.fillRect(this.width - 13, 12, 8, this.height - 12);
 
-        // Mushroom rivet
-        ctx.fillStyle = '#FF5252';
-        ctx.beginPath();
-        ctx.arc(this.width / 2, 6, 3.5, 0, Math.PI * 2);
-        ctx.fill();
+          // Cross brace timber with 3D bevel
+          const braceGrad = ctx.createLinearGradient(0, this.height - 11, 0, this.height - 4);
+          braceGrad.addColorStop(0, '#9C6B43');
+          braceGrad.addColorStop(1, '#4A2812');
+          ctx.fillStyle = braceGrad;
+          ctx.fillRect(5, this.height - 10, this.width - 10, 6);
+
+          // 3D Beveled Hardwood / Anodized Top Rail
+          const railGrad = ctx.createLinearGradient(0, 0, 0, 12);
+          railGrad.addColorStop(0, '#E6C29F');
+          railGrad.addColorStop(0.25, '#C89666');
+          railGrad.addColorStop(0.8, '#85522B');
+          railGrad.addColorStop(1, '#43230E');
+          ctx.fillStyle = railGrad;
+          ctx.beginPath();
+          ctx.roundRect(0, 0, this.width, 12, 3);
+          ctx.fill();
+          ctx.strokeStyle = '#261206';
+          ctx.lineWidth = 1.8;
+          ctx.stroke();
+
+          // 3 Glowing Red LED Indicator Lights along the top rail (from the sketches!)
+          [this.width * 0.24, this.width * 0.5, this.width * 0.76].forEach(lx => {
+            const ledGlow = ctx.createRadialGradient(lx, 6, 0.5, lx, 6, 5.5);
+            ledGlow.addColorStop(0, '#FFFFFF');
+            ledGlow.addColorStop(0.35, '#FF2A55');
+            ledGlow.addColorStop(1, 'rgba(255, 42, 85, 0)');
+            ctx.fillStyle = ledGlow;
+            ctx.beginPath();
+            ctx.arc(lx, 6, 5.5, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.fillStyle = '#EF4444';
+            ctx.beginPath();
+            ctx.arc(lx, 6, 2.5, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = '#FFFFFF';
+            ctx.beginPath();
+            ctx.arc(lx - 0.7, 5.3, 0.9, 0, Math.PI * 2);
+            ctx.fill();
+          });
+        } else {
+          // Wooden top deck
+          ctx.fillStyle = '#D7CCC8';
+          ctx.strokeStyle = '#121212';
+          ctx.lineWidth = 3;
+          ctx.fillRect(0, 0, this.width, 12);
+          ctx.strokeRect(0, 0, this.width, 12);
+
+          // Support vertical pilings
+          ctx.fillStyle = '#A1887F';
+          ctx.fillRect(5, 12, 8, this.height - 12);
+          ctx.strokeRect(5, 12, 8, this.height - 12);
+          ctx.fillRect(this.width - 13, 12, 8, this.height - 12);
+          ctx.strokeRect(this.width - 13, 12, 8, this.height - 12);
+
+          // Cross timber
+          ctx.fillStyle = '#8D6E63';
+          ctx.fillRect(5, this.height - 10, this.width - 10, 6);
+          ctx.strokeRect(5, this.height - 10, this.width - 10, 6);
+
+          // Mushroom rivet
+          ctx.fillStyle = '#FF5252';
+          ctx.beginPath();
+          ctx.arc(this.width / 2, 6, 3.5, 0, Math.PI * 2);
+          ctx.fill();
+        }
       }
 
       // 4. HALF SLAB (40×20 Stepping Stone)
@@ -1783,29 +1995,94 @@ export class SolidBlock extends Entity {
 
       // 7. DONUT LIFT (Falling Donut Platform)
       else if (this.variant === 'donut') {
-        // Strawberry donut ring
-        ctx.fillStyle = '#FF4081';
-        ctx.strokeStyle = '#121212';
-        ctx.lineWidth = 3;
-        ctx.beginPath();
-        ctx.arc(this.width / 2, this.height / 2, 18, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.stroke();
+        if (pal.theme === 'uncanny') {
+          // 3D Torus Bakery Donut with Glossy Pink Strawberry Glaze & 3D Sugar Sprinkles!
+          const cx = this.width / 2;
+          const cy = this.height / 2;
 
-        // Center donut hole
-        ctx.fillStyle = '#FFF8E1';
-        ctx.beginPath();
-        ctx.arc(this.width / 2, this.height / 2, 7, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.stroke();
+          // 3D drop shadow beneath donut
+          ctx.fillStyle = 'rgba(0, 0, 0, 0.35)';
+          ctx.beginPath();
+          ctx.arc(cx + 2, cy + 3, 18.5, 0, Math.PI * 2);
+          ctx.fill();
 
-        // Colorful sprinkles
-        ctx.fillStyle = '#FFE600';
-        ctx.fillRect(this.width / 2 - 11, this.height / 2 - 10, 4, 2);
-        ctx.fillStyle = '#00E5FF';
-        ctx.fillRect(this.width / 2 + 7, this.height / 2 - 8, 2, 4);
-        ctx.fillStyle = '#00E676';
-        ctx.fillRect(this.width / 2 - 9, this.height / 2 + 8, 4, 2);
+          // Warm golden fried dough base torus
+          const doughGrad = ctx.createRadialGradient(cx - 4, cy - 4, 5, cx, cy, 18.5);
+          doughGrad.addColorStop(0, '#FDE68A');
+          doughGrad.addColorStop(0.65, '#D97706');
+          doughGrad.addColorStop(1, '#78350F');
+          ctx.fillStyle = doughGrad;
+          ctx.beginPath();
+          ctx.arc(cx, cy, 18.5, 0, Math.PI * 2);
+          ctx.arc(cx, cy, 6.2, 0, Math.PI * 2, true);
+          ctx.fill();
+
+          // Glossy 3D Pink Strawberry Icing Glaze
+          const icingGrad = ctx.createRadialGradient(cx - 5, cy - 6, 3, cx, cy, 17);
+          icingGrad.addColorStop(0, '#FBCFE8');
+          icingGrad.addColorStop(0.35, '#F472B6');
+          icingGrad.addColorStop(0.8, '#DB2777');
+          icingGrad.addColorStop(1, '#831843');
+          ctx.fillStyle = icingGrad;
+          ctx.beginPath();
+          ctx.arc(cx, cy, 16.8, 0, Math.PI * 2);
+          ctx.arc(cx, cy, 7.2, 0, Math.PI * 2, true);
+          ctx.fill();
+
+          // Raytraced curved specular highlight ring on glaze
+          ctx.strokeStyle = 'rgba(255, 255, 255, 0.72)';
+          ctx.lineWidth = 2.4;
+          ctx.lineCap = 'round';
+          ctx.beginPath();
+          ctx.arc(cx, cy, 12.5, Math.PI * 1.12, Math.PI * 1.72);
+          ctx.stroke();
+
+          // 3D Pill Sprinkles with tiny cast shadows
+          const sprinkles = [
+            [-10, -8, 0.4, '#FEF08A'],
+            [8, -9, -0.5, '#38BDF8'],
+            [-11, 6, -0.3, '#4ADE80'],
+            [9, 7, 0.6, '#FFFFFF'],
+            [0, -12, 0.1, '#FB7185'],
+            [1, 11, -0.2, '#FACC15']
+          ];
+          sprinkles.forEach(([sx, sy, rot, sCol]) => {
+            ctx.save();
+            ctx.translate(cx + sx, cy + sy);
+            ctx.rotate(rot);
+            ctx.fillStyle = 'rgba(0,0,0,0.28)';
+            ctx.fillRect(-2.5, -0.5, 5, 2.2);
+            ctx.fillStyle = sCol;
+            ctx.beginPath();
+            ctx.roundRect(-2.5, -1, 5, 2, 1);
+            ctx.fill();
+            ctx.restore();
+          });
+        } else {
+          // Strawberry donut ring
+          ctx.fillStyle = '#FF4081';
+          ctx.strokeStyle = '#121212';
+          ctx.lineWidth = 3;
+          ctx.beginPath();
+          ctx.arc(this.width / 2, this.height / 2, 18, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.stroke();
+
+          // Center donut hole
+          ctx.fillStyle = '#FFF8E1';
+          ctx.beginPath();
+          ctx.arc(this.width / 2, this.height / 2, 7, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.stroke();
+
+          // Colorful sprinkles
+          ctx.fillStyle = '#FFE600';
+          ctx.fillRect(this.width / 2 - 11, this.height / 2 - 10, 4, 2);
+          ctx.fillStyle = '#00E5FF';
+          ctx.fillRect(this.width / 2 + 7, this.height / 2 - 8, 2, 4);
+          ctx.fillStyle = '#00E676';
+          ctx.fillRect(this.width / 2 - 9, this.height / 2 + 8, 4, 2);
+        }
       }
 
       // 8. NOTE BLOCK (Musical Super Bouncer ♪)
@@ -1835,98 +2112,197 @@ export class SolidBlock extends Entity {
       else if (this.variant === 'stone') {
         const { hasTop, hasBottom, hasLeft, hasRight, rightEnt, bottomEnt } = this.getNeighbors();
 
-        // Base fill with seamless 0.5px overlap on connecting edges
-        const xStart = hasLeft ? -0.5 : 0;
-        const yStart = hasTop ? -0.5 : 0;
-        const fillW = this.width + (hasRight ? 0.5 : 0) - xStart;
-        const fillH = this.height + (hasBottom ? 0.5 : 0) - yStart;
-        ctx.fillStyle = '#9E9E9E';
-        ctx.fillRect(xStart, yStart, fillW, fillH);
+        if (pal.theme === 'uncanny') {
+          // 3D Brushed Industrial Titanium / Steel Junction Block with Recessed Square & Hex Rivets
+          if (!hasBottom) {
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.32)';
+            ctx.fillRect(2, this.height, this.width - 2, 5);
+          }
+          const metalGrad = ctx.createLinearGradient(0, 0, this.width, this.height);
+          metalGrad.addColorStop(0, '#E2E8F0');
+          metalGrad.addColorStop(0.45, '#94A3B8');
+          metalGrad.addColorStop(0.85, '#475569');
+          metalGrad.addColorStop(1, '#1E293B');
+          ctx.fillStyle = metalGrad;
+          ctx.fillRect(0, 0, this.width, this.height);
 
-        // Chiseled highlights on top & left
-        ctx.strokeStyle = '#EEEEEE';
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        if (!hasTop) {
-          ctx.moveTo(hasLeft ? 0 : 3, 3);
-          ctx.lineTo(hasRight ? this.width : this.width - 3, 3);
-        }
-        if (!hasLeft) {
-          ctx.moveTo(3, hasTop ? 0 : 3);
-          ctx.lineTo(3, hasBottom ? this.height : this.height - 3);
-        }
-        ctx.stroke();
+          // 3D Bevel highlights & shadows
+          ctx.fillStyle = 'rgba(255, 255, 255, 0.65)';
+          ctx.fillRect(0, 0, this.width, 3);
+          ctx.fillRect(0, 0, 3, this.height);
+          ctx.fillStyle = 'rgba(15, 23, 42, 0.65)';
+          ctx.fillRect(0, this.height - 3, this.width, 3);
+          ctx.fillRect(this.width - 3, 0, 3, this.height);
 
-        // Chiseled shadows on right & bottom
-        ctx.strokeStyle = '#616161';
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        if (!hasRight) {
-          ctx.moveTo(this.width - 3, hasTop ? 0 : 3);
-          ctx.lineTo(this.width - 3, hasBottom ? this.height : this.height - 3);
-        }
-        if (!hasBottom) {
-          ctx.moveTo(hasLeft ? 0 : 3, this.height - 3);
-          ctx.lineTo(hasRight ? this.width : this.width - 3, this.height - 3);
-        }
-        ctx.stroke();
-
-        // Subtle masonry mortar seams between adjacent stone blocks
-        if (hasRight && rightEnt && !rightEnt.isSlope) {
-          ctx.strokeStyle = 'rgba(18, 18, 18, 0.28)';
+          // Recessed inner machined square panel
+          ctx.fillStyle = '#64748B';
+          ctx.fillRect(9, 9, this.width - 18, this.height - 18);
+          ctx.strokeStyle = '#1E293B';
           ctx.lineWidth = 1.5;
+          ctx.strokeRect(9, 9, this.width - 18, this.height - 18);
+          ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
+          ctx.strokeRect(10.5, 10.5, this.width - 21, this.height - 21);
+
+          // 4 Corner machined hex bolts
+          [ [5, 5], [this.width - 5, 5], [5, this.height - 5], [this.width - 5, this.height - 5] ].forEach(([bx, by]) => {
+            ctx.fillStyle = '#0F172A';
+            ctx.beginPath();
+            ctx.arc(bx + 0.5, by + 0.8, 2.2, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = '#F8FAFC';
+            ctx.beginPath();
+            ctx.arc(bx, by, 2.0, 0, Math.PI * 2);
+            ctx.fill();
+          });
+
+          ctx.strokeStyle = '#0F172A';
+          ctx.lineWidth = 1.8;
+          ctx.strokeRect(0, 0, this.width, this.height);
+        } else {
+          // Base fill with seamless 0.5px overlap on connecting edges
+          const xStart = hasLeft ? -0.5 : 0;
+          const yStart = hasTop ? -0.5 : 0;
+          const fillW = this.width + (hasRight ? 0.5 : 0) - xStart;
+          const fillH = this.height + (hasBottom ? 0.5 : 0) - yStart;
+          ctx.fillStyle = '#9E9E9E';
+          ctx.fillRect(xStart, yStart, fillW, fillH);
+
+          // Chiseled highlights on top & left
+          ctx.strokeStyle = '#EEEEEE';
+          ctx.lineWidth = 2;
           ctx.beginPath();
-          ctx.moveTo(this.width, 0); ctx.lineTo(this.width, this.height);
+          if (!hasTop) {
+            ctx.moveTo(hasLeft ? 0 : 3, 3);
+            ctx.lineTo(hasRight ? this.width : this.width - 3, 3);
+          }
+          if (!hasLeft) {
+            ctx.moveTo(3, hasTop ? 0 : 3);
+            ctx.lineTo(3, hasBottom ? this.height : this.height - 3);
+          }
+          ctx.stroke();
+
+          // Chiseled shadows on right & bottom
+          ctx.strokeStyle = '#616161';
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          if (!hasRight) {
+            ctx.moveTo(this.width - 3, hasTop ? 0 : 3);
+            ctx.lineTo(this.width - 3, hasBottom ? this.height : this.height - 3);
+          }
+          if (!hasBottom) {
+            ctx.moveTo(hasLeft ? 0 : 3, this.height - 3);
+            ctx.lineTo(hasRight ? this.width : this.width - 3, this.height - 3);
+          }
+          ctx.stroke();
+
+          // Subtle masonry mortar seams between adjacent stone blocks
+          if (hasRight && rightEnt && !rightEnt.isSlope) {
+            ctx.strokeStyle = 'rgba(18, 18, 18, 0.28)';
+            ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            ctx.moveTo(this.width, 0); ctx.lineTo(this.width, this.height);
+            ctx.stroke();
+          }
+          if (hasBottom && bottomEnt && !bottomEnt.isSlope) {
+            ctx.strokeStyle = 'rgba(18, 18, 18, 0.28)';
+            ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            ctx.moveTo(0, this.height); ctx.lineTo(this.width, this.height);
+            ctx.stroke();
+          }
+
+          // Central cross carving
+          ctx.strokeStyle = 'rgba(18, 18, 18, 0.35)';
+          ctx.lineWidth = 2;
+          ctx.strokeRect(12, 12, this.width - 24, this.height - 24);
+
+          // Outlines ONLY on exposed faces
+          ctx.strokeStyle = '#121212';
+          ctx.lineWidth = 3;
+          ctx.lineCap = 'square';
+          ctx.beginPath();
+          if (!hasTop) { ctx.moveTo(0, 0); ctx.lineTo(this.width, 0); }
+          if (!hasBottom) { ctx.moveTo(0, this.height); ctx.lineTo(this.width, this.height); }
+          if (!hasLeft) { ctx.moveTo(0, 0); ctx.lineTo(0, this.height); }
+          if (!hasRight) { ctx.moveTo(this.width, 0); ctx.lineTo(this.width, this.height); }
           ctx.stroke();
         }
-        if (hasBottom && bottomEnt && !bottomEnt.isSlope) {
-          ctx.strokeStyle = 'rgba(18, 18, 18, 0.28)';
-          ctx.lineWidth = 1.5;
-          ctx.beginPath();
-          ctx.moveTo(0, this.height); ctx.lineTo(this.width, this.height);
-          ctx.stroke();
-        }
-
-        // Central cross carving
-        ctx.strokeStyle = 'rgba(18, 18, 18, 0.35)';
-        ctx.lineWidth = 2;
-        ctx.strokeRect(12, 12, this.width - 24, this.height - 24);
-
-        // Outlines ONLY on exposed faces
-        ctx.strokeStyle = '#121212';
-        ctx.lineWidth = 3;
-        ctx.lineCap = 'square';
-        ctx.beginPath();
-        if (!hasTop) { ctx.moveTo(0, 0); ctx.lineTo(this.width, 0); }
-        if (!hasBottom) { ctx.moveTo(0, this.height); ctx.lineTo(this.width, this.height); }
-        if (!hasLeft) { ctx.moveTo(0, 0); ctx.lineTo(0, this.height); }
-        if (!hasRight) { ctx.moveTo(this.width, 0); ctx.lineTo(this.width, this.height); }
-        ctx.stroke();
       }
 
       // 10. MYSTERY QUESTION BLOCK [?]
       else if (this.variant === 'mystery') {
         if (!this.isUsed) {
-          ctx.fillStyle = '#FFE600';
-          ctx.strokeStyle = '#121212';
-          ctx.lineWidth = 3;
-          ctx.fillRect(0, 0, this.width, this.height);
-          ctx.strokeRect(0, 0, this.width, this.height);
+          if (pal.theme === 'uncanny') {
+            // 3D Beveled Amber Gold Resin / Anodized Metal Cube with Embossed [?] & Corner Screws
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.34)';
+            ctx.fillRect(3, this.height, this.width - 2, 5);
 
-          // Corner bolts
-          ctx.fillStyle = '#121212';
-          const r = 3;
-          ctx.fillRect(4, 4, r, r);
-          ctx.fillRect(this.width - 7, 4, r, r);
-          ctx.fillRect(4, this.height - 7, r, r);
-          ctx.fillRect(this.width - 7, this.height - 7, r, r);
+            const goldGrad = ctx.createLinearGradient(0, 0, this.width, this.height);
+            goldGrad.addColorStop(0, '#FEF08A');
+            goldGrad.addColorStop(0.35, '#F59E0B');
+            goldGrad.addColorStop(0.82, '#B45309');
+            goldGrad.addColorStop(1, '#78350F');
+            ctx.fillStyle = goldGrad;
+            ctx.beginPath();
+            ctx.roundRect(0, 0, this.width, this.height, 4);
+            ctx.fill();
 
-          // Question mark
-          ctx.font = '900 24px "Fredoka", sans-serif';
-          ctx.textAlign = 'center';
-          ctx.textBaseline = 'middle';
-          ctx.fillStyle = '#121212';
-          ctx.fillText('?', this.width / 2, this.height / 2 + 1);
+            // 3D Bevel Frame
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.65)';
+            ctx.fillRect(2, 2, this.width - 4, 3);
+            ctx.fillRect(2, 2, 3, this.height - 4);
+            ctx.fillStyle = 'rgba(69, 26, 3, 0.6)';
+            ctx.fillRect(2, this.height - 5, this.width - 4, 3);
+            ctx.fillRect(this.width - 5, 2, 3, this.height - 4);
+
+            // Corner recessed screw heads
+            [ [6, 6], [this.width - 6, 6], [6, this.height - 6], [this.width - 6, this.height - 6] ].forEach(([sx, sy]) => {
+              ctx.fillStyle = '#451A03';
+              ctx.beginPath();
+              ctx.arc(sx, sy, 2.3, 0, Math.PI * 2);
+              ctx.fill();
+              ctx.strokeStyle = '#FDE68A';
+              ctx.lineWidth = 0.8;
+              ctx.beginPath();
+              ctx.moveTo(sx - 1.4, sy - 1.4);
+              ctx.lineTo(sx + 1.4, sy + 1.4);
+              ctx.stroke();
+            });
+
+            // 3D Embossed '?' Symbol
+            ctx.font = '900 24px "Fredoka", sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillStyle = '#451A03';
+            ctx.fillText('?', this.width / 2 + 1.5, this.height / 2 + 2.5);
+            ctx.fillStyle = '#FFFBEB';
+            ctx.fillText('?', this.width / 2, this.height / 2 + 1);
+
+            ctx.strokeStyle = '#451A03';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(0, 0, this.width, this.height);
+          } else {
+            ctx.fillStyle = '#FFE600';
+            ctx.strokeStyle = '#121212';
+            ctx.lineWidth = 3;
+            ctx.fillRect(0, 0, this.width, this.height);
+            ctx.strokeRect(0, 0, this.width, this.height);
+
+            // Corner bolts
+            ctx.fillStyle = '#121212';
+            const r = 3;
+            ctx.fillRect(4, 4, r, r);
+            ctx.fillRect(this.width - 7, 4, r, r);
+            ctx.fillRect(4, this.height - 7, r, r);
+            ctx.fillRect(this.width - 7, this.height - 7, r, r);
+
+            // Question mark
+            ctx.font = '900 24px "Fredoka", sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillStyle = '#121212';
+            ctx.fillText('?', this.width / 2, this.height / 2 + 1);
+          }
         } else {
           // Deactivated Empty Block
           ctx.fillStyle = '#BCAAA4';
@@ -1944,94 +2320,242 @@ export class SolidBlock extends Entity {
 
       // 11. CLOUD PLATFORM
       else if (this.variant === 'cloud') {
-        ctx.fillStyle = '#FFFFFF';
-        ctx.strokeStyle = '#121212';
-        ctx.lineWidth = 3;
+        if (pal.theme === 'uncanny') {
+          // 3D Steamed White Bao Dumpling Platform with Pleated Dough Swirls & Bioluminescent Cyan/Mint Underglow!
+          const cx = this.width / 2;
 
-        ctx.beginPath();
-        ctx.arc(this.width * 0.25, 16, 11, Math.PI, Math.PI * 2);
-        ctx.arc(this.width * 0.5, 12, 13, Math.PI, Math.PI * 2);
-        ctx.arc(this.width * 0.75, 16, 11, Math.PI, Math.PI * 2);
-        ctx.lineTo(this.width, this.height - 6);
-        ctx.quadraticCurveTo(this.width / 2, this.height - 2, 0, this.height - 6);
-        ctx.closePath();
-        ctx.fill();
-        ctx.stroke();
+          // Volumetric Bioluminescent Mint/Cyan Neon Underglow (from the sketches!)
+          const underGlow = ctx.createRadialGradient(cx, this.height - 4, 2, cx, this.height - 2, 24);
+          underGlow.addColorStop(0, 'rgba(52, 211, 153, 0.95)');
+          underGlow.addColorStop(0.45, 'rgba(0, 229, 255, 0.55)');
+          underGlow.addColorStop(1, 'rgba(0, 229, 255, 0)');
+          ctx.fillStyle = underGlow;
+          ctx.fillRect(-4, this.height - 14, this.width + 8, 22);
 
-        ctx.strokeStyle = '#00E676';
-        ctx.lineWidth = 2.5;
-        ctx.beginPath();
-        ctx.moveTo(6, this.height - 6);
-        ctx.lineTo(this.width - 6, this.height - 6);
-        ctx.stroke();
+          // 3D Plump Steamed Bao Bun Body (warm subsurface dough shading)
+          const baoGrad = ctx.createRadialGradient(cx - 5, 12, 3, cx, 22, 24);
+          baoGrad.addColorStop(0, '#FFFFFF');
+          baoGrad.addColorStop(0.55, '#F8FAFC');
+          baoGrad.addColorStop(0.85, '#E2E8F0');
+          baoGrad.addColorStop(1, '#94A3B8');
+          ctx.fillStyle = baoGrad;
+
+          ctx.beginPath();
+          ctx.moveTo(3, this.height - 7);
+          ctx.quadraticCurveTo(0, 14, cx * 0.45, 9);
+          ctx.quadraticCurveTo(cx, 3, cx * 1.55, 9);
+          ctx.quadraticCurveTo(this.width, 14, this.width - 3, this.height - 7);
+          ctx.quadraticCurveTo(cx, this.height - 3, 3, this.height - 7);
+          ctx.closePath();
+          ctx.fill();
+
+          // Delicate 3D Steamed Bao Pleat Creases radiating from top apex
+          ctx.strokeStyle = 'rgba(100, 116, 139, 0.42)';
+          ctx.lineWidth = 1.3;
+          [-12, -6, 0, 6, 12].forEach(dx => {
+            ctx.beginPath();
+            ctx.moveTo(cx + dx * 0.18, 7);
+            ctx.quadraticCurveTo(cx + dx * 0.75, 14, cx + dx, 23);
+            ctx.stroke();
+          });
+
+          // Tiny top bao twist dimple
+          ctx.fillStyle = '#CBD5E1';
+          ctx.beginPath();
+          ctx.arc(cx, 7.5, 2.2, 0, Math.PI * 2);
+          ctx.fill();
+
+          // Crisp glowing mint-cyan neon light bar along bottom rim
+          ctx.strokeStyle = '#34D399';
+          ctx.lineWidth = 3;
+          ctx.beginPath();
+          ctx.moveTo(5, this.height - 6);
+          ctx.quadraticCurveTo(cx, this.height - 3, this.width - 5, this.height - 6);
+          ctx.stroke();
+          ctx.strokeStyle = '#FFFFFF';
+          ctx.lineWidth = 1.2;
+          ctx.beginPath();
+          ctx.moveTo(8, this.height - 6);
+          ctx.quadraticCurveTo(cx, this.height - 3.5, this.width - 8, this.height - 6);
+          ctx.stroke();
+        } else {
+          ctx.fillStyle = '#FFFFFF';
+          ctx.strokeStyle = '#121212';
+          ctx.lineWidth = 3;
+
+          ctx.beginPath();
+          ctx.arc(this.width * 0.25, 16, 11, Math.PI, Math.PI * 2);
+          ctx.arc(this.width * 0.5, 12, 13, Math.PI, Math.PI * 2);
+          ctx.arc(this.width * 0.75, 16, 11, Math.PI, Math.PI * 2);
+          ctx.lineTo(this.width, this.height - 6);
+          ctx.quadraticCurveTo(this.width / 2, this.height - 2, 0, this.height - 6);
+          ctx.closePath();
+          ctx.fill();
+          ctx.stroke();
+
+          ctx.strokeStyle = '#00E676';
+          ctx.lineWidth = 2.5;
+          ctx.beginPath();
+          ctx.moveTo(6, this.height - 6);
+          ctx.lineTo(this.width - 6, this.height - 6);
+          ctx.stroke();
+        }
       }
 
       // 12. ICE BLOCK
       else if (this.variant === 'ice') {
         const { hasTop, hasBottom, hasLeft, hasRight, rightEnt, bottomEnt } = this.getNeighbors();
 
-        // Base fill with seamless 0.5px overlap on connecting edges
-        const xStart = hasLeft ? -0.5 : 0;
-        const yStart = hasTop ? -0.5 : 0;
-        const fillW = this.width + (hasRight ? 0.5 : 0) - xStart;
-        const fillH = this.height + (hasBottom ? 0.5 : 0) - yStart;
-        ctx.fillStyle = this.color || '#B2EBF2';
-        ctx.fillRect(xStart, yStart, fillW, fillH);
+        if (pal.theme === 'uncanny') {
+          // 9-SLICE CONTINUOUS TRANSLUCENT GLACIAL / RAYTRACED REFRACTIVE ICE BLOCK
+          // (Zero vertical seam lines between adjacent ice blocks, internal geometric refraction lattice, trapped air bubbles & 4-point specular starbursts!)
+          const xStart = hasLeft ? -0.6 : 0;
+          const yStart = hasTop ? -0.6 : 0;
+          const fillW = this.width + (hasRight ? 0.6 : 0) - xStart;
+          const fillH = this.height + (hasBottom ? 0.6 : 0) - yStart;
 
-        // Top glossy ice sheen if not covered from above
-        if (!hasTop) {
-          ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+          if (!hasBottom) {
+            // Cyan caustic light shadow cast underneath ice shelf
+            ctx.fillStyle = 'rgba(14, 116, 144, 0.32)';
+            ctx.fillRect(xStart, this.height, fillW, 5);
+          }
+
+          // Continuous translucent cyan-blue glacial gradient
+          const iceGrad = ctx.createLinearGradient(0, 0, 0, this.height);
+          iceGrad.addColorStop(0, 'rgba(165, 243, 252, 0.90)');
+          iceGrad.addColorStop(0.45, 'rgba(56, 189, 248, 0.82)');
+          iceGrad.addColorStop(1, 'rgba(2, 132, 199, 0.88)');
+          ctx.fillStyle = iceGrad;
+          ctx.fillRect(xStart, yStart, fillW, fillH);
+
+          // Internal raytraced geometric crystal refraction facets (spanning continuously across neighbor tiles)
+          ctx.strokeStyle = 'rgba(255, 255, 255, 0.42)';
+          ctx.lineWidth = 1.4;
           ctx.beginPath();
-          const startX = hasLeft ? 0 : 4;
-          const endX = hasRight ? this.width : this.width - 4;
-          ctx.moveTo(startX, 3);
-          ctx.lineTo(endX, 3);
-          ctx.lineTo(endX - (hasRight ? 4 : 8), 11);
-          ctx.lineTo(startX + (hasLeft ? 4 : 0), 11);
-          ctx.closePath();
+          ctx.moveTo(0, 26);
+          ctx.lineTo(18, 12);
+          ctx.lineTo(this.width, 24);
+          ctx.moveTo(18, 12);
+          ctx.lineTo(28, 36);
+          ctx.stroke();
+
+          ctx.strokeStyle = 'rgba(186, 230, 253, 0.32)';
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.moveTo(6, 36);
+          ctx.lineTo(28, 20);
+          ctx.lineTo(this.width, 30);
+          ctx.stroke();
+
+          // Trapped micro air bubbles inside the glacial ice
+          const col = Math.round(this.x / 40);
+          const bShift = (col * 13) % 7;
+          ctx.fillStyle = 'rgba(255, 255, 255, 0.65)';
+          ctx.beginPath();
+          ctx.arc(10 + bShift, 22, 1.6, 0, Math.PI * 2);
+          ctx.arc(27 - bShift * 0.5, 29, 1.1, 0, Math.PI * 2);
           ctx.fill();
-        }
 
-        // Crystalline ice chevron motif in center
-        ctx.strokeStyle = 'rgba(0, 184, 212, 0.7)';
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        ctx.moveTo(8, this.height - 8);
-        ctx.lineTo(this.width / 2, this.height / 2);
-        ctx.lineTo(this.width - 8, this.height - 14);
-        ctx.stroke();
+          // Continuous glossy frost/specular top bevel cap
+          if (!hasTop) {
+            const capGrad = ctx.createLinearGradient(0, 0, 0, 10);
+            capGrad.addColorStop(0, 'rgba(255, 255, 255, 0.92)');
+            capGrad.addColorStop(1, 'rgba(255, 255, 255, 0.0)');
+            ctx.fillStyle = capGrad;
+            ctx.fillRect(xStart, 0, fillW, 10);
+          }
 
-        // Subtle internal ice facet seams between adjacent ice blocks
-        if (hasRight && rightEnt && !rightEnt.isSlope) {
-          ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
-          ctx.lineWidth = 1.5;
+          // 4-Point SGI Raytraced Specular Starburst Glint on top-left crystal facet
+          if (!hasTop && (col % 2 === 0)) {
+            const gx = 12;
+            const gy = 8;
+            ctx.fillStyle = '#FFFFFF';
+            ctx.beginPath();
+            ctx.moveTo(gx, gy - 6);
+            ctx.lineTo(gx + 1.3, gy - 1.3);
+            ctx.lineTo(gx + 6, gy);
+            ctx.lineTo(gx + 1.3, gy + 1.3);
+            ctx.lineTo(gx, gy + 6);
+            ctx.lineTo(gx - 1.3, gy + 1.3);
+            ctx.lineTo(gx - 6, gy);
+            ctx.lineTo(gx - 1.3, gy - 1.3);
+            ctx.closePath();
+            ctx.fill();
+          }
+
+          // Outer crisp refractive rim ONLY on exposed boundary edges (9-slice continuous!)
+          ctx.strokeStyle = '#0369A1';
+          ctx.lineWidth = 2;
           ctx.beginPath();
-          ctx.moveTo(this.width, 0); ctx.lineTo(this.width, this.height);
+          if (!hasTop) { ctx.moveTo(xStart, 0); ctx.lineTo(xStart + fillW, 0); }
+          if (!hasBottom) { ctx.moveTo(xStart, this.height); ctx.lineTo(xStart + fillW, this.height); }
+          if (!hasLeft) { ctx.moveTo(0, yStart); ctx.lineTo(0, yStart + fillH); }
+          if (!hasRight) { ctx.moveTo(this.width, yStart); ctx.lineTo(this.width, yStart + fillH); }
           ctx.stroke();
-          ctx.strokeStyle = 'rgba(0, 184, 212, 0.25)';
-          ctx.lineWidth = 1;
+        } else {
+          // Base fill with seamless 0.5px overlap on connecting edges
+          const xStart = hasLeft ? -0.5 : 0;
+          const yStart = hasTop ? -0.5 : 0;
+          const fillW = this.width + (hasRight ? 0.5 : 0) - xStart;
+          const fillH = this.height + (hasBottom ? 0.5 : 0) - yStart;
+          ctx.fillStyle = this.color || '#B2EBF2';
+          ctx.fillRect(xStart, yStart, fillW, fillH);
+
+          // Top glossy ice sheen if not covered from above
+          if (!hasTop) {
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+            ctx.beginPath();
+            const startX = hasLeft ? 0 : 4;
+            const endX = hasRight ? this.width : this.width - 4;
+            ctx.moveTo(startX, 3);
+            ctx.lineTo(endX, 3);
+            ctx.lineTo(endX - (hasRight ? 4 : 8), 11);
+            ctx.lineTo(startX + (hasLeft ? 4 : 0), 11);
+            ctx.closePath();
+            ctx.fill();
+          }
+
+          // Crystalline ice chevron motif in center
+          ctx.strokeStyle = 'rgba(0, 184, 212, 0.7)';
+          ctx.lineWidth = 2;
           ctx.beginPath();
-          ctx.moveTo(this.width - 1, 0); ctx.lineTo(this.width - 1, this.height);
+          ctx.moveTo(8, this.height - 8);
+          ctx.lineTo(this.width / 2, this.height / 2);
+          ctx.lineTo(this.width - 8, this.height - 14);
+          ctx.stroke();
+
+          // Subtle internal ice facet seams between adjacent ice blocks
+          if (hasRight && rightEnt && !rightEnt.isSlope) {
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
+            ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            ctx.moveTo(this.width, 0); ctx.lineTo(this.width, this.height);
+            ctx.stroke();
+            ctx.strokeStyle = 'rgba(0, 184, 212, 0.25)';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(this.width - 1, 0); ctx.lineTo(this.width - 1, this.height);
+            ctx.stroke();
+          }
+          if (hasBottom && bottomEnt && !bottomEnt.isSlope) {
+            ctx.strokeStyle = 'rgba(0, 184, 212, 0.25)';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(0, this.height); ctx.lineTo(this.width, this.height);
+            ctx.stroke();
+          }
+
+          // Outlines ONLY on exposed faces
+          ctx.strokeStyle = '#121212';
+          ctx.lineWidth = 3;
+          ctx.lineCap = 'square';
+          ctx.beginPath();
+          if (!hasTop) { ctx.moveTo(0, 0); ctx.lineTo(this.width, 0); }
+          if (!hasBottom) { ctx.moveTo(0, this.height); ctx.lineTo(this.width, this.height); }
+          if (!hasLeft) { ctx.moveTo(0, 0); ctx.lineTo(0, this.height); }
+          if (!hasRight) { ctx.moveTo(this.width, 0); ctx.lineTo(this.width, this.height); }
           ctx.stroke();
         }
-        if (hasBottom && bottomEnt && !bottomEnt.isSlope) {
-          ctx.strokeStyle = 'rgba(0, 184, 212, 0.25)';
-          ctx.lineWidth = 1;
-          ctx.beginPath();
-          ctx.moveTo(0, this.height); ctx.lineTo(this.width, this.height);
-          ctx.stroke();
-        }
-
-        // Outlines ONLY on exposed faces
-        ctx.strokeStyle = '#121212';
-        ctx.lineWidth = 3;
-        ctx.lineCap = 'square';
-        ctx.beginPath();
-        if (!hasTop) { ctx.moveTo(0, 0); ctx.lineTo(this.width, 0); }
-        if (!hasBottom) { ctx.moveTo(0, this.height); ctx.lineTo(this.width, this.height); }
-        if (!hasLeft) { ctx.moveTo(0, 0); ctx.lineTo(0, this.height); }
-        if (!hasRight) { ctx.moveTo(this.width, 0); ctx.lineTo(this.width, this.height); }
-        ctx.stroke();
       }
 
       // 13. STANDARD SOLID GROUND BLOCK (Theme-Aware: Grass, Snowy, Night, Chrome, 8-Bit, Jungle)
@@ -2163,129 +2687,53 @@ export class SolidBlock extends Entity {
           ctx.fillRect(4, 18, 3, 2);
           ctx.fillStyle = '#2DD4BF';
           ctx.fillRect(this.width - 7, 24, 3, 2);
-        } else if (pal.theme === 'mixed') {
-          // 1. Photorealistic Corrugated Cardboard Fluting Texture
-          for (let gy = 4; gy < this.height - 4; gy += 6) {
-            ctx.fillStyle = 'rgba(255, 255, 255, 0.12)';
-            ctx.fillRect(1, gy, this.width - 2, 1.5);
-            ctx.fillStyle = 'rgba(70, 45, 25, 0.15)';
-            ctx.fillRect(1, gy + 1.5, this.width - 2, 2);
+        } else if (pal.theme === 'uncanny') {
+          // 1. 3D Diorama Cast Shadow beneath exposed bottom edges
+          if (!hasBottom) {
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.36)';
+            ctx.fillRect(xStart, this.height, fillW, 6);
           }
 
-          // 2. Realistic Mixed Media Decals
-          const decalType = Math.abs(Math.floor(this.x / 40) + Math.floor(this.y / 40) * 3) % 4;
+          // 2. Geologic Loamy Soil Cross-Section Gradient
+          const soilGrad = ctx.createLinearGradient(0, 0, 0, this.height);
+          soilGrad.addColorStop(0, '#4A2C18');
+          soilGrad.addColorStop(0.55, '#341D0F');
+          soilGrad.addColorStop(1, '#1F1007');
+          ctx.fillStyle = soilGrad;
+          ctx.fillRect(xStart, yStart, fillW, fillH);
 
-          if (decalType === 0) {
-            // Decal A: Vintage Postal Cancellation Stamp
-            ctx.save();
-            ctx.translate(this.width / 2, this.height / 2 + 2);
-            ctx.rotate(-0.15);
-            ctx.strokeStyle = 'rgba(30, 41, 59, 0.45)';
-            ctx.lineWidth = 1.2;
+          // 3. Fine organic root filaments & geologic soil striations
+          ctx.strokeStyle = 'rgba(161, 98, 54, 0.35)';
+          ctx.lineWidth = 1.1;
+          ctx.beginPath();
+          ctx.moveTo(9 + speckShift, 9);
+          ctx.quadraticCurveTo(13, 18, 7 + speckShift, 28);
+          ctx.moveTo(27 - speckShift, 10);
+          ctx.quadraticCurveTo(23, 21, 30 - speckShift, 32);
+          ctx.stroke();
+
+          // 4. Embedded 3D shaded stones / pebbles in soil cross-section
+          const pebbles = [
+            [11 + speckShift, 22, 4.2, 3.0],
+            [26 - speckShift, 17, 3.5, 2.6],
+            [19, 31 - speckShift, 4.8, 3.2],
+            [32, 28, 3.0, 2.2]
+          ];
+          pebbles.forEach(([px, py, rx, ry]) => {
+            ctx.fillStyle = '#140904';
             ctx.beginPath();
-            ctx.arc(0, 0, 11, 0, Math.PI * 2);
-            ctx.stroke();
-            ctx.beginPath();
-            ctx.arc(0, 0, 8.5, 0, Math.PI * 2);
-            ctx.stroke();
-            ctx.fillStyle = 'rgba(30, 41, 59, 0.45)';
-            ctx.font = 'bold 5px ui-monospace, monospace';
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-            ctx.fillText('POST', 0, -2);
-            ctx.fillText('1994', 0, 3);
-            ctx.beginPath();
-            ctx.moveTo(11, -3); ctx.quadraticCurveTo(15, -6, 18, -3);
-            ctx.moveTo(11, 2);  ctx.quadraticCurveTo(15, -1, 18, 2);
-            ctx.stroke();
-            ctx.restore();
-          } else if (decalType === 1) {
-            // Decal B: Vintage Air Mail Chevron Decal
-            ctx.save();
-            ctx.translate(this.width / 2 - 12, this.height / 2 - 6);
-            ctx.rotate(0.08);
-            ctx.fillStyle = 'rgba(0, 0, 0, 0.18)';
-            ctx.fillRect(1, 1, 24, 14);
-            ctx.fillStyle = '#FFFDF5';
-            ctx.fillRect(0, 0, 24, 14);
-            for (let cx = 1; cx < 23; cx += 5) {
-              ctx.fillStyle = '#2563EB';
-              ctx.fillRect(cx, 0, 2, 2.5);
-              ctx.fillRect(cx + 2, 11.5, 2, 2.5);
-              ctx.fillStyle = '#DC2626';
-              ctx.fillRect(cx + 2, 0, 2, 2.5);
-              ctx.fillRect(cx, 11.5, 2, 2.5);
-            }
-            ctx.fillStyle = '#1E3A8A';
-            ctx.font = 'bold 5px "Space Grotesk", sans-serif';
-            ctx.textAlign = 'center';
-            ctx.fillText('AIR MAIL', 12, 8);
-            ctx.restore();
-          } else if (decalType === 2) {
-            // Decal C: Photorealistic Barcode & Serial Decal Sticker
-            ctx.save();
-            ctx.translate(this.width / 2 - 13, this.height / 2 - 7);
-            ctx.fillStyle = 'rgba(0, 0, 0, 0.15)';
-            ctx.fillRect(1, 1, 26, 15);
-            ctx.fillStyle = '#FFFFFF';
-            ctx.fillRect(0, 0, 26, 15);
-            ctx.fillStyle = '#111827';
-            const barPattern = [1, 2, 1, 3, 1, 1, 2, 1, 3, 1, 2];
-            let bx = 3;
-            barPattern.forEach(w => {
-              ctx.fillRect(bx, 2, w, 8);
-              bx += w + 1;
-            });
-            ctx.font = '4.5px ui-monospace, monospace';
-            ctx.textAlign = 'center';
-            ctx.fillText('SH-940', 13, 13);
-            ctx.restore();
-          } else {
-            // Decal D: Glossy Retro Vinyl Decal with peeled corner highlight
-            ctx.save();
-            ctx.translate(this.width / 2, this.height / 2 + 2);
-            ctx.rotate(-0.06);
-            ctx.fillStyle = 'rgba(0, 0, 0, 0.18)';
-            ctx.beginPath();
-            ctx.arc(1, 1, 9, 0, Math.PI * 2);
+            ctx.ellipse(px + 0.6, py + 1.0, rx, ry, 0.2, 0, Math.PI * 2);
             ctx.fill();
-            ctx.fillStyle = '#FFE600';
-            ctx.beginPath();
-            ctx.arc(0, 0, 9, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.strokeStyle = '#121212';
-            ctx.lineWidth = 1;
-            ctx.stroke();
-            ctx.fillStyle = '#121212';
-            ctx.fillRect(-4, -3, 2, 3);
-            ctx.fillRect(2, -3, 2, 3);
-            ctx.beginPath();
-            ctx.arc(0, 1, 4.5, 0.2, Math.PI - 0.2);
-            ctx.stroke();
-            ctx.fillStyle = 'rgba(255, 255, 255, 0.65)';
-            ctx.beginPath();
-            ctx.arc(0, 0, 7.5, Math.PI * 1.05, Math.PI * 1.65);
-            ctx.lineWidth = 1.8;
-            ctx.strokeStyle = 'rgba(255, 255, 255, 0.65)';
-            ctx.stroke();
-            ctx.restore();
-          }
 
-          // 3. Metallic Brass Paperclip or Industrial Staple Pin
-          if ((Math.floor(this.x / 40) + Math.floor(this.y / 40)) % 2 === 0) {
-            ctx.save();
-            ctx.translate(4, 5);
-            ctx.fillStyle = 'rgba(0, 0, 0, 0.25)';
-            ctx.fillRect(1, 1, 8, 2.5);
-            ctx.fillStyle = '#D97706';
-            ctx.fillRect(0, 0, 8, 2);
-            ctx.fillStyle = '#FDE68A';
-            ctx.fillRect(1, 0, 6, 1);
-            ctx.fillStyle = '#451A03';
-            ctx.fillRect(0, 2, 1.5, 1.5);
-            ctx.fillRect(6.5, 2, 1.5, 1.5);
-            ctx.restore();
-          }
+            const pebGrad = ctx.createRadialGradient(px - 1, py - 1, 0.5, px, py, rx);
+            pebGrad.addColorStop(0, '#A89F91');
+            pebGrad.addColorStop(0.6, '#6E6259');
+            pebGrad.addColorStop(1, '#3B312B');
+            ctx.fillStyle = pebGrad;
+            ctx.beginPath();
+            ctx.ellipse(px, py, rx, ry, 0.2, 0, Math.PI * 2);
+            ctx.fill();
+          });
         }
 
         // LUSH THEMED SURFACE CAP (ONLY ON EXPOSED TOP LAYER!)
@@ -2385,24 +2833,36 @@ export class SolidBlock extends Entity {
             ctx.fillStyle = '#2DD4BF';
             ctx.fillRect(8, 8, 3, 3);
             ctx.fillRect(24, 8, 3, 4);
-          } else if (pal.theme === 'mixed') {
-            // Authentic Photorealistic Torn Washi Tape / Masking Tape Decal
-            ctx.fillStyle = 'rgba(0, 0, 0, 0.15)';
-            ctx.fillRect(0, 9, grassW, 1.5);
-            ctx.fillStyle = 'rgba(245, 158, 11, 0.88)';
-            ctx.fillRect(0, 0, grassW, 8);
-            ctx.fillStyle = 'rgba(255, 255, 255, 0.35)';
-            ctx.fillRect(0, 1, grassW, 1.5);
-            ctx.fillStyle = 'rgba(254, 243, 199, 0.5)';
-            for (let tx = 3; tx < grassW; tx += 7) {
-              ctx.fillRect(tx, 0, 1, 8);
-            }
-            ctx.fillStyle = '#B45309';
-            ctx.fillRect(0, 7.5, grassW, 1.5);
-            ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
-            for (let px = 4; px < grassW; px += 8) {
+          } else if (pal.theme === 'uncanny') {
+            // Thick 3D Diorama Living Turf Grass Mat with Individual Blades & Cast Shadow onto Soil
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.42)';
+            ctx.fillRect(0, 9, grassW, 3);
+
+            const turfGrad = ctx.createLinearGradient(0, -2, 0, 10);
+            turfGrad.addColorStop(0, '#A3E635');
+            turfGrad.addColorStop(0.45, '#4D9E2A');
+            turfGrad.addColorStop(1, '#1E4611');
+            ctx.fillStyle = turfGrad;
+            ctx.fillRect(0, 0, grassW, 9);
+
+            // Individual 3D Grass Blades jutting above & draping over soil edge
+            for (let gx = 2; gx < grassW - 2; gx += 4) {
+              const bladeH = 3 + ((gx * 7 + col * 3) % 3);
+              ctx.fillStyle = (gx % 8 === 0) ? '#BEF264' : '#65A30D';
               ctx.beginPath();
-              ctx.arc(px, 4, 1.2, 0, Math.PI * 2);
+              ctx.moveTo(gx, 2);
+              ctx.lineTo(gx + 1.8, -bladeH);
+              ctx.lineTo(gx + 3.5, 2);
+              ctx.closePath();
+              ctx.fill();
+
+              // Overhanging turf root tuft
+              ctx.fillStyle = '#366E1D';
+              ctx.beginPath();
+              ctx.moveTo(gx, 8);
+              ctx.lineTo(gx + 2, 11 + (gx % 3));
+              ctx.lineTo(gx + 4, 8);
+              ctx.closePath();
               ctx.fill();
             }
           } else {
@@ -2544,37 +3004,114 @@ export class Springboard extends Entity {
           console.warn('Springboard custom decal draw error:', drawErr);
         }
       } else {
+        const activeTheme = (typeof window !== 'undefined' && (window.__SIDEHOP_THEME__ || window.sidehop?.currentTheme)) || 'grass';
+        const isUncanny = activeTheme === 'uncanny' || activeTheme === 'mixed';
         const springHeight = isCompressed ? this.height * 0.42 : this.height * 0.85;
         const offsetY = this.height - springHeight;
 
-        // Base plate
-        ctx.fillStyle = '#121212';
-        ctx.fillRect(2, this.height - 8, this.width - 4, 8);
+        if (isUncanny) {
+          // 3D Raytraced / Diorama Springboard: 3D Wood/Steel Base + Cylindrical Helical Steel Spring + Beveled Yellow Cushion Pad!
+          // Ground shadow
+          ctx.fillStyle = 'rgba(0, 0, 0, 0.35)';
+          ctx.fillRect(1, this.height - 2, this.width - 2, 5);
 
-        // Coil
-        ctx.strokeStyle = this.variant === 'mega' ? '#00E5FF' : '#FF3388';
-        ctx.lineWidth = this.variant === 'mega' ? 5 : 4;
-        ctx.beginPath();
-        ctx.moveTo(8, this.height - 8);
-        ctx.lineTo(this.width - 8, this.height - springHeight / 2);
-        ctx.lineTo(8, offsetY + 6);
-        ctx.stroke();
-
-        // Bouncy Top Cap
-        ctx.fillStyle = this.color || (this.variant === 'mega' ? '#FFE600' : '#00E676');
-        ctx.strokeStyle = '#121212';
-        ctx.lineWidth = 3;
-        ctx.beginPath();
-        ctx.roundRect(2, offsetY, this.width - 4, 10, 4);
-        ctx.fill();
-        ctx.stroke();
-
-        if (this.variant === 'mega') {
-          // Star badge on mega trampoline cap
-          ctx.fillStyle = '#121212';
+          // 3D Wooden / Steel Base Block
+          const baseGrad = ctx.createLinearGradient(0, this.height - 10, 0, this.height);
+          baseGrad.addColorStop(0, '#B4845C');
+          baseGrad.addColorStop(0.5, '#784824');
+          baseGrad.addColorStop(1, '#3D220E');
+          ctx.fillStyle = baseGrad;
           ctx.beginPath();
-          ctx.arc(this.width / 2, offsetY + 5, 2.5, 0, Math.PI * 2);
+          ctx.roundRect(2, this.height - 9, this.width - 4, 9, 2);
           ctx.fill();
+          ctx.strokeStyle = '#1E1107';
+          ctx.lineWidth = 1.5;
+          ctx.stroke();
+
+          // 3D Helical Chrome Coil Spring (back dark coils + front specular coils)
+          const rungs = 3;
+          const coilTop = offsetY + 8;
+          const coilBot = this.height - 9;
+          const stepY = (coilBot - coilTop) / rungs;
+
+          // Back shadow coils
+          ctx.strokeStyle = '#334155';
+          ctx.lineWidth = 4.2;
+          ctx.lineCap = 'round';
+          ctx.beginPath();
+          for (let r = 0; r < rungs; r++) {
+            const y1 = coilBot - r * stepY;
+            const y2 = y1 - stepY * 0.5;
+            ctx.moveTo(9, y1);
+            ctx.lineTo(this.width - 9, y2);
+          }
+          ctx.stroke();
+
+          // Front specular chrome coils
+          const coilGrad = ctx.createLinearGradient(8, 0, this.width - 8, 0);
+          coilGrad.addColorStop(0, '#64748B');
+          coilGrad.addColorStop(0.45, '#FFFFFF');
+          coilGrad.addColorStop(0.85, '#94A3B8');
+          coilGrad.addColorStop(1, '#1E293B');
+          ctx.strokeStyle = coilGrad;
+          ctx.lineWidth = 4.5;
+          ctx.beginPath();
+          for (let r = 0; r < rungs; r++) {
+            const y1 = coilBot - r * stepY;
+            const y2 = y1 - stepY * 0.5;
+            const y3 = y1 - stepY;
+            ctx.moveTo(this.width - 9, y2);
+            ctx.lineTo(9, y3);
+          }
+          ctx.stroke();
+
+          // 3D Beveled Golden-Yellow Cushion Pad on Top
+          const padGrad = ctx.createLinearGradient(0, offsetY, 0, offsetY + 10);
+          padGrad.addColorStop(0, '#FEF08A');
+          padGrad.addColorStop(0.35, this.color || '#FACC15');
+          padGrad.addColorStop(0.85, '#CA8A04');
+          padGrad.addColorStop(1, '#713F12');
+          ctx.fillStyle = padGrad;
+          ctx.beginPath();
+          ctx.roundRect(2, offsetY, this.width - 4, 10, 4);
+          ctx.fill();
+          ctx.strokeStyle = '#422006';
+          ctx.lineWidth = 1.6;
+          ctx.stroke();
+
+          // Top specular gleam on cushion
+          ctx.fillStyle = 'rgba(255, 255, 255, 0.65)';
+          ctx.fillRect(5, offsetY + 1.5, this.width - 10, 2);
+        } else {
+          // Base plate
+          ctx.fillStyle = '#121212';
+          ctx.fillRect(2, this.height - 8, this.width - 4, 8);
+
+          // Coil
+          ctx.strokeStyle = this.variant === 'mega' ? '#00E5FF' : '#FF3388';
+          ctx.lineWidth = this.variant === 'mega' ? 5 : 4;
+          ctx.beginPath();
+          ctx.moveTo(8, this.height - 8);
+          ctx.lineTo(this.width - 8, this.height - springHeight / 2);
+          ctx.lineTo(8, offsetY + 6);
+          ctx.stroke();
+
+          // Bouncy Top Cap
+          ctx.fillStyle = this.color || (this.variant === 'mega' ? '#FFE600' : '#00E676');
+          ctx.strokeStyle = '#121212';
+          ctx.lineWidth = 3;
+          ctx.beginPath();
+          ctx.roundRect(2, offsetY, this.width - 4, 10, 4);
+          ctx.fill();
+          ctx.stroke();
+
+          if (this.variant === 'mega') {
+            // Star badge on mega trampoline cap
+            ctx.fillStyle = '#121212';
+            ctx.beginPath();
+            ctx.arc(this.width / 2, offsetY + 5, 2.5, 0, Math.PI * 2);
+            ctx.fill();
+          }
         }
       }
     } catch (err) {
@@ -2597,7 +3134,52 @@ export class HazardSpikes extends Entity {
       ctx.translate(this.x, this.y);
 
       this.renderCustomOrFallback(ctx, () => {
-        const theme = (typeof window !== 'undefined' && window.sidehop?.currentTheme) || 'grass';
+        const theme = (typeof window !== 'undefined' && (window.__SIDEHOP_THEME__ || window.sidehop?.currentTheme)) || 'grass';
+        if (theme === 'uncanny' || theme === 'mixed') {
+          // 3D Raytraced / Machined Steel Cones with Split Light/Shadow Facets
+          const numSpikes = 3;
+          const spikeW = this.width / numSpikes;
+          for (let i = 0; i < numSpikes; i++) {
+            const sx = i * spikeW;
+            const midX = sx + spikeW / 2;
+
+            // Left sunlit metallic facet
+            const leftGrad = ctx.createLinearGradient(sx, this.height, midX, 4);
+            leftGrad.addColorStop(0, '#94A3B8');
+            leftGrad.addColorStop(0.5, '#F8FAFC');
+            leftGrad.addColorStop(1, '#FFFFFF');
+            ctx.fillStyle = leftGrad;
+            ctx.beginPath();
+            ctx.moveTo(sx, this.height);
+            ctx.lineTo(midX, 4);
+            ctx.lineTo(midX, this.height);
+            ctx.closePath();
+            ctx.fill();
+
+            // Right shaded metallic facet
+            const rightGrad = ctx.createLinearGradient(midX, 4, sx + spikeW, this.height);
+            rightGrad.addColorStop(0, '#64748B');
+            rightGrad.addColorStop(1, '#0F172A');
+            ctx.fillStyle = rightGrad;
+            ctx.beginPath();
+            ctx.moveTo(midX, 4);
+            ctx.lineTo(sx + spikeW, this.height);
+            ctx.lineTo(midX, this.height);
+            ctx.closePath();
+            ctx.fill();
+
+            // Outer contour
+            ctx.strokeStyle = '#0F172A';
+            ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            ctx.moveTo(sx, this.height);
+            ctx.lineTo(midX, 4);
+            ctx.lineTo(sx + spikeW, this.height);
+            ctx.closePath();
+            ctx.stroke();
+          }
+          return;
+        }
         let spikeFill = '#EF4444';
         if (theme === 'snowy') spikeFill = '#93C5FD'; // Icicle blue
         else if (theme === 'night') spikeFill = '#A855F7'; // Amethyst crystal
@@ -2606,7 +3188,6 @@ export class HazardSpikes extends Entity {
         else if (theme === 'jungle') spikeFill = '#B45309'; // Bamboo thorn
         else if (theme === 'neon') spikeFill = '#FF007F'; // Electric neon pink
         else if (theme === 'atlantis') spikeFill = '#06B6D4'; // Aquatic cyan
-        else if (theme === 'mixed') spikeFill = '#F43F5E'; // Collage rose
 
         ctx.fillStyle = this.color || spikeFill;
         ctx.strokeStyle = '#121212';
@@ -2728,120 +3309,318 @@ export class EnemyWalker extends Entity {
     ctx.translate(-this.width / 2, -this.height);
 
     this.renderCustomOrFallback(ctx, () => {
+      const activeTheme = (typeof window !== 'undefined' && (window.__SIDEHOP_THEME__ || window.sidehop?.currentTheme)) || 'grass';
+      const isUncanny = activeTheme === 'uncanny' || activeTheme === 'mixed';
+
+      // Helper for 3D Uncanny Realistic Human Eyes with Round Wire-Frame Spectacles
+      const drawUncannySpectacledEyes = (ey, irisColor = '#D97706') => {
+        [ [14, ey], [26, ey] ].forEach(([ex, eY]) => {
+          ctx.fillStyle = 'rgba(15, 23, 42, 0.55)';
+          ctx.beginPath();
+          ctx.arc(ex, eY + 0.5, 5.8, 0, Math.PI * 2);
+          ctx.fill();
+
+          const scleraG = ctx.createRadialGradient(ex - 1.2, eY - 1.2, 0.8, ex, eY, 5.0);
+          scleraG.addColorStop(0, '#FFFFFF');
+          scleraG.addColorStop(0.72, '#F1F5F9');
+          scleraG.addColorStop(1, '#FCA5A5');
+          ctx.fillStyle = scleraG;
+          ctx.beginPath();
+          ctx.arc(ex, eY, 4.9, 0, Math.PI * 2);
+          ctx.fill();
+
+          const irisG = ctx.createRadialGradient(ex + 0.8, eY, 0.4, ex + 0.8, eY, 2.7);
+          irisG.addColorStop(0, '#FDE047');
+          irisG.addColorStop(0.65, irisColor);
+          irisG.addColorStop(1, '#0F172A');
+          ctx.fillStyle = irisG;
+          ctx.beginPath();
+          ctx.arc(ex + 0.8, eY, 2.6, 0, Math.PI * 2);
+          ctx.fill();
+
+          ctx.fillStyle = '#020617';
+          ctx.beginPath();
+          ctx.arc(ex + 1.0, eY, 1.3, 0, Math.PI * 2);
+          ctx.fill();
+
+          ctx.fillStyle = '#FFFFFF';
+          ctx.beginPath();
+          ctx.arc(ex - 0.5, eY - 1.3, 1.1, 0, Math.PI * 2);
+          ctx.fill();
+
+          // Round metallic wire-frame spectacle rim
+          ctx.strokeStyle = '#1E293B';
+          ctx.lineWidth = 1.4;
+          ctx.beginPath();
+          ctx.arc(ex, eY, 5.3, 0, Math.PI * 2);
+          ctx.stroke();
+        });
+        // Spectacle bridge
+        ctx.strokeStyle = '#1E293B';
+        ctx.lineWidth = 1.4;
+        ctx.beginPath();
+        ctx.moveTo(19.3, ey);
+        ctx.lineTo(20.7, ey);
+        ctx.stroke();
+      };
+
       if (this.variant === 'winged') {
-        // Flyer (Golden Yellow with animated white wings)
-        const wingFlap = Math.sin(this.walkCycle * 2.5) * 8;
-        ctx.fillStyle = '#FFFFFF';
-        ctx.strokeStyle = '#121212';
-        ctx.lineWidth = 2.5;
+        if (isUncanny) {
+          // 3D Uncanny Yellow Owl Flyer Creature from the Reference Sketches!
+          // (Feathered wings, golden 3D owl body, ear tufts, round wire-frame spectacles, uncanny realistic eyes & hooked beak)
+          const wingFlap = Math.sin(this.walkCycle * 2.5) * 8;
 
-        // Left & right wings
-        ctx.beginPath();
-        ctx.ellipse(2, 14 + wingFlap, 9, 6, -0.4, 0, Math.PI * 2);
-        ctx.ellipse(this.width - 2, 14 + wingFlap, 9, 6, 0.4, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.stroke();
+          // Layered 3D Feathered Wings (left & right)
+          [ [-1, 1], [1, -1] ].forEach(([side, rotSign]) => {
+            const wx = side < 0 ? 3 : this.width - 3;
+            const wy = 15 + wingFlap;
+            const wingG = ctx.createRadialGradient(wx, wy - 2, 1, wx, wy, 12);
+            wingG.addColorStop(0, '#FFFFFF');
+            wingG.addColorStop(0.55, '#FDE68A');
+            wingG.addColorStop(1, '#B45309');
+            ctx.fillStyle = wingG;
+            ctx.strokeStyle = '#451A03';
+            ctx.lineWidth = 1.4;
+            ctx.beginPath();
+            ctx.ellipse(wx, wy, 10.5, 6.5, rotSign * -0.38, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.stroke();
 
-        // Round golden body
-        ctx.fillStyle = '#FFD54F';
-        ctx.lineWidth = 3;
-        ctx.beginPath();
-        ctx.roundRect(4, 6, this.width - 8, this.height - 10, 10);
-        ctx.fill();
-        ctx.stroke();
+            // Feather quill ridges
+            ctx.strokeStyle = 'rgba(120, 53, 15, 0.45)';
+            ctx.lineWidth = 0.9;
+            ctx.beginPath();
+            ctx.moveTo(wx - side * 3, wy);
+            ctx.lineTo(wx + side * 7, wy + 2);
+            ctx.moveTo(wx - side * 2, wy + 2);
+            ctx.lineTo(wx + side * 6, wy + 4);
+            ctx.stroke();
+          });
 
-        // Big anime eyes
-        ctx.fillStyle = '#FFFFFF';
-        ctx.beginPath();
-        ctx.arc(14, 18, 5, 0, Math.PI * 2);
-        ctx.arc(26, 18, 5, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.stroke();
+          // 3D Owl Ear Tufts on top corners
+          ctx.fillStyle = '#B45309';
+          ctx.beginPath();
+          ctx.moveTo(7, 9); ctx.lineTo(4, 2); ctx.lineTo(13, 7); ctx.closePath();
+          ctx.moveTo(this.width - 7, 9); ctx.lineTo(this.width - 4, 2); ctx.lineTo(this.width - 13, 7); ctx.closePath();
+          ctx.fill();
 
-        ctx.fillStyle = '#121212';
-        ctx.beginPath();
-        ctx.arc(15, 18, 2.5, 0, Math.PI * 2);
-        ctx.arc(27, 18, 2.5, 0, Math.PI * 2);
-        ctx.fill();
+          // 3D Spherical Golden Owl Body
+          const owlGrad = ctx.createRadialGradient(14, 12, 3, 20, 20, 20);
+          owlGrad.addColorStop(0, '#FEF08A');
+          owlGrad.addColorStop(0.42, '#F59E0B');
+          owlGrad.addColorStop(0.82, '#B45309');
+          owlGrad.addColorStop(1, '#451A03');
+          ctx.fillStyle = owlGrad;
+          ctx.beginPath();
+          ctx.roundRect(5, 6, this.width - 10, this.height - 10, 12);
+          ctx.fill();
+          ctx.strokeStyle = '#451A03';
+          ctx.lineWidth = 1.6;
+          ctx.stroke();
 
-        // Little orange beak
-        ctx.fillStyle = '#FF5722';
-        ctx.beginPath();
-        ctx.moveTo(17, 24);
-        ctx.lineTo(23, 24);
-        ctx.lineTo(20, 28);
-        ctx.closePath();
-        ctx.fill();
-        ctx.stroke();
+          // Breast feather chevrons
+          ctx.strokeStyle = 'rgba(120, 53, 15, 0.45)';
+          ctx.lineWidth = 1.1;
+          [ [14, 29], [20, 31], [26, 29] ].forEach(([fx, fy]) => {
+            ctx.beginPath();
+            ctx.arc(fx, fy, 2.5, 0.2, Math.PI - 0.2);
+            ctx.stroke();
+          });
+
+          // Uncanny realistic owl eyes with round wire-frame spectacles
+          drawUncannySpectacledEyes(17.5, '#D97706');
+
+          // 3D Curved Hooked Owl Beak
+          const beakG = ctx.createLinearGradient(17, 22, 23, 28);
+          beakG.addColorStop(0, '#FDBA74');
+          beakG.addColorStop(0.5, '#EA580C');
+          beakG.addColorStop(1, '#431407');
+          ctx.fillStyle = beakG;
+          ctx.beginPath();
+          ctx.moveTo(17, 22.5);
+          ctx.quadraticCurveTo(20, 21, 23, 22.5);
+          ctx.lineTo(20, 28.5);
+          ctx.closePath();
+          ctx.fill();
+
+          // Tiny 3D owl talons at bottom
+          ctx.fillStyle = '#D97706';
+          ctx.fillRect(11, this.height - 5, 5, 4);
+          ctx.fillRect(24, this.height - 5, 5, 4);
+        } else {
+          // Flyer (Golden Yellow with animated white wings)
+          const wingFlap = Math.sin(this.walkCycle * 2.5) * 8;
+          ctx.fillStyle = '#FFFFFF';
+          ctx.strokeStyle = '#121212';
+          ctx.lineWidth = 2.5;
+
+          // Left & right wings
+          ctx.beginPath();
+          ctx.ellipse(2, 14 + wingFlap, 9, 6, -0.4, 0, Math.PI * 2);
+          ctx.ellipse(this.width - 2, 14 + wingFlap, 9, 6, 0.4, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.stroke();
+
+          // Round golden body
+          ctx.fillStyle = '#FFD54F';
+          ctx.lineWidth = 3;
+          ctx.beginPath();
+          ctx.roundRect(4, 6, this.width - 8, this.height - 10, 10);
+          ctx.fill();
+          ctx.stroke();
+
+          // Big anime eyes
+          ctx.fillStyle = '#FFFFFF';
+          ctx.beginPath();
+          ctx.arc(14, 18, 5, 0, Math.PI * 2);
+          ctx.arc(26, 18, 5, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.stroke();
+
+          ctx.fillStyle = '#121212';
+          ctx.beginPath();
+          ctx.arc(15, 18, 2.5, 0, Math.PI * 2);
+          ctx.arc(27, 18, 2.5, 0, Math.PI * 2);
+          ctx.fill();
+
+          // Little orange beak
+          ctx.fillStyle = '#FF5722';
+          ctx.beginPath();
+          ctx.moveTo(17, 24);
+          ctx.lineTo(23, 24);
+          ctx.lineTo(20, 28);
+          ctx.closePath();
+          ctx.fill();
+          ctx.stroke();
+        }
       } else if (this.variant === 'spiky') {
-        // Spiker (Hazardous spines - cannot be stomped!)
-        // Steel Spikes on top
-        ctx.fillStyle = '#ECEFF1';
-        ctx.strokeStyle = '#121212';
-        ctx.lineWidth = 2.5;
-        ctx.beginPath();
-        ctx.moveTo(6, 12);
-        ctx.lineTo(12, 1);
-        ctx.lineTo(18, 12);
-        ctx.lineTo(24, 0);
-        ctx.lineTo(30, 12);
-        ctx.lineTo(36, 1);
-        ctx.lineTo(this.width - 6, 12);
-        ctx.closePath();
-        ctx.fill();
-        ctx.stroke();
+        if (isUncanny) {
+          // 3D Uncanny Spiker: 3D Chrome Steel Cones on Top + Crimson 3D Body + Spectacled Uncanny Eyes!
+          [11, 20, 29].forEach(sx => {
+            const spG = ctx.createLinearGradient(sx - 5, 11, sx + 5, 0);
+            spG.addColorStop(0, '#475569');
+            spG.addColorStop(0.5, '#FFFFFF');
+            spG.addColorStop(1, '#0F172A');
+            ctx.fillStyle = spG;
+            ctx.beginPath();
+            ctx.moveTo(sx - 5, 12);
+            ctx.lineTo(sx, 0);
+            ctx.lineTo(sx + 5, 12);
+            ctx.closePath();
+            ctx.fill();
+          });
 
-        // Crimson Armored Body
-        ctx.fillStyle = '#FF3B30';
-        ctx.lineWidth = 3;
-        ctx.beginPath();
-        ctx.roundRect(4, 10, this.width - 8, this.height - 14, 8);
-        ctx.fill();
-        ctx.stroke();
+          const spBodyG = ctx.createRadialGradient(14, 15, 2, 20, 22, 20);
+          spBodyG.addColorStop(0, '#F87171');
+          spBodyG.addColorStop(0.45, '#DC2626');
+          spBodyG.addColorStop(1, '#450A0A');
+          ctx.fillStyle = spBodyG;
+          ctx.beginPath();
+          ctx.roundRect(4, 10, this.width - 8, this.height - 14, 8);
+          ctx.fill();
 
-        // Glowing yellow slit eyes
-        ctx.fillStyle = '#FFE600';
-        ctx.beginPath();
-        ctx.arc(14, 21, 4, 0, Math.PI * 2);
-        ctx.arc(26, 21, 4, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.stroke();
+          drawUncannySpectacledEyes(20.5, '#EF4444');
+        } else {
+          // Spiker (Hazardous spines - cannot be stomped!)
+          // Steel Spikes on top
+          ctx.fillStyle = '#ECEFF1';
+          ctx.strokeStyle = '#121212';
+          ctx.lineWidth = 2.5;
+          ctx.beginPath();
+          ctx.moveTo(6, 12);
+          ctx.lineTo(12, 1);
+          ctx.lineTo(18, 12);
+          ctx.lineTo(24, 0);
+          ctx.lineTo(30, 12);
+          ctx.lineTo(36, 1);
+          ctx.lineTo(this.width - 6, 12);
+          ctx.closePath();
+          ctx.fill();
+          ctx.stroke();
 
-        ctx.fillStyle = '#121212';
-        ctx.fillRect(13, 19, 2.5, 4);
-        ctx.fillRect(25, 19, 2.5, 4);
+          // Crimson Armored Body
+          ctx.fillStyle = '#FF3B30';
+          ctx.lineWidth = 3;
+          ctx.beginPath();
+          ctx.roundRect(4, 10, this.width - 8, this.height - 14, 8);
+          ctx.fill();
+          ctx.stroke();
+
+          // Glowing yellow slit eyes
+          ctx.fillStyle = '#FFE600';
+          ctx.beginPath();
+          ctx.arc(14, 21, 4, 0, Math.PI * 2);
+          ctx.arc(26, 21, 4, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.stroke();
+
+          ctx.fillStyle = '#121212';
+          ctx.fillRect(13, 19, 2.5, 4);
+          ctx.fillRect(25, 19, 2.5, 4);
+        }
       } else {
-        // Standard Walker
-        ctx.fillStyle = this.color || '#B388FF'; // Lavender purple or custom component color
-        ctx.strokeStyle = '#121212';
-        ctx.lineWidth = 3;
+        if (isUncanny) {
+          // 3D Uncanny Walker Creature (3D shaded violet/flesh cube with realistic spectacled eyes)
+          ctx.fillStyle = 'rgba(0, 0, 0, 0.32)';
+          ctx.beginPath();
+          ctx.ellipse(this.width / 2, this.height - 2, 14, 3.5, 0, 0, Math.PI * 2);
+          ctx.fill();
 
-        ctx.beginPath();
-        ctx.roundRect(4, 6, this.width - 8, this.height - 10, 10);
-        ctx.fill();
-        ctx.stroke();
+          const wGrad = ctx.createRadialGradient(13, 12, 3, 20, 20, 22);
+          wGrad.addColorStop(0, this.color || '#DDD6FE');
+          wGrad.addColorStop(0.38, this.color || '#8B5CF6');
+          wGrad.addColorStop(0.82, '#4C1D95');
+          wGrad.addColorStop(1, '#1E1B4B');
+          ctx.fillStyle = wGrad;
+          ctx.beginPath();
+          ctx.roundRect(4, 6, this.width - 8, this.height - 10, 9);
+          ctx.fill();
+          ctx.strokeStyle = '#1E1B4B';
+          ctx.lineWidth = 1.6;
+          ctx.stroke();
 
-        // Grumpy Eyes
-        ctx.fillStyle = '#FFFFFF';
-        ctx.beginPath();
-        ctx.arc(14, 18, 5, 0, Math.PI * 2);
-        ctx.arc(26, 18, 5, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.stroke();
+          drawUncannySpectacledEyes(17.5, '#7C3AED');
 
-        ctx.fillStyle = '#121212';
-        ctx.beginPath();
-        ctx.arc(16, 18, 2.5, 0, Math.PI * 2);
-        ctx.arc(28, 18, 2.5, 0, Math.PI * 2);
-        ctx.fill();
+          // Uncanny realistic scowl crease
+          ctx.strokeStyle = '#1E1B4B';
+          ctx.lineWidth = 1.6;
+          ctx.beginPath();
+          ctx.moveTo(14, 27);
+          ctx.quadraticCurveTo(20, 24, 26, 27);
+          ctx.stroke();
+        } else {
+          // Standard Walker
+          ctx.fillStyle = this.color || '#B388FF'; // Lavender purple or custom component color
+          ctx.strokeStyle = '#121212';
+          ctx.lineWidth = 3;
 
-        // Zigzag Grumpy Mouth
-        ctx.beginPath();
-        ctx.moveTo(14, 27);
-        ctx.lineTo(18, 24);
-        ctx.lineTo(22, 27);
-        ctx.lineTo(26, 24);
-        ctx.stroke();
+          ctx.beginPath();
+          ctx.roundRect(4, 6, this.width - 8, this.height - 10, 10);
+          ctx.fill();
+          ctx.stroke();
+
+          // Grumpy Eyes
+          ctx.fillStyle = '#FFFFFF';
+          ctx.beginPath();
+          ctx.arc(14, 18, 5, 0, Math.PI * 2);
+          ctx.arc(26, 18, 5, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.stroke();
+
+          ctx.fillStyle = '#121212';
+          ctx.beginPath();
+          ctx.arc(16, 18, 2.5, 0, Math.PI * 2);
+          ctx.arc(28, 18, 2.5, 0, Math.PI * 2);
+          ctx.fill();
+
+          // Zigzag Grumpy Mouth
+          ctx.beginPath();
+          ctx.moveTo(14, 27);
+          ctx.lineTo(18, 24);
+          ctx.lineTo(22, 27);
+          ctx.lineTo(26, 24);
+          ctx.stroke();
+        }
       }
     });
     } catch (err) {
@@ -3150,55 +3929,150 @@ export class Collectible extends Entity {
         ctx.fillRect(4, -4, 8, 2);
         ctx.restore();
       } else if (this.variant === 'star') {
-        // Glowing Star Gem (+500 pts)
-        ctx.fillStyle = this.color || '#FFE600';
-        ctx.strokeStyle = '#121212';
-        ctx.lineWidth = 2.5;
+        const activeTheme = (typeof window !== 'undefined' && (window.__SIDEHOP_THEME__ || window.sidehop?.currentTheme)) || 'grass';
+        const isUncanny = activeTheme === 'uncanny' || activeTheme === 'mixed';
+        const cx = this.width / 2;
+        const cy = this.height / 2;
+
+        if (isUncanny) {
+          // 3D Raytraced Faceted Gold Star with Volumetric Bloom & 4-Point Lens Flare (from the sketches!)
+          const bloom = ctx.createRadialGradient(cx, cy, 2, cx, cy, 22);
+          bloom.addColorStop(0, 'rgba(255, 251, 235, 0.95)');
+          bloom.addColorStop(0.4, 'rgba(250, 204, 21, 0.55)');
+          bloom.addColorStop(1, 'rgba(245, 158, 11, 0)');
+          ctx.fillStyle = bloom;
+          ctx.beginPath();
+          ctx.arc(cx, cy, 22, 0, Math.PI * 2);
+          ctx.fill();
+
+          const starG = ctx.createLinearGradient(0, 0, this.width, this.height);
+          starG.addColorStop(0, '#FFFFFF');
+          starG.addColorStop(0.28, '#FEF08A');
+          starG.addColorStop(0.65, '#F59E0B');
+          starG.addColorStop(1, '#78350F');
+          ctx.fillStyle = starG;
+          ctx.strokeStyle = '#78350F';
+          ctx.lineWidth = 1.6;
+        } else {
+          // Glowing Star Gem (+500 pts)
+          ctx.fillStyle = this.color || '#FFE600';
+          ctx.strokeStyle = '#121212';
+          ctx.lineWidth = 2.5;
+        }
 
         // Radiant 5-point star
         ctx.beginPath();
         for (let i = 0; i < 5; i++) {
           ctx.lineTo(
-            this.width / 2 + Math.cos((18 + i * 72) * Math.PI / 180) * (this.width / 2 - 2),
-            this.height / 2 - Math.sin((18 + i * 72) * Math.PI / 180) * (this.height / 2 - 2)
+            cx + Math.cos((18 + i * 72) * Math.PI / 180) * (this.width / 2 - 2),
+            cy - Math.sin((18 + i * 72) * Math.PI / 180) * (this.height / 2 - 2)
           );
           ctx.lineTo(
-            this.width / 2 + Math.cos((54 + i * 72) * Math.PI / 180) * (this.width / 4),
-            this.height / 2 - Math.sin((54 + i * 72) * Math.PI / 180) * (this.height / 4)
+            cx + Math.cos((54 + i * 72) * Math.PI / 180) * (this.width / 4),
+            cy - Math.sin((54 + i * 72) * Math.PI / 180) * (this.height / 4)
           );
         }
         ctx.closePath();
         ctx.fill();
         ctx.stroke();
 
-        // Cute smiling eyes
-        ctx.fillStyle = '#121212';
-        ctx.beginPath();
-        ctx.arc(this.width / 2 - 3.5, this.height / 2 - 1, 1.8, 0, Math.PI * 2);
-        ctx.arc(this.width / 2 + 3.5, this.height / 2 - 1, 1.8, 0, Math.PI * 2);
-        ctx.fill();
+        if (isUncanny) {
+          // Internal 3D facet ridge lines to center apex
+          ctx.strokeStyle = 'rgba(255, 255, 255, 0.65)';
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          for (let i = 0; i < 5; i++) {
+            ctx.moveTo(cx, cy);
+            ctx.lineTo(
+              cx + Math.cos((18 + i * 72) * Math.PI / 180) * (this.width / 2 - 2),
+              cy - Math.sin((18 + i * 72) * Math.PI / 180) * (this.height / 2 - 2)
+            );
+          }
+          ctx.stroke();
+
+          // 4-point raytraced specular lens flare
+          ctx.fillStyle = '#FFFFFF';
+          ctx.fillRect(cx - 10, cy - 5, 8, 1.5);
+          ctx.fillRect(cx - 6.75, cy - 8.25, 1.5, 8);
+        } else {
+          // Cute smiling eyes
+          ctx.fillStyle = '#121212';
+          ctx.beginPath();
+          ctx.arc(cx - 3.5, cy - 1, 1.8, 0, Math.PI * 2);
+          ctx.arc(cx + 3.5, cy - 1, 1.8, 0, Math.PI * 2);
+          ctx.fill();
+        }
       } else {
         // Golden Coin (+100 pts)
+        const activeTheme = (typeof window !== 'undefined' && (window.__SIDEHOP_THEME__ || window.sidehop?.currentTheme)) || 'grass';
+        const isUncanny = activeTheme === 'uncanny' || activeTheme === 'mixed';
         const spin = Math.abs(Math.sin(this.bobTimer));
-        ctx.translate(this.width / 2, this.height / 2);
+        const cx = this.width / 2;
+        const cy = this.height / 2;
+
+        if (isUncanny) {
+          // Soft golden volumetric glow halo
+          const coinGlow = ctx.createRadialGradient(cx, cy, 2, cx, cy, 19);
+          coinGlow.addColorStop(0, 'rgba(253, 224, 71, 0.55)');
+          coinGlow.addColorStop(1, 'rgba(253, 224, 71, 0)');
+          ctx.fillStyle = coinGlow;
+          ctx.beginPath();
+          ctx.arc(cx, cy, 19, 0, Math.PI * 2);
+          ctx.fill();
+        }
+
+        ctx.translate(cx, cy);
         ctx.scale(Math.max(0.25, spin), 1);
-        ctx.translate(-this.width / 2, -this.height / 2);
+        ctx.translate(-cx, -cy);
 
-        ctx.fillStyle = this.color || '#FFE600';
-        ctx.strokeStyle = '#121212';
-        ctx.lineWidth = 3;
+        if (isUncanny) {
+          // 3D Raytraced Metallic Gold Coin with Specular Anisotropic Sheen & Embossed Rim
+          // 3D Coin Edge Thickness
+          ctx.fillStyle = '#78350F';
+          ctx.beginPath();
+          ctx.arc(cx + 2, cy + 1, cx - 2, 0, Math.PI * 2);
+          ctx.fill();
 
-        ctx.beginPath();
-        ctx.arc(this.width / 2, this.height / 2, this.width / 2 - 2, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.stroke();
+          const coinGrad = ctx.createLinearGradient(0, 0, this.width, this.height);
+          coinGrad.addColorStop(0, '#FFFFFF');
+          coinGrad.addColorStop(0.25, '#FEF08A');
+          coinGrad.addColorStop(0.55, '#F59E0B');
+          coinGrad.addColorStop(0.85, '#B45309');
+          coinGrad.addColorStop(1, '#78350F');
+          ctx.fillStyle = coinGrad;
+          ctx.strokeStyle = '#78350F';
+          ctx.lineWidth = 1.8;
 
-        // Inner coin rim
-        ctx.strokeStyle = '#D87A24';
-        ctx.lineWidth = 1.5;
-        ctx.beginPath();
-        ctx.arc(this.width / 2, this.height / 2, this.width / 3.2, 0, Math.PI * 2);
-        ctx.stroke();
+          ctx.beginPath();
+          ctx.arc(cx, cy, cx - 2, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.stroke();
+
+          // Recessed inner coin face & vertical embossed bar
+          ctx.strokeStyle = '#FFFBEB';
+          ctx.lineWidth = 1.4;
+          ctx.beginPath();
+          ctx.arc(cx, cy, cx / 1.55, 0, Math.PI * 2);
+          ctx.stroke();
+          ctx.fillStyle = '#FFFBEB';
+          ctx.fillRect(cx - 1.5, cy - 5, 3, 10);
+        } else {
+          ctx.fillStyle = this.color || '#FFE600';
+          ctx.strokeStyle = '#121212';
+          ctx.lineWidth = 3;
+
+          ctx.beginPath();
+          ctx.arc(cx, cy, cx - 2, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.stroke();
+
+          // Inner coin rim
+          ctx.strokeStyle = '#D87A24';
+          ctx.lineWidth = 1.5;
+          ctx.beginPath();
+          ctx.arc(cx, cy, this.width / 3.2, 0, Math.PI * 2);
+          ctx.stroke();
+        }
       }
     });
     } catch (err) {

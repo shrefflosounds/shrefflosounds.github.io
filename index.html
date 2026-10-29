@@ -12,7 +12,7 @@
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="apple-touch-icon" href="icon-180.png">
   <meta name="theme-color" content="#FFE600">
-  <link rel="stylesheet" href="css/style.css?v=20261028_085918">
+  <link rel="stylesheet" href="css/style.css?v=20261028_204423">
 </head>
 <body>
 
@@ -368,121 +368,157 @@
 
   <!-- TOP NEO-BRUTALIST HEADER -->
   <header class="neo-header">
-    <div class="logo-group">
+    <div id="header-logo-home" class="logo-group" role="button" tabindex="0" title="Return to Sidehop Landing Page">
       <img src="assets/logo.png" alt="Sidehop Logo" class="header-logo-img">
       <h1 class="logo-title">Sidehop</h1>
     </div>
 
     <div class="header-controls">
-      <!-- Main Mode Switch Button -->
+      <!-- 1. Play test -->
       <button id="mode-toggle-btn" class="neo-btn neo-btn-primary" title="Press Space to toggle mode">
         <span id="mode-icon">▶</span>
         <span id="mode-text">PLAY TEST</span>
       </button>
 
-      <!-- Landing Page & Creator Bio Button -->
-      <button id="landing-toggle-btn" class="neo-btn neo-btn-cyan" title="Landing Page, Bio &amp; About">
-        <span>🏠 Home &amp; Bio</span>
-      </button>
-
-      <!-- Searchable Help & About Modals -->
-      <button id="help-modal-btn" class="neo-btn" title="Searchable Help and Controls (H)">
-        <span>❓ Help</span>
-      </button>
-      <button id="about-modal-btn" class="neo-btn" title="About Sidehop">
-        <span>ℹ️ About</span>
-      </button>
-      <button id="demo-btn" class="neo-btn neo-btn-accent" title="Watch interactive guided demo tour">
-        <span>🎬 Demo</span>
-      </button>
-
-      <!-- Stretch Frame Button (Visible in both Edit and Play Modes) -->
-      <button id="stretch-frame-btn" class="neo-btn neo-btn-accent" title="Expand canvas to fill available screen">
-        <span id="stretch-frame-icon">⤢</span>
-        <span id="stretch-frame-text">FILL</span>
-      </button>
-
-      <!-- Theme Selector Button -->
-      <button id="theme-selector-btn" class="neo-btn" title="Choose Theme (Environment &amp; Blocks)">
-        <span id="theme-icon">🎨</span>
-        <span id="theme-label">Theme ▾</span>
-      </button>
-
-      <!-- Video Recording Button -->
+      <!-- 2. Record -->
       <button id="rec-btn" class="neo-btn neo-btn-rec" title="Record gameplay clip">
         <span id="rec-icon">●</span>
         <span id="rec-text">REC</span>
         <span id="rec-timer" style="font-size: 12px; margin-left: 4px;">00:00</span>
       </button>
 
-      <!-- Sound FX Toggle -->
-      <button id="sound-toggle-btn" class="neo-btn" title="Toggle Sound FX">
-        <span id="sound-icon">🔊</span>
-      </button>
-
-      <!-- Quick Undo / Redo -->
+      <!-- 3. Undo -->
       <button id="undo-btn" class="neo-btn" title="Undo (⌘Z / Ctrl+Z)" disabled>
         <span>↩ Undo</span>
       </button>
+
+      <!-- 4. Redo -->
       <button id="redo-btn" class="neo-btn" title="Redo (⌘⇧Z / Ctrl+Y)" disabled>
         <span>↪ Redo</span>
       </button>
 
-      <!-- Background Customizer -->
-      <button id="bg-modal-btn" class="neo-btn" title="Change Level Background">
-        <span>🌄 Background</span>
-      </button>
-
-      <!-- Character Customizer -->
+      <!-- 5. Character -->
       <button id="character-edit-btn" class="neo-btn neo-btn-accent" title="Edit Character (Draw, Paint, or Import Sprite)">
         <span>🐰 Character</span>
       </button>
 
-      <!-- Level Management -->
+      <!-- 6. Themes -->
+      <button id="theme-selector-btn" class="neo-btn" title="Choose Theme (Environment &amp; Blocks)">
+        <span id="theme-icon">🎨</span>
+        <span id="theme-label">Themes ▾</span>
+      </button>
+
+      <!-- 7. Background -->
+      <button id="bg-modal-btn" class="neo-btn" title="Change Level Background">
+        <span>🌄 Background</span>
+      </button>
+
+      <!-- 8. Import (.sidehop editable project or standalone .html game) -->
+      <button id="import-level-btn" class="neo-btn" title="Import .sidehop editable project or standalone .html game file">
+        <span>📂 Import (.sidehop / HTML)</span>
+      </button>
+      <input type="file" id="import-file-input" accept=".sidehop,.html,.htm,.json" style="display: none;">
+
+      <!-- 9. Export Drawer Button -->
+      <button id="export-drawer-btn" class="neo-btn neo-btn-cyan" title="Export as .sidehop editable project or finalized HTML game">
+        <span>EXPORT (.sidehop / HTML) ▾</span>
+      </button>
+
+      <!-- 10. Help Drawer Button (Controls, Demo, About) -->
+      <button id="help-drawer-btn" class="neo-btn" title="Help Menu: Controls, Guided Demo &amp; About">
+        <span>❓ Help ▾</span>
+      </button>
+
+      <!-- 11. Reset -->
       <button id="load-preset-btn" class="neo-btn neo-btn-accent" title="Reset level to default layout">
         <span>🔄 Reset</span>
       </button>
-      <button id="export-level-btn" class="neo-btn" title="Save level as .sidehop file">
-        <span>💾 .sidehop</span>
+
+      <!-- 12. Home & Bio -->
+      <button id="landing-toggle-btn" class="neo-btn neo-btn-cyan" title="Landing Page, Bio &amp; About">
+        <span>🏠 Home &amp; Bio</span>
       </button>
-      <button id="export-html-btn" class="neo-btn neo-btn-cyan" title="Export as HTML web game">
-        <span>🌐 Save HTML</span>
+    </div>
+
+    <!-- EXPORT HEADER DRAWER MENU -->
+    <div id="export-drawer-menu" class="header-drawer-menu" style="display: none;">
+      <button id="export-level-btn" class="header-drawer-item" title="Save editable .sidehop project file">
+        <span class="drawer-item-icon">💾</span>
+        <span class="drawer-item-text">
+          <strong>.sidehop Project</strong>
+          <small>(Editable Project)</small>
+        </span>
       </button>
-      <button id="import-level-btn" class="neo-btn" title="Load .sidehop file">
-        <span>📂 Import</span>
+      <button id="export-html-btn" class="header-drawer-item" title="Export standalone playable HTML game">
+        <span class="drawer-item-icon">🌐</span>
+        <span class="drawer-item-text">
+          <strong>HTML Game</strong>
+          <small>(Finished Standalone Game)</small>
+        </span>
       </button>
-      <input type="file" id="import-file-input" accept=".sidehop,.json" style="display: none;">
+    </div>
+
+    <!-- HELP HEADER DRAWER MENU -->
+    <div id="help-drawer-menu" class="header-drawer-menu" style="display: none;">
+      <button id="help-modal-btn" class="header-drawer-item" title="Keyboard &amp; Mouse Controls + Searchable Help (H)">
+        <span class="drawer-item-icon">⌨️</span>
+        <span class="drawer-item-text">
+          <strong>Controls</strong>
+          <small>Shortcuts &amp; Searchable Guide</small>
+        </span>
+      </button>
+      <button id="demo-btn" class="header-drawer-item" title="Watch interactive guided demo tour">
+        <span class="drawer-item-icon">🎬</span>
+        <span class="drawer-item-text">
+          <strong>Demo</strong>
+          <small>Interactive Guided Tour</small>
+        </span>
+      </button>
+      <button id="about-modal-btn" class="header-drawer-item" title="About Sidehop &amp; Credits">
+        <span class="drawer-item-icon">ℹ️</span>
+        <span class="drawer-item-text">
+          <strong>About</strong>
+          <small>Overview, Engine &amp; Credits</small>
+        </span>
+      </button>
     </div>
   </header>
 
   <!-- MAIN WORKBENCH -->
   <main class="workbench-container">
 
-    <!-- LEFT TOOL DRAWER (PALETTE) -->
-    <aside id="tool-drawer" class="tool-drawer">
-      <div class="drawer-title">Tools</div>
-      <div class="palette-grid">
-        <button class="palette-item active" data-tool="select" title="Select, Move & Inspect (1)">
-          <span class="palette-icon">👆</span>
-          <span>Select</span>
+    <!-- LEFT SIDEBAR COLUMN (UNBOXED SYMBOLS + COMPONENTS/TOOLS MENU BOX) -->
+    <div id="left-sidebar-column" class="left-sidebar-column">
+      <div class="drawer-top-symbols">
+        <button id="sound-toggle-btn" class="unboxed-symbol-btn" title="Toggle Sound FX (Mute / Unmute)">
+          <span id="sound-icon">🔊</span>
         </button>
-        <button class="palette-item" data-tool="boxselect" title="Drag & Select Multiple (5 / Shift+Drag)">
-          <span class="palette-icon">⬚</span>
-          <span>Box Select</span>
-        </button>
-        <button class="palette-item" data-tool="place" title="Place Components (2)">
-          <span class="palette-icon">🖌️</span>
-          <span>Place</span>
-        </button>
-        <button class="palette-item" data-tool="pan" title="Pan Map (3 / Hold Spacebar & Drag)">
-          <span class="palette-icon">✋</span>
-          <span>Pan</span>
-        </button>
-        <button class="palette-item" data-tool="erase" title="Erase Placed Items (4)">
-          <span class="palette-icon">🧹</span>
-          <span>Eraser</span>
+        <button id="stretch-frame-btn" class="unboxed-symbol-btn" title="Toggle Fullscreen / Fill Screen">
+          <span id="stretch-frame-icon">⛶</span>
         </button>
       </div>
+
+      <!-- LEFT TOOL DRAWER (PALETTE) -->
+      <aside id="tool-drawer" class="tool-drawer">
+        <div class="drawer-title">Tools</div>
+        <div class="palette-grid">
+          <button class="palette-item active" data-tool="select" title="Select, Move, Pan &amp; Inspect (1)">
+            <span class="palette-icon">👆</span>
+            <span>Select/Move</span>
+          </button>
+          <button class="palette-item" data-tool="boxselect" title="Drag &amp; Select Multiple (4 / Shift+Drag)">
+            <span class="palette-icon">⬚</span>
+            <span>Box Select</span>
+          </button>
+          <button class="palette-item" data-tool="place" title="Place Components (2)">
+            <span class="palette-icon">🖌️</span>
+            <span>Place</span>
+          </button>
+          <button class="palette-item" data-tool="erase" title="Erase Placed Items (3)">
+            <span class="palette-icon">🧹</span>
+            <span>Eraser</span>
+          </button>
+        </div>
 
       <div class="drawer-title" style="margin-top: 8px;">Components</div>
       <div class="palette-grid">
@@ -546,27 +582,8 @@
           </button>
         </div>
       </div>
-
-      <details class="drawer-tips" style="margin-top: 10px;">
-        <summary>Controls</summary>
-        <div class="drawer-tips-content">
-          • ▶ [Space] Play/Edit<br>
-          • [1-5] Tools<br>
-          • [B] Block<br>
-          • [S] Spring<br>
-          • [E] Enemy<br>
-          • [C] Coin/Star<br>
-          • [H] Spike<br>
-          • [M] Moving Plat<br>
-          • [G] Goal<br>
-          • [P] Spawn<br>
-          • [F/X] Shoot Gun<br>
-          • [R] Record<br>
-          • [⌘Z] Undo<br>
-          • [H] Help Menu
-        </div>
-      </details>
-    </aside>
+      </aside>
+    </div>
 
     <!-- CENTER CANVAS STAGE -->
     <section id="canvas-wrapper" class="canvas-wrapper">
@@ -583,18 +600,18 @@
       <div id="progress" class="stage-progress"></div>
       <canvas id="game-canvas" width="960" height="540"></canvas>
 
-      <!-- Drag & Drop .sidehop File Overlay -->
+      <!-- Drag & Drop .sidehop / .html File Overlay -->
       <div id="drag-drop-overlay" class="drag-drop-overlay" style="display: none;">
         <div class="drag-drop-card">
           <div class="drag-drop-icon">📦 🚀</div>
-          <div class="drag-drop-title">DROP .SIDEHOP FILE</div>
-          <div class="drag-drop-sub">Release to load level!</div>
+          <div class="drag-drop-title">DROP .SIDEHOP OR .HTML FILE</div>
+          <div class="drag-drop-sub">Release to load editable project or standalone HTML game!</div>
         </div>
       </div>
 
       <!-- Floating Stretch Frame Button (Visible in Play Mode) -->
-      <button id="stage-stretch-btn" class="stage-stretch-btn" title="Stretch frame to fit screen minus header" style="display: none;">
-        <span>⤢</span>
+      <button id="stage-stretch-btn" class="stage-stretch-btn" title="Toggle Fullscreen / Fill Screen" style="display: none;">
+        <span>⛶</span>
       </button>
 
       <!-- Floating Action Card for Selected Entity (Guaranteed In-Frame) -->
@@ -929,13 +946,26 @@
     </div>
   </div>
 
-  <!-- SEARCHABLE HELP DIALOG -->
-  <dialog id="help" class="neo-dialog">
+  <!-- SEARCHABLE HELP & CONTROLS DIALOG -->
+  <dialog id="help" class="neo-dialog" style="max-width: 580px;">
     <div class="neo-dialog-header">
-      <span class="neo-dialog-title">❓ Help &amp; Controls</span>
-      <button id="help-close-btn" class="neo-dialog-close" title="Close Help">&times;</button>
+      <span class="neo-dialog-title">⌨️ Controls &amp; Searchable Help</span>
+      <button id="help-close-btn" class="neo-dialog-close" title="Close Controls &amp; Help">&times;</button>
     </div>
     <div class="neo-dialog-body">
+      <div class="controls-quick-summary" style="background: var(--bg-cream); border: 2px solid var(--border-color); border-radius: 10px; padding: 10px 12px; margin-bottom: 12px; font-size: 12px; line-height: 1.5; color: var(--ink-black);">
+        <div style="font-weight: 800; text-transform: uppercase; font-size: 11px; margin-bottom: 4px; opacity: 0.85;">Quick Keyboard &amp; Mouse Shortcuts</div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 4px 12px;">
+          <span>• <strong>[Space]</strong> Play / Edit Mode</span>
+          <span>• <strong>[WASD / Arrows]</strong> Move / Pan</span>
+          <span>• <strong>[1-4]</strong> Select/Move, Place, Erase, Box</span>
+          <span>• <strong>[F / X / Click]</strong> Shoot Gun</span>
+          <span>• <strong>[B / S / E / C]</strong> Block, Spring, Enemy, Coin</span>
+          <span>• <strong>[H / M / G / P]</strong> Spike, Plat, Goal, Spawn</span>
+          <span>• <strong>[⌘Z / ⌘⇧Z]</strong> Undo / Redo</span>
+          <span>• <strong>[R]</strong> Record Clip &bull; <strong>[H]</strong> Controls</span>
+        </div>
+      </div>
       <input type="text" id="help-search" class="help-search-input" placeholder="Search controls, tools, shortcuts (e.g. &quot;play&quot;, &quot;jump&quot;, &quot;undo&quot;)...">
       <div id="help-list" class="help-list"></div>
     </div>
@@ -969,6 +999,17 @@
         <div class="about-section">
           <strong>Raison d'Être:</strong><br>
           <em>Sidehop exists because building and playing your own video games should feel as immediate, tactile, and expressive as finger painting on drafting paper.</em>
+        </div>
+        <div class="about-credit-card">
+          <div class="about-credit-title">
+            <span>Dual Project &amp; Game Format (.sidehop &amp; HTML)</span>
+            <span class="about-credit-role">Import &amp; Export</span>
+          </div>
+          <p class="about-credit-desc">
+            Sidehop's <strong>Import</strong> and <strong>Export</strong> tools support two interchangeable formats:<br>
+            &bull; <strong>.sidehop (Editable Project):</strong> Saves your work-in-progress level, custom artwork, physics settings, and theme so you can continue editing anytime.<br>
+            &bull; <strong>Standalone .html (Finished Game):</strong> Exports a complete, single-file playable HTML web game featuring the exact Sidehop engine, level, custom assets, and theme—intended for sharing or publishing a finished project, while still being 100% re-importable back into Sidehop!
+          </p>
         </div>
         <div class="about-credit-card">
           <div class="about-credit-title">
@@ -1075,11 +1116,11 @@
         </div>
         <div class="about-credit-card">
           <div class="about-credit-title">
-            <span>Standalone Single-File Web Export</span>
+            <span>Round-Trip .sidehop &amp; Standalone HTML Export/Import</span>
             <span class="about-credit-role">Open Architecture</span>
           </div>
           <p class="about-credit-desc">
-            Exports self-contained HTML files with embedded level data, custom painted visuals, and physics configs that run entirely offline in any modern web browser with zero external dependencies.
+            Exports both editable <strong>.sidehop</strong> project files and standalone single-file <strong>.html</strong> web games with the exact Sidehop engine, level layout, custom painted visuals, theme, and physics baked in. Both <strong>.sidehop</strong> projects and exported <strong>.html</strong> games can be imported back into Sidehop at any time.
           </p>
         </div>
         <div class="about-credit-card">
@@ -1119,7 +1160,7 @@
             <span class="about-credit-role">Visual Design System</span>
           </div>
           <p class="about-credit-desc">
-            Refined high-contrast ink borders (#1E293B), tactile compressed drop shadows, and eye-friendly themed palettes (Meadows, Tundra, Nightlife, Chrome, 8-Bit, Jungle, Neon over Black, Atlantis Underwater, and Mixed Media).
+            Refined high-contrast ink borders (#1E293B), tactile compressed drop shadows, and eye-friendly themed palettes (Meadows, Tundra, Nightlife, Chrome, 8-Bit, Jungle, Neon over Black, Atlantis Underwater, and 3D / Uncanny Realism).
           </p>
         </div>
         <div class="about-credit-card">
@@ -1233,12 +1274,12 @@
           <div class="theme-name">Atlantis Underwater</div>
           <div class="theme-sub">Deep sea ocean floor, coral &amp; aquatic light</div>
         </div>
-        <div class="theme-card" data-theme="mixed">
-          <div class="theme-preview" style="background: linear-gradient(180deg, #FDE68A, #F59E0B);">
-            <span class="theme-emoji">🎨</span>
+        <div class="theme-card" data-theme="uncanny">
+          <div class="theme-preview" style="background: linear-gradient(180deg, #2D75B8 0%, #7BB8EA 62%, #4E9A2F 100%);">
+            <span class="theme-emoji">👁️</span>
           </div>
-          <div class="theme-name">Mixed Media</div>
-          <div class="theme-sub">Collage textures, newsprint &amp; vibrant pastels</div>
+          <div class="theme-name">3D / Uncanny Realism</div>
+          <div class="theme-sub">Raytraced 3D diorama, uncanny eyes, refractive ice &amp; bao clouds</div>
         </div>
       </div>
     </div>
@@ -1283,11 +1324,10 @@
     // Searchable Help Database
     const HELP_ENTRIES = [
       { title: "Play / Test Mode", body: "Toggle between Edit workbench and live playable arcade mode.", control: "#mode-toggle-btn", keys: "Space / ▶" },
-      { title: "Select & Inspect Tool", body: "Select placed items to move, paint art, or tune physics.", control: '[data-tool="select"]', keys: "1" },
+      { title: "Select/Move Tool (and Pan)", body: "Select placed items to move, paint art, or tune physics. Drag empty space to pan around the level.", control: '[data-tool="select"]', keys: "1 / Space+Drag" },
       { title: "Place Tool", body: "Stamp the currently chosen component onto the grid.", control: '[data-tool="place"]', keys: "2" },
-      { title: "Pan Stage", body: "Drag to move around the level canvas without placing blocks.", control: '[data-tool="pan"]', keys: "3 / Space+Drag" },
-      { title: "Erase Tool", body: "Click or drag across placed components to remove them.", control: '[data-tool="erase"]', keys: "4" },
-      { title: "Box Select", body: "Drag a box to select multiple components at once.", control: '[data-tool="boxselect"]', keys: "5 / Shift+Drag" },
+      { title: "Erase Tool", body: "Click or drag across placed components to remove them.", control: '[data-tool="erase"]', keys: "3" },
+      { title: "Box Select", body: "Drag a box to select multiple components at once.", control: '[data-tool="boxselect"]', keys: "4 / Shift+Drag" },
       { title: "Solid Block Component", body: "Place ground blocks. Click arrow for mystery, cloud, and ice.", control: '[data-palette="block"]', keys: "B" },
       { title: "Springboard Bouncer", body: "Place trampolines that launch player and enemies upward.", control: '[data-palette="springboard"]', keys: "S" },
       { title: "Spike Hazard", body: "Deadly spikes triggering instant defeat and respawn.", control: '[data-palette="hazard"]', keys: "H" },
@@ -1300,19 +1340,73 @@
       { title: "Undo Modification", body: "Revert the last level edit or placement change.", control: "#undo-btn", keys: "⌘Z / Ctrl+Z" },
       { title: "Redo Modification", body: "Reapply a previously undone change.", control: "#redo-btn", keys: "⌘⇧Z / Ctrl+Y" },
       { title: "Atmospheric Background", body: "Choose background themes or upload custom images and GIFs.", control: "#bg-modal-btn", keys: "BG" },
-      { title: "Interactive Guided Demo", body: "Watch automated guided tour highlighting all major creation & play features non-destructively.", control: "#demo-btn", keys: "🎬 Demo" },
-      { title: "About Sidehop & Credits", body: "View inspirations, engine architecture, typography, open-source libraries, and author credits.", control: "#about-modal-btn", keys: "ℹ️ About" },
-      { title: "World & UI Theme", body: "Change theme across UI, level atmosphere, and blocks (Snowy, Night, Chrome, 8-Bit, Jungle, Grass).", control: "#theme-selector-btn", keys: "🎨 Theme" },
-      { title: "Fill Screen Mode", body: "Expand the canvas to fill the entire browser screen in edit and play modes.", control: "#stretch-frame-btn", keys: "⤢ Fill" },
-      { title: "Export Web Game (.html)", body: "Export standalone single-file playable web game with all art and physics embedded.", control: "#export-html-btn", keys: "🌐 HTML" },
-      { title: "Export Level (.sidehop)", body: "Save your entire playable level to your computer.", control: "#export-level-btn", keys: "Export" },
-      { title: "Import Level (.sidehop)", body: "Load a .sidehop level from your computer.", control: "#import-level-btn", keys: "Import" }
+      { title: "Interactive Guided Demo", body: "Watch automated guided tour highlighting all major creation & play features non-destructively.", control: "#help-drawer-btn", keys: "🎬 Demo" },
+      { title: "About Sidehop & Credits", body: "View inspirations, engine architecture, typography, open-source libraries, and author credits.", control: "#help-drawer-btn", keys: "ℹ️ About" },
+      { title: "World & UI Theme", body: "Change theme across UI, level atmosphere, and blocks (Meadows, Tundra, Nightlife, Chrome, 8-Bit, Jungle, Neon, Atlantis, 3D / Uncanny Realism).", control: "#theme-selector-btn", keys: "🎨 Themes" },
+      { title: "Fullscreen / Fill Screen", body: "Expand the canvas to fill the entire browser screen in edit and play modes.", control: "#stretch-frame-btn", keys: "⛶" },
+      { title: "Mute / Unmute Sound FX", body: "Toggle procedural chiptune sound effects on or off.", control: "#sound-toggle-btn", keys: "🔊" },
+      { title: "Export (.sidehop / HTML)", body: "Export either an editable .sidehop project or a finalized standalone .html web game.", control: "#export-drawer-btn", keys: "EXPORT" },
+      { title: "Import (.sidehop / HTML)", body: "Load either a .sidehop editable project file or a standalone .html Sidehop game file.", control: "#import-level-btn", keys: "Import" }
     ];
 
     const helpDialog = document.getElementById("help");
     const aboutDialog = document.getElementById("about");
     const helpSearchInput = document.getElementById("help-search");
     const helpListContainer = document.getElementById("help-list");
+
+    // Header Dropdown Drawer Logic (Export & Help Drawers)
+    const exportDrawerBtn = document.getElementById("export-drawer-btn");
+    const exportDrawerMenu = document.getElementById("export-drawer-menu");
+    const helpDrawerBtn = document.getElementById("help-drawer-btn");
+    const helpDrawerMenu = document.getElementById("help-drawer-menu");
+
+    function closeHeaderDrawers() {
+      if (exportDrawerMenu) exportDrawerMenu.style.display = "none";
+      if (helpDrawerMenu) helpDrawerMenu.style.display = "none";
+      exportDrawerBtn?.classList.remove("drawer-open");
+      helpDrawerBtn?.classList.remove("drawer-open");
+    }
+    window.closeHeaderDrawers = closeHeaderDrawers;
+
+    function toggleHeaderDrawer(triggerBtn, menuEl) {
+      if (!triggerBtn || !menuEl) return;
+      const isOpen = menuEl.style.display !== "none";
+      closeHeaderDrawers();
+      if (isOpen) return;
+
+      menuEl.style.display = "flex";
+      triggerBtn.classList.add("drawer-open");
+      const rect = triggerBtn.getBoundingClientRect();
+      const menuW = menuEl.offsetWidth || 220;
+      let left = rect.left;
+      if (left + menuW > window.innerWidth - 10) {
+        left = Math.max(10, window.innerWidth - menuW - 10);
+      }
+      menuEl.style.left = `${Math.max(10, left)}px`;
+      menuEl.style.top = `${rect.bottom + 6}px`;
+      window.sidehop?.soundEngine?.playClick();
+    }
+
+    exportDrawerBtn?.addEventListener("click", (e) => {
+      e.stopPropagation();
+      toggleHeaderDrawer(exportDrawerBtn, exportDrawerMenu);
+    });
+
+    helpDrawerBtn?.addEventListener("click", (e) => {
+      e.stopPropagation();
+      toggleHeaderDrawer(helpDrawerBtn, helpDrawerMenu);
+    });
+
+    window.addEventListener("click", (e) => {
+      if (
+        !exportDrawerMenu?.contains(e.target) &&
+        !helpDrawerMenu?.contains(e.target) &&
+        e.target !== exportDrawerBtn &&
+        e.target !== helpDrawerBtn
+      ) {
+        closeHeaderDrawers();
+      }
+    });
 
     function renderHelp(query = "") {
       const q = query.trim().toLowerCase();
@@ -1347,16 +1441,20 @@
     }
 
     document.getElementById("help-modal-btn")?.addEventListener("click", () => {
+      closeHeaderDrawers();
       renderHelp(helpSearchInput ? helpSearchInput.value : "");
       helpDialog.showModal();
       helpSearchInput?.focus();
     });
     document.getElementById("help-close-btn")?.addEventListener("click", () => helpDialog.close());
 
-    document.getElementById("about-modal-btn")?.addEventListener("click", () => aboutDialog.showModal());
+    document.getElementById("about-modal-btn")?.addEventListener("click", () => {
+      closeHeaderDrawers();
+      aboutDialog.showModal();
+    });
     document.getElementById("about-close-btn")?.addEventListener("click", () => aboutDialog.close());
 
-    // Landing Page Controls
+    // Landing Page Controls (including clickable top-left Sidehop logo & title)
     const landingOverlay = document.getElementById("landing-page");
     const launchBtns = [
       document.getElementById("landing-launch-btn-nav"),
@@ -1371,10 +1469,21 @@
       });
     });
 
-    document.getElementById("landing-toggle-btn")?.addEventListener("click", () => {
+    function openLandingPage() {
+      closeHeaderDrawers();
       landingOverlay?.classList.remove("hidden");
       landingOverlay?.scrollTo({ top: 0, behavior: "smooth" });
       window.sidehop?.soundEngine?.playClick();
+    }
+
+    document.getElementById("landing-toggle-btn")?.addEventListener("click", openLandingPage);
+    const headerLogoHome = document.getElementById("header-logo-home");
+    headerLogoHome?.addEventListener("click", openLandingPage);
+    headerLogoHome?.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        openLandingPage();
+      }
     });
 
     // About Dialog Tabs switching
@@ -1423,7 +1532,7 @@
   </script>
 
   <!-- MAIN SCRIPT -->
-  <script type="module" src="js/main.js?v=20261028_085918"></script>
+  <script type="module" src="js/main.js?v=20261028_204423"></script>
 
   <!-- EMBEDDED_LEVEL_HOOK -->
 </body>

@@ -333,21 +333,25 @@ body[data-theme="atlantis"] .drawer-tips-content {
   border-top-color: #38BDF8;
 }
 
-/* 8. MIXED MEDIA THEME (Paper Collage & Warm Art) */
+/* 8. 3D / UNCANNY REALISM THEME (SGI 90s Raytraced Diorama & Tactile Studio) */
+body[data-theme="uncanny"],
 body[data-theme="mixed"] {
-  --theme-name: "mixed";
-  --bg-cream: #FDF6E2;
-  --bg-panel: #FFFDF7;
-  --header-bg: #F4E7CA;
-  --ink-black: #262626;
-  --border-color: #3F3F46;
-  --shadow-color: #71717A;
-  --text-muted: #78716C;
-  --border-subtle: #E7E5E4;
-  --accent-sun: #F59E0B;
-  --accent-sky: #0284C7;
+  --theme-name: "uncanny";
+  --bg-cream: #DDE5EE;
+  --bg-panel: #F1F5F9;
+  --header-bg: #CBD5E1;
+  --ink-black: #0F172A;
+  --border-color: #1E293B;
+  --shadow-color: #334155;
+  --text-muted: #475569;
+  --border-subtle: #CBD5E1;
+  --border-thick: 2px solid #1E293B;
+  --shadow-hard: 3px 3px 0px #334155, inset 1px 1px 0px rgba(255, 255, 255, 0.85);
+  --shadow-hover: 4px 4px 0px #1E293B, inset 1px 1px 0px rgba(255, 255, 255, 0.95);
+  --accent-sun: #FBBF24;
+  --accent-sky: #38BDF8;
   --accent-rose: #E11D48;
-  --accent-mint: #059669;
+  --accent-mint: #10B981;
 }
 
 /* Unified Dark Theme Readability Rules (Night, Neon over Black, Atlantis) */
@@ -516,6 +520,89 @@ body {
   align-items: center;
   gap: 8px;
   flex-shrink: 0;
+  cursor: pointer;
+  border-radius: 8px;
+  padding: 2px 4px;
+  transition: transform 0.12s ease, opacity 0.12s ease;
+}
+
+.logo-group:hover .header-logo-img {
+  transform: scale(1.08) rotate(-2deg);
+}
+
+.logo-group:hover .logo-title {
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
+}
+
+/* HEADER DROPDOWN DRAWERS (EXPORT & HELP) */
+.header-drawer-menu {
+  position: fixed;
+  top: 54px;
+  left: 200px;
+  background-color: var(--bg-panel);
+  border: var(--border-thick);
+  border-radius: 12px;
+  box-shadow: 4px 4px 0px var(--shadow-color);
+  padding: 6px;
+  display: none;
+  flex-direction: column;
+  gap: 5px;
+  min-width: 220px;
+  z-index: 950;
+}
+
+.header-drawer-item {
+  font-family: inherit;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 2px solid var(--border-color);
+  background-color: var(--bg-cream);
+  color: var(--ink-black);
+  cursor: pointer;
+  text-align: left;
+  transition: transform 0.08s ease, background-color 0.1s ease, box-shadow 0.08s ease;
+  box-shadow: 2px 2px 0px var(--shadow-color);
+}
+
+.header-drawer-item:hover {
+  transform: translate(-1px, -1px);
+  background-color: var(--canary-yellow);
+  color: #050508 !important;
+  box-shadow: 3px 3px 0px var(--shadow-color);
+}
+
+.header-drawer-item:hover strong,
+.header-drawer-item:hover small {
+  color: #050508 !important;
+}
+
+.drawer-item-icon {
+  font-size: 18px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.drawer-item-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.25;
+}
+
+.drawer-item-text strong {
+  font-size: 12.5px;
+  font-weight: 800;
+  color: var(--ink-black);
+}
+
+.drawer-item-text small {
+  font-size: 10.5px;
+  font-weight: 600;
+  color: var(--text-muted);
 }
 
 .header-logo-img {
@@ -706,6 +793,53 @@ body[data-theme="atlantis"] .neo-btn:disabled span {
   justify-content: flex-start;
 }
 
+/* LEFT SIDEBAR COLUMN & UNBOXED SYMBOLS ABOVE COMPONENTS MENU BOX */
+.left-sidebar-column {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 4px;
+  width: 172px;
+  max-height: 100%;
+  z-index: 55;
+  flex-shrink: 0;
+}
+
+.drawer-top-symbols {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 10px;
+  padding: 0 4px;
+  min-height: 28px;
+  flex-shrink: 0;
+}
+
+.unboxed-symbol-btn {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 2px 6px;
+  font-family: inherit;
+  font-size: 20px;
+  font-weight: 800;
+  line-height: 1;
+  color: var(--ink-black);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.12s ease, opacity 0.12s ease;
+}
+
+.unboxed-symbol-btn:hover {
+  transform: scale(1.2);
+}
+
+.unboxed-symbol-btn:active {
+  transform: scale(0.95);
+}
+
 /* TOOL DRAWER (LEFT PALETTE) */
 .tool-drawer {
   background-color: var(--bg-panel);
@@ -717,7 +851,7 @@ body[data-theme="atlantis"] .neo-btn:disabled span {
   flex-direction: column;
   gap: 6px;
   width: 172px;
-  max-height: 100%;
+  max-height: calc(100% - 32px);
   overflow-y: auto;
   overflow-x: hidden;
   scrollbar-width: thin;
@@ -980,14 +1114,23 @@ body[data-theme="atlantis"] .neo-btn:disabled span {
   display: none !important;
 }
 
-/* When stretched in Edit Mode, float the tool drawer cleanly so all tools remain instantly accessible */
-.workbench-container.frame-stretched .tool-drawer {
+/* When stretched in Edit Mode, float the left sidebar column cleanly so symbols & tools remain instantly accessible */
+.workbench-container.frame-stretched .left-sidebar-column {
   position: absolute;
-  top: 12px;
+  top: 8px;
   left: 12px;
   z-index: 90;
-  max-height: calc(100vh - 80px);
+  max-height: calc(100vh - 70px);
+}
+
+.workbench-container.frame-stretched .tool-drawer {
+  position: static;
+  max-height: calc(100vh - 104px);
   box-shadow: 4px 4px 0 var(--shadow-color);
+}
+
+.workbench-container.frame-stretched .tool-drawer.minimized {
+  position: absolute;
 }
 
 /* THEME SELECTOR MODAL */
