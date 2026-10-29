@@ -78,8 +78,15 @@ export class PhysicsEngine {
 
     for (const solid of solids) {
       if (!solid.active) continue;
-      // Skip one-way platforms and angled sloped surfaces horizontally
-      if (solid.isOneWay || solid.variant === 'cloud' || solid.variant === 'semisolid' || isSlope(solid)) continue;
+      // Skip one-way platforms horizontally
+      if (solid.isOneWay || solid.variant === 'cloud' || solid.variant === 'semisolid') continue;
+
+      // Slopes: the diagonal face is resolved vertically, but the flat vertical
+      // side of every slope wedge is a real wall and must block like a block side.
+      if (isSlope(solid)) {
+        this.resolveSlopeWallFace(entity, solid, solids, prevX);
+        continue;
+      }
 
       // Ignore horizontal collision if vertical overlap is merely boundary-level (e.g. resting on floor)
       const verticalOverlap = Math.min(entity.y + entity.height, solid.y + solid.height) - Math.max(entity.y, solid.y);
@@ -87,13 +94,21 @@ export class PhysicsEngine {
 
       if (!this.checkOverlap(entity, solid)) continue;
 
-      // Skip solid blocks that are covered underneath any slope
-      const isUnderSlope = solids.some(s =>
-        s.active && isSlope(s) &&
-        Math.abs(s.x - solid.x) < 2 &&
-        solid.y >= s.y + s.height - 2
-      );
-      if (isUnderSlope) continue;
+      // Step-up allowance for the block DIRECTLY beneath a ground slope.
+      // While walking up a slope staircase the player's leading corner dips into the
+      // block under the next slope by up to half its width. Only that shallow corner
+      // overlap, in the uphill direction, is allowed — everything else is a solid wall.
+      // (Previously ANY block with a slope anywhere above it in the same column was
+      // skipped, which let the player run/jump straight into slope-topped walls.)
+      const coverSlope = this.getCoveringGroundSlope(solid, solids);
+      if (coverSlope) {
+        const footPenetration = (entity.y + entity.height) - solid.y;
+        const stepTolerance = Math.max(22, entity.width / 2 + 2);
+        if (footPenetration <= stepTolerance) {
+          if (entity.vx > 0 && isSlopeUp(coverSlope)) continue;
+          if (entity.vx < 0 && isSlopeDown(coverSlope)) continue;
+        }
+      }
 
       if (entity.vx > 0) {
         // Entity moving right: only solid's left edge can block it!
@@ -129,6 +144,56 @@ export class PhysicsEngine {
     }
   }
 
+  // Returns the ground slope (slope_up / slope_down, any material) sitting directly on top of a block, if any.
+  // Such a block's top face is internal: the walkable surface is the slope's diagonal above it.
+  getCoveringGroundSlope(solid, solids) {
+    for (const s of solids) {
+      if (!s || s === solid || !s.active) continue;
+      const v = s.variant || '';
+      if (!(s.isSlope || v.includes('slope'))) continue;
+      if (v.includes('slope_ceil') || s.slopeDirection === 'ceil_up' || s.slopeDirection === 'ceil_down') continue;
+      if (Math.abs(s.x - solid.x) < 2 && Math.abs((s.y + s.height) - solid.y) < 2) return s;
+    }
+    return null;
+  }
+
+  // Blocks the entity against the flat vertical side of a slope wedge.
+  //   slope_up (◢) & slope_ceil_down (◥) -> vertical RIGHT face
+  //   slope_down (◣) & slope_ceil_up (◤) -> vertical LEFT face
+  resolveSlopeWallFace(entity, slope, solids, prevX) {
+    const v = slope.variant || '';
+    const dir = slope.slopeDirection ||
+      (v.includes('slope_ceil_up') ? 'ceil_up' : v.includes('slope_ceil_down') ? 'ceil_down' :
+       v.includes('slope_up') ? 'up' : v.includes('slope_down') ? 'down' : null);
+    const hasRightWall = dir === 'up' || dir === 'ceil_down';
+    const hasLeftWall = dir === 'down' || dir === 'ceil_up';
+    if (!hasRightWall && !hasLeftWall) return;
+
+    const verticalOverlap = Math.min(entity.y + entity.height, slope.y + slope.height) - Math.max(entity.y, slope.y);
+    if (verticalOverlap <= 3) return;
+    if (!this.checkOverlap(entity, slope)) return;
+
+    const isWallNeighbor = (s) => s && s !== slope && s.active &&
+      !s.isOneWay && s.variant !== 'cloud' && s.variant !== 'semisolid' &&
+      Math.abs(s.y - slope.y) < 2;
+
+    if (entity.vx < 0 && hasRightWall) {
+      const face = slope.x + slope.width;
+      // Must be arriving from the right side of the face
+      if (prevX === undefined || prevX < face - 2) return;
+      // Face is internal if another block is attached on that side
+      if (solids.some(s => isWallNeighbor(s) && Math.abs(s.x - face) < 2)) return;
+      entity.x = face;
+      entity.vx = 0;
+    } else if (entity.vx > 0 && hasLeftWall) {
+      const face = slope.x;
+      if (prevX === undefined || prevX + entity.width > face + 2) return;
+      if (solids.some(s => isWallNeighbor(s) && Math.abs((s.x + s.width) - face) < 2)) return;
+      entity.x = face - entity.width;
+      entity.vx = 0;
+    }
+  }
+
   resolveVerticalCollisions(entity, solids, prevY, dt, wasGrounded = false, wasStandingOnSolid = null) {
     const isSlope = (s) => s && (s.isSlope || s.variant?.includes('slope'));
     const isSlopeUp = (s) => s && (s.slopeDirection === 'up' || s.variant?.includes('slope_up'));
@@ -155,7 +220,16 @@ export class PhysicsEngine {
       let bestSlope = null;
       let bestSurfaceY = Infinity;
 
-      for (const slope of overlappingGroundSlopes) {
+      // Sample the slope surface under the entity's CENTER. When the center is over a slope tile,
+      // only that tile counts — neighbouring tiles touched by the leading edge are ignored.
+      // (Sampling neighbours at their clamped corner made the player pop up ~half a tile each time
+      // its edge crossed into the next slope tile, so climbing looked jumpy / stair-stepped.)
+      // Edge-clamped sampling is kept only as a fallback when no slope is under the center
+      // (e.g. stepping onto the foot of a slope or holding onto a peak's edge).
+      const centerSlopes = overlappingGroundSlopes.filter(s => footX >= s.x && footX <= s.x + s.width);
+      const slopeCandidates = centerSlopes.length > 0 ? centerSlopes : overlappingGroundSlopes;
+
+      for (const slope of slopeCandidates) {
         // Robust overlap clamping: minX < maxX and minX <= px <= maxX
         const minX = Math.max(slope.x, entity.x);
         const maxX = Math.min(slope.x + slope.width, entity.x + entity.width);
@@ -251,6 +325,14 @@ export class PhysicsEngine {
       }
 
       if (this.checkOverlap(entity, solid)) {
+        // A block directly under a ground slope has an internal top face — the slope diagonal is the
+        // real surface. Never snap the player up onto it just because their leading corner dipped in
+        // while walking the slope (only allowed as a safety net when the center is right over it).
+        const coveredTop = this.getCoveringGroundSlope(solid, solids);
+        const centerX = entity.x + entity.width / 2;
+        const centerOverSolid = centerX >= solid.x && centerX <= solid.x + solid.width;
+        if (coveredTop && !centerOverSolid && entity.vy >= 0) continue;
+
         if (entity.vy > 0 || (entity.grounded && (entity.y + entity.height) > solid.y)) {
           // Landing on top of solid:
           // Ensure entity entered from above the solid's top surface and feet are near solid.y
@@ -343,6 +425,8 @@ export class PhysicsEngine {
         const onTop = Math.abs((entity.y + entity.height) - solid.y) <= 4;
         const horizAligned = (entity.x + entity.width > solid.x + 2) && (entity.x < solid.x + solid.width - 2);
         if (onTop && horizAligned) {
+          const cx = entity.x + entity.width / 2;
+          if (this.getCoveringGroundSlope(solid, solids) && !(cx >= solid.x && cx <= solid.x + solid.width)) continue;
           entity.y = solid.y - entity.height;
           entity.vy = 0;
           entity.grounded = true;
@@ -355,8 +439,14 @@ export class PhysicsEngine {
       }
 
       if (!entity.grounded) {
+        const safetyFootX = entity.x + entity.width / 2;
+        const centerOnAnySlope = solids.some(s =>
+          s.active && isGroundSlope(s) && safetyFootX >= s.x && safetyFootX <= s.x + s.width
+        );
         for (const slope of solids) {
           if (!slope.active || !isGroundSlope(slope)) continue;
+          // Same center-first rule as the main slope pass (prevents neighbour-tile pops)
+          if (centerOnAnySlope && !(safetyFootX >= slope.x && safetyFootX <= slope.x + slope.width)) continue;
           if (entity.x + entity.width > slope.x && entity.x < slope.x + slope.width) {
             const minX = Math.max(slope.x, entity.x);
             const maxX = Math.min(slope.x + slope.width, entity.x + entity.width);

@@ -1,8 +1,8 @@
 // Sidehop Level Persistence & Preset Levels Engine
 
-import { SolidBlock, Springboard, HazardSpikes, EnemyWalker, MovingPlatform, Collectible, GoalFlag } from '../engine/entities.js?v=20261028_213755';
-import { SidehopFile } from './sidehop-format.js?v=20261028_213755';
-import { generateStandaloneGameHtml } from './standalone-game-builder.js?v=20261028_213755';
+import { SolidBlock, Springboard, HazardSpikes, EnemyWalker, MovingPlatform, Collectible, GoalFlag } from '../engine/entities.js?v=20261029_165613';
+import { SidehopFile } from './sidehop-format.js?v=20261029_165613';
+import { generateStandaloneGameHtml } from './standalone-game-builder.js?v=20261029_165613';
 
 const LEVEL_STORAGE_KEY = 'sidehop_saved_level_v6';
 

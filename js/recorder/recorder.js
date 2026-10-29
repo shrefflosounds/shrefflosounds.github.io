@@ -1,6 +1,6 @@
 // Sidehop Video Recorder & Highlight Replay Engine
 
-import { sounds } from '../audio/sound.js?v=20261028_213755';
+import { sounds } from '../audio/sound.js?v=20261029_165613';
 
 export class VideoRecorder {
   constructor(canvas) {
