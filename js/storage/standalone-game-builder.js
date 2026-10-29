@@ -2,9 +2,9 @@
 // Produces a 100% self-contained, offline-playable HTML5 game featuring the exact Sidehop engine,
 // physics, entity classes, autotiling, slopes, custom sprites, custom backgrounds, audio, and theme.
 
-import { SoundEngine } from '../audio/sound.js?v=20261028_205041';
-import { Camera } from '../engine/camera.js?v=20261028_205041';
-import { PhysicsEngine } from '../engine/physics.js?v=20261028_205041';
+import { SoundEngine } from '../audio/sound.js?v=20261028_213755';
+import { Camera } from '../engine/camera.js?v=20261028_213755';
+import { PhysicsEngine } from '../engine/physics.js?v=20261028_213755';
 import {
   Entity,
   Player,
@@ -16,7 +16,7 @@ import {
   Bullet,
   Collectible,
   GoalFlag
-} from '../engine/entities.js?v=20261028_205041';
+} from '../engine/entities.js?v=20261028_213755';
 
 function escapeHtml(str) {
   return String(str || 'Sidehop Game')
@@ -74,6 +74,7 @@ export function generateStandaloneGameHtml(levelData, title = 'Sidehop Game') {
 
   const appProto = (typeof window !== 'undefined' && window.sidehop) ? Object.getPrototypeOf(window.sidehop) : null;
   const bgMethodNames = [
+    'getLifelikeCloudSprite',
     'drawAtlantisBackground',
     'drawUncanny3DBackground',
     'drawMixedMediaBackground',
@@ -403,6 +404,11 @@ export function generateStandaloneGameHtml(levelData, title = 'Sidehop Game') {
       height: 100%;
       image-rendering: pixelated;
       image-rendering: crisp-edges;
+    }
+
+    body[data-theme="uncanny"] #game-canvas {
+      image-rendering: auto;
+      image-rendering: smooth;
     }
 
     /* VICTORY OVERLAY */

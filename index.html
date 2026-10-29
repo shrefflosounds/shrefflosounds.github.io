@@ -12,7 +12,7 @@
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="apple-touch-icon" href="icon-180.png">
   <meta name="theme-color" content="#FFE600">
-  <link rel="stylesheet" href="css/style.css?v=20261028_205041">
+  <link rel="stylesheet" href="css/style.css?v=20261028_213755">
 </head>
 <body>
 
@@ -413,15 +413,15 @@
         <span>🌄 Background</span>
       </button>
 
-      <!-- 8. Import (.sidehop editable project or standalone .html game) -->
-      <button id="import-level-btn" class="neo-btn" title="Import .sidehop editable project or standalone .html game file">
-        <span>📂 Import (.sidehop / HTML)</span>
+      <!-- 8. Import Drawer Button (.sidehop or HTML) -->
+      <button id="import-drawer-btn" class="neo-btn" title="Import .sidehop project or HTML game">
+        <span>📂 Import ▾</span>
       </button>
       <input type="file" id="import-file-input" accept=".sidehop,.html,.htm,.json" style="display: none;">
 
       <!-- 9. Export Drawer Button -->
-      <button id="export-drawer-btn" class="neo-btn neo-btn-cyan" title="Export as .sidehop editable project or finalized HTML game">
-        <span>EXPORT (.sidehop / HTML) ▾</span>
+      <button id="export-drawer-btn" class="neo-btn neo-btn-cyan" title="Export as .sidehop project or HTML game">
+        <span>EXPORT ▾</span>
       </button>
 
       <!-- 10. Help Drawer Button (Controls, Demo, About) -->
@@ -440,20 +440,38 @@
       </button>
     </div>
 
-    <!-- EXPORT HEADER DRAWER MENU -->
-    <div id="export-drawer-menu" class="header-drawer-menu" style="display: none;">
-      <button id="export-level-btn" class="header-drawer-item" title="Save editable .sidehop project file">
-        <span class="drawer-item-icon">💾</span>
+    <!-- IMPORT HEADER DRAWER MENU -->
+    <div id="import-drawer-menu" class="header-drawer-menu" style="display: none;">
+      <button id="import-sidehop-btn" class="header-drawer-item" title="Import editable .sidehop project">
+        <span class="drawer-item-icon">📂</span>
         <span class="drawer-item-text">
-          <strong>.sidehop Project</strong>
-          <small>(Editable Project)</small>
+          <strong>.sidehop</strong>
+          <small>(Project)</small>
         </span>
       </button>
-      <button id="export-html-btn" class="header-drawer-item" title="Export standalone playable HTML game">
+      <button id="import-html-btn" class="header-drawer-item" title="Import standalone HTML game">
         <span class="drawer-item-icon">🌐</span>
         <span class="drawer-item-text">
-          <strong>HTML Game</strong>
-          <small>(Finished Standalone Game)</small>
+          <strong>HTML</strong>
+          <small>(Game)</small>
+        </span>
+      </button>
+    </div>
+
+    <!-- EXPORT HEADER DRAWER MENU -->
+    <div id="export-drawer-menu" class="header-drawer-menu" style="display: none;">
+      <button id="export-level-btn" class="header-drawer-item" title="Export editable .sidehop project">
+        <span class="drawer-item-icon">💾</span>
+        <span class="drawer-item-text">
+          <strong>.sidehop</strong>
+          <small>(Project)</small>
+        </span>
+      </button>
+      <button id="export-html-btn" class="header-drawer-item" title="Export standalone HTML game">
+        <span class="drawer-item-icon">🌐</span>
+        <span class="drawer-item-text">
+          <strong>HTML</strong>
+          <small>(Game)</small>
         </span>
       </button>
     </div>
@@ -1160,7 +1178,7 @@
             <span class="about-credit-role">Visual Design System</span>
           </div>
           <p class="about-credit-desc">
-            Refined high-contrast ink borders (#1E293B), tactile compressed drop shadows, and eye-friendly themed palettes (Meadows, Tundra, Nightlife, Chrome, 8-Bit, Jungle, Neon over Black, Atlantis Underwater, and 3D / Uncanny Realism).
+            Refined high-contrast ink borders (#1E293B), tactile compressed drop shadows, and eye-friendly themed palettes (Meadows, Tundra, Nightlife, Chrome, 8-Bit, Jungle, Neon over Black, Atlantis Underwater, and Lifelike 3D).
           </p>
         </div>
         <div class="about-credit-card">
@@ -1275,11 +1293,11 @@
           <div class="theme-sub">Deep sea ocean floor, coral &amp; aquatic light</div>
         </div>
         <div class="theme-card" data-theme="uncanny">
-          <div class="theme-preview" style="background: linear-gradient(180deg, #2D75B8 0%, #7BB8EA 62%, #4E9A2F 100%);">
+          <div class="theme-preview" style="background: linear-gradient(180deg, #1E5AA8 0%, #68ABE0 58%, #3E8E26 100%);">
             <span class="theme-emoji">👁️</span>
           </div>
-          <div class="theme-name">3D / Uncanny Realism</div>
-          <div class="theme-sub">Raytraced 3D diorama, uncanny eyes, refractive ice &amp; bao clouds</div>
+          <div class="theme-name">Lifelike 3D</div>
+          <div class="theme-sub">Photorealistic 3D diorama, subsurface scattering, refractive ice &amp; raytraced lighting</div>
         </div>
       </div>
     </div>
@@ -1342,11 +1360,11 @@
       { title: "Atmospheric Background", body: "Choose background themes or upload custom images and GIFs.", control: "#bg-modal-btn", keys: "BG" },
       { title: "Interactive Guided Demo", body: "Watch automated guided tour highlighting all major creation & play features non-destructively.", control: "#help-drawer-btn", keys: "🎬 Demo" },
       { title: "About Sidehop & Credits", body: "View inspirations, engine architecture, typography, open-source libraries, and author credits.", control: "#help-drawer-btn", keys: "ℹ️ About" },
-      { title: "World & UI Theme", body: "Change theme across UI, level atmosphere, and blocks (Meadows, Tundra, Nightlife, Chrome, 8-Bit, Jungle, Neon, Atlantis, 3D / Uncanny Realism).", control: "#theme-selector-btn", keys: "🎨 Themes" },
+      { title: "World & UI Theme", body: "Change theme across UI, level atmosphere, and blocks (Meadows, Tundra, Nightlife, Chrome, 8-Bit, Jungle, Neon, Atlantis, Lifelike 3D).", control: "#theme-selector-btn", keys: "🎨 Themes" },
       { title: "Fullscreen / Fill Screen", body: "Expand the canvas to fill the entire browser screen in edit and play modes.", control: "#stretch-frame-btn", keys: "⛶" },
       { title: "Mute / Unmute Sound FX", body: "Toggle procedural chiptune sound effects on or off.", control: "#sound-toggle-btn", keys: "🔊" },
       { title: "Export (.sidehop / HTML)", body: "Export either an editable .sidehop project or a finalized standalone .html web game.", control: "#export-drawer-btn", keys: "EXPORT" },
-      { title: "Import (.sidehop / HTML)", body: "Load either a .sidehop editable project file or a standalone .html Sidehop game file.", control: "#import-level-btn", keys: "Import" }
+      { title: "Import (.sidehop / HTML)", body: "Load either a .sidehop editable project file or a standalone .html Sidehop game file.", control: "#import-drawer-btn", keys: "Import" }
     ];
 
     const helpDialog = document.getElementById("help");
@@ -1354,15 +1372,19 @@
     const helpSearchInput = document.getElementById("help-search");
     const helpListContainer = document.getElementById("help-list");
 
-    // Header Dropdown Drawer Logic (Export & Help Drawers)
+    // Header Dropdown Drawer Logic (Import, Export & Help Drawers)
+    const importDrawerBtn = document.getElementById("import-drawer-btn");
+    const importDrawerMenu = document.getElementById("import-drawer-menu");
     const exportDrawerBtn = document.getElementById("export-drawer-btn");
     const exportDrawerMenu = document.getElementById("export-drawer-menu");
     const helpDrawerBtn = document.getElementById("help-drawer-btn");
     const helpDrawerMenu = document.getElementById("help-drawer-menu");
 
     function closeHeaderDrawers() {
+      if (importDrawerMenu) importDrawerMenu.style.display = "none";
       if (exportDrawerMenu) exportDrawerMenu.style.display = "none";
       if (helpDrawerMenu) helpDrawerMenu.style.display = "none";
+      importDrawerBtn?.classList.remove("drawer-open");
       exportDrawerBtn?.classList.remove("drawer-open");
       helpDrawerBtn?.classList.remove("drawer-open");
     }
@@ -1377,7 +1399,7 @@
       menuEl.style.display = "flex";
       triggerBtn.classList.add("drawer-open");
       const rect = triggerBtn.getBoundingClientRect();
-      const menuW = menuEl.offsetWidth || 220;
+      const menuW = menuEl.offsetWidth || 200;
       let left = rect.left;
       if (left + menuW > window.innerWidth - 10) {
         left = Math.max(10, window.innerWidth - menuW - 10);
@@ -1386,6 +1408,11 @@
       menuEl.style.top = `${rect.bottom + 6}px`;
       window.sidehop?.soundEngine?.playClick();
     }
+
+    importDrawerBtn?.addEventListener("click", (e) => {
+      e.stopPropagation();
+      toggleHeaderDrawer(importDrawerBtn, importDrawerMenu);
+    });
 
     exportDrawerBtn?.addEventListener("click", (e) => {
       e.stopPropagation();
@@ -1399,8 +1426,10 @@
 
     window.addEventListener("click", (e) => {
       if (
+        !importDrawerMenu?.contains(e.target) &&
         !exportDrawerMenu?.contains(e.target) &&
         !helpDrawerMenu?.contains(e.target) &&
+        e.target !== importDrawerBtn &&
         e.target !== exportDrawerBtn &&
         e.target !== helpDrawerBtn
       ) {
@@ -1532,7 +1561,7 @@
   </script>
 
   <!-- MAIN SCRIPT -->
-  <script type="module" src="js/main.js?v=20261028_205041"></script>
+  <script type="module" src="js/main.js?v=20261028_213755"></script>
 
   <!-- EMBEDDED_LEVEL_HOOK -->
 </body>

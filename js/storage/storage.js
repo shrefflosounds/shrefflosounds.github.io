@@ -1,8 +1,8 @@
 // Sidehop Level Persistence & Preset Levels Engine
 
-import { SolidBlock, Springboard, HazardSpikes, EnemyWalker, MovingPlatform, Collectible, GoalFlag } from '../engine/entities.js?v=20261028_205041';
-import { SidehopFile } from './sidehop-format.js?v=20261028_205041';
-import { generateStandaloneGameHtml } from './standalone-game-builder.js?v=20261028_205041';
+import { SolidBlock, Springboard, HazardSpikes, EnemyWalker, MovingPlatform, Collectible, GoalFlag } from '../engine/entities.js?v=20261028_213755';
+import { SidehopFile } from './sidehop-format.js?v=20261028_213755';
+import { generateStandaloneGameHtml } from './standalone-game-builder.js?v=20261028_213755';
 
 const LEVEL_STORAGE_KEY = 'sidehop_saved_level_v6';
 
@@ -232,7 +232,7 @@ export const STARTER_WORLD_ENTITIES = [
   { type: 'crate', variant: 'stone', x: 5280, y: 440, width: 40, height: 40 },
   { type: 'crate', variant: 'stone', x: 5280, y: 480, width: 40, height: 40 },
   { type: 'crate', variant: 'stone', x: 5280, y: 520, width: 40, height: 40 },
-  { type: 'enemy', variant: 'walker', x: 5140, y: 360, width: 40, height: 40, speed: 75, patrolRange: 50, stompable: true },
+  { type: 'enemy', variant: 'walker', x: 5220, y: 360, width: 40, height: 40, speed: 75, patrolRange: 45, stompable: true },
   { type: 'crate', variant: 'stone_slope_down', x: 5320, y: 400, width: 40, height: 40 },
   { type: 'crate', variant: 'stone', x: 5320, y: 440, width: 40, height: 40 },
   { type: 'crate', variant: 'stone', x: 5320, y: 480, width: 40, height: 40 },
@@ -485,12 +485,14 @@ export class LevelStorage {
       case 'hazard':
         ent = new HazardSpikes(d.x, d.y, d.width, d.height);
         break;
-      case 'enemy':
-        ent = new EnemyWalker(d.x, d.y, d.width, d.height, d.variant || 'walker');
+      case 'enemy': {
+        const ex = (d.x === 5140 && d.y === 360) ? 5220 : d.x;
+        ent = new EnemyWalker(ex, d.y, d.width, d.height, d.variant || 'walker');
         if (d.speed !== undefined) ent.speed = d.speed;
-        if (d.patrolRange !== undefined) ent.patrolRange = d.patrolRange;
+        if (d.patrolRange !== undefined) ent.patrolRange = (d.x === 5140 && d.y === 360) ? 45 : d.patrolRange;
         if (d.stompable !== undefined) ent.stompable = d.stompable;
         break;
+      }
       case 'moving_platform':
         ent = new MovingPlatform(d.x, d.y, d.width, d.height);
         if (d.speed !== undefined) ent.speed = d.speed;

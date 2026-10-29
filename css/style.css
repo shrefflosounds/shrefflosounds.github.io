@@ -1011,6 +1011,11 @@ body[data-theme="atlantis"] .neo-btn:disabled span {
   background-color: #FAF8F5;
 }
 
+body[data-theme="uncanny"] #game-canvas {
+  image-rendering: auto;
+  image-rendering: smooth;
+}
+
 /* INTERACTIVE CORNER & EDGE RESIZE HANDLES */
 .frame-resize-handle {
   position: absolute;

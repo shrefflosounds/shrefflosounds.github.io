@@ -1,7 +1,7 @@
 // Sidehop Snap-to-Grid Level Editor & Enhanced Interaction System
 
-import { CrateBlock, SolidBlock, Springboard, HazardSpikes, EnemyWalker, MovingPlatform, Collectible, GoalFlag } from '../engine/entities.js?v=20261028_205041';
-import { sounds } from '../audio/sound.js?v=20261028_205041';
+import { CrateBlock, SolidBlock, Springboard, HazardSpikes, EnemyWalker, MovingPlatform, Collectible, GoalFlag } from '../engine/entities.js?v=20261028_213755';
+import { sounds } from '../audio/sound.js?v=20261028_213755';
 
 export class GridEditor {
   constructor(canvas, camera, tileSize = 40) {
@@ -423,8 +423,14 @@ export class GridEditor {
     }
 
     if (this.isMouseDown) {
-      if (this.currentTool === 'place' && (this.selectedPaletteItem === 'crate' || this.selectedPaletteItem === 'block')) {
-        // Continuous brush painting for solid blocks
+      if (
+        this.currentTool === 'place' &&
+        (this.selectedPaletteItem === 'crate' ||
+          this.selectedPaletteItem === 'block' ||
+          this.selectedPaletteItem === 'hazard' ||
+          this.selectedPaletteItem === 'collectible')
+      ) {
+        // Continuous brush painting for blocks, spikes, and collectibles
         this.placeAt(this.hoverGrid.x, this.hoverGrid.y, entities, player);
       } else if (this.currentTool === 'erase') {
         this.eraseAt(this.hoverGrid.x, this.hoverGrid.y, entities);
@@ -534,12 +540,15 @@ export class GridEditor {
     });
 
     if (idx !== -1) {
+      const removed = entities[idx];
       entities.splice(idx, 1);
       if (SolidBlock.updateTerrainMap) SolidBlock.updateTerrainMap(entities);
       sounds.playPaintSquish();
-      if (this.selectedEntity === entities[idx]) {
-        this.selectedEntity = null;
-        if (this.onDeselect) this.onDeselect();
+      if (this.selectedEntities && this.selectedEntities.includes(removed)) {
+        this.selectedEntities = this.selectedEntities.filter(e => e !== removed);
+        if (this.selectedEntities.length === 0 && this.onDeselect) {
+          this.onDeselect();
+        }
       }
       if (this.onEntityMoved) this.onEntityMoved();
       if (this.onHistorySnapshotNeeded) this.onHistorySnapshotNeeded();
@@ -560,24 +569,51 @@ export class GridEditor {
 
   // Draw Grid Lines, Hover Ghost, and Keyboard Placement Cursor in Edit Mode
   draw(ctx) {
-    // 1. Grid Lines
+    // 1. Theme-Aware Minor & Major Grid Lines (40px minor, 200px major)
     ctx.save();
-    ctx.strokeStyle = 'rgba(18, 18, 18, 0.08)';
-    ctx.lineWidth = 1;
+    const theme = (typeof document !== 'undefined' && document.body)
+      ? (document.body.getAttribute('data-theme') || 'default')
+      : 'default';
+    const isLightBg = (theme === 'default' || theme === 'snowy' || theme === 'chrome');
+    const minorColor = isLightBg ? 'rgba(18, 18, 18, 0.08)' : 'rgba(255, 255, 255, 0.10)';
+    const majorColor = isLightBg ? 'rgba(18, 18, 18, 0.18)' : 'rgba(255, 255, 255, 0.22)';
 
     const startX = Math.floor(this.camera.x / this.tileSize) * this.tileSize;
     const endX = this.camera.x + this.camera.viewportWidth;
     const startY = Math.floor(this.camera.y / this.tileSize) * this.tileSize;
     const endY = this.camera.y + this.camera.viewportHeight;
 
+    // Minor 40px grid
+    ctx.strokeStyle = minorColor;
+    ctx.lineWidth = 1;
     ctx.beginPath();
     for (let x = startX; x <= endX; x += this.tileSize) {
-      const sx = x - this.camera.x;
+      if (x % (this.tileSize * 5) === 0) continue;
+      const sx = Math.round(x - this.camera.x) + 0.5;
       ctx.moveTo(sx, 0);
       ctx.lineTo(sx, this.camera.viewportHeight);
     }
     for (let y = startY; y <= endY; y += this.tileSize) {
-      const sy = y - this.camera.y;
+      if (y % (this.tileSize * 5) === 0) continue;
+      const sy = Math.round(y - this.camera.y) + 0.5;
+      ctx.moveTo(0, sy);
+      ctx.lineTo(this.camera.viewportWidth, sy);
+    }
+    ctx.stroke();
+
+    // Major 200px (5-tile) architectural grid
+    ctx.strokeStyle = majorColor;
+    ctx.lineWidth = 1.25;
+    ctx.beginPath();
+    for (let x = startX; x <= endX; x += this.tileSize) {
+      if (x % (this.tileSize * 5) !== 0) continue;
+      const sx = Math.round(x - this.camera.x) + 0.5;
+      ctx.moveTo(sx, 0);
+      ctx.lineTo(sx, this.camera.viewportHeight);
+    }
+    for (let y = startY; y <= endY; y += this.tileSize) {
+      if (y % (this.tileSize * 5) !== 0) continue;
+      const sy = Math.round(y - this.camera.y) + 0.5;
       ctx.moveTo(0, sy);
       ctx.lineTo(this.camera.viewportWidth, sy);
     }
@@ -585,14 +621,28 @@ export class GridEditor {
 
     // 2. Hover Ghost Preview
     if (this.currentTool === 'place') {
-      const ghostScreen = this.camera.worldToScreen(this.hoverGrid.x, this.hoverGrid.y);
+      let gx = this.hoverGrid.x;
+      let gy = this.hoverGrid.y;
       let gw = this.tileSize;
       let gh = this.tileSize;
       if (this.selectedPaletteItem === 'block' || this.selectedPaletteItem === 'crate') {
         if (this.selectedPaletteVariant === 'mega') { gw = 80; gh = 80; }
         else if (this.selectedPaletteVariant === 'slab') { gw = 40; gh = 20; }
         else if (this.selectedPaletteVariant === 'pipe') { gw = 40; gh = 80; }
+      } else if (this.selectedPaletteItem === 'moving_platform') {
+        gw = this.tileSize * 2;
+        gh = 24;
+      } else if (this.selectedPaletteItem === 'goal') {
+        gw = 48;
+        gh = 80;
+        gy -= 40;
+      } else if (this.selectedPaletteItem === 'collectible') {
+        gx += 4;
+        gy += 4;
+        gw = 32;
+        gh = 32;
       }
+      const ghostScreen = this.camera.worldToScreen(gx, gy);
       ctx.save();
       ctx.translate(ghostScreen.x, ghostScreen.y);
       ctx.fillStyle = 'rgba(0, 229, 255, 0.25)';

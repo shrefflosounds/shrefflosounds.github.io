@@ -1,7 +1,7 @@
 // Sidehop Component Inspector — Real-Time Parameter Tuning
 
-import { sounds } from '../audio/sound.js?v=20261028_205041';
-import { SolidBlock } from '../engine/entities.js?v=20261028_205041';
+import { sounds } from '../audio/sound.js?v=20261028_213755';
+import { SolidBlock } from '../engine/entities.js?v=20261028_213755';
 
 export class Inspector {
   constructor(panelElement) {

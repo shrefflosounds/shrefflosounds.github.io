@@ -1,17 +1,17 @@
 // Sidehop Master Application Coordinator — Enhanced Custom Backgrounds, Asset Library & Undo/Redo
 
-import { Player, Bullet, SolidBlock, Collectible } from './engine/entities.js?v=20261028_205041';
-import { PhysicsEngine } from './engine/physics.js?v=20261028_205041';
-import { Camera } from './engine/camera.js?v=20261028_205041';
-import { GridEditor } from './editor/grid.js?v=20261028_205041';
-import { ArtStudio } from './editor/paint.js?v=20261028_205041';
-import { Inspector } from './editor/inspector.js?v=20261028_205041';
-import { VideoRecorder } from './recorder/recorder.js?v=20261028_205041';
-import { LevelStorage } from './storage/storage.js?v=20261028_205041';
-import { HistoryManager } from './editor/history.js?v=20261028_205041';
-import { sounds } from './audio/sound.js?v=20261028_205041';
-import { SidehopFile } from './storage/sidehop-format.js?v=20261028_205041';
-import { SidehopDemo } from './editor/demo.js?v=20261028_205041';
+import { Player, Bullet, SolidBlock, Collectible } from './engine/entities.js?v=20261028_213755';
+import { PhysicsEngine } from './engine/physics.js?v=20261028_213755';
+import { Camera } from './engine/camera.js?v=20261028_213755';
+import { GridEditor } from './editor/grid.js?v=20261028_213755';
+import { ArtStudio } from './editor/paint.js?v=20261028_213755';
+import { Inspector } from './editor/inspector.js?v=20261028_213755';
+import { VideoRecorder } from './recorder/recorder.js?v=20261028_213755';
+import { LevelStorage } from './storage/storage.js?v=20261028_213755';
+import { HistoryManager } from './editor/history.js?v=20261028_213755';
+import { sounds } from './audio/sound.js?v=20261028_213755';
+import { SidehopFile } from './storage/sidehop-format.js?v=20261028_213755';
+import { SidehopDemo } from './editor/demo.js?v=20261028_213755';
 
 class SidehopApp {
   constructor() {
@@ -675,7 +675,7 @@ class SidehopApp {
       'jungle': 'Jungle',
       'neon': 'Neon over Black',
       'atlantis': 'Atlantis Underwater',
-      'uncanny': '3D / Uncanny'
+      'uncanny': 'Lifelike 3D'
     };
     const themeToastNames = {
       'grass': 'Meadows',
@@ -686,7 +686,7 @@ class SidehopApp {
       'jungle': 'Jungle',
       'neon': 'Neon over Black',
       'atlantis': 'Atlantis Underwater',
-      'uncanny': '3D / Uncanny Realism'
+      'uncanny': 'Lifelike 3D'
     };
     if (themeIcon) themeIcon.textContent = themeIcons[themeName] || '🎨';
     if (themeLabel) themeLabel.textContent = `${themeDisplayNames[themeName] || 'Theme'} ▾`;
@@ -1032,6 +1032,7 @@ class SidehopApp {
 
   drawAtlantisBackground(w, h) {
     this.ctx.save();
+    const camYShift = Math.max(-90, Math.min(90, -(this.camera.y || 0) * 0.14));
 
     // 1. Abyssal deep ocean gradient (surface twilight to deep ocean abyss)
     const oceanGrad = this.ctx.createLinearGradient(0, 0, 0, h);
@@ -1044,12 +1045,12 @@ class SidehopApp {
 
     // 2. Volumetric sunlight caustics / light beams angled down from surface
     const time = performance.now() * 0.0008;
-    const beamCount = 4;
+    const beamCount = 5;
     for (let i = 0; i < beamCount; i++) {
-      const beamX = (w * 0.2) + i * (w * 0.22) + Math.sin(time + i * 1.5) * 25;
+      const beamX = (w * 0.15) + i * (w * 0.20) + Math.sin(time + i * 1.5) * 28;
       const beamGrad = this.ctx.createLinearGradient(beamX, 0, beamX - 120, h);
-      beamGrad.addColorStop(0, 'rgba(56, 189, 248, 0.14)');
-      beamGrad.addColorStop(0.5, 'rgba(56, 189, 248, 0.05)');
+      beamGrad.addColorStop(0, 'rgba(56, 189, 248, 0.16)');
+      beamGrad.addColorStop(0.5, 'rgba(56, 189, 248, 0.06)');
       beamGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
       this.ctx.fillStyle = beamGrad;
       this.ctx.beginPath();
@@ -1062,34 +1063,31 @@ class SidehopApp {
     }
 
     // 3. Distant Atlantean submerged ruins & sunken temple pillars (slow parallax)
-    const horizon = h * 0.74;
+    const horizon = h * 0.72 + camYShift * 0.6;
     this.ctx.fillStyle = '#032338';
     const ruinsLoop = 1200;
-    const ruinsOff = (this.camera.x * 0.05) % ruinsLoop;
+    const ruinsOff = ((this.camera.x * 0.05) % ruinsLoop + ruinsLoop) % ruinsLoop;
 
-    // Distant seabed silhouette
+    // Distant seabed silhouette extending well below bottom of canvas
     this.ctx.beginPath();
-    this.ctx.moveTo(0, h);
-    for (let x = -200; x <= w + 200; x += 150) {
-      const rx = x - ruinsOff;
-      const ry = horizon + Math.sin(x * 0.008) * 20;
+    this.ctx.moveTo(-200, h + 160);
+    for (let x = -200; x <= w + 250; x += 140) {
+      const rx = x - (ruinsOff % 140);
+      const ry = horizon + Math.sin((x + ruinsOff) * 0.008) * 22;
       this.ctx.lineTo(rx, ry);
     }
-    this.ctx.lineTo(w, h);
+    this.ctx.lineTo(w + 250, h + 160);
     this.ctx.closePath();
     this.ctx.fill();
 
     // Ancient Atlantean pillars & pediments
     [120, 340, 560, 840, 1020].forEach((colX, idx) => {
       const px = ((colX - ruinsOff) % ruinsLoop + ruinsLoop) % ruinsLoop - 100;
-      const pBaseY = horizon + Math.sin(colX * 0.008) * 20;
-      const pH = 70 + (idx % 3) * 25;
-      // Pillar shaft
-      this.ctx.fillRect(px, pBaseY - pH, 16, pH);
-      // Capital & base
+      const pBaseY = horizon + Math.sin(colX * 0.008) * 20 + 18;
+      const pH = 78 + (idx % 3) * 26;
+      this.ctx.fillRect(px, pBaseY - pH, 16, pH + 40);
       this.ctx.fillRect(px - 4, pBaseY - pH - 6, 24, 7);
       this.ctx.fillRect(px - 3, pBaseY - 5, 22, 6);
-      // Ruined pediment block occasionally
       if (idx % 2 === 0) {
         this.ctx.beginPath();
         this.ctx.moveTo(px - 14, pBaseY - pH - 6);
@@ -1100,34 +1098,44 @@ class SidehopApp {
       }
     });
 
-    // 4. Closer coral reef & swaying sea-kelp silhouette (faster parallax)
-    this.ctx.fillStyle = '#053658';
+    // 4. Closer coral reef & swaying sea-kelp silhouette (faster parallax, anchored to h + 160)
+    const reefGrad = this.ctx.createLinearGradient(0, horizon, 0, h + 80);
+    reefGrad.addColorStop(0, '#063B61');
+    reefGrad.addColorStop(1, '#021B30');
+    this.ctx.fillStyle = reefGrad;
     const reefLoop = 900;
-    const reefOff = (this.camera.x * 0.12) % reefLoop;
+    const reefOff = ((this.camera.x * 0.12) % reefLoop + reefLoop) % reefLoop;
     this.ctx.beginPath();
-    this.ctx.moveTo(0, h);
-    for (let x = -200; x <= w + 200; x += 120) {
-      const kx = x - reefOff;
-      const ky = horizon + 25 + Math.cos(x * 0.012) * 25;
+    this.ctx.moveTo(-200, h + 160);
+    for (let x = -200; x <= w + 240; x += 110) {
+      const kx = x - (reefOff % 110);
+      const ky = horizon + 24 + Math.cos((x + reefOff) * 0.012) * 24;
       this.ctx.lineTo(kx, ky);
     }
-    this.ctx.lineTo(w, h);
+    this.ctx.lineTo(w + 240, h + 160);
     this.ctx.closePath();
     this.ctx.fill();
 
-    // Swaying kelp fronds
-    this.ctx.strokeStyle = '#06426C';
+    // Swaying kelp fronds & bioluminescent reef polyps
+    this.ctx.strokeStyle = '#084C7D';
     this.ctx.lineWidth = 6;
     this.ctx.lineCap = 'round';
-    for (let k = -150; k <= w + 150; k += 85) {
-      const kelpX = k - reefOff;
-      const kelpBaseY = horizon + 30 + Math.cos(k * 0.012) * 25;
-      const kelpHeight = 80 + Math.sin(k * 0.02) * 35;
-      const sway = Math.sin(time * 1.8 + k * 0.03) * 18;
+    for (let k = -150; k <= w + 180; k += 85) {
+      const kelpX = k - (reefOff % 85);
+      const worldK = k + reefOff;
+      const kelpBaseY = horizon + 34 + Math.cos(worldK * 0.012) * 22;
+      const kelpHeight = 82 + Math.sin(worldK * 0.02) * 35;
+      const sway = Math.sin(time * 1.8 + worldK * 0.03) * 18;
       this.ctx.beginPath();
-      this.ctx.moveTo(kelpX, kelpBaseY);
+      this.ctx.moveTo(kelpX, kelpBaseY + 35);
       this.ctx.quadraticCurveTo(kelpX + sway * 0.5, kelpBaseY - kelpHeight * 0.5, kelpX + sway, kelpBaseY - kelpHeight);
       this.ctx.stroke();
+
+      // Glowing cyan/coral bioluminescent tip
+      this.ctx.fillStyle = (Math.abs(Math.round(worldK / 85)) % 2 === 0) ? 'rgba(56, 189, 248, 0.55)' : 'rgba(244, 114, 182, 0.5)';
+      this.ctx.beginPath();
+      this.ctx.arc(kelpX + sway, kelpBaseY - kelpHeight, 3.2, 0, Math.PI * 2);
+      this.ctx.fill();
     }
 
     // 5. Rising translucent air bubbles with wobble
@@ -1140,7 +1148,6 @@ class SidehopApp {
       }
       const drawX = ((b.x % (w + 200)) + (w + 200)) % (w + 200) - 100;
 
-      // Bubble outline & subtle fill
       this.ctx.fillStyle = 'rgba(125, 211, 252, 0.22)';
       this.ctx.strokeStyle = 'rgba(224, 242, 254, 0.75)';
       this.ctx.lineWidth = 1.2;
@@ -1149,7 +1156,6 @@ class SidehopApp {
       this.ctx.fill();
       this.ctx.stroke();
 
-      // Specular shine dot
       this.ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
       this.ctx.beginPath();
       this.ctx.arc(drawX - b.radius * 0.35, b.y - b.radius * 0.35, Math.max(0.8, b.radius * 0.28), 0, Math.PI * 2);
@@ -1159,166 +1165,307 @@ class SidehopApp {
     this.ctx.restore();
   }
 
+  getLifelikeCloudSprite(variant = 0) {
+    if (!this._lifelikeCloudCache) this._lifelikeCloudCache = {};
+    if (this._lifelikeCloudCache[variant]) return this._lifelikeCloudCache[variant];
+
+    const cw = 260;
+    const ch = 130;
+    const c = document.createElement('canvas');
+    c.width = cw;
+    c.height = ch;
+    const g = c.getContext('2d');
+
+    const puffSets = [
+      [ [68, 76, 36], [104, 54, 46], [148, 58, 42], [186, 76, 32], [126, 78, 38], [88, 82, 32], [160, 82, 32] ],
+      [ [62, 78, 32], [96, 60, 40], [138, 50, 48], [178, 70, 36], [118, 78, 38], [156, 80, 32] ]
+    ];
+    const puffs = puffSets[variant % puffSets.length];
+
+    // 1. Soft atmospheric drop shadow underneath cloud base
+    const baseShadow = g.createRadialGradient(128, 96, 10, 128, 96, 95);
+    baseShadow.addColorStop(0, 'rgba(22, 54, 98, 0.30)');
+    baseShadow.addColorStop(0.65, 'rgba(30, 68, 118, 0.14)');
+    baseShadow.addColorStop(1, 'rgba(30, 68, 118, 0)');
+    g.fillStyle = baseShadow;
+    g.beginPath();
+    g.ellipse(128, 96, 92, 20, 0, 0, Math.PI * 2);
+    g.fill();
+
+    // 2. Ambient-occluded cool lavender-slate under-volume
+    puffs.forEach(([px, py, pr]) => {
+      const aoGrad = g.createRadialGradient(px, py + pr * 0.22, pr * 0.05, px, py + 4, pr * 1.06);
+      aoGrad.addColorStop(0, '#CBD5E1');
+      aoGrad.addColorStop(0.58, '#94A3B8');
+      aoGrad.addColorStop(0.85, 'rgba(148, 163, 184, 0.55)');
+      aoGrad.addColorStop(1, 'rgba(148, 163, 184, 0)');
+      g.fillStyle = aoGrad;
+      g.beginPath();
+      g.arc(px, py + 4, pr * 1.06, 0, Math.PI * 2);
+      g.fill();
+    });
+
+    // 3. Seamless volumetric cloud body (soft feathered radial puffs without dark rims!)
+    puffs.forEach(([px, py, pr]) => {
+      const bodyGrad = g.createRadialGradient(px - pr * 0.22, py - pr * 0.28, pr * 0.08, px, py, pr * 1.04);
+      bodyGrad.addColorStop(0, '#FFFFFF');
+      bodyGrad.addColorStop(0.55, '#F8FAFC');
+      bodyGrad.addColorStop(0.82, 'rgba(241, 245, 249, 0.88)');
+      bodyGrad.addColorStop(1, 'rgba(226, 232, 240, 0)');
+      g.fillStyle = bodyGrad;
+      g.beginPath();
+      g.arc(px, py, pr * 1.04, 0, Math.PI * 2);
+      g.fill();
+    });
+
+    // 4. Top-left warm ivory sun-kissed rim highlights (subsurface scattering)
+    puffs.forEach(([px, py, pr]) => {
+      const sunGrad = g.createRadialGradient(px - pr * 0.32, py - pr * 0.36, 2, px - pr * 0.18, py - pr * 0.22, pr * 0.72);
+      sunGrad.addColorStop(0, 'rgba(255, 255, 250, 0.96)');
+      sunGrad.addColorStop(0.5, 'rgba(255, 255, 255, 0.45)');
+      sunGrad.addColorStop(1, 'rgba(255, 255, 255, 0)');
+      g.fillStyle = sunGrad;
+      g.beginPath();
+      g.arc(px - pr * 0.12, py - pr * 0.14, pr * 0.72, 0, Math.PI * 2);
+      g.fill();
+    });
+
+    this._lifelikeCloudCache[variant] = c;
+    return c;
+  }
+
   drawUncanny3DBackground(w, h) {
     this.ctx.save();
     const animTime = performance.now() * 0.001;
+    // Vertical camera parallax clamped so jumping high NEVER exposes the bottom of the hills
+    const camYShift = Math.max(-75, Math.min(75, -(this.camera.y || 0) * 0.15));
 
-    // Layer 0: SGI 90s Raytraced / Photorealistic Cerulean-to-Horizon Sky Gradient
+    // Layer 0: Deep Raytraced Studio Cobalt-to-Cerulean Atmospheric Sky Gradient
     const skyGrad = this.ctx.createLinearGradient(0, 0, 0, h);
-    skyGrad.addColorStop(0, '#1E5FA8');
-    skyGrad.addColorStop(0.38, '#4F94D4');
-    skyGrad.addColorStop(0.72, '#9BC8EE');
-    skyGrad.addColorStop(1, '#D4E9F9');
+    skyGrad.addColorStop(0, '#164B8C');
+    skyGrad.addColorStop(0.32, '#2B6CB0');
+    skyGrad.addColorStop(0.64, '#5A9BD6');
+    skyGrad.addColorStop(0.86, '#8EC3EB');
+    skyGrad.addColorStop(1, '#3A7D44'); // Rich emerald horizon ground bounce (never pale white!)
     this.ctx.fillStyle = skyGrad;
     this.ctx.fillRect(0, 0, w, h);
 
-    // Embedded Blueprint / Coordinate Grid in the Sky (Signature detail from all 5 aesthetic register sketches!)
+    // Subtle upper-left solar atmospheric scatter glow
+    const sunGlow = this.ctx.createRadialGradient(w * 0.18, h * 0.14, 10, w * 0.18, h * 0.14, Math.max(w, h) * 0.65);
+    sunGlow.addColorStop(0, 'rgba(255, 253, 240, 0.22)');
+    sunGlow.addColorStop(0.45, 'rgba(186, 230, 253, 0.08)');
+    sunGlow.addColorStop(1, 'rgba(0, 0, 0, 0)');
+    this.ctx.fillStyle = sunGlow;
+    this.ctx.fillRect(0, 0, w, h);
+
+    // Layer 1: 1:1 World-Aligned 40x40 Architectural CAD / Blueprint Grid in the Sky
+    // Aligns with the actual 40x40 component grid while fading smoothly into the horizon
     const gridSize = 40;
-    const gridOffX = -(this.camera.x * 0.18) % gridSize;
-    const gridOffY = -(this.camera.y * 0.18) % gridSize;
+    const startWorldX = Math.floor(this.camera.x / gridSize) * gridSize;
+    const startWorldY = Math.floor(this.camera.y / gridSize) * gridSize;
 
-    // Subtle minor 20px subdivisions
-    this.ctx.strokeStyle = 'rgba(255, 255, 255, 0.09)';
-    this.ctx.lineWidth = 0.75;
+    // Minor 40px world grid lines
+    this.ctx.strokeStyle = 'rgba(255, 255, 255, 0.13)';
+    this.ctx.lineWidth = 0.85;
     this.ctx.beginPath();
-    for (let x = gridOffX; x < w; x += 20) {
-      this.ctx.moveTo(x, 0);
-      this.ctx.lineTo(x, h);
+    for (let wx = startWorldX; wx <= this.camera.x + w + gridSize; wx += gridSize) {
+      if (wx % 200 === 0) continue;
+      const sx = Math.round(wx - this.camera.x) + 0.5;
+      this.ctx.moveTo(sx, 0);
+      this.ctx.lineTo(sx, h);
     }
-    for (let y = gridOffY; y < h; y += 20) {
-      this.ctx.moveTo(0, y);
-      this.ctx.lineTo(w, y);
+    for (let wy = startWorldY; wy <= this.camera.y + h + gridSize; wy += gridSize) {
+      if (wy % 200 === 0) continue;
+      const sy = Math.round(wy - this.camera.y) + 0.5;
+      this.ctx.moveTo(0, sy);
+      this.ctx.lineTo(w, sy);
     }
     this.ctx.stroke();
 
-    // Primary 40px CAD / Raytracer Coordinate Grid
-    this.ctx.strokeStyle = 'rgba(255, 255, 255, 0.22)';
-    this.ctx.lineWidth = 1.1;
+    // Major 200px (5-block) CAD reference lines
+    this.ctx.strokeStyle = 'rgba(255, 255, 255, 0.24)';
+    this.ctx.lineWidth = 1.15;
     this.ctx.beginPath();
-    for (let x = gridOffX; x < w; x += gridSize) {
-      this.ctx.moveTo(x, 0);
-      this.ctx.lineTo(x, h);
+    for (let wx = startWorldX; wx <= this.camera.x + w + gridSize; wx += gridSize) {
+      if (wx % 200 !== 0) continue;
+      const sx = Math.round(wx - this.camera.x) + 0.5;
+      this.ctx.moveTo(sx, 0);
+      this.ctx.lineTo(sx, h);
     }
-    for (let y = gridOffY; y < h; y += gridSize) {
-      this.ctx.moveTo(0, y);
-      this.ctx.lineTo(w, y);
+    for (let wy = startWorldY; wy <= this.camera.y + h + gridSize; wy += gridSize) {
+      if (wy % 200 !== 0) continue;
+      const sy = Math.round(wy - this.camera.y) + 0.5;
+      this.ctx.moveTo(0, sy);
+      this.ctx.lineTo(w, sy);
     }
     this.ctx.stroke();
 
-    // Layer 2 (Upper Sky): Volumetric 3D Shaded Cumulus Clouds with Raytraced Ambient Occlusion Undersides
+    // Layer 2 (Upper Sky): Cached True Volumetric 3D Cumulus Clouds (Zero grey circle outlines)
     const cloudDefs = [
-      { baseCol: 90, y: 78, scale: 1.05, speed: 0.07 },
-      { baseCol: 420, y: 125, scale: 0.85, speed: 0.11 },
-      { baseCol: 780, y: 68, scale: 1.22, speed: 0.06 },
-      { baseCol: 1140, y: 138, scale: 0.95, speed: 0.09 }
+      { baseCol: 70, y: 36, scale: 1.05, speed: 0.06, variant: 0 },
+      { baseCol: 430, y: 84, scale: 0.86, speed: 0.09, variant: 1 },
+      { baseCol: 790, y: 28, scale: 1.18, speed: 0.05, variant: 0 },
+      { baseCol: 1150, y: 92, scale: 0.94, speed: 0.08, variant: 1 }
     ];
-    const cloudLoop = 1400;
+    const cloudLoop = 1440;
     cloudDefs.forEach((c, idx) => {
-      let cx = (c.baseCol - this.camera.x * c.speed + animTime * 4 * (idx % 2 === 0 ? 1 : 0.7)) % cloudLoop;
-      if (cx < -220) cx += cloudLoop;
-
-      this.ctx.save();
-      this.ctx.translate(cx, c.y);
-      this.ctx.scale(c.scale, c.scale);
-
-      // Soft cast atmospheric shadow beneath cloud
-      this.ctx.fillStyle = 'rgba(26, 62, 108, 0.18)';
-      this.ctx.beginPath();
-      this.ctx.ellipse(82, 44, 62, 12, 0, 0, Math.PI * 2);
-      this.ctx.fill();
-
-      const puffs = [
-        [38, 30, 24],
-        [66, 18, 32],
-        [98, 22, 28],
-        [124, 32, 21],
-        [78, 32, 26]
-      ];
-
-      // 3D shaded cloud puffs (cool slate-blue underside to pure sunlit white top)
-      puffs.forEach(([px, py, pr]) => {
-        const puffGrad = this.ctx.createRadialGradient(px - pr * 0.28, py - pr * 0.35, pr * 0.1, px, py, pr);
-        puffGrad.addColorStop(0, '#FFFFFF');
-        puffGrad.addColorStop(0.55, '#F1F5F9');
-        puffGrad.addColorStop(0.85, '#CBD5E1');
-        puffGrad.addColorStop(1, '#94A3B8');
-        this.ctx.fillStyle = puffGrad;
-        this.ctx.beginPath();
-        this.ctx.arc(px, py, pr, 0, Math.PI * 2);
-        this.ctx.fill();
-      });
-      this.ctx.restore();
+      let cx = (c.baseCol - this.camera.x * c.speed + animTime * 3.5 * (idx % 2 === 0 ? 1 : 0.75)) % cloudLoop;
+      if (cx < -280) cx += cloudLoop;
+      const cy = c.y + camYShift * 0.25;
+      const sprite = this.getLifelikeCloudSprite(c.variant);
+      this.ctx.drawImage(sprite, cx, cy, sprite.width * c.scale, sprite.height * c.scale);
     });
 
-    const horizon = h * 0.76;
+    // Base horizon positioned so hills cover the lower 38% of the viewport AND extend down to h + 220
+    const horizon = h * 0.64 + camYShift * 0.55;
 
-    // Layer 1A: Distant 3D Raytraced / Diorama Rolling Hills (0.06x parallax)
-    const hillLoop1 = 960;
-    const hillOff1 = (this.camera.x * 0.06) % hillLoop1;
-    for (let x = -320; x < w + 420; x += 280) {
-      const hx = x - hillOff1;
-      const domeR = 230;
-      const domeY = horizon + 125;
-      const hillGrad1 = this.ctx.createRadialGradient(hx - 55, domeY - domeR * 0.85, 18, hx, domeY, domeR);
-      hillGrad1.addColorStop(0, '#74C655');
-      hillGrad1.addColorStop(0.5, '#3E8E2E');
-      hillGrad1.addColorStop(0.88, '#1E561C');
-      hillGrad1.addColorStop(1, '#113411');
-      this.ctx.fillStyle = hillGrad1;
+    // Layer 3A: Distant Aerial-Perspective Teal-Emerald 3D Mountainous Foothills (0.04x parallax)
+    const distGrad = this.ctx.createLinearGradient(0, horizon - 110, 0, h + 100);
+    distGrad.addColorStop(0, '#5FA882');
+    distGrad.addColorStop(0.35, '#3B7D5E');
+    distGrad.addColorStop(0.75, '#1F4E3B');
+    distGrad.addColorStop(1, '#102B20');
+    this.ctx.fillStyle = distGrad;
+    this.ctx.beginPath();
+    this.ctx.moveTo(-100, h + 220);
+    for (let sx = -60; sx <= w + 60; sx += 16) {
+      const wx = sx + this.camera.x * 0.04;
+      const y = horizon - 48
+        - Math.sin(wx * 0.0045) * 42
+        - Math.cos(wx * 0.011) * 18;
+      this.ctx.lineTo(sx, y);
+    }
+    this.ctx.lineTo(w + 100, h + 220);
+    this.ctx.closePath();
+    this.ctx.fill();
+
+    // Layer 3B: Midground Raytraced 3D Sculpted Rolling Hills (0.08x parallax, continuous down to h + 220)
+    const hillLoop1 = 1040;
+    const hillOff1 = ((this.camera.x * 0.08) % hillLoop1 + hillLoop1) % hillLoop1;
+    for (let x = -360; x < w + 460; x += 260) {
+      const hx = x - (hillOff1 % 260);
+      const hillIndex = Math.round((x + hillOff1 - (hillOff1 % 260)) / 260);
+      const domeW = 240;
+      const crestY = horizon - 38 + Math.sin(hillIndex * 1.7) * 18;
+
+      // Soft ambient occlusion shadow cast onto distant foothills
+      this.ctx.fillStyle = 'rgba(8, 28, 16, 0.32)';
       this.ctx.beginPath();
-      this.ctx.arc(hx, domeY, domeR, Math.PI, 0, false);
+      this.ctx.moveTo(hx - domeW, h + 220);
+      this.ctx.lineTo(hx - domeW, crestY + 130);
+      this.ctx.bezierCurveTo(hx - domeW * 0.55, crestY - 14, hx + domeW * 0.55, crestY - 14, hx + domeW + 14, crestY + 130);
+      this.ctx.lineTo(hx + domeW + 14, h + 220);
+      this.ctx.closePath();
+      this.ctx.fill();
+
+      // 3D normal-shaded hill volume (sunlit top-left crest, rich emerald midtone, deep forest shadow base)
+      const hillGrad1 = this.ctx.createRadialGradient(
+        hx - domeW * 0.26,
+        crestY + 34,
+        16,
+        hx + 20,
+        crestY + 170,
+        domeW * 1.35
+      );
+      hillGrad1.addColorStop(0, '#8CE25E');
+      hillGrad1.addColorStop(0.28, '#53AD38');
+      hillGrad1.addColorStop(0.62, '#2B6E22');
+      hillGrad1.addColorStop(0.88, '#174214');
+      hillGrad1.addColorStop(1, '#0D290B');
+      this.ctx.fillStyle = hillGrad1;
+
+      this.ctx.beginPath();
+      this.ctx.moveTo(hx - domeW, h + 220);
+      this.ctx.lineTo(hx - domeW, crestY + 135);
+      this.ctx.bezierCurveTo(hx - domeW * 0.55, crestY - 8, hx + domeW * 0.55, crestY - 8, hx + domeW, crestY + 135);
+      this.ctx.lineTo(hx + domeW, h + 220);
       this.ctx.closePath();
       this.ctx.fill();
     }
 
-    // Layer 1B: Closer 3D Shaded Velvet-Turf Hills with Deep Raytraced Shadows & Out-of-Focus Wildflower Bokeh (0.12x parallax)
-    const hillLoop2 = 760;
-    const hillOff2 = (this.camera.x * 0.12) % hillLoop2;
-    for (let x = -260; x < w + 380; x += 220) {
-      const hx = x - hillOff2;
-      const domeR = 185;
-      const domeY = horizon + 120;
+    // Layer 3C: Closer Foreground 3D Velvet-Turf Diorama Hills with Depth-of-Field Wildflower Bokeh (0.13x parallax)
+    const hillLoop2 = 880;
+    const hillOff2 = ((this.camera.x * 0.13) % hillLoop2 + hillLoop2) % hillLoop2;
+    const bokehPalette = [
+      ['rgba(254, 240, 138, 0.85)', 'rgba(250, 204, 21, 0.28)'],
+      ['rgba(255, 255, 255, 0.90)', 'rgba(226, 232, 240, 0.30)'],
+      ['rgba(244, 114, 182, 0.85)', 'rgba(236, 72, 153, 0.26)'],
+      ['rgba(192, 132, 252, 0.85)', 'rgba(168, 85, 247, 0.26)'],
+      ['rgba(251, 191, 36, 0.88)', 'rgba(245, 158, 11, 0.28)']
+    ];
 
-      // Cast shadow onto distant hills
-      this.ctx.fillStyle = 'rgba(10, 32, 12, 0.28)';
-      this.ctx.beginPath();
-      this.ctx.arc(hx + 10, domeY + 4, domeR + 6, Math.PI, 0, false);
-      this.ctx.fill();
+    for (let x = -320; x < w + 420; x += 220) {
+      const hx = x - (hillOff2 % 220);
+      const hillIndex = Math.round((x + hillOff2 - (hillOff2 % 220)) / 220);
+      const domeW = 205;
+      const crestY = horizon + 12 + Math.cos(hillIndex * 2.1) * 16;
 
-      const hillGrad2 = this.ctx.createRadialGradient(hx - 45, domeY - domeR * 0.82, 14, hx, domeY, domeR);
-      hillGrad2.addColorStop(0, '#8CE063');
-      hillGrad2.addColorStop(0.42, '#4BA634');
-      hillGrad2.addColorStop(0.82, '#256B1E');
-      hillGrad2.addColorStop(1, '#133E10');
-      this.ctx.fillStyle = hillGrad2;
+      // Deep raytraced cast shadow behind foreground hill
+      this.ctx.fillStyle = 'rgba(6, 22, 10, 0.38)';
       this.ctx.beginPath();
-      this.ctx.arc(hx, domeY, domeR, Math.PI, 0, false);
+      this.ctx.moveTo(hx - domeW, h + 220);
+      this.ctx.lineTo(hx - domeW, crestY + 135);
+      this.ctx.bezierCurveTo(hx - domeW * 0.52, crestY - 12, hx + domeW * 0.52, crestY - 12, hx + domeW + 12, crestY + 135);
+      this.ctx.lineTo(hx + domeW + 12, h + 220);
       this.ctx.closePath();
       this.ctx.fill();
 
-      // Depth-of-field bokeh wildflowers scattered on 3D hill surface (from 01_sidehop_50pct_realism_diorama.png)
-      const flowerColors = ['#FEF08A', '#FFFFFF', '#F472B6', '#C084FC', '#FBBF24'];
-      for (let f = 0; f < 9; f++) {
-        const ang = Math.PI + 0.35 + (f * 0.27);
-        const rad = domeR * (0.45 + ((f * 37) % 45) * 0.01);
-        const fx = hx + Math.cos(ang) * rad;
-        const fy = domeY + Math.sin(ang) * rad;
-        if (fy < h && fy > horizon - 70) {
-          const fCol = flowerColors[(f + Math.abs(Math.round(x / 220))) % flowerColors.length];
-          // Soft bokeh halo
-          this.ctx.fillStyle = fCol;
-          this.ctx.globalAlpha = 0.35;
+      // 3D velvet-turf shader gradient extending all the way below canvas bottom
+      const hillGrad2 = this.ctx.createRadialGradient(
+        hx - domeW * 0.25,
+        crestY + 32,
+        12,
+        hx + 18,
+        crestY + 165,
+        domeW * 1.32
+      );
+      hillGrad2.addColorStop(0, '#A3F06C');
+      hillGrad2.addColorStop(0.24, '#65C23E');
+      hillGrad2.addColorStop(0.58, '#348224');
+      hillGrad2.addColorStop(0.86, '#1B4D15');
+      hillGrad2.addColorStop(1, '#0E2B0B');
+      this.ctx.fillStyle = hillGrad2;
+
+      this.ctx.beginPath();
+      this.ctx.moveTo(hx - domeW, h + 220);
+      this.ctx.lineTo(hx - domeW, crestY + 140);
+      this.ctx.bezierCurveTo(hx - domeW * 0.52, crestY - 6, hx + domeW * 0.52, crestY - 6, hx + domeW, crestY + 140);
+      this.ctx.lineTo(hx + domeW, h + 220);
+      this.ctx.closePath();
+      this.ctx.fill();
+
+      // Specular rim sheen along sunlit left slope of 3D hill
+      const rimGrad = this.ctx.createLinearGradient(hx - domeW * 0.7, crestY, hx + domeW * 0.2, crestY + 80);
+      rimGrad.addColorStop(0, 'rgba(217, 249, 157, 0.35)');
+      rimGrad.addColorStop(0.6, 'rgba(163, 230, 53, 0.12)');
+      rimGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+      this.ctx.strokeStyle = rimGrad;
+      this.ctx.lineWidth = 3;
+      this.ctx.beginPath();
+      this.ctx.moveTo(hx - domeW * 0.82, crestY + 95);
+      this.ctx.quadraticCurveTo(hx - domeW * 0.25, crestY + 6, hx + domeW * 0.28, crestY + 26);
+      this.ctx.stroke();
+
+      // Out-of-focus 3D camera lens bokeh wildflowers on the hill slope
+      for (let f = 0; f < 8; f++) {
+        const seed = Math.abs(hillIndex * 31 + f * 17);
+        const normX = -0.62 + (f / 7) * 1.24 + Math.sin(seed) * 0.06;
+        const fx = hx + normX * (domeW * 0.78);
+        const curveY = crestY + 26 + (normX * normX) * 78 + ((seed % 5) * 11);
+        const fy = curveY;
+        if (fy < h + 20) {
+          const [coreCol, haloCol] = bokehPalette[seed % bokehPalette.length];
+          const bokehR = 5.5 + (seed % 3) * 1.8;
+          const bGrad = this.ctx.createRadialGradient(fx, fy, 0.5, fx, fy, bokehR);
+          bGrad.addColorStop(0, coreCol);
+          bGrad.addColorStop(0.45, haloCol);
+          bGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+          this.ctx.fillStyle = bGrad;
           this.ctx.beginPath();
-          this.ctx.arc(fx, fy, 4.5, 0, Math.PI * 2);
-          this.ctx.fill();
-          // Bright center petal dot
-          this.ctx.globalAlpha = 0.92;
-          this.ctx.beginPath();
-          this.ctx.arc(fx, fy, 2.1, 0, Math.PI * 2);
+          this.ctx.arc(fx, fy, bokehR, 0, Math.PI * 2);
           this.ctx.fill();
         }
       }
-      this.ctx.globalAlpha = 1.0;
     }
 
     this.ctx.restore();
@@ -1331,9 +1478,10 @@ class SidehopApp {
   drawSnowyBackground(w, h) {
     this.ctx.save();
     const grad = this.ctx.createLinearGradient(0, 0, 0, h);
-    grad.addColorStop(0, '#94BDE4');
-    grad.addColorStop(0.55, '#D5E6F5');
-    grad.addColorStop(1, '#EEF5FC');
+    grad.addColorStop(0, '#7FB0DF');
+    grad.addColorStop(0.50, '#C5DDF2');
+    grad.addColorStop(0.82, '#E2EFFA');
+    grad.addColorStop(1, '#B8D0E8');
     this.ctx.fillStyle = grad;
     this.ctx.fillRect(0, 0, w, h);
 
@@ -1344,6 +1492,7 @@ class SidehopApp {
 
   drawNightBackground(w, h) {
     this.ctx.save();
+    const camYShift = Math.max(-80, Math.min(80, -(this.camera.y || 0) * 0.14));
     const grad = this.ctx.createLinearGradient(0, 0, 0, h);
     grad.addColorStop(0, '#040814');
     grad.addColorStop(0.55, '#0B132B');
@@ -1354,19 +1503,34 @@ class SidehopApp {
     this.drawStars(w, h);
     this.drawCrescentMoon(w, h);
 
-    // Nocturnal mountain horizon silhouette
-    const horizon = h * 0.78;
-    this.ctx.fillStyle = '#070B18';
+    // Layer 1: Distant nocturnal mountain range
+    const horizon = h * 0.72 + camYShift * 0.5;
+    this.ctx.fillStyle = '#0D1730';
     this.ctx.beginPath();
-    this.ctx.moveTo(0, h);
-    const loop = 800;
-    const off = (this.camera.x * 0.08) % loop;
-    for (let x = -200; x <= w + 200; x += 180) {
-      const hx = x - off;
-      const hy = horizon - 35 + Math.sin(x * 0.012) * 30;
+    this.ctx.moveTo(-200, h + 160);
+    const loop1 = 900;
+    const off1 = ((this.camera.x * 0.05) % loop1 + loop1) % loop1;
+    for (let x = -200; x <= w + 240; x += 150) {
+      const hx = x - (off1 % 150);
+      const hy = horizon - 55 + Math.sin((x + off1) * 0.009) * 34;
       this.ctx.lineTo(hx, hy);
     }
-    this.ctx.lineTo(w, h);
+    this.ctx.lineTo(w + 240, h + 160);
+    this.ctx.closePath();
+    this.ctx.fill();
+
+    // Layer 2: Closer midnight ridge silhouette extending well below h
+    this.ctx.fillStyle = '#070B18';
+    this.ctx.beginPath();
+    this.ctx.moveTo(-200, h + 160);
+    const loop2 = 800;
+    const off2 = ((this.camera.x * 0.09) % loop2 + loop2) % loop2;
+    for (let x = -200; x <= w + 240; x += 160) {
+      const hx = x - (off2 % 160);
+      const hy = horizon - 18 + Math.cos((x + off2) * 0.012) * 28;
+      this.ctx.lineTo(hx, hy);
+    }
+    this.ctx.lineTo(w + 240, h + 160);
     this.ctx.closePath();
     this.ctx.fill();
 
@@ -1376,19 +1540,27 @@ class SidehopApp {
   drawChromeBackground(w, h) {
     this.ctx.save();
     const time = performance.now() * 0.001;
+    const camYShift = Math.max(-75, Math.min(75, -(this.camera.y || 0) * 0.12));
+    const horizon = h * 0.68 + camYShift * 0.5;
 
-    // 1. Titanium brushed steel sky gradient with specular flare
-    const grad = this.ctx.createLinearGradient(0, 0, 0, h);
-    grad.addColorStop(0, '#070A10');
-    grad.addColorStop(0.28, '#131C2E');
-    grad.addColorStop(0.55, '#24334A');
-    grad.addColorStop(0.70, '#64748B');
-    grad.addColorStop(0.72, '#E2E8F0'); // Specular horizon flare
-    grad.addColorStop(1, '#0B111E');
-    this.ctx.fillStyle = grad;
-    this.ctx.fillRect(0, 0, w, h);
+    // 1. Titanium brushed steel sky gradient above horizon
+    const skyGrad = this.ctx.createLinearGradient(0, 0, 0, horizon);
+    skyGrad.addColorStop(0, '#070A10');
+    skyGrad.addColorStop(0.38, '#131C2E');
+    skyGrad.addColorStop(0.75, '#24334A');
+    skyGrad.addColorStop(0.95, '#64748B');
+    skyGrad.addColorStop(1, '#E2E8F0');
+    this.ctx.fillStyle = skyGrad;
+    this.ctx.fillRect(0, 0, w, Math.max(0, horizon));
 
-    const horizon = h * 0.70;
+    // Metallic floor gradient below horizon extending all the way to h
+    const floorGrad = this.ctx.createLinearGradient(0, horizon, 0, h);
+    floorGrad.addColorStop(0, '#334155');
+    floorGrad.addColorStop(0.18, '#1E293B');
+    floorGrad.addColorStop(0.55, '#0F172A');
+    floorGrad.addColorStop(1, '#070B14');
+    this.ctx.fillStyle = floorGrad;
+    this.ctx.fillRect(0, Math.max(0, horizon), w, h - Math.max(0, horizon) + 40);
 
     // 2. Sweeping Animated Volumetric Cyber Searchlights across the night sky
     const searchlights = [-0.25, 0.35, -0.15];
@@ -1416,10 +1588,9 @@ class SidehopApp {
 
     // 3. Floating 3D Chrome Gyroscopic Rings in Upper Sky (Liquid Mercury Gyroscope)
     const gyroX = ((w * 0.78 - (this.camera.x * 0.03)) % (w + 200) + (w + 200)) % (w + 200) - 100;
-    const gyroY = h * 0.26;
+    const gyroY = h * 0.24 + camYShift * 0.25;
     this.ctx.save();
     this.ctx.translate(gyroX, gyroY);
-    // Outer rotating chrome ring
     this.ctx.rotate(time * 0.4);
     const ringGrad1 = this.ctx.createLinearGradient(-45, -45, 45, 45);
     ringGrad1.addColorStop(0, '#FFFFFF');
@@ -1432,7 +1603,6 @@ class SidehopApp {
     this.ctx.ellipse(0, 0, 48, 22, 0, 0, Math.PI * 2);
     this.ctx.stroke();
 
-    // Inner counter-rotating ring
     this.ctx.rotate(-time * 0.85);
     const ringGrad2 = this.ctx.createLinearGradient(-30, 30, 30, -30);
     ringGrad2.addColorStop(0, '#38BDF8');
@@ -1444,7 +1614,6 @@ class SidehopApp {
     this.ctx.ellipse(0, 0, 32, 14, 0, 0, Math.PI * 2);
     this.ctx.stroke();
 
-    // Core liquid chrome sphere with reflection
     const sphereGrad = this.ctx.createRadialGradient(-4, -4, 2, 0, 0, 14);
     sphereGrad.addColorStop(0, '#FFFFFF');
     sphereGrad.addColorStop(0.4, '#CBD5E1');
@@ -1456,25 +1625,24 @@ class SidehopApp {
     this.ctx.fill();
     this.ctx.restore();
 
-    // 4. Distant Industrial Megastructures with Blinking Beacon Lights (Layer 1 - slow parallax)
+    // 4. Distant Industrial Megastructures with Blinking Beacon Lights
     this.ctx.fillStyle = '#1A2333';
     const structLoop = 900;
-    const structOff = (this.camera.x * 0.04) % structLoop;
-    for (let x = -150; x < w + 300; x += 160) {
-      const tx = x - structOff;
-      const tH = 90 + Math.sin(x * 0.01) * 35;
+    const structOff = ((this.camera.x * 0.04) % structLoop + structLoop) % structLoop;
+    for (let x = -160; x < w + 300; x += 160) {
+      const tx = x - (structOff % 160);
+      const worldX = x + structOff;
+      const tH = 95 + Math.sin(worldX * 0.01) * 35;
       this.ctx.fillRect(tx, horizon - tH, 38, tH);
       this.ctx.fillRect(tx + 46, horizon - (tH * 0.7), 54, tH * 0.7);
 
-      // Warning beacon light on tower apex
-      const beaconOn = Math.sin(time * 4.5 + x * 0.05) > 0;
+      const beaconOn = Math.sin(time * 4.5 + worldX * 0.05) > 0;
       this.ctx.fillStyle = beaconOn ? '#EF4444' : '#450A0A';
       this.ctx.beginPath();
       this.ctx.arc(tx + 19, horizon - tH - 4, 3, 0, Math.PI * 2);
       this.ctx.fill();
 
-      // Cyan antenna signal light
-      const beaconCyan = Math.cos(time * 3.5 + x * 0.08) > 0;
+      const beaconCyan = Math.cos(time * 3.5 + worldX * 0.08) > 0;
       this.ctx.fillStyle = beaconCyan ? '#00E5FF' : '#083344';
       this.ctx.beginPath();
       this.ctx.arc(tx + 73, horizon - (tH * 0.7) - 4, 2.5, 0, Math.PI * 2);
@@ -1483,9 +1651,9 @@ class SidehopApp {
       this.ctx.fillStyle = '#1A2333';
     }
 
-    // 5. Midground Heavy Industrial Chrome Cogwheels & Truss Girders (Layer 2 - parallax)
+    // 5. Midground Heavy Industrial Chrome Cogwheels & Truss Girders
     const gearLoop = 700;
-    const gearOff = (this.camera.x * 0.08) % gearLoop;
+    const gearOff = ((this.camera.x * 0.08) % gearLoop + gearLoop) % gearLoop;
     [180, 520].forEach((gx, idx) => {
       const drawGx = ((gx - gearOff) % (w + 200) + (w + 200)) % (w + 200) - 100;
       const drawGy = horizon - 55;
@@ -1495,21 +1663,18 @@ class SidehopApp {
       this.ctx.translate(drawGx, drawGy);
       this.ctx.rotate(rot);
 
-      // Outer rim
       this.ctx.strokeStyle = '#334155';
       this.ctx.lineWidth = 7;
       this.ctx.beginPath();
       this.ctx.arc(0, 0, 42, 0, Math.PI * 2);
       this.ctx.stroke();
 
-      // Specular highlight rim
       this.ctx.strokeStyle = 'rgba(255, 255, 255, 0.25)';
       this.ctx.lineWidth = 2;
       this.ctx.beginPath();
       this.ctx.arc(0, 0, 44, 0, Math.PI);
       this.ctx.stroke();
 
-      // Gear teeth
       const teeth = 8;
       for (let t = 0; t < teeth; t++) {
         const ang = t * (Math.PI * 2 / teeth);
@@ -1517,7 +1682,6 @@ class SidehopApp {
         this.ctx.fillRect(Math.cos(ang) * 40 - 5, Math.sin(ang) * 40 - 5, 10, 10);
       }
 
-      // Hub & spokes
       this.ctx.fillStyle = '#1E293B';
       this.ctx.beginPath();
       this.ctx.arc(0, 0, 16, 0, Math.PI * 2);
@@ -1545,12 +1709,12 @@ class SidehopApp {
     this.ctx.lineTo(w, horizon);
     this.ctx.stroke();
 
-    // 7. Perspective Cybernetic Ground Plane
+    // 7. Perspective Cybernetic Metallic Deck Plane (horizontal + longitudinal lines down to h)
     const groundLines = 10;
     for (let i = 1; i <= groundLines; i++) {
-      const t = Math.pow(i / groundLines, 2.2);
+      const t = Math.pow(i / groundLines, 2.0);
       const gy = horizon + t * (h - horizon);
-      this.ctx.strokeStyle = `rgba(148, 163, 184, ${0.1 + t * 0.35})`;
+      this.ctx.strokeStyle = `rgba(148, 163, 184, ${0.12 + t * 0.35})`;
       this.ctx.lineWidth = 1 + t * 1.5;
       this.ctx.beginPath();
       this.ctx.moveTo(0, gy);
@@ -1588,40 +1752,16 @@ class SidehopApp {
       });
     }
 
-    // 8. Low-Lying Rolling Jungle Mist / Forest Fog
-    const mistLoop = 800;
-    const mistOff = ((time * 25) + (this.camera.x * 0.15)) % mistLoop;
-    this.ctx.fillStyle = 'rgba(209, 250, 229, 0.18)';
-    for (let mx = -200; mx < w + 300; mx += 140) {
-      const px = mx - mistOff;
-      this.ctx.beginPath();
-      this.ctx.arc(px + 60, h - 20, 65, Math.PI, 0);
-      this.ctx.fill();
-    }
-
-    // 9. Fluttering Tropical Butterflies
-    [ [180, horizon - 80, '#FFD166'], [540, horizon - 120, '#00E5FF'], [820, horizon - 60, '#FF3388'] ].forEach(([bx, by, col], idx) => {
-      const bX = ((bx + Math.sin(time * 1.5 + idx * 2) * 50 - this.camera.x * 0.1) % (w + 200) + (w + 200)) % (w + 200) - 100;
-      const bY = by + Math.cos(time * 2 + idx) * 20;
-      const flap = Math.abs(Math.sin(time * 8 + idx * 3));
-      this.ctx.save();
-      this.ctx.translate(bX, bY);
-      this.ctx.fillStyle = col;
-      this.ctx.beginPath();
-      this.ctx.ellipse(-3 * flap, 0, 4 * flap, 3, -0.4, 0, Math.PI * 2);
-      this.ctx.ellipse(3 * flap, 0, 4 * flap, 3, 0.4, 0, Math.PI * 2);
-      this.ctx.fill();
-      this.ctx.restore();
-    });
-
     this.ctx.restore();
   }
 
   drawMeadowsBackground(w, h) {
     this.ctx.save();
     const grad = this.ctx.createLinearGradient(0, 0, 0, h);
-    grad.addColorStop(0, '#60A5FA');
-    grad.addColorStop(1, '#DBEAFE');
+    grad.addColorStop(0, '#3B82F6');
+    grad.addColorStop(0.55, '#93C5FD');
+    grad.addColorStop(0.85, '#BAE6FD');
+    grad.addColorStop(1, '#86EFAC');
     this.ctx.fillStyle = grad;
     this.ctx.fillRect(0, 0, w, h);
 
@@ -1632,38 +1772,42 @@ class SidehopApp {
 
   drawSnowyMountains(w, h) {
     this.ctx.save();
-    const horizon = h * 0.72;
-    // Layer 1: Distant pale mountains
+    const camYShift = Math.max(-80, Math.min(80, -(this.camera.y || 0) * 0.14));
+    const horizon = h * 0.70 + camYShift * 0.5;
+
+    // Layer 1: Distant pale mountains anchored to h + 160
     this.ctx.fillStyle = '#C1D5E8';
     this.ctx.beginPath();
-    this.ctx.moveTo(0, h);
+    this.ctx.moveTo(-200, h + 160);
     const loopW1 = 1200;
-    const off1 = (this.camera.x * 0.05) % loopW1;
-    for (let x = -200; x <= w + 200; x += 180) {
-      const peakX = x - off1;
-      const peakH = 90 + Math.sin(x * 0.02) * 40;
+    const off1 = ((this.camera.x * 0.05) % loopW1 + loopW1) % loopW1;
+    for (let x = -200; x <= w + 240; x += 180) {
+      const peakX = x - (off1 % 180);
+      const worldX = x + off1 - (off1 % 180);
+      const peakH = 95 + Math.sin(worldX * 0.02) * 40;
       this.ctx.lineTo(peakX, horizon - peakH);
-      this.ctx.lineTo(peakX + 90, horizon);
+      this.ctx.lineTo(peakX + 90, horizon - 10);
     }
-    this.ctx.lineTo(w, h);
+    this.ctx.lineTo(w + 240, h + 160);
     this.ctx.closePath();
     this.ctx.fill();
 
-    // Layer 2: Closer sharp mountain range with white snow caps
+    // Layer 2: Closer sharp mountain range with white snow caps anchored to h + 160
     this.ctx.fillStyle = '#8FA9C4';
     this.ctx.beginPath();
-    this.ctx.moveTo(0, h);
+    this.ctx.moveTo(-200, h + 160);
     const loopW2 = 1000;
-    const off2 = (this.camera.x * 0.12) % loopW2;
+    const off2 = ((this.camera.x * 0.12) % loopW2 + loopW2) % loopW2;
     const peaks = [];
-    for (let x = -200; x <= w + 200; x += 160) {
-      const peakX = x - off2;
-      const peakH = 130 + Math.cos(x * 0.015) * 50;
+    for (let x = -200; x <= w + 240; x += 160) {
+      const peakX = x - (off2 % 160);
+      const worldX = x + off2 - (off2 % 160);
+      const peakH = 130 + Math.cos(worldX * 0.015) * 50;
       peaks.push({ x: peakX, topY: horizon - peakH });
       this.ctx.lineTo(peakX, horizon - peakH);
-      this.ctx.lineTo(peakX + 80, horizon);
+      this.ctx.lineTo(peakX + 80, horizon + 6);
     }
-    this.ctx.lineTo(w, h);
+    this.ctx.lineTo(w + 240, h + 160);
     this.ctx.closePath();
     this.ctx.fill();
 
@@ -1679,6 +1823,22 @@ class SidehopApp {
       this.ctx.closePath();
       this.ctx.fill();
     });
+
+    // Layer 3: Rolling foreground snow drifts extending to h + 160
+    const driftGrad = this.ctx.createLinearGradient(0, horizon + 10, 0, h + 80);
+    driftGrad.addColorStop(0, '#E2EEF8');
+    driftGrad.addColorStop(1, '#B8CFE6');
+    this.ctx.fillStyle = driftGrad;
+    this.ctx.beginPath();
+    this.ctx.moveTo(-200, h + 160);
+    const off3 = ((this.camera.x * 0.16) % 800 + 800) % 800;
+    for (let x = -200; x <= w + 240; x += 200) {
+      const dx = x - (off3 % 200);
+      this.ctx.quadraticCurveTo(dx + 100, horizon + 8, dx + 200, horizon + 36);
+    }
+    this.ctx.lineTo(w + 240, h + 160);
+    this.ctx.closePath();
+    this.ctx.fill();
 
     this.ctx.restore();
   }
@@ -1706,7 +1866,6 @@ class SidehopApp {
     const moonY = 85;
     const radius = 28;
 
-    // Outer glow
     const glow = this.ctx.createRadialGradient(moonX, moonY, 10, moonX, moonY, 60);
     glow.addColorStop(0, 'rgba(254, 243, 199, 0.35)');
     glow.addColorStop(1, 'rgba(254, 243, 199, 0)');
@@ -1715,13 +1874,11 @@ class SidehopApp {
     this.ctx.arc(moonX, moonY, 60, 0, Math.PI * 2);
     this.ctx.fill();
 
-    // Moon body
     this.ctx.fillStyle = '#FEF3C7';
     this.ctx.beginPath();
     this.ctx.arc(moonX, moonY, radius, 0, Math.PI * 2);
     this.ctx.fill();
 
-    // Cutout to make crescent
     this.ctx.fillStyle = '#080E20';
     this.ctx.beginPath();
     this.ctx.arc(moonX - 9, moonY - 6, radius - 2, 0, Math.PI * 2);
@@ -1734,14 +1891,12 @@ class SidehopApp {
     this.ctx.save();
     const horizon = h * 0.62;
 
-    // Clean brushed metallic background plates
     const bldOff = (this.camera.x * 0.05) % 400;
     this.ctx.fillStyle = 'rgba(255, 255, 255, 0.04)';
     for (let x = -200; x < w + 400; x += 80) {
       this.ctx.fillRect(x - bldOff, 0, 78, horizon);
     }
 
-    // Horizon metallic sheen line
     this.ctx.strokeStyle = '#94A3B8';
     this.ctx.lineWidth = 2;
     this.ctx.beginPath();
@@ -1749,7 +1904,6 @@ class SidehopApp {
     this.ctx.lineTo(w, horizon);
     this.ctx.stroke();
 
-    // Perspective floor lines (clean metallic floor)
     const numFloorLines = 14;
     for (let i = 1; i <= numFloorLines; i++) {
       const t = Math.pow(i / numFloorLines, 2);
@@ -1767,21 +1921,22 @@ class SidehopApp {
 
   drawNeonBackground(w, h) {
     this.ctx.save();
+    const camYShift = Math.max(-75, Math.min(75, -(this.camera.y || 0) * 0.12));
 
     // Pure deep black background void
     this.ctx.fillStyle = '#030305';
     this.ctx.fillRect(0, 0, w, h);
 
-    const horizon = h * 0.65;
+    const horizon = h * 0.65 + camYShift * 0.45;
 
     // Glowing horizontal light bar at horizon
-    const glowGrad = this.ctx.createLinearGradient(0, horizon - 28, 0, horizon + 28);
+    const glowGrad = this.ctx.createLinearGradient(0, horizon - 32, 0, horizon + 32);
     glowGrad.addColorStop(0, 'rgba(0, 229, 255, 0)');
-    glowGrad.addColorStop(0.5, 'rgba(0, 229, 255, 0.24)');
-    glowGrad.addColorStop(0.7, 'rgba(255, 0, 127, 0.20)');
+    glowGrad.addColorStop(0.5, 'rgba(0, 229, 255, 0.26)');
+    glowGrad.addColorStop(0.7, 'rgba(255, 0, 127, 0.22)');
     glowGrad.addColorStop(1, 'rgba(255, 0, 127, 0)');
     this.ctx.fillStyle = glowGrad;
-    this.ctx.fillRect(0, horizon - 28, w, 56);
+    this.ctx.fillRect(0, horizon - 32, w, 64);
 
     // Crisp neon laser horizon line
     const lineGrad = this.ctx.createLinearGradient(0, 0, w, 0);
@@ -1796,11 +1951,11 @@ class SidehopApp {
     this.ctx.stroke();
 
     // Sleek geometric neon vector ground lines receding to horizon
-    const groundLines = 8;
+    const groundLines = 9;
     for (let i = 1; i <= groundLines; i++) {
-      const t = Math.pow(i / groundLines, 2.2);
+      const t = Math.pow(i / groundLines, 2.1);
       const gy = horizon + t * (h - horizon);
-      this.ctx.strokeStyle = `rgba(0, 229, 255, ${0.08 + t * 0.25})`;
+      this.ctx.strokeStyle = `rgba(0, 229, 255, ${0.09 + t * 0.28})`;
       this.ctx.lineWidth = 1 + t * 1.2;
       this.ctx.beginPath();
       this.ctx.moveTo(0, gy);
@@ -1808,7 +1963,7 @@ class SidehopApp {
       this.ctx.stroke();
     }
 
-    // Floating vibrant neon stardust particles (smooth camera parallax)
+    // Floating vibrant neon stardust particles
     const neonColors = ['#00E5FF', '#FF007F', '#00FF66', '#FFE600'];
     const pOffX = (this.camera.x * 0.08);
     for (let i = 0; i < 48; i++) {
@@ -1819,14 +1974,12 @@ class SidehopApp {
       const size = 1.5 + (i % 3);
       const color = neonColors[i % neonColors.length];
 
-      // Soft outer glow
       this.ctx.fillStyle = color;
       this.ctx.globalAlpha = 0.25;
       this.ctx.beginPath();
       this.ctx.arc(px, py, size * 2.2, 0, Math.PI * 2);
       this.ctx.fill();
 
-      // Bright sharp core
       this.ctx.globalAlpha = 0.9;
       this.ctx.beginPath();
       this.ctx.arc(px, py, size * 0.7, 0, Math.PI * 2);
@@ -1838,38 +1991,66 @@ class SidehopApp {
 
   draw8BitBackground(w, h) {
     this.ctx.save();
+    const camYShift = Math.max(-75, Math.min(75, -(this.camera.y || 0) * 0.14));
+
+    // Classic NES Cornflower Sky Fill (so white canvas background never shows through!)
+    const skyGrad = this.ctx.createLinearGradient(0, 0, 0, h);
+    skyGrad.addColorStop(0, '#5C94FC');
+    skyGrad.addColorStop(0.75, '#78A8FE');
+    skyGrad.addColorStop(1, '#00A800');
+    this.ctx.fillStyle = skyGrad;
+    this.ctx.fillRect(0, 0, w, h);
+
     // 8-bit stepped pixel clouds
     this.ctx.fillStyle = '#FFFFFF';
     const cloudLoop = 800;
-    const off = (this.camera.x * 0.1) % cloudLoop;
+    const off = ((this.camera.x * 0.1) % cloudLoop + cloudLoop) % cloudLoop;
     [100, 360, 620].forEach((cx, idx) => {
-      const x = ((cx - off) % cloudLoop + cloudLoop) % cloudLoop;
-      const y = 60 + idx * 35;
-      this.ctx.fillRect(x, y + 12, 64, 16);
-      this.ctx.fillRect(x + 10, y + 4, 44, 16);
-      this.ctx.fillRect(x + 20, y, 24, 8);
+      for (let rep = -cloudLoop; rep <= w + cloudLoop; rep += cloudLoop) {
+        const x = cx - off + rep;
+        if (x < -100 || x > w + 100) continue;
+        const y = 60 + idx * 35 + camYShift * 0.25;
+        this.ctx.fillStyle = '#000000';
+        this.ctx.fillRect(x + 4, y + 16, 64, 16);
+        this.ctx.fillStyle = '#FFFFFF';
+        this.ctx.fillRect(x, y + 12, 64, 16);
+        this.ctx.fillRect(x + 10, y + 4, 44, 16);
+        this.ctx.fillRect(x + 20, y, 24, 8);
+      }
     });
 
-    // 8-bit rolling green hills at bottom
-    const hillHorizon = h * 0.78;
-    this.ctx.fillStyle = '#00A800';
-    this.ctx.strokeStyle = '#000000';
-    this.ctx.lineWidth = 3;
+    // 8-bit rolling green hills extending all the way down to h + 180 (never cutting off!)
+    const hillHorizon = h * 0.72 + camYShift * 0.5;
     const hillLoop = 600;
-    const hOff = (this.camera.x * 0.15) % hillLoop;
-    for (let x = -200; x < w + 300; x += 300) {
-      const hx = x - hOff;
+    const hOff = ((this.camera.x * 0.15) % hillLoop + hillLoop) % hillLoop;
+
+    // Distant darker 8-bit bushes/hills
+    this.ctx.fillStyle = '#007800';
+    this.ctx.fillRect(0, hillHorizon + 28, w, h - hillHorizon + 160);
+
+    for (let x = -300; x < w + 400; x += 300) {
+      const hx = x - (hOff % 300);
+      const centerX = hx + 150;
+      const domeR = 160;
+      const domeY = hillHorizon + 50;
+
+      this.ctx.fillStyle = '#00A800';
+      this.ctx.strokeStyle = '#000000';
+      this.ctx.lineWidth = 3;
       this.ctx.beginPath();
-      this.ctx.arc(hx + 150, hillHorizon + 80, 160, Math.PI, 0, false);
+      this.ctx.moveTo(centerX - domeR, h + 180);
+      this.ctx.lineTo(centerX - domeR, domeY);
+      this.ctx.arc(centerX, domeY, domeR, Math.PI, 0, false);
+      this.ctx.lineTo(centerX + domeR, h + 180);
+      this.ctx.closePath();
       this.ctx.fill();
       this.ctx.stroke();
 
       // Retro dither dots on hill face
       this.ctx.fillStyle = '#000000';
-      for (let dotY = hillHorizon + 12; dotY < hillHorizon + 50; dotY += 12) {
-        this.ctx.fillRect(hx + 140 + Math.sin(dotY) * 16, dotY, 4, 4);
+      for (let dotY = hillHorizon - 25; dotY < hillHorizon + 35; dotY += 14) {
+        this.ctx.fillRect(centerX - 10 + Math.sin(dotY) * 18, dotY, 4, 4);
       }
-      this.ctx.fillStyle = '#00A800';
     }
 
     this.ctx.restore();
@@ -1878,6 +2059,7 @@ class SidehopApp {
   drawJungleBackground(w, h) {
     this.ctx.save();
     const time = performance.now() * 0.001;
+    const camYShift = Math.max(-75, Math.min(75, -(this.camera.y || 0) * 0.14));
 
     // 1. Primeval rainforest canopy dusk & emerald mist gradient
     const grad = this.ctx.createLinearGradient(0, 0, 0, h);
@@ -1885,11 +2067,11 @@ class SidehopApp {
     grad.addColorStop(0.35, '#064E3B');
     grad.addColorStop(0.65, '#0F766E');
     grad.addColorStop(0.80, '#34D399');
-    grad.addColorStop(1, '#062816');
+    grad.addColorStop(1, '#042212');
     this.ctx.fillStyle = grad;
     this.ctx.fillRect(0, 0, w, h);
 
-    // 2. Volumetric Animated Golden God Rays (Sunbeams streaming through canopy)
+    // 2. Volumetric Animated Golden God Rays
     for (let i = 0; i < 5; i++) {
       const rx = (w * 0.12) + i * (w * 0.21) + Math.sin(time * 0.8 + i * 1.4) * 35;
       const rGrad = this.ctx.createLinearGradient(rx, 0, rx + 160, h);
@@ -1906,74 +2088,66 @@ class SidehopApp {
       this.ctx.fill();
     }
 
-    const horizon = h * 0.74;
+    const horizon = h * 0.72 + camYShift * 0.5;
 
-    // 3. Distant Ancient Mayan Temple Pyramid Silhouette (Slow parallax)
+    // 3. Distant Ancient Mayan Temple Pyramid Silhouette
     const pyrLoop = 1100;
-    const pyrOff = (this.camera.x * 0.04) % pyrLoop;
+    const pyrOff = ((this.camera.x * 0.04) % pyrLoop + pyrLoop) % pyrLoop;
     const pyrX = ((560 - pyrOff) % (w + 400) + (w + 400)) % (w + 400) - 200;
     this.ctx.fillStyle = '#062F22';
-
-    // Stepped stone tiers
-    this.ctx.fillRect(pyrX - 75, horizon - 32, 150, 32);
+    this.ctx.fillRect(pyrX - 75, horizon - 32, 150, 60);
     this.ctx.fillRect(pyrX - 54, horizon - 58, 108, 26);
     this.ctx.fillRect(pyrX - 35, horizon - 80, 70, 22);
     this.ctx.fillRect(pyrX - 16, horizon - 96, 32, 16);
 
-    // Central temple stairs
     this.ctx.fillStyle = '#083D2D';
-    this.ctx.fillRect(pyrX - 8, horizon - 96, 16, 96);
+    this.ctx.fillRect(pyrX - 8, horizon - 96, 16, 116);
 
-    // 4. Distant Jungle Ridge Silhouettes & Cascading Waterfall
+    // 4. Distant Jungle Ridge Silhouettes & Cascading Waterfall anchored to h + 160
     this.ctx.fillStyle = '#083E2C';
     const ridgeLoop = 800;
-    const ridgeOff = (this.camera.x * 0.06) % ridgeLoop;
+    const ridgeOff = ((this.camera.x * 0.06) % ridgeLoop + ridgeLoop) % ridgeLoop;
     this.ctx.beginPath();
-    this.ctx.moveTo(0, h);
-    for (let x = -200; x <= w + 200; x += 160) {
-      const rx = x - ridgeOff;
-      const ry = horizon - 20 + Math.sin(x * 0.015) * 22;
+    this.ctx.moveTo(-200, h + 160);
+    for (let x = -200; x <= w + 240; x += 160) {
+      const rx = x - (ridgeOff % 160);
+      const ry = horizon - 20 + Math.sin((x + ridgeOff) * 0.015) * 22;
       this.ctx.lineTo(rx, ry);
     }
-    this.ctx.lineTo(w, h);
+    this.ctx.lineTo(w + 240, h + 160);
     this.ctx.closePath();
     this.ctx.fill();
 
     // Cascading distant waterfall flowing between ridges
     const wfX = ((320 - ridgeOff) % (w + 400) + (w + 400)) % (w + 400) - 100;
-    const wfGrad = this.ctx.createLinearGradient(wfX, horizon - 15, wfX, horizon + 45);
+    const wfGrad = this.ctx.createLinearGradient(wfX, horizon - 15, wfX, horizon + 65);
     wfGrad.addColorStop(0, '#A7F3D0');
     wfGrad.addColorStop(0.5, '#6EE7B7');
     wfGrad.addColorStop(1, '#059669');
     this.ctx.fillStyle = wfGrad;
-    this.ctx.fillRect(wfX - 6, horizon - 15, 12, 60);
+    this.ctx.fillRect(wfX - 6, horizon - 15, 12, 80);
 
-    // Animated foaming water highlights
     this.ctx.fillStyle = 'rgba(255, 255, 255, 0.75)';
     const streamY = ((time * 80) % 20);
     this.ctx.fillRect(wfX - 4, horizon - 10 + streamY, 8, 4);
     this.ctx.fillRect(wfX - 3, horizon + 10 + streamY, 6, 5);
 
-    // Waterfall mist spray at base
     this.ctx.fillStyle = 'rgba(209, 250, 229, 0.4)';
     this.ctx.beginPath();
-    this.ctx.arc(wfX, horizon + 45, 16 + Math.sin(time * 3) * 3, 0, Math.PI * 2);
+    this.ctx.arc(wfX, horizon + 60, 16 + Math.sin(time * 3) * 3, 0, Math.PI * 2);
     this.ctx.fill();
 
-    // 5. Midground Lush Banyan Tree Trunks & Swaying Jungle Vines (Layer 2)
+    // 5. Midground Lush Banyan Tree Trunks & Swaying Jungle Vines
     this.ctx.fillStyle = '#07331F';
     const jLoop = 900;
-    const jOff = (this.camera.x * 0.11) % jLoop;
-    for (let x = -120; x < w + 250; x += 150) {
-      const tx = x - jOff;
-      // Trunk
-      this.ctx.fillRect(tx + 24, horizon - 130, 16, 130);
-      // Canopy tuft
+    const jOff = ((this.camera.x * 0.11) % jLoop + jLoop) % jLoop;
+    for (let x = -150; x < w + 250; x += 150) {
+      const tx = x - (jOff % 150);
+      this.ctx.fillRect(tx + 24, horizon - 130, 16, 190);
       this.ctx.beginPath();
       this.ctx.arc(tx + 32, horizon - 130, 56, Math.PI * 0.82, Math.PI * 2.18);
       this.ctx.fill();
 
-      // Dynamic Swaying Lianas / Vines
       const sway = Math.sin(time * 1.8 + x * 0.02) * 18;
       this.ctx.strokeStyle = '#052919';
       this.ctx.lineWidth = 3.5;
@@ -1983,7 +2157,6 @@ class SidehopApp {
       this.ctx.quadraticCurveTo(tx + 6 + sway * 0.5, horizon - 60, tx + 16 + sway, horizon - 15);
       this.ctx.stroke();
 
-      // Second vine
       const sway2 = Math.cos(time * 2.2 + x * 0.03) * 14;
       this.ctx.beginPath();
       this.ctx.moveTo(tx + 50, horizon - 115);
@@ -1991,7 +2164,7 @@ class SidehopApp {
       this.ctx.stroke();
     }
 
-    // 6. Overhead Canopy Vignette (Top foliage dipping from ceiling)
+    // 6. Overhead Canopy Vignette
     this.ctx.fillStyle = '#031F11';
     for (let x = -100; x < w + 200; x += 180) {
       const ox = ((x - this.camera.x * 0.14) % (w + 200) + (w + 200)) % (w + 200) - 100;
@@ -2012,7 +2185,6 @@ class SidehopApp {
         const glow = (Math.sin(time * 4 + f.glowPhase) + 1) * 0.5;
 
         this.ctx.save();
-        // Pulsing radial aura
         const halo = this.ctx.createRadialGradient(fx, f.y, 0, fx, f.y, f.radius * 3.8);
         halo.addColorStop(0, f.color);
         halo.addColorStop(1, 'rgba(0, 0, 0, 0)');
@@ -2022,7 +2194,6 @@ class SidehopApp {
         this.ctx.arc(fx, f.y, f.radius * 3.8, 0, Math.PI * 2);
         this.ctx.fill();
 
-        // Bright white/golden core
         this.ctx.fillStyle = '#FFFFFF';
         this.ctx.globalAlpha = 0.85;
         this.ctx.beginPath();
@@ -2032,14 +2203,18 @@ class SidehopApp {
       });
     }
 
-    // 8. Low-Lying Rolling Jungle Mist / Forest Fog
+    // 8. Low-Lying Rolling Jungle Mist extending all the way below h
     const mistLoop = 800;
-    const mistOff = ((time * 25) + (this.camera.x * 0.15)) % mistLoop;
+    const mistOff = (((time * 25) + (this.camera.x * 0.15)) % mistLoop + mistLoop) % mistLoop;
     this.ctx.fillStyle = 'rgba(209, 250, 229, 0.18)';
     for (let mx = -200; mx < w + 300; mx += 140) {
-      const px = mx - mistOff;
+      const px = mx - (mistOff % 140);
       this.ctx.beginPath();
-      this.ctx.arc(px + 60, h - 20, 65, Math.PI, 0);
+      this.ctx.moveTo(px - 5, h + 120);
+      this.ctx.lineTo(px - 5, h + 5);
+      this.ctx.arc(px + 60, h + 5, 65, Math.PI, 0);
+      this.ctx.lineTo(px + 125, h + 120);
+      this.ctx.closePath();
       this.ctx.fill();
     }
 
@@ -2063,44 +2238,53 @@ class SidehopApp {
 
   drawParallaxHills(w, h) {
     this.ctx.save();
-    const horizon = h * 0.82;
-    // Distant hill layer
+    const camYShift = Math.max(-75, Math.min(75, -(this.camera.y || 0) * 0.14));
+    const horizon = h * 0.74 + camYShift * 0.5;
+
+    // Layer 1: Distant pastel meadow ridge extending down to h + 160
     this.ctx.fillStyle = '#86EFAC';
     this.ctx.beginPath();
-    this.ctx.moveTo(0, h);
-    const loop1 = 800;
-    const off1 = (this.camera.x * 0.08) % loop1;
-    for (let x = -200; x < w + 300; x += 250) {
-      const hx = x - off1;
-      this.ctx.quadraticCurveTo(hx + 125, horizon - 55, hx + 250, horizon);
+    this.ctx.moveTo(-250, h + 160);
+    const loop1 = 750;
+    const off1 = ((this.camera.x * 0.08) % loop1 + loop1) % loop1;
+    let firstX1 = -250 - (off1 % 250);
+    this.ctx.lineTo(firstX1, horizon);
+    for (let x = firstX1; x < w + 350; x += 250) {
+      this.ctx.quadraticCurveTo(x + 125, horizon - 65, x + 250, horizon);
     }
-    this.ctx.lineTo(w, h);
+    this.ctx.lineTo(w + 350, h + 160);
     this.ctx.closePath();
     this.ctx.fill();
 
-    // Closer hill layer
-    this.ctx.fillStyle = '#22C55E';
+    // Layer 2: Closer vibrant emerald meadow hills extending down to h + 160
+    const hillGrad = this.ctx.createLinearGradient(0, horizon - 30, 0, h + 80);
+    hillGrad.addColorStop(0, '#4ADE80');
+    hillGrad.addColorStop(0.45, '#22C55E');
+    hillGrad.addColorStop(1, '#15803D');
+    this.ctx.fillStyle = hillGrad;
     this.ctx.beginPath();
-    this.ctx.moveTo(0, h);
+    this.ctx.moveTo(-200, h + 160);
     const loop2 = 600;
-    const off2 = (this.camera.x * 0.16) % loop2;
-    for (let x = -200; x < w + 300; x += 200) {
-      const hx = x - off2;
-      this.ctx.quadraticCurveTo(hx + 100, horizon - 35, hx + 200, horizon + 15);
+    const off2 = ((this.camera.x * 0.16) % loop2 + loop2) % loop2;
+    let firstX2 = -200 - (off2 % 200);
+    this.ctx.lineTo(firstX2, horizon + 18);
+    for (let x = firstX2; x < w + 300; x += 200) {
+      this.ctx.quadraticCurveTo(x + 100, horizon - 38, x + 200, horizon + 18);
     }
-    this.ctx.lineTo(w, h);
+    this.ctx.lineTo(w + 300, h + 160);
     this.ctx.closePath();
     this.ctx.fill();
 
-    // Little colorful meadow wildflower dots on the closer hills
+    // Colorful meadow wildflower dots on the closer hills
     const flowerColors = ['#FBBF24', '#F43F5E', '#FFFFFF', '#A855F7'];
-    for (let x = -150; x < w + 200; x += 90) {
-      const fx = x - off2;
-      const fy = horizon + 5 + Math.sin(x * 0.03) * 12;
-      const color = flowerColors[Math.abs(Math.round(x / 90)) % flowerColors.length];
+    for (let x = -180; x < w + 240; x += 90) {
+      const fx = x - (off2 % 90);
+      const worldIdx = Math.round((x + off2 - (off2 % 90)) / 90);
+      const fy = horizon + 8 + Math.sin(worldIdx * 1.7) * 12;
+      const color = flowerColors[Math.abs(worldIdx) % flowerColors.length];
       this.ctx.fillStyle = color;
       this.ctx.beginPath();
-      this.ctx.arc(fx, fy, 2.5, 0, Math.PI * 2);
+      this.ctx.arc(fx, fy, 2.8, 0, Math.PI * 2);
       this.ctx.fill();
     }
 
@@ -3032,14 +3216,32 @@ class SidehopApp {
     });
 
     const importInput = document.getElementById('import-file-input');
-    document.getElementById('import-level-btn').addEventListener('click', () => {
-      importInput.click();
+    document.getElementById('import-level-btn')?.addEventListener('click', () => {
+      if (importInput) {
+        importInput.accept = '.sidehop,.html,.htm,.json';
+        importInput.click();
+      }
+    });
+    document.getElementById('import-sidehop-btn')?.addEventListener('click', () => {
+      window.closeHeaderDrawers?.();
+      if (importInput) {
+        importInput.accept = '.sidehop,.json';
+        importInput.click();
+      }
+    });
+    document.getElementById('import-html-btn')?.addEventListener('click', () => {
+      window.closeHeaderDrawers?.();
+      if (importInput) {
+        importInput.accept = '.html,.htm';
+        importInput.click();
+      }
     });
 
-    importInput.addEventListener('change', (e) => {
+    importInput?.addEventListener('change', (e) => {
       if (e.target.files && e.target.files[0]) {
         this.handleUniversalSidehopImport(e.target.files[0]);
         importInput.value = '';
+        importInput.accept = '.sidehop,.html,.htm,.json';
       }
     });
 
