@@ -1,7 +1,7 @@
 // Sidehop Interactive Feature & Options Pointer Tour
 // Blatantly points out every feature, explains what it does, and shows all of its options non-destructively.
 
-import { sounds } from '../audio/sound.js?v=20261029_165613';
+import { sounds } from '../audio/sound.js?v=20261031_134910';
 
 export class SidehopDemo {
   constructor(app) {

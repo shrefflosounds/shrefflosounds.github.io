@@ -94,26 +94,12 @@ export class PhysicsEngine {
 
       if (!this.checkOverlap(entity, solid)) continue;
 
-      // Step-up allowance for the block DIRECTLY beneath a ground slope.
-      // While walking up a slope staircase the player's leading corner dips into the
-      // block under the next slope by up to half its width. Only that shallow corner
-      // overlap, in the uphill direction, is allowed — everything else is a solid wall.
-      // (Previously ANY block with a slope anywhere above it in the same column was
-      // skipped, which let the player run/jump straight into slope-topped walls.)
-      const coverSlope = this.getCoveringGroundSlope(solid, solids);
-      if (coverSlope) {
-        const footPenetration = (entity.y + entity.height) - solid.y;
-        const stepTolerance = Math.max(22, entity.width / 2 + 2);
-        if (footPenetration <= stepTolerance) {
-          if (entity.vx > 0 && isSlopeUp(coverSlope)) continue;
-          if (entity.vx < 0 && isSlopeDown(coverSlope)) continue;
-        }
-      }
+      const hasNeighborLeft = this.hasSolidNeighborLeft(solid, solids);
+      const hasNeighborRight = this.hasSolidNeighborRight(solid, solids);
 
       if (entity.vx > 0) {
-        // Entity moving right: only solid's left edge can block it!
-        // If entity was already past solid's left edge, solid is behind or beneath entity (e.g. descending adjacent slope)
-        if (prevX !== undefined && prevX + entity.width > solid.x + 2) continue;
+        // Entity moving right: only an exposed left edge of solid can block it!
+        if (hasNeighborLeft) continue;
 
         // Check if left face is the top junction of an adjoining slope_up
         const connectedSlopeUp = solids.some(s =>
@@ -126,9 +112,8 @@ export class PhysicsEngine {
         entity.x = solid.x - entity.width;
         entity.vx = 0;
       } else if (entity.vx < 0) {
-        // Entity moving left: only solid's right edge can block it!
-        // If entity was already past solid's right edge, solid is behind or beneath entity (e.g. descending adjacent slope)
-        if (prevX !== undefined && prevX < solid.x + solid.width - 2) continue;
+        // Entity moving left: only an exposed right edge of solid can block it!
+        if (hasNeighborRight) continue;
 
         // Check if right face is the top junction of an adjoining slope_down
         const connectedSlopeDown = solids.some(s =>
@@ -140,8 +125,44 @@ export class PhysicsEngine {
 
         entity.x = solid.x + solid.width;
         entity.vx = 0;
+      } else {
+        // Entity vx is 0 (or was stopped earlier this frame) but still penetrates an exposed wall:
+        // Push entity out to the nearest exposed face to prevent clipping/tunneling!
+        if (!hasNeighborRight && (!hasNeighborLeft ? (entity.x + entity.width / 2 > solid.x + solid.width / 2) : true)) {
+          entity.x = solid.x + solid.width;
+        } else if (!hasNeighborLeft) {
+          entity.x = solid.x - entity.width;
+        }
       }
     }
+  }
+
+  // Returns true if solid has an adjacent solid block or slope covering its left face
+  hasSolidNeighborLeft(solid, solids) {
+    const isSlopeDown = (s) => s && (s.slopeDirection === 'down' || s.variant?.includes('slope_down'));
+    const isSlopeCeilUp = (s) => s && (s.slopeDirection === 'ceil_up' || s.variant?.includes('slope_ceil_up'));
+    return solids.some(s => {
+      if (!s || s === solid || !s.active || s.isOneWay || s.variant === 'cloud' || s.variant === 'semisolid') return false;
+      if (Math.abs((s.x + s.width) - solid.x) > 2) return false;
+      if (solid.y >= s.y + s.height - 2 || solid.y + solid.height <= s.y + 2) return false;
+      // If neighbor to the left has height 0 at its right edge, it does not cover solid's left face
+      if (isSlopeDown(s) && !isSlopeCeilUp(s)) return false;
+      return true;
+    });
+  }
+
+  // Returns true if solid has an adjacent solid block or slope covering its right face
+  hasSolidNeighborRight(solid, solids) {
+    const isSlopeUp = (s) => s && (s.slopeDirection === 'up' || s.variant?.includes('slope_up'));
+    const isSlopeCeilDown = (s) => s && (s.slopeDirection === 'ceil_down' || s.variant?.includes('slope_ceil_down'));
+    return solids.some(s => {
+      if (!s || s === solid || !s.active || s.isOneWay || s.variant === 'cloud' || s.variant === 'semisolid') return false;
+      if (Math.abs(s.x - (solid.x + solid.width)) > 2) return false;
+      if (solid.y >= s.y + s.height - 2 || solid.y + solid.height <= s.y + 2) return false;
+      // If neighbor to the right has height 0 at its left edge, it does not cover solid's right face
+      if (isSlopeUp(s) && !isSlopeCeilDown(s)) return false;
+      return true;
+    });
   }
 
   // Returns the ground slope (slope_up / slope_down, any material) sitting directly on top of a block, if any.
@@ -173,24 +194,28 @@ export class PhysicsEngine {
     if (verticalOverlap <= 3) return;
     if (!this.checkOverlap(entity, slope)) return;
 
-    const isWallNeighbor = (s) => s && s !== slope && s.active &&
-      !s.isOneWay && s.variant !== 'cloud' && s.variant !== 'semisolid' &&
-      Math.abs(s.y - slope.y) < 2;
-
-    if (entity.vx < 0 && hasRightWall) {
+    if (hasRightWall) {
+      if (this.hasSolidNeighborRight(slope, solids)) return;
       const face = slope.x + slope.width;
-      // Must be arriving from the right side of the face
-      if (prevX === undefined || prevX < face - 2) return;
-      // Face is internal if another block is attached on that side
-      if (solids.some(s => isWallNeighbor(s) && Math.abs(s.x - face) < 2)) return;
-      entity.x = face;
-      entity.vx = 0;
-    } else if (entity.vx > 0 && hasLeftWall) {
+      const footY = entity.y + entity.height;
+      if (dir === 'up' && footY <= slope.y + 4) return;
+      if (dir === 'ceil_down' && entity.y >= slope.y + slope.height - 4) return;
+
+      if (entity.vx < 0 || entity.x < face) {
+        entity.x = face;
+        if (entity.vx < 0) entity.vx = 0;
+      }
+    } else if (hasLeftWall) {
+      if (this.hasSolidNeighborLeft(slope, solids)) return;
       const face = slope.x;
-      if (prevX === undefined || prevX + entity.width > face + 2) return;
-      if (solids.some(s => isWallNeighbor(s) && Math.abs((s.x + s.width) - face) < 2)) return;
-      entity.x = face - entity.width;
-      entity.vx = 0;
+      const footY = entity.y + entity.height;
+      if (dir === 'down' && footY <= slope.y + 4) return;
+      if (dir === 'ceil_up' && entity.y >= slope.y + slope.height - 4) return;
+
+      if (entity.vx > 0 || entity.x + entity.width > face) {
+        entity.x = face - entity.width;
+        if (entity.vx > 0) entity.vx = 0;
+      }
     }
   }
 
@@ -326,12 +351,9 @@ export class PhysicsEngine {
 
       if (this.checkOverlap(entity, solid)) {
         // A block directly under a ground slope has an internal top face — the slope diagonal is the
-        // real surface. Never snap the player up onto it just because their leading corner dipped in
-        // while walking the slope (only allowed as a safety net when the center is right over it).
+        // real surface. Never snap the player onto it.
         const coveredTop = this.getCoveringGroundSlope(solid, solids);
-        const centerX = entity.x + entity.width / 2;
-        const centerOverSolid = centerX >= solid.x && centerX <= solid.x + solid.width;
-        if (coveredTop && !centerOverSolid && entity.vy >= 0) continue;
+        if (coveredTop && entity.vy >= 0) continue;
 
         if (entity.vy > 0 || (entity.grounded && (entity.y + entity.height) > solid.y)) {
           // Landing on top of solid:
@@ -422,11 +444,10 @@ export class PhysicsEngine {
       for (const solid of solids) {
         if (!solid.active) continue;
         if (solid.isSlope || solid.variant?.includes('slope')) continue;
+        if (this.getCoveringGroundSlope(solid, solids)) continue;
         const onTop = Math.abs((entity.y + entity.height) - solid.y) <= 4;
         const horizAligned = (entity.x + entity.width > solid.x + 2) && (entity.x < solid.x + solid.width - 2);
         if (onTop && horizAligned) {
-          const cx = entity.x + entity.width / 2;
-          if (this.getCoveringGroundSlope(solid, solids) && !(cx >= solid.x && cx <= solid.x + solid.width)) continue;
           entity.y = solid.y - entity.height;
           entity.vy = 0;
           entity.grounded = true;

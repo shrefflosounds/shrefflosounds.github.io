@@ -1,6 +1,6 @@
 // Sidehop Entity System — Player, Crates, Springs, Hazards, Enemies, Platforms, Goals
 
-import { sounds } from '../audio/sound.js?v=20261029_165613';
+import { sounds } from '../audio/sound.js?v=20261031_134910';
 
 // Safe Canvas roundRect polyfill / wrapper for Safari / WebKit and older browsers
 if (typeof CanvasRenderingContext2D !== 'undefined') {
@@ -3068,55 +3068,63 @@ export class SolidBlock extends Entity {
       // 6. WARP PIPE (40×80 Green Pipe)
       else if (this.variant === 'pipe') {
         if (pal.theme === 'uncanny') {
-          // LIFELIKE 3D Cylindrical Phong-Shaded Industrial Emerald Pipe (Zero Cartoon Outlines!)
-          // Cast shadow under pipe lip onto stem
-          const stemGrad = ctx.createLinearGradient(0, 22, this.width, 22);
-          stemGrad.addColorStop(0, '#064E3B');
-          stemGrad.addColorStop(0.18, '#10B981');
-          stemGrad.addColorStop(0.32, '#A7F3D0');
-          stemGrad.addColorStop(0.45, '#34D399');
-          stemGrad.addColorStop(0.75, '#059669');
-          stemGrad.addColorStop(0.92, '#064E3B');
-          stemGrad.addColorStop(1, '#022C22');
+          // 3D Machined Brushed Titanium Industrial Portal Conduit (Zero Mario Emerald Clones!)
+          // Stem: Cylindrical Phong-shaded dark titanium / obsidian conduit
+          const stemGrad = ctx.createLinearGradient(0, 21, this.width, 21);
+          stemGrad.addColorStop(0, '#1E293B');
+          stemGrad.addColorStop(0.20, '#475569');
+          stemGrad.addColorStop(0.35, '#94A3B8');
+          stemGrad.addColorStop(0.50, '#64748B');
+          stemGrad.addColorStop(0.80, '#334155');
+          stemGrad.addColorStop(1, '#0F172A');
           ctx.fillStyle = stemGrad;
           ctx.fillRect(0, 21, this.width, this.height - 21);
 
           // Cast shadow immediately beneath collar
           const collarShadow = ctx.createLinearGradient(0, 21, 0, 30);
-          collarShadow.addColorStop(0, 'rgba(2, 44, 34, 0.72)');
-          collarShadow.addColorStop(1, 'rgba(2, 44, 34, 0)');
+          collarShadow.addColorStop(0, 'rgba(15, 23, 42, 0.85)');
+          collarShadow.addColorStop(1, 'rgba(15, 23, 42, 0)');
           ctx.fillStyle = collarShadow;
           ctx.fillRect(0, 21, this.width, 9);
 
+          // Glowing amber / cyan energy conduit status strip on stem
+          const glowY = 36;
+          const stripG = ctx.createLinearGradient(0, glowY, this.width, glowY);
+          stripG.addColorStop(0, 'rgba(245, 158, 11, 0.3)');
+          stripG.addColorStop(0.3, 'rgba(251, 191, 36, 0.95)');
+          stripG.addColorStop(0.7, 'rgba(245, 158, 11, 0.95)');
+          stripG.addColorStop(1, 'rgba(180, 83, 9, 0.2)');
+          ctx.fillStyle = stripG;
+          ctx.fillRect(3, glowY, this.width - 6, 3.5);
+
           // 3D Cylindrical Collar / Flange at top (-4..width+4, 0..22)
           const lipGrad = ctx.createLinearGradient(-4, 0, this.width + 4, 0);
-          lipGrad.addColorStop(0, '#064E3B');
-          lipGrad.addColorStop(0.16, '#10B981');
-          lipGrad.addColorStop(0.30, '#ECFDF5');
-          lipGrad.addColorStop(0.42, '#34D399');
-          lipGrad.addColorStop(0.74, '#059669');
-          lipGrad.addColorStop(0.92, '#064E3B');
-          lipGrad.addColorStop(1, '#022C22');
+          lipGrad.addColorStop(0, '#1E293B');
+          lipGrad.addColorStop(0.18, '#475569');
+          lipGrad.addColorStop(0.32, '#F1F5F9');
+          lipGrad.addColorStop(0.46, '#94A3B8');
+          lipGrad.addColorStop(0.78, '#334155');
+          lipGrad.addColorStop(1, '#0F172A');
           ctx.fillStyle = lipGrad;
           ctx.beginPath();
           ctx.roundRect(-4, 0, this.width + 8, 22, 3);
           ctx.fill();
 
-          // Top chamfered rim & dark hollow interior opening illusion
+          // Top chamfered rim & dark interior portal opening
           const rimTop = ctx.createLinearGradient(-4, 0, this.width + 4, 0);
-          rimTop.addColorStop(0, '#34D399');
+          rimTop.addColorStop(0, '#94A3B8');
           rimTop.addColorStop(0.3, '#FFFFFF');
-          rimTop.addColorStop(1, '#047857');
+          rimTop.addColorStop(1, '#475569');
           ctx.fillStyle = rimTop;
           ctx.fillRect(-3, 0.5, this.width + 6, 2.5);
 
-          // Machined flange bolts along collar bottom rim
+          // Precision machined flange bolts along collar bottom rim
           [2, 14, 26, 38].forEach(bx => {
-            ctx.fillStyle = '#022C22';
+            ctx.fillStyle = '#0F172A';
             ctx.beginPath();
             ctx.arc(bx + 0.5, 18.5, 1.8, 0, Math.PI * 2);
             ctx.fill();
-            ctx.fillStyle = '#A7F3D0';
+            ctx.fillStyle = '#E2E8F0';
             ctx.beginPath();
             ctx.arc(bx, 18, 1.5, 0, Math.PI * 2);
             ctx.fill();
@@ -3331,7 +3339,7 @@ export class SolidBlock extends Entity {
           // LIFELIKE 3D Per-Pixel Chamfered Amber-Gold Block with 3D Embossed '?' & Corner Screws!
           ctx.fillStyle = 'rgba(0, 0, 0, 0.35)';
           ctx.fillRect(2, this.height, this.width - 2, 5);
-          const mysCanvas = Entity.getLifelikeMysteryCanvas(!this.isUsed);
+          const mysCanvas = Entity.getLifelikeMysteryCanvas(this.isUsed);
           ctx.drawImage(mysCanvas, 0, 0, this.width, this.height);
         } else if (!this.isUsed) {
           ctx.fillStyle = '#FFE600';

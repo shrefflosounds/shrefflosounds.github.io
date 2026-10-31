@@ -2,9 +2,9 @@
 // Produces a 100% self-contained, offline-playable HTML5 game featuring the exact Sidehop engine,
 // physics, entity classes, autotiling, slopes, custom sprites, custom backgrounds, audio, and theme.
 
-import { SoundEngine } from '../audio/sound.js?v=20261029_165613';
-import { Camera } from '../engine/camera.js?v=20261029_165613';
-import { PhysicsEngine } from '../engine/physics.js?v=20261029_165613';
+import { SoundEngine } from '../audio/sound.js?v=20261031_134910';
+import { Camera } from '../engine/camera.js?v=20261031_134910';
+import { PhysicsEngine } from '../engine/physics.js?v=20261031_134910';
 import {
   Entity,
   Player,
@@ -16,7 +16,7 @@ import {
   Bullet,
   Collectible,
   GoalFlag
-} from '../engine/entities.js?v=20261029_165613';
+} from '../engine/entities.js?v=20261031_134910';
 
 function escapeHtml(str) {
   return String(str || 'Sidehop Game')
@@ -1104,45 +1104,77 @@ export function generateStandaloneGameHtml(levelData, title = 'Sidehop Game') {
 
       drawUncanny3DBackground(w, h) {
         this.ctx.save();
+        const animTime = performance.now() * 0.001;
+        const camYShift = Math.max(-75, Math.min(75, -(this.camera.y || 0) * 0.15));
+
+        // Atmospheric Twilight Obsidian-to-Amber Studio Diorama Horizon
         const skyGrad = this.ctx.createLinearGradient(0, 0, 0, h);
-        skyGrad.addColorStop(0, '#1E5FA8');
-        skyGrad.addColorStop(0.38, '#4F94D4');
-        skyGrad.addColorStop(0.72, '#9BC8EE');
-        skyGrad.addColorStop(1, '#D4E9F9');
+        skyGrad.addColorStop(0, '#0F172A');
+        skyGrad.addColorStop(0.35, '#1E293B');
+        skyGrad.addColorStop(0.62, '#334155');
+        skyGrad.addColorStop(0.82, '#64748B');
+        skyGrad.addColorStop(0.94, '#D97706');
+        skyGrad.addColorStop(1, '#92400E');
         this.ctx.fillStyle = skyGrad;
         this.ctx.fillRect(0, 0, w, h);
 
-        const gridSize = 40;
-        const gridOffX = -(this.camera.x * 0.18) % gridSize;
-        const gridOffY = -(this.camera.y * 0.18) % gridSize;
-        this.ctx.strokeStyle = 'rgba(255, 255, 255, 0.22)';
-        this.ctx.lineWidth = 1.1;
-        this.ctx.beginPath();
-        for (let x = gridOffX; x < w; x += gridSize) {
-          this.ctx.moveTo(x, 0);
-          this.ctx.lineTo(x, h);
-        }
-        for (let y = gridOffY; y < h; y += gridSize) {
-          this.ctx.moveTo(0, y);
-          this.ctx.lineTo(w, y);
-        }
-        this.ctx.stroke();
+        const keyGlow = this.ctx.createRadialGradient(w * 0.20, h * 0.18, 12, w * 0.20, h * 0.18, Math.max(w, h) * 0.70);
+        keyGlow.addColorStop(0, 'rgba(254, 215, 170, 0.28)');
+        keyGlow.addColorStop(0.40, 'rgba(251, 146, 60, 0.12)');
+        keyGlow.addColorStop(1, 'rgba(0, 0, 0, 0)');
+        this.ctx.fillStyle = keyGlow;
+        this.ctx.fillRect(0, 0, w, h);
 
-        const horizon = h * 0.76;
-        const hillOff1 = (this.camera.x * 0.06) % 960;
-        for (let x = -320; x < w + 420; x += 280) {
-          const hx = x - hillOff1;
-          const domeR = 230;
-          const domeY = horizon + 125;
-          const hillGrad1 = this.ctx.createRadialGradient(hx - 55, domeY - domeR * 0.85, 18, hx, domeY, domeR);
-          hillGrad1.addColorStop(0, '#74C655');
-          hillGrad1.addColorStop(0.5, '#3E8E2E');
-          hillGrad1.addColorStop(1, '#113411');
+        const horizon = h * 0.64 + camYShift * 0.55;
+
+        // Distant Monolithic Strata Ridges (0.04x parallax)
+        const distGrad = this.ctx.createLinearGradient(0, horizon - 120, 0, h + 100);
+        distGrad.addColorStop(0, '#475569');
+        distGrad.addColorStop(0.35, '#334155');
+        distGrad.addColorStop(0.70, '#1E293B');
+        distGrad.addColorStop(1, '#0F172A');
+        this.ctx.fillStyle = distGrad;
+        this.ctx.beginPath();
+        this.ctx.moveTo(-100, h + 220);
+        for (let sx = -60; sx <= w + 60; sx += 20) {
+          const wx = sx + this.camera.x * 0.04;
+          const y = horizon - 52 - Math.sin(wx * 0.005) * 44 - Math.cos(wx * 0.014) * 22;
+          this.ctx.lineTo(sx, y);
+        }
+        this.ctx.lineTo(w + 100, h + 220);
+        this.ctx.closePath();
+        this.ctx.fill();
+
+        // Midground Terraced Mineral Strata & Stepped Mesas (0.08x parallax)
+        const hillLoop1 = 1040;
+        const hillOff1 = ((this.camera.x * 0.08) % hillLoop1 + hillLoop1) % hillLoop1;
+        for (let x = -360; x < w + 460; x += 260) {
+          const hx = x - (hillOff1 % 260);
+          const hillIndex = Math.round((x + hillOff1 - (hillOff1 % 260)) / 260);
+          const domeW = 240;
+          const crestY = horizon - 32 + Math.sin(hillIndex * 1.7) * 20;
+
+          const hillGrad1 = this.ctx.createRadialGradient(hx - domeW * 0.26, crestY + 34, 16, hx + 20, crestY + 170, domeW * 1.35);
+          hillGrad1.addColorStop(0, '#64748B');
+          hillGrad1.addColorStop(0.30, '#475569');
+          hillGrad1.addColorStop(0.65, '#334155');
+          hillGrad1.addColorStop(1, '#0F172A');
           this.ctx.fillStyle = hillGrad1;
+
           this.ctx.beginPath();
-          this.ctx.arc(hx, domeY, domeR, Math.PI, 0, false);
+          this.ctx.moveTo(hx - domeW, h + 220);
+          this.ctx.lineTo(hx - domeW, crestY + 135);
+          this.ctx.bezierCurveTo(hx - domeW * 0.55, crestY - 8, hx + domeW * 0.55, crestY - 8, hx + domeW, crestY + 135);
+          this.ctx.lineTo(hx + domeW, h + 220);
           this.ctx.closePath();
           this.ctx.fill();
+
+          this.ctx.strokeStyle = 'rgba(251, 191, 36, 0.35)';
+          this.ctx.lineWidth = 2.5;
+          this.ctx.beginPath();
+          this.ctx.moveTo(hx - domeW * 0.65, crestY + 45);
+          this.ctx.quadraticCurveTo(hx, crestY - 8, hx + domeW * 0.65, crestY + 45);
+          this.ctx.stroke();
         }
         this.ctx.restore();
       }
