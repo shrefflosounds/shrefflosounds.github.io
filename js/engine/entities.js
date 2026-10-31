@@ -1,6 +1,6 @@
 // Sidehop Entity System — Player, Crates, Springs, Hazards, Enemies, Platforms, Goals
 
-import { sounds } from '../audio/sound.js?v=20261031_134910';
+import { sounds } from '../audio/sound.js?v=20261031_153430';
 
 // Safe Canvas roundRect polyfill / wrapper for Safari / WebKit and older browsers
 if (typeof CanvasRenderingContext2D !== 'undefined') {

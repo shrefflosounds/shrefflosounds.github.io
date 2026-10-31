@@ -6011,6 +6011,9 @@ class PhysicsEngine {
     entity.standingOnSolid = null;
     this.resolveVerticalCollisions(entity, localSolids, prevY, dt, wasGrounded, wasStandingOnSolid);
 
+    // 3. Safety: ensure entity is never trapped inside solid slope geometry
+    this.resolveSlopeEntrapment(entity, localSolids);
+
     // Landing detection for procedural squash:
     // Only trigger landing squash if entity was genuinely airborne and landed with significant downward velocity (> 180 px/s)
     if (!wasGrounded && entity.grounded) {
@@ -6033,15 +6036,16 @@ class PhysicsEngine {
     const isSlopeUp = (s) => s && (s.slopeDirection === 'up' || s.variant?.includes('slope_up'));
     const isSlopeDown = (s) => s && (s.slopeDirection === 'down' || s.variant?.includes('slope_down'));
 
+    const movingRight = entity.vx > 0 || (prevX !== undefined && entity.x > prevX);
+    const movingLeft = entity.vx < 0 || (prevX !== undefined && entity.x < prevX);
+
     for (const solid of solids) {
       if (!solid.active) continue;
       // Skip one-way platforms horizontally
       if (solid.isOneWay || solid.variant === 'cloud' || solid.variant === 'semisolid') continue;
 
-      // Slopes: the diagonal face is resolved vertically, but the flat vertical
-      // side of every slope wedge is a real wall and must block like a block side.
       if (isSlope(solid)) {
-        this.resolveSlopeWallFace(entity, solid, solids, prevX);
+        this.resolveSlopeHorizontal(entity, solid, solids, prevX, movingRight, movingLeft);
         continue;
       }
 
@@ -6051,12 +6055,9 @@ class PhysicsEngine {
 
       if (!this.checkOverlap(entity, solid)) continue;
 
-      const hasNeighborLeft = this.hasSolidNeighborLeft(solid, solids);
-      const hasNeighborRight = this.hasSolidNeighborRight(solid, solids);
-
-      if (entity.vx > 0) {
+      if (movingRight) {
         // Entity moving right: only an exposed left edge of solid can block it!
-        if (hasNeighborLeft) continue;
+        if (!this.isFaceExposedLeft(solid, entity, solids)) continue;
 
         // Check if left face is the top junction of an adjoining slope_up
         const connectedSlopeUp = solids.some(s =>
@@ -6064,13 +6065,13 @@ class PhysicsEngine {
           Math.abs((s.x + s.width) - solid.x) <= 2 &&
           Math.abs(s.y - solid.y) <= 2
         );
-        if (connectedSlopeUp) continue;
+        if (connectedSlopeUp && (entity.y + entity.height) <= solid.y + 8) continue;
 
         entity.x = solid.x - entity.width;
         entity.vx = 0;
-      } else if (entity.vx < 0) {
+      } else if (movingLeft) {
         // Entity moving left: only an exposed right edge of solid can block it!
-        if (hasNeighborRight) continue;
+        if (!this.isFaceExposedRight(solid, entity, solids)) continue;
 
         // Check if right face is the top junction of an adjoining slope_down
         const connectedSlopeDown = solids.some(s =>
@@ -6078,48 +6079,58 @@ class PhysicsEngine {
           Math.abs(s.x - (solid.x + solid.width)) <= 2 &&
           Math.abs(s.y - solid.y) <= 2
         );
-        if (connectedSlopeDown) continue;
+        if (connectedSlopeDown && (entity.y + entity.height) <= solid.y + 8) continue;
 
         entity.x = solid.x + solid.width;
         entity.vx = 0;
-      } else {
-        // Entity vx is 0 (or was stopped earlier this frame) but still penetrates an exposed wall:
-        // Push entity out to the nearest exposed face to prevent clipping/tunneling!
-        if (!hasNeighborRight && (!hasNeighborLeft ? (entity.x + entity.width / 2 > solid.x + solid.width / 2) : true)) {
-          entity.x = solid.x + solid.width;
-        } else if (!hasNeighborLeft) {
-          entity.x = solid.x - entity.width;
-        }
       }
     }
   }
 
-  // Returns true if solid has an adjacent solid block or slope covering its left face
-  hasSolidNeighborLeft(solid, solids) {
+  // Returns true if solid's left face is exposed to the entity at entity's current vertical span
+  isFaceExposedLeft(solid, entity, solids) {
+    const entTop = entity.y + 4;
+    const entBottom = entity.y + entity.height - 4;
+    if (entTop >= entBottom) return true;
+
     const isSlopeDown = (s) => s && (s.slopeDirection === 'down' || s.variant?.includes('slope_down'));
     const isSlopeCeilUp = (s) => s && (s.slopeDirection === 'ceil_up' || s.variant?.includes('slope_ceil_up'));
-    return solids.some(s => {
-      if (!s || s === solid || !s.active || s.isOneWay || s.variant === 'cloud' || s.variant === 'semisolid') return false;
-      if (Math.abs((s.x + s.width) - solid.x) > 2) return false;
-      if (solid.y >= s.y + s.height - 2 || solid.y + solid.height <= s.y + 2) return false;
-      // If neighbor to the left has height 0 at its right edge, it does not cover solid's left face
-      if (isSlopeDown(s) && !isSlopeCeilUp(s)) return false;
-      return true;
-    });
+
+    for (const s of solids) {
+      if (!s || s === solid || !s.active || s.isOneWay || s.variant === 'cloud' || s.variant === 'semisolid') continue;
+      // Neighbor must touch solid's left edge
+      if (Math.abs((s.x + s.width) - solid.x) > 2) continue;
+      // Neighbor must not be a slope that tapers to 0 height at its right edge
+      if (isSlopeDown(s) && !isSlopeCeilUp(s)) continue;
+      // If neighbor fully covers the entity's vertical span on the left, the face is internal
+      if (s.y <= entTop && (s.y + s.height) >= entBottom) {
+        return false;
+      }
+    }
+    return true;
   }
 
-  // Returns true if solid has an adjacent solid block or slope covering its right face
-  hasSolidNeighborRight(solid, solids) {
+  // Returns true if solid's right face is exposed to the entity at entity's current vertical span
+  isFaceExposedRight(solid, entity, solids) {
+    const entTop = entity.y + 4;
+    const entBottom = entity.y + entity.height - 4;
+    if (entTop >= entBottom) return true;
+
     const isSlopeUp = (s) => s && (s.slopeDirection === 'up' || s.variant?.includes('slope_up'));
     const isSlopeCeilDown = (s) => s && (s.slopeDirection === 'ceil_down' || s.variant?.includes('slope_ceil_down'));
-    return solids.some(s => {
-      if (!s || s === solid || !s.active || s.isOneWay || s.variant === 'cloud' || s.variant === 'semisolid') return false;
-      if (Math.abs(s.x - (solid.x + solid.width)) > 2) return false;
-      if (solid.y >= s.y + s.height - 2 || solid.y + solid.height <= s.y + 2) return false;
-      // If neighbor to the right has height 0 at its left edge, it does not cover solid's right face
-      if (isSlopeUp(s) && !isSlopeCeilDown(s)) return false;
-      return true;
-    });
+
+    for (const s of solids) {
+      if (!s || s === solid || !s.active || s.isOneWay || s.variant === 'cloud' || s.variant === 'semisolid') continue;
+      // Neighbor must touch solid's right edge
+      if (Math.abs(s.x - (solid.x + solid.width)) > 2) continue;
+      // Neighbor must not be a slope that tapers to 0 height at its left edge
+      if (isSlopeUp(s) && !isSlopeCeilDown(s)) continue;
+      // If neighbor fully covers the entity's vertical span on the right, the face is internal
+      if (s.y <= entTop && (s.y + s.height) >= entBottom) {
+        return false;
+      }
+    }
+    return true;
   }
 
   // Returns the ground slope (slope_up / slope_down, any material) sitting directly on top of a block, if any.
@@ -6130,48 +6141,95 @@ class PhysicsEngine {
       const v = s.variant || '';
       if (!(s.isSlope || v.includes('slope'))) continue;
       if (v.includes('slope_ceil') || s.slopeDirection === 'ceil_up' || s.slopeDirection === 'ceil_down') continue;
-      if (Math.abs(s.x - solid.x) < 2 && Math.abs((s.y + s.height) - solid.y) < 2) return s;
+      if (Math.abs((s.y + s.height) - solid.y) <= 2 &&
+          (s.x < solid.x + solid.width) && (s.x + s.width > solid.x)) {
+        return s;
+      }
     }
     return null;
   }
 
-  // Blocks the entity against the flat vertical side of a slope wedge.
-  //   slope_up (◢) & slope_ceil_down (◥) -> vertical RIGHT face
-  //   slope_down (◣) & slope_ceil_up (◤) -> vertical LEFT face
-  resolveSlopeWallFace(entity, slope, solids, prevX) {
+  // Resolves horizontal interactions with slopes:
+  // 1. Exterior vertical wall faces
+  // 2. Diagonal ramp faces when jumping or running into a slope
+  resolveSlopeHorizontal(entity, slope, solids, prevX, movingRight, movingLeft) {
     const v = slope.variant || '';
     const dir = slope.slopeDirection ||
       (v.includes('slope_ceil_up') ? 'ceil_up' : v.includes('slope_ceil_down') ? 'ceil_down' :
        v.includes('slope_up') ? 'up' : v.includes('slope_down') ? 'down' : null);
-    const hasRightWall = dir === 'up' || dir === 'ceil_down';
-    const hasLeftWall = dir === 'down' || dir === 'ceil_up';
-    if (!hasRightWall && !hasLeftWall) return;
+    if (!dir) return;
 
     const verticalOverlap = Math.min(entity.y + entity.height, slope.y + slope.height) - Math.max(entity.y, slope.y);
     if (verticalOverlap <= 3) return;
     if (!this.checkOverlap(entity, slope)) return;
 
-    if (hasRightWall) {
-      if (this.hasSolidNeighborRight(slope, solids)) return;
-      const face = slope.x + slope.width;
-      const footY = entity.y + entity.height;
-      if (dir === 'up' && footY <= slope.y + 4) return;
-      if (dir === 'ceil_down' && entity.y >= slope.y + slope.height - 4) return;
+    const footY = entity.y + entity.height;
 
-      if (entity.vx < 0 || entity.x < face) {
-        entity.x = face;
-        if (entity.vx < 0) entity.vx = 0;
+    // 1. Vertical flat wall face of slope:
+    // slope_up (◢) and slope_ceil_down (◥) have a vertical RIGHT wall at slope.x + slope.width
+    if (dir === 'up' || dir === 'ceil_down') {
+      const faceX = slope.x + slope.width;
+      // Entity must be approaching from the right outside the wall
+      const approachingFromRight = (prevX !== undefined) ? (prevX >= faceX - 3) : (entity.x >= faceX - 3);
+      if (approachingFromRight && (movingLeft || entity.x < faceX)) {
+        if (this.isFaceExposedRight(slope, entity, solids)) {
+          entity.x = faceX;
+          if (entity.vx < 0) entity.vx = 0;
+          return;
+        }
       }
-    } else if (hasLeftWall) {
-      if (this.hasSolidNeighborLeft(slope, solids)) return;
-      const face = slope.x;
-      const footY = entity.y + entity.height;
-      if (dir === 'down' && footY <= slope.y + 4) return;
-      if (dir === 'ceil_up' && entity.y >= slope.y + slope.height - 4) return;
+    }
 
-      if (entity.vx > 0 || entity.x + entity.width > face) {
-        entity.x = face - entity.width;
-        if (entity.vx > 0) entity.vx = 0;
+    // slope_down (◣) and slope_ceil_up (◤) have a vertical LEFT wall at slope.x
+    if (dir === 'down' || dir === 'ceil_up') {
+      const faceX = slope.x;
+      // Entity must be approaching from the left outside the wall
+      const approachingFromLeft = (prevX !== undefined) ? (prevX + entity.width <= faceX + 3) : (entity.x + entity.width <= faceX + 3);
+      if (approachingFromLeft && (movingRight || entity.x + entity.width > faceX)) {
+        if (this.isFaceExposedLeft(slope, entity, solids)) {
+          entity.x = faceX - entity.width;
+          if (entity.vx > 0) entity.vx = 0;
+          return;
+        }
+      }
+    }
+
+    // 2. Diagonal ramp face:
+    // When an entity moves horizontally into the diagonal face of a ground slope:
+    // If the entity's feet are within the step-up threshold, allow it to walk up!
+    // But if the entity is airborne or attempting to penetrate into the solid triangle body,
+    // block horizontal movement at the diagonal face!
+    if (dir === 'up') {
+      // slope_up (◢): rises from bottom-left to top-right
+      if (movingRight) {
+        const probeX = Math.max(slope.x, Math.min(slope.x + slope.width, entity.x + entity.width / 2));
+        const relX = (probeX - slope.x) / slope.width;
+        const surfY = slope.y + (1 - relX) * slope.height;
+
+        const stepTolerance = (entity.grounded || entity.standingOnSolid) ? 24 : 12;
+        if (footY > surfY + stepTolerance && footY <= slope.y + slope.height + 4) {
+          const xBarrier = slope.x + (slope.y + slope.height - footY) * (slope.width / slope.height);
+          if (entity.x + entity.width > xBarrier) {
+            entity.x = Math.max(slope.x - entity.width, xBarrier - entity.width);
+            entity.vx = 0;
+          }
+        }
+      }
+    } else if (dir === 'down') {
+      // slope_down (◣): falls from top-left to bottom-right
+      if (movingLeft) {
+        const probeX = Math.max(slope.x, Math.min(slope.x + slope.width, entity.x + entity.width / 2));
+        const relX = (probeX - slope.x) / slope.width;
+        const surfY = slope.y + relX * slope.height;
+
+        const stepTolerance = (entity.grounded || entity.standingOnSolid) ? 24 : 12;
+        if (footY > surfY + stepTolerance && footY <= slope.y + slope.height + 4) {
+          const xBarrier = slope.x + (footY - slope.y) * (slope.width / slope.height);
+          if (entity.x < xBarrier) {
+            entity.x = Math.min(slope.x + slope.width, xBarrier);
+            entity.vx = 0;
+          }
+        }
       }
     }
   }
@@ -6185,65 +6243,62 @@ class PhysicsEngine {
     const isCeilSlope = (s) => isCeilSlopeUp(s) || isCeilSlopeDown(s);
     const isGroundSlope = (s) => isSlope(s) && !isCeilSlope(s);
 
+    const footY = entity.y + entity.height;
+    const prevFootY = prevY !== undefined ? (prevY + entity.height) : (footY - (entity.vy * (dt || 0.016)));
+
     // 1. Handle Walkable Ground Slopes (slope_up and slope_down across all materials)
-    // Find all active ground slopes overlapping entity horizontally AND vertically near the entity's feet
-    const footYInitial = entity.y + entity.height;
     const overlappingGroundSlopes = solids.filter(s =>
       s.active && isGroundSlope(s) &&
       entity.x + entity.width > s.x && entity.x < s.x + s.width &&
-      footYInitial >= s.y - 28 && footYInitial <= s.y + s.height + 32
+      footY >= s.y - 32 && entity.y <= s.y + s.height + 8
     );
 
     if (overlappingGroundSlopes.length > 0) {
       const footX = entity.x + entity.width / 2;
-      const footY = entity.y + entity.height;
-      const prevFootY = prevY !== undefined ? (prevY + entity.height) : (footY - (entity.vy * (dt || 0.016)));
 
       let bestSlope = null;
       let bestSurfaceY = Infinity;
 
-      // Sample the slope surface under the entity's CENTER. When the center is over a slope tile,
-      // only that tile counts — neighbouring tiles touched by the leading edge are ignored.
-      // (Sampling neighbours at their clamped corner made the player pop up ~half a tile each time
-      // its edge crossed into the next slope tile, so climbing looked jumpy / stair-stepped.)
-      // Edge-clamped sampling is kept only as a fallback when no slope is under the center
-      // (e.g. stepping onto the foot of a slope or holding onto a peak's edge).
       const centerSlopes = overlappingGroundSlopes.filter(s => footX >= s.x && footX <= s.x + s.width);
-      const slopeCandidates = centerSlopes.length > 0 ? centerSlopes : overlappingGroundSlopes;
+      const candidates = centerSlopes.length > 0 ? centerSlopes : overlappingGroundSlopes;
 
-      for (const slope of slopeCandidates) {
-        // Robust overlap clamping: minX < maxX and minX <= px <= maxX
-        const minX = Math.max(slope.x, entity.x);
-        const maxX = Math.min(slope.x + slope.width, entity.x + entity.width);
-        const px = Math.max(minX, Math.min(maxX, footX));
+      for (const slope of candidates) {
+        const px = Math.max(slope.x, Math.min(slope.x + slope.width, footX));
         const relX = (px - slope.x) / slope.width;
         const surfY = isSlopeUp(slope)
           ? slope.y + (1 - relX) * slope.height
           : slope.y + relX * slope.height;
 
-        // Interaction condition:
-        // Entity's feet MUST be vertically close to surfY (both above and below bounds!)
-        // so lower platforms or clouds below a higher slope NEVER teleport the player upward.
-        const maxFallStep = Math.max(20, Math.abs(entity.vy * (dt || 0.016)) + 12);
-        const isDescendingOrGrounded = (wasGrounded || wasStandingOnSolid) &&
-          (footY >= surfY - 20) &&
-          (footY <= surfY + 22) &&
-          (prevFootY >= surfY - 24) &&
-          (prevFootY <= surfY + 24);
-        const isLandingFromAbove = (entity.vy >= 0) &&
-          (prevFootY <= surfY + 14) &&
-          (footY >= surfY - 6) &&
-          (footY <= surfY + maxFallStep);
-        const isPenetratingWedge = (footY >= surfY) &&
-          (footY <= surfY + 22) &&
-          (prevFootY <= surfY + 22) &&
-          (prevFootY <= slope.y + slope.height + 6);
+        // 1a. Head bonking on flat bottom of a ground slope when jumping up from below
+        if (entity.vy < 0 && entity.y < slope.y + slope.height && prevY >= slope.y + slope.height - 18) {
+          entity.y = slope.y + slope.height;
+          entity.vy = 0;
+          continue;
+        }
 
-        if (entity.vy >= -60 && (isDescendingOrGrounded || isLandingFromAbove || isPenetratingWedge)) {
-          // If multiple slopes overlap near the entity's feet, pick the highest support surface (smallest Y)
-          if (surfY < bestSurfaceY) {
-            bestSurfaceY = surfY;
-            bestSlope = slope;
+        // 1b. Standing, walking, or landing on the diagonal surface
+        if (entity.vy >= -60) {
+          // Downhill snapping or uphill walking:
+          // If entity was grounded or standing on solid, snap to slope surface within 36px
+          const isWalkingSlope = (wasGrounded || wasStandingOnSolid) &&
+            (footY >= surfY - 24) &&
+            (footY <= surfY + 36);
+
+          // Landing from above: previously above surface and feet reached or passed surface
+          const maxFallStep = Math.max(24, Math.abs(entity.vy * (dt || 0.016)) + 16);
+          const isLanding = (prevFootY <= surfY + 16) &&
+            (footY >= surfY - 10) &&
+            (footY <= surfY + maxFallStep);
+
+          // Feet slightly penetrating top of wedge
+          const isPenetrating = (footY >= surfY) &&
+            (footY <= surfY + 32);
+
+          if (isWalkingSlope || isLanding || isPenetrating) {
+            if (surfY < bestSurfaceY) {
+              bestSurfaceY = surfY;
+              bestSlope = slope;
+            }
           }
         }
       }
@@ -6256,14 +6311,13 @@ class PhysicsEngine {
       }
     }
 
-    // 1b. Handle Inverted / Ceiling Slopes (slope_ceil_up and slope_ceil_down)
+    // 2. Handle Inverted / Ceiling Slopes (slope_ceil_up and slope_ceil_down)
     for (const solid of solids) {
       if (!solid.active || !isCeilSlope(solid)) continue;
 
       if (entity.x + entity.width > solid.x && entity.x < solid.x + solid.width) {
         const probeX = Math.max(solid.x, Math.min(solid.x + solid.width, entity.x + entity.width / 2));
         const relX = (probeX - solid.x) / solid.width;
-        // Diagonal underside ceiling height at probeX
         const ceilY = isCeilSlopeUp(solid)
           ? solid.y + (1 - relX) * solid.height
           : solid.y + relX * solid.height;
@@ -6286,17 +6340,16 @@ class PhysicsEngine {
       }
     }
 
+    // 3. Handle Standard Solids & One-Way Platforms
     for (const solid of solids) {
       if (!solid.active) continue;
-      // Slopes (ground and ceiling) are already resolved above
       if (isSlope(solid)) continue;
 
-      // 2. Handle One-Way Platforms (Cloud Platforms & Semi-Solid Boardwalks)
+      // One-way platforms (cloud & semisolid)
       if (solid.isOneWay || solid.variant === 'cloud' || solid.variant === 'semisolid') {
         if (entity.vy > 0 && this.checkOverlap(entity, solid)) {
-          // Only land if entity was previously at or above top edge
-          const prevFootY = prevY !== undefined ? (prevY + entity.height) : (entity.y + entity.height - (entity.vy * (dt || 0.016)));
-          if (prevFootY <= solid.y + 12) {
+          const pFootY = prevY !== undefined ? (prevY + entity.height) : (entity.y + entity.height - (entity.vy * (dt || 0.016)));
+          if (pFootY <= solid.y + 12) {
             entity.y = solid.y - entity.height;
             entity.vy = 0;
             entity.grounded = true;
@@ -6307,37 +6360,28 @@ class PhysicsEngine {
       }
 
       if (this.checkOverlap(entity, solid)) {
-        // A block directly under a ground slope has an internal top face — the slope diagonal is the
-        // real surface. Never snap the player onto it.
         const coveredTop = this.getCoveringGroundSlope(solid, solids);
         if (coveredTop && entity.vy >= 0) continue;
 
         if (entity.vy > 0 || (entity.grounded && (entity.y + entity.height) > solid.y)) {
-          // Landing on top of solid:
-          // Ensure entity entered from above the solid's top surface and feet are near solid.y
-          const footY = entity.y + entity.height;
-          const prevFootY = prevY !== undefined ? (prevY + entity.height) : (footY - (entity.vy * (dt || 0.016)));
-          const maxStepDown = Math.max(16, (entity.vy * (dt || 0.016)) + 6);
-          if (prevFootY <= solid.y + maxStepDown && footY <= solid.y + maxStepDown + 8) {
+          const cFootY = entity.y + entity.height;
+          const pFootY = prevY !== undefined ? (prevY + entity.height) : (cFootY - (entity.vy * (dt || 0.016)));
+          const maxStepDown = Math.max(16, (entity.vy * (dt || 0.016)) + 8);
+          if (pFootY <= solid.y + maxStepDown && cFootY <= solid.y + maxStepDown + 8) {
             entity.y = solid.y - entity.height;
             entity.standingOnSolid = solid;
 
-            // Note Block super bounce (♪)
             if (solid.variant === 'note') {
               entity.vy = -860;
               entity.grounded = false;
               if (solid.bump) solid.bump();
-            }
-            // Donut Lift trigger
-            else if (solid.variant === 'donut') {
+            } else if (solid.variant === 'donut') {
               if (solid.shakeTimer === 0 && !solid.isDropping) {
                 solid.shakeTimer = 0.01;
               }
               entity.vy = 0;
               entity.grounded = true;
-            }
-            // Apply surface bounciness if configured
-            else if (solid.bounciness && solid.bounciness > 0.05) {
+            } else if (solid.bounciness && solid.bounciness > 0.05) {
               entity.vy = -entity.vy * solid.bounciness;
               if (Math.abs(entity.vy) < 80) {
                 entity.vy = 0;
@@ -6350,40 +6394,18 @@ class PhysicsEngine {
           }
         } else if (entity.vy < 0) {
           // Bonking head on bottom of solid
-          // 1. Verify this is not a plateau block connected to an adjacent slope on the side the entity is approaching from
-          const connectedSlopeUp = solids.some(s =>
-            s.active && isSlopeUp(s) &&
-            Math.abs((s.x + s.width) - solid.x) <= 2 &&
-            Math.abs(s.y - solid.y) <= 2
-          );
-          const connectedSlopeDown = solids.some(s =>
-            s.active && isSlopeDown(s) &&
-            Math.abs(s.x - (solid.x + solid.width)) <= 2 &&
-            Math.abs(s.y - solid.y) <= 2
-          );
-
-          const footX = entity.x + entity.width / 2;
-          const isApproachingFromSlopeUp = connectedSlopeUp && footX <= solid.x + 8;
-          const isApproachingFromSlopeDown = connectedSlopeDown && footX >= solid.x + solid.width - 8;
-
-          // 2. Verify entity's head actually struck the bottom edge from underneath
           const solidBottom = solid.y + solid.height;
           const prevHeadY = prevY !== undefined ? prevY : (entity.y - (entity.vy * (dt || 0.016)));
           const maxStepUp = Math.max(16, Math.abs(entity.vy * (dt || 0.016)) + 6);
-
-          // Head must have been at/below bottom of solid before the step and feet cannot be near top of solid
           const struckFromBelow = (prevHeadY >= solidBottom - maxStepUp) &&
                                   (entity.y >= solidBottom - 16) &&
                                   (entity.y + entity.height > solidBottom);
-
-          // Entity must have meaningful horizontal overlap under the block (not just grazing vertical side)
           const horizAligned = (entity.x + entity.width > solid.x + 4) && (entity.x < solid.x + solid.width - 4);
 
-          if (struckFromBelow && horizAligned && !isApproachingFromSlopeUp && !isApproachingFromSlopeDown) {
+          if (struckFromBelow && horizAligned) {
             entity.y = solidBottom;
             entity.vy = 0;
 
-            // Trigger Mystery Block [?] bump when bonked from below
             if (solid.bump && !solid.isUsed) {
               try {
                 solid.bump();
@@ -6396,7 +6418,7 @@ class PhysicsEngine {
       }
     }
 
-    // Safety grounding check: if feet are resting on top surface of solid/slope within 4px and downward/neutral vy
+    // Safety grounding check: if feet are resting on top surface of solid/slope within 4px
     if (!entity.grounded && entity.vy >= 0) {
       for (const solid of solids) {
         if (!solid.active) continue;
@@ -6423,20 +6445,17 @@ class PhysicsEngine {
         );
         for (const slope of solids) {
           if (!slope.active || !isGroundSlope(slope)) continue;
-          // Same center-first rule as the main slope pass (prevents neighbour-tile pops)
           if (centerOnAnySlope && !(safetyFootX >= slope.x && safetyFootX <= slope.x + slope.width)) continue;
           if (entity.x + entity.width > slope.x && entity.x < slope.x + slope.width) {
-            const minX = Math.max(slope.x, entity.x);
-            const maxX = Math.min(slope.x + slope.width, entity.x + entity.width);
             const footX = entity.x + entity.width / 2;
-            const px = Math.max(minX, Math.min(maxX, footX));
+            const px = Math.max(slope.x, Math.min(slope.x + slope.width, footX));
             const relX = (px - slope.x) / slope.width;
             const surfY = isSlopeUp(slope)
               ? slope.y + (1 - relX) * slope.height
               : slope.y + relX * slope.height;
 
-            const footY = entity.y + entity.height;
-            if (Math.abs(footY - surfY) <= 6) {
+            const curFootY = entity.y + entity.height;
+            if (Math.abs(curFootY - surfY) <= 8) {
               entity.y = surfY - entity.height;
               entity.vy = 0;
               entity.grounded = true;
@@ -6444,6 +6463,37 @@ class PhysicsEngine {
               break;
             }
           }
+        }
+      }
+    }
+  }
+
+  // Safety: Eject any entity that somehow ended up inside the solid wedge of a slope
+  resolveSlopeEntrapment(entity, solids) {
+    const isGroundSlope = (s) => s && (s.isSlope || s.variant?.includes('slope')) &&
+      !s.slopeDirection?.includes('ceil') && !s.variant?.includes('slope_ceil');
+
+    for (const slope of solids) {
+      if (!slope.active || !isGroundSlope(slope)) continue;
+      const dir = slope.slopeDirection || (slope.variant?.includes('slope_up') ? 'up' : 'down');
+
+      // Check if entity is inside slope bounding box
+      if (entity.x + entity.width > slope.x && entity.x < slope.x + slope.width &&
+          entity.y + entity.height > slope.y && entity.y < slope.y + slope.height) {
+        const footX = Math.max(slope.x, Math.min(slope.x + slope.width, entity.x + entity.width / 2));
+        const relX = (footX - slope.x) / slope.width;
+        const surfY = dir === 'up'
+          ? slope.y + (1 - relX) * slope.height
+          : slope.y + relX * slope.height;
+
+        const curFootY = entity.y + entity.height;
+        // If entity's feet are beneath the surface and inside the wedge
+        if (curFootY > surfY && entity.y < slope.y + slope.height) {
+          entity.y = surfY - entity.height;
+          if (entity.vy > 0) entity.vy = 0;
+          entity.grounded = true;
+          entity.standingOnSolid = slope;
+          break;
         }
       }
     }
