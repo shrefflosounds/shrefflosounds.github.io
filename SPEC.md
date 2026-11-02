@@ -4,7 +4,7 @@
 **Creator:** John O'Brien  
 **Lead AI Architect:** Antigravity (Agy)  
 **Target Milestone:** Full Working Demo Live on GitHub Pages by Monday  
-**Repository Directory:** `/Users/johnobrien/Documents/antigravity/sidehop`
+**Repository:** `sidehop`
 
 ---
 
@@ -109,7 +109,7 @@
 ## 5. Technical Architecture & Tech Stack
 
 ```
-/Users/johnobrien/Documents/antigravity/sidehop/
+sidehop/
 ├── index.html              # Main responsive Neo-Brutalist workbench & canvas HUD
 ├── css/
 │   └── style.css           # Neo-Brutalist theme (thick borders, offset shadows, animations)
