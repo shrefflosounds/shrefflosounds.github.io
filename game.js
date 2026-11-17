@@ -8032,7 +8032,7 @@ window.game = this;
       const vendingGroup = new THREE.Group();
       // Sits at z = 13.42: the 0.4m-thick back wall's inner face is z = 13.8, so a 1.4m-deep
       // cabinet must stay south of 13.8 or it buries itself in the wall.
-      vendingGroup.position.set(-1.6, 0, 5.42);
+      vendingGroup.position.set(1.8, 0, 9.02);
 
       // Dimensions derived from artwork's aspect (1793 x 2924 = 0.613) so nothing stretches
       const VEND_W = 1.20;
@@ -8055,7 +8055,7 @@ window.game = this;
         vendingGroup.add(rail);
       });
 
-      const vendingTex = this.texLoader.load('assets/textures/vending_machine.png', (tx) => {
+      const vendingTex = this.texLoader.load('assets/textures/vending.png', (tx) => {
         if (typeof THREE.sRGBEncoding !== 'undefined') tx.encoding = THREE.sRGBEncoding;
         else if (typeof THREE.SRGBColorSpace !== 'undefined') tx.colorSpace = THREE.SRGBColorSpace;
         tx.anisotropy = 8;
